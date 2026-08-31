@@ -42,7 +42,7 @@ button {
 
 .bg-logo {
   position: fixed;
-  top: 8vh;
+  top: 16vh;
   left: 50%;
   transform: translateX(-52%);
   width: min(90vw, 1100px);
@@ -85,10 +85,16 @@ button {
 }
 
 .header-logo {
-  width: min(70vw, 260px);
+  width: min(75vw, 340px);
   height: auto;
   margin: 0 auto;
   display: block;
+}
+
+@media (min-width: 900px) {
+  .header-logo {
+    width: min(30vw, 420px);
+  }
 }
 
 .tagline {
