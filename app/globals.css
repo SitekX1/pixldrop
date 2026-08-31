@@ -1,0 +1,375 @@
+:root {
+  --navy: #1b2a6b;
+  --navy-dark: #0f1b4d;
+  --violet: #5b2a9e;
+  --violet-light: #7b4fc4;
+  --cyan: #2fc2e8;
+  --cyan-light: #8fe6f7;
+  --bg: #f6f7fc;
+  --card: #ffffff;
+  --text: #171a2e;
+  --text-muted: #5a5f7a;
+  --border: #e4e6f5;
+  --sitekx-grey: #8a8a93;
+  --sitekx-orange: #f2542d;
+  --gradient: linear-gradient(135deg, var(--navy) 0%, var(--violet) 55%, var(--cyan) 100%);
+  --shadow-card: 0 4px 20px rgba(27, 42, 107, 0.08);
+  --shadow-card-hover: 0 10px 30px rgba(27, 42, 107, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+.bg-logo {
+  position: fixed;
+  top: -4vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(120vw, 900px);
+  height: auto;
+  opacity: 0.09;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 18px 60px;
+}
+
+.eyebrow {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.wordmark {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+}
+
+.tagline {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 6px 0 0;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 16px 14px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
+.social-row {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.social-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.social-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.social-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.scroll-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 18px 0 26px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.scroll-hint svg {
+  width: 18px;
+  height: 18px;
+  animation: bounce 1.6s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+.bento {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 560px) {
+  .bento {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card-wide {
+  grid-column: span 2;
+}
+
+.card-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: 24px;
+  padding: 1px;
+  background: var(--gradient);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.song-cover {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  background: var(--navy-dark);
+}
+
+.song-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.song-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0 0 8px;
+}
+
+.spotify-embed {
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.spotify-artist-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.spotify-artist-card .label {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.spotify-artist-card .sub {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gradient);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 10px 18px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.aicut-card {
+  grid-column: span 2;
+  background: var(--navy-dark);
+  color: #fff;
+  border: none;
+}
+
+.aicut-card .eyebrow-small {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cyan-light);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.aicut-card h3 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.aicut-card p {
+  margin: 0 0 14px;
+  color: #c8cbe6;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.aicut-card .pill-btn {
+  background: linear-gradient(135deg, var(--cyan), var(--violet-light));
+}
+
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 30px 18px 50px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.footer-links a:hover {
+  color: var(--navy);
+}
+
+.powered-by {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.powered-by .sitek {
+  color: var(--sitekx-grey);
+  font-weight: 600;
+}
+
+.powered-by .x {
+  color: var(--sitekx-orange);
+  font-weight: 800;
+}
+
+.legal-page {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 50px 20px 80px;
+  line-height: 1.6;
+}
+
+.legal-page h1 {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.legal-page a {
+  color: var(--navy);
+  text-decoration: underline;
+}
+
+.legal-page .back {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+@media (min-width: 480px) {
+  .wordmark {
+    font-size: 2.8rem;
+  }
+}
