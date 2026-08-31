@@ -44,7 +44,7 @@ button {
   position: fixed;
   top: -4vh;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-54%);
   width: min(90vw, 1100px);
   height: auto;
   opacity: 0.14;
