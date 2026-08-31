@@ -2,11 +2,11 @@ import Image from "next/image";
 import TikTokStats from "@/components/TikTokStats";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
 import TrackedLink from "@/components/TrackedLink";
+import SpotifyLinkButton from "@/components/SpotifyLinkButton";
 import {
   TikTokIcon,
   InstagramIcon,
   YouTubeIcon,
-  SpotifyIcon,
   ChevronDown,
   ExternalArrow,
 } from "@/components/Icons";
@@ -127,16 +127,7 @@ export default function Home() {
               <div className="label">Alle Songs auf Spotify</div>
               <div className="sub">Der komplette Katalog &amp; alles Neue zuerst</div>
             </div>
-            <TrackedLink
-              href={LINKS.spotifyArtist}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="pill-btn"
-              event="spotify-artist-click"
-            >
-              <SpotifyIcon />
-              Profil
-            </TrackedLink>
+            <SpotifyLinkButton href={LINKS.spotifyArtist} />
           </div>
 
           {SONGS.map((song) => (
