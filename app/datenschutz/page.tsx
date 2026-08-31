@@ -30,7 +30,17 @@ export default function Datenschutz() {
         am sicheren und stabilen Betrieb der Website).
       </p>
 
-      <h2>3. Eingebettete Inhalte Dritter</h2>
+      <h2>3. Reichweitenmessung (Klick-Statistik)</h2>
+      <p>
+        Wir zählen, wie oft bestimmte Links auf dieser Seite angeklickt werden (z. B.
+        Musik-Links, Social-Media-Links, aicut-Link), um zu sehen, welche Inhalte gut ankommen.
+        Dabei wird nur der Klick selbst mit Zeitstempel gespeichert, keine IP-Adresse, keine
+        Cookies und kein personenbezogenes Nutzerprofil. Die Daten werden bei Supabase Inc.
+        (Serverstandort EU/Irland) gespeichert. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO
+        (berechtigtes Interesse an der Analyse und Verbesserung unseres Angebots).
+      </p>
+
+      <h2>4. Eingebettete Inhalte Dritter</h2>
       <p>
         Auf dieser Seite sind Musik-Player von Spotify eingebettet. Beim Laden eines
         eingebetteten Spotify-Players kann Spotify (Spotify AB) technische Daten wie deine
@@ -42,7 +52,7 @@ export default function Datenschutz() {
         .
       </p>
 
-      <h2>4. Affiliate-Links</h2>
+      <h2>5. Affiliate-Links</h2>
       <p>
         Diese Seite enthält einen Affiliate-Link zu aicut.pro. Beim Klick auf diesen Link wird
         ggf. ein Tracking-Parameter an den Anbieter übermittelt, damit dieser eine Vermittlung
@@ -50,7 +60,7 @@ export default function Datenschutz() {
         weitergegeben.
       </p>
 
-      <h2>5. Deine Rechte</h2>
+      <h2>6. Deine Rechte</h2>
       <p>
         Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung,
         Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung deiner personenbezogenen

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackClick } from "@/lib/track";
 import { SpotifyIcon } from "./Icons";
 
 export default function SpotifyEmbed({
@@ -32,7 +33,10 @@ export default function SpotifyEmbed({
     <button
       type="button"
       className="spotify-placeholder"
-      onClick={() => setLoaded(true)}
+      onClick={() => {
+        trackClick("spotify-embed-load", { song: title });
+        setLoaded(true);
+      }}
     >
       <span className="spotify-placeholder-icon">
         <SpotifyIcon />

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import TikTokStats from "@/components/TikTokStats";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
+import TrackedLink from "@/components/TrackedLink";
 import {
   TikTokIcon,
   InstagramIcon,
@@ -61,33 +62,39 @@ export default function Home() {
         <p className="trust-note">Danke für euer Vertrauen in PixlDrop 🙏</p>
 
         <div className="social-row">
-          <a
+          <TrackedLink
             href={LINKS.tiktok}
             target="_blank"
             rel="noopener noreferrer"
             className="social-icon"
+            event="social-click"
+            eventData={{ platform: "tiktok" }}
             aria-label="TikTok"
           >
             <TikTokIcon />
-          </a>
-          <a
+          </TrackedLink>
+          <TrackedLink
             href={LINKS.instagram}
             target="_blank"
             rel="noopener noreferrer"
             className="social-icon"
+            event="social-click"
+            eventData={{ platform: "instagram" }}
             aria-label="Instagram"
           >
             <InstagramIcon />
-          </a>
-          <a
+          </TrackedLink>
+          <TrackedLink
             href={LINKS.youtube}
             target="_blank"
             rel="noopener noreferrer"
             className="social-icon"
+            event="social-click"
+            eventData={{ platform: "youtube" }}
             aria-label="YouTube"
           >
             <YouTubeIcon />
-          </a>
+          </TrackedLink>
         </div>
 
         <div className="scroll-hint">
@@ -96,11 +103,12 @@ export default function Home() {
         </div>
 
         <section className="bento">
-          <a
+          <TrackedLink
             href={LINKS.aicut}
             target="_blank"
             rel="noopener noreferrer"
             className="card aicut-card"
+            event="aicut-click"
           >
             <div className="card-glow" />
             <div className="eyebrow-small">So mache ich meine Videos</div>
@@ -112,22 +120,23 @@ export default function Home() {
             <span className="pill-btn">
               Jetzt entdecken <ExternalArrow />
             </span>
-          </a>
+          </TrackedLink>
 
           <div className="card card-wide spotify-artist-card">
             <div>
               <div className="label">Alle Songs auf Spotify</div>
               <div className="sub">Der komplette Katalog &amp; alles Neue zuerst</div>
             </div>
-            <a
+            <TrackedLink
               href={LINKS.spotifyArtist}
               target="_blank"
               rel="noopener noreferrer"
               className="pill-btn"
+              event="spotify-artist-click"
             >
               <SpotifyIcon />
               Profil
-            </a>
+            </TrackedLink>
           </div>
 
           {SONGS.map((song) => (
