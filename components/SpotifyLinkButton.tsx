@@ -29,16 +29,24 @@ async function copyToClipboard(text: string): Promise<boolean> {
   }
 }
 
+function detectInAppBrowser(): string | null {
+  const ua = navigator.userAgent || "";
+  if (/TikTok|BytedanceWebview|musical_ly/i.test(ua)) return "TikTok";
+  if (/Instagram/i.test(ua)) return "Instagram";
+  if (/FBAN|FBAV/i.test(ua)) return "Facebook";
+  return null;
+}
+
 export default function SpotifyLinkButton({ href }: { href: string }) {
-  const [inApp, setInApp] = useState(false);
+  const [appName, setAppName] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const ua = navigator.userAgent || "";
-    setInApp(/TikTok|BytedanceWebview|musical_ly|Instagram|FBAN|FBAV/i.test(ua));
+    setAppName(detectInAppBrowser());
   }, []);
 
-  if (!inApp) {
+  if (!appName) {
     return (
       <a
         href={href}
@@ -53,24 +61,51 @@ export default function SpotifyLinkButton({ href }: { href: string }) {
     );
   }
 
-  async function handleClick() {
+  function openModal() {
     trackClick("spotify-artist-click");
+    setModalOpen(true);
+  }
+
+  async function handleCopy() {
     const ok = await copyToClipboard(href);
     if (ok) {
       setCopied(true);
-      setTimeout(() => setCopied(false), 4000);
+      setTimeout(() => setCopied(false), 3000);
     }
   }
 
   return (
-    <div className="spotify-copy-wrap">
-      <button type="button" onClick={handleClick} className="pill-btn">
+    <>
+      <button type="button" className="pill-btn" onClick={openModal}>
         <SpotifyIcon />
-        {copied ? "Kopiert!" : "Link kopieren"}
+        Profil
       </button>
-      {copied && (
-        <div className="spotify-copy-hint">Jetzt im Browser einfügen (nicht in dieser App)</div>
+
+      {modalOpen && (
+        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close"
+              onClick={() => setModalOpen(false)}
+              aria-label="Schließen"
+            >
+              ✕
+            </button>
+            <div className="modal-icon">
+              <SpotifyIcon />
+            </div>
+            <h3>Du bist im {appName}-Browser</h3>
+            <p>
+              Spotify lässt sich hier leider nicht direkt öffnen. Kopier den Link und füg ihn in
+              deinem normalen Browser (Chrome, Safari, ...) ein, um direkt zu Spotify zu kommen.
+            </p>
+            <button type="button" className="pill-btn modal-copy-btn" onClick={handleCopy}>
+              {copied ? "Kopiert! ✓" : "Link kopieren"}
+            </button>
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 }
