@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --navy: #1b2a6b;
   --navy-dark: #0f1b4d;
   --violet: #5b2a9e;
@@ -224,7 +224,7 @@ button {
 }
 
 .card-wide {
-  grid-column: span 2;
+  grid-column: 1 / -1;
 }
 
 .card-glow {
@@ -300,7 +300,7 @@ button {
 }
 
 .aicut-card {
-  grid-column: span 2;
+  grid-column: 1 / -1;
   background: var(--navy-dark);
   color: #fff;
   border: none;
