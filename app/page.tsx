@@ -38,7 +38,14 @@ export default function Home() {
 
       <main className="page">
         <div className="eyebrow">
-          <h1 className="wordmark">PixlDrop</h1>
+          <Image
+            src="/pixldrop-header-logo.png"
+            alt="PixlDrop"
+            width={1024}
+            height={1024}
+            className="header-logo"
+            priority
+          />
           <p className="tagline">CGI-Tiere mit zu vielen Gefühlen. 100% digital, 0% echt.</p>
         </div>
 
