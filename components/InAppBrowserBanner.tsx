@@ -2,26 +2,45 @@
 
 import { useEffect, useState } from "react";
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Sequenced multi-scheme escape attempts, adapted from the community-tested
+// approach at https://github.com/untitaker/in-app-browser-framebreaker —
+// no single scheme works across all in-app browsers/OS versions, so we try
+// several in order and let the first one that resolves win.
+async function breakout() {
+  const url = window.location.href;
+  const bareUrl = window.location.hostname + window.location.pathname;
+
+  // iOS
+  window.location.href = "opera-" + url;
+  await sleep(10);
+  window.location.href = "firefox://open-url?url=" + url;
+  await sleep(10);
+  window.location.href =
+    "googlechrome" + (window.location.protocol === "https:" ? "s" : "") + "://" + bareUrl;
+  await sleep(10);
+
+  // Android — generic intent, no forced package, opens whatever handles https VIEW
+  window.location.href = "intent:" + url + "#Intent;end";
+  await sleep(10);
+  window.location.href = "googlechrome://navigate?url=" + window.location.hostname;
+}
+
 export default function InAppBrowserBanner() {
   const [visible, setVisible] = useState(false);
-  const [isAndroid, setIsAndroid] = useState(false);
 
   useEffect(() => {
     const ua = navigator.userAgent || "";
     const inApp = /TikTok|BytedanceWebview|musical_ly|Instagram|FBAN|FBAV/i.test(ua);
     if (inApp && !sessionStorage.getItem("hideInAppBanner")) {
-      setIsAndroid(/Android/i.test(ua));
       setVisible(true);
     }
   }, []);
 
   if (!visible) return null;
-
-  function openExternally() {
-    const target = window.location.href.replace(/^https?:\/\//, "");
-    const fallback = encodeURIComponent("https://play.google.com/store/apps/details?id=com.android.chrome");
-    window.location.href = `intent://${target}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fallback};end;`;
-  }
 
   function dismiss() {
     setVisible(false);
@@ -35,11 +54,9 @@ export default function InAppBrowserBanner() {
         der Button nichts tut: oben rechts auf <strong>⋯</strong> tippen →{" "}
         <strong>„Im Browser öffnen"</strong>.
       </span>
-      {isAndroid && (
-        <button onClick={openExternally} className="inapp-banner-btn">
-          Im Browser öffnen
-        </button>
-      )}
+      <button onClick={breakout} className="inapp-banner-btn">
+        Im Browser öffnen
+      </button>
       <button onClick={dismiss} className="inapp-banner-close" aria-label="Schließen">
         ✕
       </button>
