@@ -1,22 +1,22 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
-export const metadata = { title: "Impressum — PixlDrop" };
+export const metadata = { title: "Impressum â€” PixlDrop" };
 
 export default function Impressum() {
   return (
     <div className="legal-page">
       <Link href="/" className="back">
-        ← Zurück
+        â† ZurÃ¼ck
       </Link>
       <h1>Impressum</h1>
 
-      <p>Angaben gemäß § 5 TMG:</p>
+      <p>Angaben gemÃ¤ÃŸ Â§ 5 TMG:</p>
       <p>
-        Alex Sitek
+        Alexander Sitek
         <br />
-        Richard-Strauss-Straße 4
+        Richard-Strauss-StraÃŸe 4
         <br />
-        86663 Asbach-Bäumenheim
+        86663 Asbach-BÃ¤umenheim
         <br />
         Deutschland
       </p>
@@ -28,30 +28,30 @@ export default function Impressum() {
       </p>
 
       <p>
-        <strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</strong>
+        <strong>Verantwortlich fÃ¼r den Inhalt nach Â§ 55 Abs. 2 RStV</strong>
         <br />
-        Alex Sitek (Anschrift wie oben)
+        Alexander Sitek (Anschrift wie oben)
       </p>
 
       <h2>Haftungsausschluss</h2>
       <p>
-        <strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG
-        für eigene Inhalte auf dieser Website nach den allgemeinen Gesetzen verantwortlich. Nach
-        §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder
-        gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf
-        eine rechtswidrige Tätigkeit hinweisen.
+        <strong>Haftung fÃ¼r Inhalte:</strong> Als Diensteanbieter sind wir gemÃ¤ÃŸ Â§ 7 Abs. 1 TMG
+        fÃ¼r eigene Inhalte auf dieser Website nach den allgemeinen Gesetzen verantwortlich. Nach
+        Â§Â§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, Ã¼bermittelte oder
+        gespeicherte fremde Informationen zu Ã¼berwachen oder nach UmstÃ¤nden zu forschen, die auf
+        eine rechtswidrige TÃ¤tigkeit hinweisen.
       </p>
       <p>
-        <strong>Haftung für Links:</strong> Diese Website enthält Links zu externen Websites
+        <strong>Haftung fÃ¼r Links:</strong> Diese Website enthÃ¤lt Links zu externen Websites
         Dritter (u. a. Spotify, TikTok, Instagram, YouTube, aicut.pro), auf deren Inhalte wir
-        keinen Einfluss haben. Für diese fremden Inhalte können wir daher keine Gewähr
-        übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder
+        keinen Einfluss haben. FÃ¼r diese fremden Inhalte kÃ¶nnen wir daher keine GewÃ¤hr
+        Ã¼bernehmen. FÃ¼r die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder
         Betreiber der Seiten verantwortlich.
       </p>
       <p>
         Einige der auf dieser Seite verlinkten Angebote sind Affiliate-Links (z. B. zu
-        aicut.pro). Bei einer Registrierung oder einem Kauf über diesen Link können wir eine
-        Provision erhalten, ohne dass für dich dadurch zusätzliche Kosten entstehen.
+        aicut.pro). Bei einer Registrierung oder einem Kauf Ã¼ber diesen Link kÃ¶nnen wir eine
+        Provision erhalten, ohne dass fÃ¼r dich dadurch zusÃ¤tzliche Kosten entstehen.
       </p>
     </div>
   );
