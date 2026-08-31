@@ -19,7 +19,8 @@ export default function InAppBrowserBanner() {
 
   function openExternally() {
     const target = window.location.href.replace(/^https?:\/\//, "");
-    window.location.href = `intent://${target}#Intent;scheme=https;action=android.intent.action.VIEW;end;`;
+    const fallback = encodeURIComponent("https://play.google.com/store/apps/details?id=com.android.chrome");
+    window.location.href = `intent://${target}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fallback};end;`;
   }
 
   function dismiss() {
@@ -30,14 +31,9 @@ export default function InAppBrowserBanner() {
   return (
     <div className="inapp-banner">
       <span>
-        📱 Du bist im In-App-Browser unterwegs — Spotify-Links funktionieren dort oft nicht.{" "}
-        {isAndroid ? (
-          "Tipp unten:"
-        ) : (
-          <>
-            Tipp: oben rechts auf <strong>⋯</strong> tippen → <strong>„Im Browser öffnen"</strong>.
-          </>
-        )}
+        📱 Du bist im In-App-Browser unterwegs — Spotify-Links funktionieren dort oft nicht. Falls
+        der Button nichts tut: oben rechts auf <strong>⋯</strong> tippen →{" "}
+        <strong>„Im Browser öffnen"</strong>.
       </span>
       {isAndroid && (
         <button onClick={openExternally} className="inapp-banner-btn">
