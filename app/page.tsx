@@ -1,5 +1,6 @@
 import Image from "next/image";
 import TikTokStats from "@/components/TikTokStats";
+import SpotifyEmbed from "@/components/SpotifyEmbed";
 import {
   TikTokIcon,
   InstagramIcon,
@@ -140,17 +141,7 @@ export default function Home() {
           {SONGS.map((song) => (
             <div className="card" key={song.trackId}>
               <div className="song-title">{song.title}</div>
-              <div className="spotify-embed">
-                <iframe
-                  src={`https://open.spotify.com/embed/track/${song.trackId}?utm_source=generator&theme=0`}
-                  width="100%"
-                  height="152"
-                  frameBorder="0"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                  title={song.title}
-                />
-              </div>
+              <SpotifyEmbed trackId={song.trackId} title={song.title} />
             </div>
           ))}
         </section>

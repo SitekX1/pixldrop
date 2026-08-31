@@ -268,6 +268,45 @@ button {
   width: 100%;
 }
 
+.spotify-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--navy-dark);
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: filter 0.15s ease;
+}
+
+.spotify-placeholder:hover {
+  filter: brightness(1.15);
+}
+
+.spotify-placeholder-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.spotify-placeholder-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.spotify-placeholder-text small {
+  color: #b7bade;
+  font-weight: 400;
+  font-size: 0.72rem;
+}
+
 .spotify-artist-card {
   display: flex;
   align-items: center;
