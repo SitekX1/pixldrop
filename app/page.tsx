@@ -28,10 +28,10 @@ export default function Home() {
   return (
     <>
       <Image
-        src="/pixldrop-logo.webp"
+        src="/pixldrop-logo-transparent.png"
         alt=""
-        width={500}
-        height={500}
+        width={868}
+        height={628}
         className="bg-logo"
         priority
       />
