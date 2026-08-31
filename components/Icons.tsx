@@ -1,37 +1,46 @@
 export function TikTokIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <rect width="48" height="48" rx="11" fill="#000" />
       <path
-        d="M16.5 3c.3 2.1 1.6 3.6 3.5 4v3c-1.3.1-2.5-.3-3.5-1v6.4c0 3.5-2.8 6.1-6.2 6.1S4.1 18.9 4.1 15.4c0-3.4 2.7-6.1 6.1-6.1.3 0 .6 0 .9.1v3.1a3 3 0 1 0 2.2 2.9V3h3.2Z"
-        fill="#000"
+        d="M31.5 12.5c1 2.6 3 4.4 5.9 4.8v4.4c-2.1.1-4-.5-5.9-1.7v9.3c0 5.4-4.4 9.7-9.7 9.7s-9.7-4.3-9.7-9.7 4.4-9.7 9.7-9.7c.5 0 1 0 1.5.1v4.5c-.5-.2-1-.3-1.5-.3-2.8 0-5.1 2.3-5.1 5.1s2.3 5.1 5.1 5.1 5.3-2.2 5.3-5v-16.6h4.4Z"
+        fill="#25F4EE"
+        transform="translate(-1.1,-0.9)"
       />
+      <path
+        d="M31.5 12.5c1 2.6 3 4.4 5.9 4.8v4.4c-2.1.1-4-.5-5.9-1.7v9.3c0 5.4-4.4 9.7-9.7 9.7s-9.7-4.3-9.7-9.7 4.4-9.7 9.7-9.7c.5 0 1 0 1.5.1v4.5c-.5-.2-1-.3-1.5-.3-2.8 0-5.1 2.3-5.1 5.1s2.3 5.1 5.1 5.1 5.3-2.2 5.3-5v-16.6h4.4Z"
+        fill="#FE2C55"
+        transform="translate(1.1,0.9)"
+      />
+      <path d="M31.5 12.5c1 2.6 3 4.4 5.9 4.8v4.4c-2.1.1-4-.5-5.9-1.7v9.3c0 5.4-4.4 9.7-9.7 9.7s-9.7-4.3-9.7-9.7 4.4-9.7 9.7-9.7c.5 0 1 0 1.5.1v4.5c-.5-.2-1-.3-1.5-.3-2.8 0-5.1 2.3-5.1 5.1s2.3 5.1 5.1 5.1 5.3-2.2 5.3-5v-16.6h4.4Z" fill="#fff" />
     </svg>
   );
 }
 
 export function InstagramIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="3" width="18" height="18" rx="5" fill="url(#ig-grad)" />
+    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <rect width="48" height="48" rx="11" fill="url(#ig-grad)" />
       <defs>
-        <linearGradient id="ig-grad" x1="0" y1="24" x2="24" y2="0">
+        <linearGradient id="ig-grad" x1="0" y1="48" x2="48" y2="0">
           <stop offset="0" stopColor="#FEDA75" />
           <stop offset="0.35" stopColor="#D62976" />
           <stop offset="0.7" stopColor="#962FBF" />
           <stop offset="1" stopColor="#4F5BD5" />
         </linearGradient>
       </defs>
-      <circle cx="12" cy="12" r="4.2" stroke="#fff" strokeWidth="1.6" fill="none" />
-      <circle cx="17.2" cy="6.8" r="1.1" fill="#fff" />
+      <rect x="11.5" y="11.5" width="25" height="25" rx="7.5" stroke="#fff" strokeWidth="2.3" fill="none" />
+      <circle cx="24" cy="24" r="6.3" stroke="#fff" strokeWidth="2.3" fill="none" />
+      <circle cx="32.3" cy="15.7" r="1.7" fill="#fff" />
     </svg>
   );
 }
 
 export function YouTubeIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="5" width="20" height="14" rx="4" fill="#FF0000" />
-      <path d="M10 8.5L15.5 12L10 15.5V8.5Z" fill="#fff" />
+    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <rect width="48" height="48" rx="11" fill="#FF0000" />
+      <path d="M20 16.5L32.5 24L20 31.5V16.5Z" fill="#fff" />
     </svg>
   );
 }

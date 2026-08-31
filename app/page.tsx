@@ -46,7 +46,13 @@ export default function Home() {
             className="header-logo"
             priority
           />
-          <p className="tagline">CGI-Tiere mit zu vielen Gefühlen. 100% digital, 0% echt.</p>
+          <p className="tagline">
+            🐾 CGI-Tiere mit zu vielen Gefühlen.
+            <br />
+            ✨ 100% digital. 0% echt. Trotzdem mit Herz.
+            <br />
+            Die volle Packung Motivation 💪
+          </p>
         </div>
 
         <TikTokStats />
@@ -93,6 +99,25 @@ export default function Home() {
         </div>
 
         <section className="bento">
+          <a
+            href={LINKS.aicut}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="card aicut-card"
+            data-umami-event="aicut-click"
+          >
+            <div className="card-glow" />
+            <div className="eyebrow-small">So mache ich meine Videos</div>
+            <h3>aicut — von der Idee zum fertigen Clip</h3>
+            <p>
+              Das KI-Tool, mit dem ich Eddie &amp; Co. zum Leben erwecke. Schau's dir an und
+              probier's selbst aus.
+            </p>
+            <span className="pill-btn">
+              Jetzt entdecken <ExternalArrow />
+            </span>
+          </a>
+
           <div className="card card-wide spotify-artist-card">
             <div>
               <div className="label">Alle Songs auf Spotify</div>
@@ -126,25 +151,6 @@ export default function Home() {
               </div>
             </div>
           ))}
-
-          <a
-            href={LINKS.aicut}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="card aicut-card"
-            data-umami-event="aicut-click"
-          >
-            <div className="card-glow" />
-            <div className="eyebrow-small">So mache ich meine Videos</div>
-            <h3>aicut — von der Idee zum fertigen Clip</h3>
-            <p>
-              Das KI-Tool, mit dem ich Eddie &amp; Co. zum Leben erwecke. Schau's dir an und
-              probier's selbst aus.
-            </p>
-            <span className="pill-btn">
-              Jetzt entdecken <ExternalArrow />
-            </span>
-          </a>
         </section>
       </main>
 
