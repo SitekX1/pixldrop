@@ -30,14 +30,15 @@ export default function Datenschutz() {
         am sicheren und stabilen Betrieb der Website).
       </p>
 
-      <h2>3. Reichweitenmessung (Umami)</h2>
+      <h2>3. Reichweitenmessung (Vercel Web Analytics)</h2>
       <p>
-        Wir setzen den datenschutzfreundlichen, cookielosen Analysedienst Umami ein, um zu sehen,
-        wie oft einzelne Links auf dieser Seite angeklickt werden (z. B. Musik-Links,
-        Social-Media-Links, aicut-Link). Umami erstellt keine personenbezogenen Nutzerprofile,
-        verwendet keine Cookies und speichert keine IP-Adressen im Klartext. Rechtsgrundlage ist
-        Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Analyse und Verbesserung
-        unseres Angebots).
+        Wir setzen den datenschutzfreundlichen, cookielosen Analysedienst Vercel Web Analytics
+        ein, um zu sehen, wie oft die Seite aufgerufen und wie oft einzelne Links angeklickt
+        werden (z. B. Musik-Links, Social-Media-Links, aicut-Link). Der Dienst erstellt keine
+        personenbezogenen Nutzerprofile, verwendet keine Cookies und speichert keine
+        IP-Adressen im Klartext. Anbieter ist Vercel Inc., 340 S Lemon Ave #4133, Walnut, CA
+        91789, USA. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an
+        der Analyse und Verbesserung unseres Angebots).
       </p>
 
       <h2>4. Eingebettete Inhalte Dritter</h2>

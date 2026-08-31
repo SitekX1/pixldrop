@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@vercel/analytics";
 import { SpotifyIcon } from "./Icons";
 
 export default function SpotifyEmbed({
@@ -32,9 +33,10 @@ export default function SpotifyEmbed({
     <button
       type="button"
       className="spotify-placeholder"
-      onClick={() => setLoaded(true)}
-      data-umami-event="spotify-embed-load"
-      data-umami-event-song={title}
+      onClick={() => {
+        track("spotify-embed-load", { song: title });
+        setLoaded(true);
+      }}
     >
       <span className="spotify-placeholder-icon">
         <SpotifyIcon />

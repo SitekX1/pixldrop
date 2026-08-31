@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -30,8 +31,6 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
-
 export default function RootLayout({
   children,
 }: {
@@ -39,16 +38,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de">
-      <head>
-        {umamiWebsiteId ? (
-          <script
-            defer
-            src="https://cloud.umami.is/script.js"
-            data-website-id={umamiWebsiteId}
-          />
-        ) : null}
-      </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
