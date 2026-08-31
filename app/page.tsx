@@ -2,7 +2,6 @@ import Image from "next/image";
 import TikTokStats from "@/components/TikTokStats";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
 import TrackedLink from "@/components/TrackedLink";
-import InAppBrowserBanner from "@/components/InAppBrowserBanner";
 import {
   TikTokIcon,
   InstagramIcon,
@@ -40,8 +39,6 @@ export default function Home() {
       />
 
       <main className="page">
-        <InAppBrowserBanner />
-
         <div className="eyebrow">
           <Image
             src="/pixldrop-header-logo.png"

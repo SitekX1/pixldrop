@@ -137,46 +137,6 @@ button {
   margin-top: 4px;
 }
 
-.inapp-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--navy-dark);
-  color: #fff;
-  font-size: 0.78rem;
-  line-height: 1.4;
-  padding: 10px 12px;
-  border-radius: 14px;
-  margin-bottom: 14px;
-}
-
-.inapp-banner span {
-  flex: 1;
-}
-
-.inapp-banner-btn {
-  background: var(--gradient);
-  color: #fff;
-  border: none;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.inapp-banner-close {
-  background: transparent;
-  border: none;
-  color: #b7bade;
-  cursor: pointer;
-  font-size: 0.9rem;
-  padding: 2px 4px;
-  flex-shrink: 0;
-}
-
 .trust-note {
   text-align: center;
   font-size: 0.85rem;
