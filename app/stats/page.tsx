@@ -64,14 +64,18 @@ export default async function StatsPage({
           </section>
 
           <h2 style={styles.h2}>Klicks (30 Tage)</h2>
-          <section style={styles.list}>
-            {Object.entries(data.events30d).map(([name, count]) => (
-              <div key={name} style={styles.listRow}>
-                <span>{EVENT_LABELS[name] ?? name}</span>
-                <span style={styles.listValue}>{fmt(count)}</span>
-              </div>
-            ))}
-          </section>
+          {data.events30d ? (
+            <section style={styles.list}>
+              {Object.entries(data.events30d).map(([name, count]) => (
+                <div key={name} style={styles.listRow}>
+                  <span>{EVENT_LABELS[name] ?? name}</span>
+                  <span style={styles.listValue}>{fmt(count)}</span>
+                </div>
+              ))}
+            </section>
+          ) : (
+            <p style={styles.notice}>{data.eventsUnavailableReason}</p>
+          )}
         </>
       )}
 
@@ -116,6 +120,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   listValue: { fontWeight: 700 },
   error: { color: "#ff8080", fontSize: "0.9rem" },
+  notice: { color: "#9295b8", fontSize: "0.85rem", lineHeight: 1.5 },
   hint: { marginTop: 28, fontSize: "0.72rem", color: "#5a5d7a", textAlign: "center" },
   gate: {
     display: "flex",
