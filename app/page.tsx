@@ -41,8 +41,8 @@ export default function Home() {
           <Image
             src="/pixldrop-header-logo.png"
             alt="PixlDrop"
-            width={1024}
-            height={1024}
+            width={728}
+            height={536}
             className="header-logo"
             priority
           />
