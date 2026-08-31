@@ -131,6 +131,13 @@ button {
   margin-top: 4px;
 }
 
+.trust-note {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 10px 0 16px;
+}
+
 .social-row {
   display: flex;
   justify-content: center;

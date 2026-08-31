@@ -57,6 +57,8 @@ export default function Home() {
 
         <TikTokStats />
 
+        <p className="trust-note">Danke für euer Vertrauen in PixlDrop 🙏</p>
+
         <div className="social-row">
           <a
             href={LINKS.tiktok}
