@@ -1,22 +1,22 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
-export const metadata = { title: "Datenschutz â€” PixlDrop" };
+export const metadata = { title: "Datenschutz — PixlDrop" };
 
 export default function Datenschutz() {
   return (
     <div className="legal-page">
       <Link href="/" className="back">
-        â† ZurÃ¼ck
+        ← Zurück
       </Link>
-      <h1>DatenschutzerklÃ¤rung</h1>
+      <h1>Datenschutzerklärung</h1>
 
       <h2>1. Verantwortlicher</h2>
       <p>
         Alexander Sitek
         <br />
-        Richard-Strauss-StraÃŸe 4
+        Richard-Strauss-Straße 4
         <br />
-        86663 Asbach-BÃ¤umenheim
+        86663 Asbach-Bäumenheim
         <br />
         E-Mail: <a href="mailto:as@sitekx.de">as@sitekx.de</a>
       </p>
@@ -48,25 +48,25 @@ export default function Datenschutz() {
         IP-Adresse verarbeiten. Wir haben auf Art und Umfang dieser Verarbeitung keinen Einfluss.
         Weitere Informationen findest du in der{" "}
         <a href="https://www.spotify.com/de/legal/privacy-policy/" target="_blank" rel="noopener noreferrer">
-          DatenschutzerklÃ¤rung von Spotify
+          Datenschutzerklärung von Spotify
         </a>
         .
       </p>
 
       <h2>5. Affiliate-Links</h2>
       <p>
-        Diese Seite enthÃ¤lt einen Affiliate-Link zu aicut.pro. Beim Klick auf diesen Link wird
-        ggf. ein Tracking-Parameter an den Anbieter Ã¼bermittelt, damit dieser eine Vermittlung
+        Diese Seite enthält einen Affiliate-Link zu aicut.pro. Beim Klick auf diesen Link wird
+        ggf. ein Tracking-Parameter an den Anbieter übermittelt, damit dieser eine Vermittlung
         durch uns nachvollziehen kann. Es werden dabei keine personenbezogenen Daten von uns
         weitergegeben.
       </p>
 
       <h2>6. Deine Rechte</h2>
       <p>
-        Du hast das Recht auf Auskunft, Berichtigung, LÃ¶schung, EinschrÃ¤nkung der Verarbeitung,
-        DatenÃ¼bertragbarkeit sowie Widerspruch gegen die Verarbeitung deiner personenbezogenen
+        Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung,
+        Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung deiner personenbezogenen
         Daten. Wende dich dazu an die oben genannte Kontaktadresse. Zudem steht dir ein
-        Beschwerderecht bei einer Datenschutz-AufsichtsbehÃ¶rde zu.
+        Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde zu.
       </p>
     </div>
   );
