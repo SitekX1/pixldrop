@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import PacGame from "./PacGame";
+import HelixTower from "./HelixTower";
 import RankReveal from "./RankReveal";
 import Leaderboard from "./Leaderboard";
 import { startGameSession, submitScore, getScoreRank } from "@/lib/pixlgame-supabase";
@@ -64,14 +64,15 @@ export default function GameApp() {
         gap: 18,
       }}
     >
-      <h1 style={{ fontSize: 22, fontWeight: 800 }}>🐾 Survive Monday</h1>
+      <h1 style={{ fontSize: 22, fontWeight: 800 }}>🐾 Flucht aus dem Büro</h1>
 
       {error && <div style={{ color: "#ff8080", fontSize: 13 }}>⚠ {error}</div>}
 
       {screen === "start" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
           <p style={{ color: "#b7bade", fontSize: 14, textAlign: "center", maxWidth: 280 }}>
-            Sammle Kaffee, weich dem Chef aus, überlebe so viele Runden wie möglich.
+            Dreh den Bürogebäude-Turm und lass Eddie durch die Lücken fallen. Rote Etagen
+            (der Chef!) meiden — wie tief schaffst du's?
           </p>
           <button onClick={startGame} style={primaryBtn}>
             Spiel starten
@@ -79,7 +80,7 @@ export default function GameApp() {
         </div>
       )}
 
-      {screen === "playing" && <PacGame onGameOver={handleGameOver} />}
+      {screen === "playing" && <HelixTower onGameOver={handleGameOver} />}
 
       {screen === "name" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
