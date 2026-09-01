@@ -18,9 +18,10 @@ const EDDIE_START_Y = 4;
 const GENERATE_AHEAD = 25;
 const GENERATE_BUFFER = 10;
 
-const COLOR_SAFE = "#3a4a8a";
-const COLOR_DANGER = "#e63946";
-const COLOR_SPINE = "#171928";
+const COLOR_SAFE = "#22c55e";
+const COLOR_DANGER = "#ef4444";
+const COLOR_SPINE = "#334155";
+const COLOR_BG = "#dbeafe";
 
 type SegmentType = "gap" | "safe" | "danger";
 type Level = { y: number; segments: SegmentType[] };
@@ -61,7 +62,7 @@ function generateLevels(startIndex: number, count: number): Level[] {
 function SegmentMesh({ y, startAngle, type }: { y: number; startAngle: number; type: SegmentType }) {
   const color = type === "danger" ? COLOR_DANGER : COLOR_SAFE;
   return (
-    <mesh position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]}>
       <ringGeometry
         args={[
           INNER_RADIUS,
@@ -131,7 +132,8 @@ function GameScene({
   const { camera, scene } = useThree();
 
   useEffect(() => {
-    scene.fog = new THREE.Fog("#0b0c14", 8, 22);
+    scene.background = new THREE.Color(COLOR_BG);
+    scene.fog = new THREE.Fog(COLOR_BG, 9, 24);
     return () => {
       scene.fog = null;
     };
@@ -257,7 +259,7 @@ export default function HelixTower({
           height: 460,
           borderRadius: 16,
           overflow: "hidden",
-          background: "#0b0c14",
+          background: "#dbeafe",
           touchAction: "none",
           cursor: "grab",
         }}
