@@ -5,12 +5,12 @@ import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 const LEVEL_HEIGHT = 1.6;
-const PLATFORM_RADIUS = 3;
-const COLUMN_RADIUS = 0.5;
+const PLATFORM_RADIUS = 2.2;
+const COLUMN_RADIUS = 0.4;
 const PLATFORM_THICKNESS = 0.4;
 const MIN_GAP = Math.PI * 0.22; // ~40deg
 const MAX_GAP = Math.PI * 0.55; // ~100deg
-const EDDIE_RADIUS = 2;
+const EDDIE_RADIUS = 1.4;
 const EDDIE_WORLD_ANGLE = Math.PI / 2; // Eddie sits toward +Z, facing the camera
 const GRAVITY = 16;
 const BOUNCE_VELOCITY = 9;
@@ -188,8 +188,8 @@ function GameScene({
 
     const eddieWorldX = Math.cos(EDDIE_WORLD_ANGLE) * EDDIE_RADIUS;
     const eddieWorldZ = Math.sin(EDDIE_WORLD_ANGLE) * EDDIE_RADIUS;
-    camera.position.set(eddieWorldX * 1.4, eddieYRef.current + 2.2, eddieWorldZ * 1.4 + 5.5);
-    camera.lookAt(0, eddieYRef.current - 1.2, 0);
+    camera.position.set(eddieWorldX * 1.2, eddieYRef.current + 6, eddieWorldZ * 1.2 + 10);
+    camera.lookAt(0, eddieYRef.current - 3.5, 0);
   });
 
   const topY = levels[0]?.y ?? 0;
