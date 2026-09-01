@@ -11,7 +11,7 @@ type Screen = "start" | "playing" | "name" | "reveal" | "leaderboard";
 export default function GameApp() {
   const [screen, setScreen] = useState<Screen>("start");
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [finalScore, setFinalScore] = useState(0);
+  const [finalScore, setFinalScore] = useState({ total: 0, base: 0, bonus: 0 });
   const [name, setName] = useState("");
   const [rank, setRank] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -28,8 +28,8 @@ export default function GameApp() {
     }
   }, []);
 
-  const handleGameOver = useCallback((score: number) => {
-    setFinalScore(score);
+  const handleGameOver = useCallback((total: number, base: number, bonus: number) => {
+    setFinalScore({ total, base, bonus });
     setScreen("name");
   }, []);
 
@@ -38,8 +38,8 @@ export default function GameApp() {
     setSubmitting(true);
     setError(null);
     try {
-      await submitScore(sessionId, name.trim(), finalScore);
-      const r = await getScoreRank(finalScore);
+      await submitScore(sessionId, name.trim(), finalScore.total);
+      const r = await getScoreRank(finalScore.total);
       setRank(r);
       setScreen("reveal");
     } catch (e) {
@@ -53,28 +53,40 @@ export default function GameApp() {
     <main
       style={{
         minHeight: "100dvh",
-        background: "#0b0c14",
-        color: "#fff",
+        background: "var(--bg)",
+        color: "var(--text)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         padding: "24px 16px",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         gap: 18,
       }}
     >
-      <h1 style={{ fontSize: 22, fontWeight: 800 }}>🐾 Eddie-Schießbude</h1>
+      <h1
+        style={{
+          fontSize: 24,
+          fontWeight: 800,
+          background: "var(--gradient)",
+          WebkitBackgroundClip: "text",
+          backgroundClip: "text",
+          color: "transparent",
+        }}
+      >
+        ☕ Eddie&apos;s Café
+      </h1>
 
-      {error && <div style={{ color: "#ff8080", fontSize: 13 }}>⚠ {error}</div>}
+      {error && <div style={{ color: "#e0433c", fontSize: 13 }}>⚠ {error}</div>}
 
       {screen === "start" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          <p style={{ color: "#b7bade", fontSize: 14, textAlign: "center", maxWidth: 280 }}>
-            Die Eddies fliegen vorbei — triff so viele wie möglich, bevor die Munition
-            ausgeht. Der goldene Eddie bringt Bonuspunkte!
+          <p style={{ color: "var(--text-muted)", fontSize: 14, textAlign: "center", maxWidth: 280 }}>
+            Schieß Kaffeebohnen und Tassen ab, schnapp dir die Kanne für mehr Zeit und das
+            Gebäck für Doppelpunkte — aber triff bloß nicht Eddie, sonst kostet es ein Leben!
+            3 Leben, 60 Sekunden.
           </p>
-          <button onClick={startGame} style={primaryBtn}>
+          <button onClick={startGame} className="pill-btn" style={{ border: "none", cursor: "pointer" }}>
             Spiel starten
           </button>
         </div>
@@ -83,29 +95,49 @@ export default function GameApp() {
       {screen === "playing" && <ShootingGallery onGameOver={handleGameOver} />}
 
       {screen === "name" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-          <div style={{ fontSize: 18, fontWeight: 700 }}>Spiel vorbei! Score: {finalScore}</div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", maxWidth: 320 }}>
+          <div
+            style={{
+              fontSize: 36,
+              fontWeight: 800,
+              background: "var(--gradient)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            {finalScore.total}
+          </div>
+          <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: -12 }}>Runde beendet</div>
+
+          <div className="card" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 8 }}>
+            <Row label="Erspielte Punkte" value={finalScore.base} />
+            <Row label="Lebensbonus" value={finalScore.bonus} accent />
+            <Row label="Gesamtpunktzahl" value={finalScore.total} bold />
+          </div>
+
           <input
             value={name}
             onChange={(e) => setName(e.target.value.slice(0, 20))}
             placeholder="Dein Name"
             style={{
-              background: "#171928",
-              border: "1px solid #2a2d45",
+              background: "var(--card)",
+              border: "1px solid var(--border)",
               borderRadius: 12,
               padding: "12px 14px",
-              color: "#fff",
+              color: "var(--text)",
               fontSize: 15,
-              width: 220,
+              width: "100%",
               textAlign: "center",
             }}
           />
           <button
             onClick={handleSubmit}
             disabled={submitting || !name.trim()}
-            style={{ ...primaryBtn, opacity: submitting || !name.trim() ? 0.6 : 1 }}
+            className="pill-btn"
+            style={{ border: "none", cursor: "pointer", opacity: submitting || !name.trim() ? 0.6 : 1 }}
           >
-            {submitting ? "Speichert…" : "Score speichern"}
+            {submitting ? "Speichert…" : "Highscore eintragen"}
           </button>
         </div>
       )}
@@ -123,9 +155,10 @@ export default function GameApp() {
               setSessionId(null);
               setName("");
               setRank(null);
-              setFinalScore(0);
+              setFinalScore({ total: 0, base: 0, bonus: 0 });
             }}
-            style={primaryBtn}
+            className="pill-btn"
+            style={{ border: "none", cursor: "pointer" }}
           >
             Nochmal spielen
           </button>
@@ -135,13 +168,14 @@ export default function GameApp() {
   );
 }
 
-const primaryBtn: React.CSSProperties = {
-  background: "linear-gradient(135deg, #1b2a6b 0%, #5b2a9e 55%, #2fc2e8 100%)",
-  color: "#fff",
-  border: "none",
-  borderRadius: 999,
-  padding: "12px 24px",
-  fontWeight: 700,
-  fontSize: 15,
-  cursor: "pointer",
-};
+function Row({ label, value, bold, accent }: { label: string; value: number; bold?: boolean; accent?: boolean }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", fontSize: bold ? 16 : 14 }}>
+      <span style={{ color: bold ? "var(--text)" : "var(--text-muted)", fontWeight: bold ? 700 : 500 }}>{label}</span>
+      <span style={{ fontWeight: bold ? 800 : 700, color: bold ? "var(--navy)" : accent ? "var(--cyan)" : "var(--text)" }}>
+        {value > 0 && !bold ? "+" : ""}
+        {value}
+      </span>
+    </div>
+  );
+}

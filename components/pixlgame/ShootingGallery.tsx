@@ -4,43 +4,72 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const VIEWPORT_W = 340;
 const VIEWPORT_H = 480;
-const HUD_H = 0; // HUD liegt außerhalb des Spielfelds, kein Platz reserviert
 const TICK_MS = 16;
 
-const TOTAL_AMMO = 40;
-const CLIP_SIZE = 6;
+const CLIP_SIZE = 5;
 const RELOAD_MS = 550;
 
-// BILDPFADE ANPASSEN: hier eure eigenen Pixel-Art-Grafiken von Eddie eintragen.
-// Solange die Dateien fehlen, wird automatisch ein Emoji-Platzhalter angezeigt.
+const TIME_START = 60;
+const TIME_CAP = 90;
+const TIME_POT_BONUS = 5;
+const LIVES_START = 3;
+const BOOST_SECONDS = 6;
+const LIFE_BONUS_PER_LIFE = 50;
+
+// Kaffeebohne/-tasse etc. sind saubere SVG-Platzhalter (kein Emoji, kein Bild-Ladeversuch).
+// Später einfach durch <img src="/pixlgame-media/<name>.png" /> ersetzen, wenn echte Kunst da ist.
 const KINDS = {
-  normal: {
-    img: "/pixlgame-media/eddie-normal.png",
-    fallbackEmoji: "🐾",
+  cup: {
+    role: "score" as const,
+    size: 60,
+    speed: [70, 100] as [number, number],
+    bob: 10,
     points: 10,
-    weight: 62,
-    size: 58,
-    speed: [70, 110] as [number, number],
-    bob: 14,
   },
-  fast: {
-    img: "/pixlgame-media/eddie-fast.png",
-    fallbackEmoji: "🐶",
+  bean: {
+    role: "score" as const,
+    size: 34,
+    speed: [150, 200] as [number, number],
+    bob: 20,
     points: 25,
-    weight: 30,
-    size: 46,
-    speed: [140, 190] as [number, number],
-    bob: 22,
   },
   golden: {
-    img: "/pixlgame-media/eddie-golden.png",
-    fallbackEmoji: "🐾",
+    role: "score" as const,
+    size: 40,
+    speed: [200, 250] as [number, number],
+    bob: 26,
     points: 100,
-    weight: 8,
-    size: 50,
-    speed: [190, 240] as [number, number],
-    bob: 30,
   },
+  pot: {
+    role: "time" as const,
+    size: 50,
+    speed: [90, 130] as [number, number],
+    bob: 12,
+    points: 0,
+  },
+  muffin: {
+    role: "boost" as const,
+    size: 46,
+    speed: [90, 130] as [number, number],
+    bob: 14,
+    points: 0,
+  },
+  eddie: {
+    role: "penalty" as const,
+    size: 54,
+    speed: [110, 160] as [number, number],
+    bob: 0,
+    points: 0,
+  },
+};
+
+const WEIGHTS: Record<KindKey, number> = {
+  cup: 50,
+  bean: 25,
+  golden: 6,
+  pot: 10,
+  muffin: 8,
+  eddie: 16,
 };
 
 type KindKey = keyof typeof KINDS;
@@ -59,40 +88,117 @@ type Target = {
   hit: boolean;
 };
 
+type Floater = { id: number; x: number; y: number; text: string; color: string };
+
 function pickWeightedKind(): KindKey {
-  const entries = Object.entries(KINDS) as [KindKey, (typeof KINDS)[KindKey]][];
-  const total = entries.reduce((s, [, k]) => s + k.weight, 0);
+  const entries = Object.entries(WEIGHTS) as [KindKey, number][];
+  const total = entries.reduce((s, [, w]) => s + w, 0);
   let r = Math.random() * total;
-  for (const [key, k] of entries) {
-    r -= k.weight;
+  for (const [key, w] of entries) {
+    r -= w;
     if (r <= 0) return key;
   }
-  return "normal";
+  return "cup";
 }
 
 function rand(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
 
+function TargetVisual({ kind }: { kind: KindKey }) {
+  switch (kind) {
+    case "cup":
+      return (
+        <svg viewBox="0 0 64 64" width="100%" height="100%">
+          <ellipse cx="26" cy="46" rx="20" ry="6" fill="#d8c3a5" />
+          <path d="M8 22h36v20a18 18 0 0 1-18 18A18 18 0 0 1 8 42z" fill="#f5ead9" stroke="#8a5a34" strokeWidth="2" />
+          <path d="M44 26h6a8 8 0 0 1 0 16h-6" fill="none" stroke="#8a5a34" strokeWidth="3" />
+          <path d="M14 22c8-10 22-10 30 0" fill="#6b4226" />
+          <path d="M18 12c1-3 4-3 4-6M28 12c1-3 4-3 4-6" stroke="#c9b6a3" strokeWidth="2" fill="none" strokeLinecap="round" />
+        </svg>
+      );
+    case "bean":
+      return (
+        <svg viewBox="0 0 64 64" width="100%" height="100%">
+          <path
+            d="M32 4C16 4 6 20 6 34c0 16 12 26 26 26s26-10 26-26C58 20 48 4 32 4z"
+            fill="#6b4226"
+          />
+          <path
+            d="M32 8c-9 6-11 20-11 26 0 10 5 18 11 22 6-4 11-12 11-22 0-6-2-20-11-26z"
+            fill="#8a5a34"
+          />
+          <path d="M32 10c-3 8-3 36 0 44" stroke="#3f2716" strokeWidth="3" fill="none" strokeLinecap="round" />
+        </svg>
+      );
+    case "golden":
+      return (
+        <svg viewBox="0 0 64 64" width="100%" height="100%">
+          <ellipse cx="26" cy="46" rx="20" ry="6" fill="#e7c25a" />
+          <path
+            d="M8 22h36v20a18 18 0 0 1-18 18A18 18 0 0 1 8 42z"
+            fill="#fff3d6"
+            stroke="#c9971f"
+            strokeWidth="2"
+          />
+          <path d="M44 26h6a8 8 0 0 1 0 16h-6" fill="none" stroke="#c9971f" strokeWidth="3" />
+          <path d="M14 22c8-10 22-10 30 0" fill="#e7c25a" />
+          <g fill="#fff3d6">
+            <path d="M50 8l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" />
+            <path d="M12 46l1.4 2.8L16 50l-2.6 1.2L12 54l-1.4-2.8L8 50l2.6-1.2z" />
+          </g>
+        </svg>
+      );
+    case "pot":
+      return (
+        <svg viewBox="0 0 64 64" width="100%" height="100%">
+          <path d="M18 14h20l3 8v28a6 6 0 0 1-6 6H21a6 6 0 0 1-6-6V22z" fill="#f5ead9" stroke="#2fc2e8" strokeWidth="2" />
+          <rect x="16" y="8" width="24" height="8" rx="2" fill="#1b2a6b" />
+          <path d="M41 26h5a6 6 0 0 1 0 12h-5" fill="none" stroke="#1b2a6b" strokeWidth="3" />
+          <circle cx="46" cy="14" r="9" fill="#2fc2e8" stroke="#fff" strokeWidth="2" />
+          <path d="M46 9v5l3 3" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+        </svg>
+      );
+    case "muffin":
+      return (
+        <svg viewBox="0 0 64 64" width="100%" height="100%">
+          <path d="M12 32l4 24a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4l4-24z" fill="#7b4fc4" />
+          <path d="M12 32c0-6 6-8 10-6-2-6 4-10 10-8 4-6 14-4 14 4 6-2 10 4 6 10z" fill="#5b2a9e" />
+          <circle cx="24" cy="20" r="2.4" fill="#fff3d6" />
+          <circle cx="34" cy="16" r="2.4" fill="#fff3d6" />
+          <circle cx="42" cy="24" r="2.4" fill="#fff3d6" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
 export default function ShootingGallery({
   onGameOver,
 }: {
-  onGameOver: (score: number) => void;
+  onGameOver: (total: number, base: number, bonus: number) => void;
 }) {
   const [targets, setTargets] = useState<Target[]>([]);
   const [score, setScore] = useState(0);
-  const [ammoLeft, setAmmoLeft] = useState(TOTAL_AMMO);
+  const [lives, setLives] = useState(LIVES_START);
+  const [timeLeft, setTimeLeft] = useState(TIME_START);
   const [clipLeft, setClipLeft] = useState(CLIP_SIZE);
   const [reloading, setReloading] = useState(false);
+  const [boostActive, setBoostActive] = useState(false);
+  const [flash, setFlash] = useState(false);
   const [crosshair, setCrosshair] = useState<{ x: number; y: number } | null>(null);
   const [muzzle, setMuzzle] = useState<{ x: number; y: number; id: number } | null>(null);
-  const [floaters, setFloaters] = useState<{ id: number; x: number; y: number; text: string; kind: KindKey }[]>([]);
+  const [floaters, setFloaters] = useState<Floater[]>([]);
 
   const targetsRef = useRef<Target[]>([]);
   const overRef = useRef(false);
-  const ammoRef = useRef(TOTAL_AMMO);
+  const scoreRef = useRef(0);
+  const livesRef = useRef(LIVES_START);
+  const timeLeftRef = useRef(TIME_START);
   const clipRef = useRef(CLIP_SIZE);
   const reloadingRef = useRef(false);
+  const boostUntilRef = useRef(0);
   const nextIdRef = useRef(1);
   const spawnTimerRef = useRef(600);
   const elapsedRef = useRef(0);
@@ -120,11 +226,25 @@ export default function ShootingGallery({
     setTargets(targetsRef.current);
   }, []);
 
+  const endGame = useCallback(() => {
+    if (overRef.current) return;
+    overRef.current = true;
+    const bonus = livesRef.current > 0 ? livesRef.current * LIFE_BONUS_PER_LIFE : 0;
+    onGameOver(scoreRef.current + bonus, scoreRef.current, bonus);
+  }, [onGameOver]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       if (overRef.current) return;
       const dt = TICK_MS / 1000;
       elapsedRef.current += dt;
+
+      const newTime = Math.max(0, timeLeftRef.current - dt);
+      if (Math.ceil(newTime) !== Math.ceil(timeLeftRef.current)) setTimeLeft(Math.ceil(newTime));
+      timeLeftRef.current = newTime;
+
+      const boostNow = elapsedRef.current < boostUntilRef.current;
+      setBoostActive((prev) => (prev !== boostNow ? boostNow : prev));
 
       spawnTimerRef.current -= TICK_MS;
       if (spawnTimerRef.current <= 0 && targetsRef.current.length < 3) {
@@ -136,34 +256,44 @@ export default function ShootingGallery({
       for (const t of targetsRef.current) {
         if (t.hit) continue;
         const nx = t.x + t.speed * dt;
-        const ny = t.baseY + Math.sin(t.phase + elapsedRef.current * 3) * t.bob;
+        const ny = t.bob > 0 ? t.baseY + Math.sin(t.phase + elapsedRef.current * 3) * t.bob : t.baseY;
         if (nx < -t.size - 10 || nx > VIEWPORT_W + t.size + 10) continue;
         survived.push({ ...t, x: nx, y: ny });
       }
       targetsRef.current = survived;
       setTargets(survived);
+
+      if (newTime <= 0) endGame();
     }, TICK_MS);
     return () => clearInterval(interval);
-  }, [spawnTarget]);
+  }, [spawnTarget, endGame]);
 
-  const endGame = useCallback(() => {
-    overRef.current = true;
-    onGameOver(score);
-  }, [onGameOver, score]);
+  const addFloater = useCallback((x: number, y: number, text: string, color: string) => {
+    const id = nextIdRef.current++;
+    setFloaters((prev) => [...prev, { id, x, y, text, color }]);
+    setTimeout(() => setFloaters((prev) => prev.filter((f) => f.id !== id)), 650);
+  }, []);
 
-  const scoreRef = useRef(score);
-  scoreRef.current = score;
+  const reload = useCallback(() => {
+    if (overRef.current || reloadingRef.current || clipRef.current >= CLIP_SIZE) return;
+    reloadingRef.current = true;
+    setReloading(true);
+    setTimeout(() => {
+      clipRef.current = CLIP_SIZE;
+      reloadingRef.current = false;
+      setClipLeft(CLIP_SIZE);
+      setReloading(false);
+    }, RELOAD_MS);
+  }, []);
 
   const fire = useCallback(
     (clientX: number, clientY: number, rect: DOMRect) => {
-      if (overRef.current || reloadingRef.current || ammoRef.current <= 0) return;
+      if (overRef.current || reloadingRef.current || clipRef.current <= 0) return;
 
       const x = clientX - rect.left;
       const y = clientY - rect.top;
 
-      ammoRef.current -= 1;
       clipRef.current -= 1;
-      setAmmoLeft(ammoRef.current);
       setClipLeft(clipRef.current);
       setMuzzle({ x, y, id: Date.now() });
 
@@ -180,53 +310,43 @@ export default function ShootingGallery({
       }
 
       if (hitTarget) {
-        const cfg = KINDS[hitTarget.kind];
+        const kind = hitTarget.kind;
+        const cfg = KINDS[kind];
         hitTarget.hit = true;
         targetsRef.current = targetsRef.current.filter((t) => t.id !== hitTarget!.id);
         setTargets(targetsRef.current);
-        const newScore = scoreRef.current + cfg.points;
-        scoreRef.current = newScore;
-        setScore(newScore);
-        const floaterId = nextIdRef.current++;
-        setFloaters((prev) => [
-          ...prev,
-          { id: floaterId, x: hitTarget!.x, y: hitTarget!.y, text: "+" + cfg.points, kind: hitTarget!.kind },
-        ]);
-        setTimeout(() => {
-          setFloaters((prev) => prev.filter((f) => f.id !== floaterId));
-        }, 650);
-      }
 
-      if (clipRef.current <= 0 && ammoRef.current > 0) {
-        reloadingRef.current = true;
-        setReloading(true);
-        setTimeout(() => {
-          clipRef.current = CLIP_SIZE;
-          reloadingRef.current = false;
-          setClipLeft(CLIP_SIZE);
-          setReloading(false);
-        }, RELOAD_MS);
-      }
-
-      if (ammoRef.current <= 0) {
-        setTimeout(() => endGame(), 250);
+        if (cfg.role === "penalty") {
+          livesRef.current -= 1;
+          setLives(livesRef.current);
+          addFloater(hitTarget.x, hitTarget.y, "-1 Leben", "#e0433c");
+          setFlash(true);
+          setTimeout(() => setFlash(false), 220);
+          if (livesRef.current <= 0) {
+            setTimeout(() => endGame(), 250);
+          }
+        } else if (cfg.role === "time") {
+          timeLeftRef.current = Math.min(TIME_CAP, timeLeftRef.current + TIME_POT_BONUS);
+          setTimeLeft(Math.ceil(timeLeftRef.current));
+          addFloater(hitTarget.x, hitTarget.y, `+${TIME_POT_BONUS}s`, "#2fc2e8");
+        } else if (cfg.role === "boost") {
+          boostUntilRef.current = elapsedRef.current + BOOST_SECONDS;
+          setBoostActive(true);
+          addFloater(hitTarget.x, hitTarget.y, "Boost x2!", "#7b4fc4");
+        } else {
+          const boosted = elapsedRef.current < boostUntilRef.current;
+          const gained = cfg.points * (boosted ? 2 : 1);
+          scoreRef.current += gained;
+          setScore(scoreRef.current);
+          addFloater(hitTarget.x, hitTarget.y, `+${gained}${boosted ? " x2" : ""}`, boosted ? "#7b4fc4" : "#1b2a6b");
+        }
       }
     },
-    [endGame]
+    [addFloater, endGame]
   );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-      <div style={{ display: "flex", gap: 14, fontSize: 14, color: "#fff", fontWeight: 700 }}>
-        <span>Punkte: {score}</span>
-        <span>
-          Munition: {ammoLeft}{" "}
-          <span style={{ color: "#8a93c9", fontWeight: 500 }}>
-            ({"●".repeat(clipLeft)}
-            {"○".repeat(CLIP_SIZE - clipLeft)})
-          </span>
-        </span>
-      </div>
       <div
         onPointerMove={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
@@ -243,13 +363,18 @@ export default function ShootingGallery({
           height: VIEWPORT_H,
           borderRadius: 16,
           overflow: "hidden",
-          background: "linear-gradient(180deg, #bfe3ff 0%, #eaf7ff 55%, #d7ecc9 100%)",
+          background: "linear-gradient(180deg, #fbeedd 0%, #f3d9b8 45%, #7a5236 100%)",
           touchAction: "none",
           cursor: "none",
           userSelect: "none",
+          boxShadow: "0 10px 30px rgba(27, 42, 107, 0.25)",
         }}
       >
-        {/* BILDPFAD ANPASSEN: Hintergrund-Szenerie für die Schießbude */}
+        {/* Deko: Café-Lichter + Theke, bis ein echtes Hintergrundbild da ist */}
+        <div style={{ position: "absolute", top: 18, left: 30, width: 40, height: 40, borderRadius: "50%", background: "rgba(255,235,190,0.55)", filter: "blur(6px)" }} />
+        <div style={{ position: "absolute", top: 34, right: 46, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,235,190,0.45)", filter: "blur(6px)" }} />
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 86, height: 3, background: "rgba(90,58,32,0.35)" }} />
+
         <img
           src="/pixlgame-media/gallery-bg.png"
           alt=""
@@ -262,13 +387,55 @@ export default function ShootingGallery({
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            imageRendering: "pixelated",
             pointerEvents: "none",
           }}
         />
 
         {targets.map((t) => {
-          const cfg = KINDS[t.kind];
+          if (t.kind === "eddie") {
+            return (
+              <div
+                key={t.id}
+                style={{
+                  position: "absolute",
+                  left: t.x,
+                  top: t.y,
+                  width: t.size,
+                  height: t.size,
+                  transform: `translate(-50%, -50%) scaleX(${t.dir})`,
+                  pointerEvents: "none",
+                }}
+              >
+                <img
+                  src="/pixlgame-media/eddie-sprite.png"
+                  alt=""
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                    const fb = (e.target as HTMLImageElement).nextSibling as HTMLElement | null;
+                    if (fb) fb.style.display = "flex";
+                  }}
+                  style={{ width: "100%", height: "100%" }}
+                />
+                <div
+                  style={{
+                    display: "none",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: t.size * 0.6,
+                    position: "absolute",
+                    inset: 0,
+                    background: "radial-gradient(circle, #ffd9a0, #e0433c)",
+                    boxShadow: "0 0 0 3px rgba(224,67,60,0.5)",
+                  }}
+                >
+                  🐾
+                </div>
+              </div>
+            );
+          }
           return (
             <div
               key={t.id}
@@ -280,40 +447,10 @@ export default function ShootingGallery({
                 height: t.size,
                 transform: `translate(-50%, -50%) scaleX(${t.dir})`,
                 pointerEvents: "none",
+                filter: t.kind === "golden" ? "drop-shadow(0 0 8px rgba(231,194,90,0.8))" : "drop-shadow(0 2px 3px rgba(0,0,0,0.25))",
               }}
             >
-              <img
-                src={cfg.img}
-                alt=""
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                  const fb = (e.target as HTMLImageElement).nextSibling as HTMLElement | null;
-                  if (fb) fb.style.display = "flex";
-                }}
-                style={{ width: "100%", height: "100%", imageRendering: "pixelated" }}
-              />
-              <div
-                style={{
-                  display: "none",
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: "50%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: t.size * 0.6,
-                  position: "absolute",
-                  inset: 0,
-                  background:
-                    t.kind === "golden"
-                      ? "radial-gradient(circle, #ffe27a, #f2a900)"
-                      : t.kind === "fast"
-                      ? "radial-gradient(circle, #ffb199, #ff6a3d)"
-                      : "radial-gradient(circle, #cdb7ff, #7c5cff)",
-                  boxShadow: t.kind === "golden" ? "0 0 14px 4px rgba(255,210,80,0.7)" : "none",
-                }}
-              >
-                {cfg.fallbackEmoji}
-              </div>
+              <TargetVisual kind={t.kind} />
             </div>
           );
         })}
@@ -327,9 +464,9 @@ export default function ShootingGallery({
               top: f.y,
               transform: "translate(-50%, -50%)",
               fontWeight: 900,
-              fontSize: f.kind === "golden" ? 24 : 18,
-              color: f.kind === "golden" ? "#f2a900" : f.kind === "fast" ? "#ff6a3d" : "#5b2a9e",
-              textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+              fontSize: 18,
+              color: f.color,
+              textShadow: "0 2px 4px rgba(0,0,0,0.25)",
               pointerEvents: "none",
               animation: "floatUpGallery 650ms ease-out forwards",
             }}
@@ -367,7 +504,7 @@ export default function ShootingGallery({
               transform: "translate(-50%, -50%)",
               pointerEvents: "none",
               borderRadius: "50%",
-              border: "2px solid rgba(20,20,30,0.55)",
+              border: "2px solid rgba(27,42,107,0.55)",
             }}
           >
             <div
@@ -377,35 +514,102 @@ export default function ShootingGallery({
                 top: -4,
                 width: 2,
                 height: 10,
-                background: "rgba(20,20,30,0.55)",
+                background: "rgba(27,42,107,0.55)",
                 transform: "translateX(-50%)",
               }}
             />
           </div>
         )}
 
-        {reloading && (
+        {flash && (
           <div
             style={{
               position: "absolute",
-              bottom: 14,
+              inset: 0,
+              background: "rgba(224,67,60,0.35)",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+
+        {/* HUD */}
+        <Badge style={{ top: 10, left: 10 }} icon="☕" value={score} />
+        <Badge
+          style={{ top: 10, right: 10 }}
+          icon="⏱"
+          value={timeLeft}
+          urgent={timeLeft <= 10}
+        />
+        <Badge style={{ bottom: 10, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
+
+        {boostActive && (
+          <div
+            style={{
+              position: "absolute",
+              top: 10,
               left: "50%",
               transform: "translateX(-50%)",
-              background: "rgba(20,12,8,0.75)",
+              background: "var(--gradient)",
               color: "#fff",
-              fontWeight: 700,
-              fontSize: 13,
-              padding: "6px 14px",
+              fontWeight: 800,
+              fontSize: 12,
+              padding: "4px 12px",
+              borderRadius: 999,
+              boxShadow: "0 4px 10px rgba(91,42,158,0.4)",
+            }}
+          >
+            x2 BOOST
+          </div>
+        )}
+
+        <div style={{ position: "absolute", bottom: 10, right: 10, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 4,
+              background: "rgba(27,42,107,0.85)",
+              padding: "6px 10px",
               borderRadius: 999,
             }}
           >
-            Nachladen…
+            {Array.from({ length: CLIP_SIZE }).map((_, i) => (
+              <span
+                key={i}
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: i < clipLeft ? "#2fc2e8" : "rgba(255,255,255,0.25)",
+                }}
+              />
+            ))}
           </div>
-        )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              reload();
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+            disabled={reloading || clipLeft >= CLIP_SIZE}
+            style={{
+              background: reloading ? "rgba(27,42,107,0.5)" : "var(--gradient)",
+              color: "#fff",
+              border: "none",
+              borderRadius: 999,
+              padding: "8px 14px",
+              fontWeight: 800,
+              fontSize: 12,
+              cursor: clipLeft >= CLIP_SIZE ? "default" : "pointer",
+              opacity: clipLeft >= CLIP_SIZE ? 0.55 : 1,
+            }}
+          >
+            {reloading ? "Lädt…" : "🔄 Nachladen"}
+          </button>
+        </div>
       </div>
-      <p style={{ color: "#b7bade", fontSize: 12, textAlign: "center", maxWidth: 260 }}>
-        Tippen/Klicken zum Schießen. Trifft die vorbeifliegenden Eddies — der goldene
-        ist selten und bringt am meisten Punkte!
+      <p style={{ color: "var(--text-muted)", fontSize: 12, textAlign: "center", maxWidth: 280 }}>
+        Tippen/Klicken zum Schießen. Bohnen &amp; Tassen bringen Punkte, die Kanne Zeit,
+        das Gebäck Doppelpunkte — aber lass Eddie in Ruhe, sonst kostet es ein Leben!
       </p>
       <style>{`
         @keyframes floatUpGallery {
@@ -417,6 +621,40 @@ export default function ShootingGallery({
           100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
         }
       `}</style>
+    </div>
+  );
+}
+
+function Badge({
+  icon,
+  value,
+  style,
+  urgent,
+}: {
+  icon: string;
+  value: number;
+  style: React.CSSProperties;
+  urgent?: boolean;
+}) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        background: urgent ? "#e0433c" : "rgba(27,42,107,0.85)",
+        color: "#fff",
+        fontWeight: 800,
+        fontSize: 13,
+        padding: "6px 12px",
+        borderRadius: 999,
+        boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+        ...style,
+      }}
+    >
+      <span>{icon}</span>
+      <span>{value}</span>
     </div>
   );
 }

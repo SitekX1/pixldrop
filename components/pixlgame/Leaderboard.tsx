@@ -14,35 +14,43 @@ export default function Leaderboard() {
   }, []);
 
   return (
-    <div style={{ width: "100%", maxWidth: 340 }}>
-      <h2 style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 10 }}>
+    <div className="card" style={{ width: "100%", maxWidth: 340, padding: 0, overflow: "hidden" }}>
+      <div
+        style={{
+          background: "var(--navy)",
+          color: "#fff",
+          fontSize: 15,
+          fontWeight: 800,
+          padding: "12px 16px",
+        }}
+      >
         🏆 Bestenliste
-      </h2>
-      {error && <div style={{ color: "#ff8080", fontSize: 13 }}>Fehler: {error}</div>}
-      {!scores && !error && <div style={{ color: "#b7bade", fontSize: 13 }}>Lädt…</div>}
+      </div>
+      {error && <div style={{ color: "#e0433c", fontSize: 13, padding: 16 }}>Fehler: {error}</div>}
+      {!scores && !error && <div style={{ color: "var(--text-muted)", fontSize: 13, padding: 16 }}>Lädt…</div>}
       {scores && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
           {scores.map((s, i) => (
             <div
               key={i}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                padding: "8px 12px",
-                background: i < 3 ? "#2a1f45" : "#171928",
-                borderRadius: 10,
+                padding: "10px 16px",
+                background: i % 2 === 0 ? "var(--card)" : "var(--bg)",
+                borderTop: "1px solid var(--border)",
                 fontSize: 13,
-                color: "#fff",
+                color: "var(--text)",
               }}
             >
               <span>
                 {i + 1}. {s.player_name}
               </span>
-              <span style={{ fontWeight: 700 }}>{s.score}</span>
+              <span style={{ fontWeight: 800, color: i < 3 ? "var(--violet)" : "var(--text)" }}>{s.score}</span>
             </div>
           ))}
           {scores.length === 0 && (
-            <div style={{ color: "#b7bade", fontSize: 13 }}>Noch keine Einträge.</div>
+            <div style={{ color: "var(--text-muted)", fontSize: 13, padding: 16 }}>Noch keine Einträge.</div>
           )}
         </div>
       )}
