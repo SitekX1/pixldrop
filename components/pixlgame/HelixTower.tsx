@@ -7,24 +7,30 @@ import * as THREE from "three";
 const SEGMENTS = 8;
 const SEGMENT_ANGLE = (Math.PI * 2) / SEGMENTS;
 const LEVEL_HEIGHT = 1.6;
-const TOWER_RADIUS = 3;
-const SEGMENT_THICKNESS = 0.35;
-const GAP_ANGLE = 0.08;
+const INNER_RADIUS = 1;
+const OUTER_RADIUS = 3;
+const EDDIE_RADIUS = (INNER_RADIUS + OUTER_RADIUS) / 2;
+const EDDIE_WORLD_ANGLE = Math.PI / 2; // Eddie sits toward +Z, facing the camera
+const GAP_ANGLE = 0.06;
 const GRAVITY = 16;
 const BOUNCE_VELOCITY = 9;
 const EDDIE_START_Y = 4;
 const GENERATE_AHEAD = 25;
 const GENERATE_BUFFER = 10;
 
+const COLOR_SAFE = "#3a4a8a";
+const COLOR_DANGER = "#e63946";
+const COLOR_SPINE = "#171928";
+
 type SegmentType = "gap" | "safe" | "danger";
 type Level = { y: number; segments: SegmentType[] };
 
 function makeLevel(index: number, y: number): Level {
   const segments: SegmentType[] = new Array(SEGMENTS).fill("safe");
-  const difficulty = Math.min(index / 40, 1);
+  const difficulty = Math.min(index / 30, 1);
 
   const gapCount = 1 + Math.round(Math.random() * (1 - difficulty * 0.5));
-  const dangerCount = Math.floor(difficulty * (1 + Math.random() * 2));
+  const dangerCount = index < 3 ? 0 : Math.max(1, Math.round(difficulty * (1 + Math.random() * 2)));
 
   const indices = Array.from({ length: SEGMENTS }, (_, i) => i);
   for (let i = indices.length - 1; i > 0; i--) {
@@ -53,22 +59,30 @@ function generateLevels(startIndex: number, count: number): Level[] {
 }
 
 function SegmentMesh({ y, startAngle, type }: { y: number; startAngle: number; type: SegmentType }) {
-  const color = type === "danger" ? "#ff4d4f" : "#5b2a9e";
+  const color = type === "danger" ? COLOR_DANGER : COLOR_SAFE;
   return (
-    <mesh position={[0, y, 0]}>
-      <cylinderGeometry
+    <mesh position={[0, y, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <ringGeometry
         args={[
-          TOWER_RADIUS,
-          TOWER_RADIUS,
-          SEGMENT_THICKNESS,
-          8,
+          INNER_RADIUS,
+          OUTER_RADIUS,
+          16,
           1,
-          false,
           startAngle + GAP_ANGLE / 2,
           SEGMENT_ANGLE - GAP_ANGLE,
         ]}
       />
-      <meshStandardMaterial color={color} />
+      <meshStandardMaterial color={color} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+function CenterSpine({ topY, bottomY }: { topY: number; bottomY: number }) {
+  const height = topY - bottomY;
+  return (
+    <mesh position={[0, bottomY + height / 2, 0]}>
+      <cylinderGeometry args={[0.22, 0.22, height, 12]} />
+      <meshStandardMaterial color={COLOR_SPINE} />
     </mesh>
   );
 }
@@ -76,10 +90,16 @@ function SegmentMesh({ y, startAngle, type }: { y: number; startAngle: number; t
 function EddieSprite({ yRef, texture }: { yRef: React.MutableRefObject<number>; texture: THREE.Texture }) {
   const ref = useRef<THREE.Sprite>(null);
   useFrame(() => {
-    if (ref.current) ref.current.position.set(TOWER_RADIUS, yRef.current, 0);
+    if (ref.current) {
+      ref.current.position.set(
+        Math.cos(EDDIE_WORLD_ANGLE) * EDDIE_RADIUS,
+        yRef.current,
+        Math.sin(EDDIE_WORLD_ANGLE) * EDDIE_RADIUS
+      );
+    }
   });
   return (
-    <sprite ref={ref} scale={[1.8, 1.8, 1.8]}>
+    <sprite ref={ref} scale={[1.7, 1.7, 1.7]}>
       <spriteMaterial map={texture} transparent />
     </sprite>
   );
@@ -108,7 +128,14 @@ function GameScene({
   const lastLevelCrossedRef = useRef(-1);
   const overRef = useRef(false);
 
-  const { camera } = useThree();
+  const { camera, scene } = useThree();
+
+  useEffect(() => {
+    scene.fog = new THREE.Fog("#0b0c14", 8, 22);
+    return () => {
+      scene.fog = null;
+    };
+  }, [scene]);
 
   useFrame((_, delta) => {
     if (overRef.current) return;
@@ -133,7 +160,8 @@ function GameScene({
       const level = levelsRef.current[currentLevelIndex];
       if (level) {
         const localAngle =
-          (((-rotationRef.current) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+          (((EDDIE_WORLD_ANGLE - rotationRef.current) % (Math.PI * 2)) + Math.PI * 2) %
+          (Math.PI * 2);
         const segIndex = Math.floor(localAngle / SEGMENT_ANGLE) % SEGMENTS;
         const type = level.segments[segIndex];
 
@@ -152,15 +180,21 @@ function GameScene({
       }
     }
 
-    camera.position.set(0, eddieYRef.current + 3.5, 7.5);
-    camera.lookAt(0, eddieYRef.current - 1, 0);
+    const eddieWorldX = Math.cos(EDDIE_WORLD_ANGLE) * EDDIE_RADIUS;
+    const eddieWorldZ = Math.sin(EDDIE_WORLD_ANGLE) * EDDIE_RADIUS;
+    camera.position.set(eddieWorldX * 1.4, eddieYRef.current + 2.2, eddieWorldZ * 1.4 + 5.5);
+    camera.lookAt(0, eddieYRef.current - 1.2, 0);
   });
+
+  const topY = levels[0]?.y ?? 0;
+  const bottomY = levels[levels.length - 1]?.y ?? 0;
 
   return (
     <>
-      <ambientLight intensity={0.75} />
-      <directionalLight position={[5, 10, 5]} intensity={0.9} />
+      <ambientLight intensity={0.8} />
+      <directionalLight position={[5, 10, 6]} intensity={0.9} />
       <group ref={towerGroupRef}>
+        <CenterSpine topY={topY + LEVEL_HEIGHT} bottomY={bottomY - LEVEL_HEIGHT} />
         {levels.map((level, li) =>
           level.segments.map((type, si) => {
             if (type === "gap") return null;
@@ -195,7 +229,7 @@ export default function HelixTower({
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!dragState.current) return;
     const dx = e.clientX - dragState.current.startX;
-    rotationRef.current = dragState.current.startRotation + dx * 0.01;
+    rotationRef.current = dragState.current.startRotation + dx * 0.012;
   }, []);
   const onPointerUp = useCallback(() => {
     dragState.current = null;
@@ -228,7 +262,7 @@ export default function HelixTower({
           cursor: "grab",
         }}
       >
-        <Canvas camera={{ fov: 55 }}>
+        <Canvas camera={{ fov: 50 }}>
           <Suspense fallback={null}>
             <EddieTexture>
               {(texture) => (
@@ -244,7 +278,7 @@ export default function HelixTower({
         </Canvas>
       </div>
       <p style={{ color: "#b7bade", fontSize: 12, textAlign: "center", maxWidth: 260 }}>
-        Zum Drehen des Turms ziehen (Maus/Finger) oder Pfeiltasten. Rot = Gefahr, lila =
+        Zum Drehen des Turms ziehen (Maus/Finger) oder Pfeiltasten. Rot = Gefahr, blau =
         sicher, Lücke = durchfallen.
       </p>
     </div>
