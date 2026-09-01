@@ -4,82 +4,41 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
-const SEGMENTS = 8;
-const SEGMENT_ANGLE = (Math.PI * 2) / SEGMENTS;
 const LEVEL_HEIGHT = 1.6;
-const INNER_RADIUS = 1;
-const OUTER_RADIUS = 3;
-const EDDIE_RADIUS = (INNER_RADIUS + OUTER_RADIUS) / 2;
+const PLATFORM_RADIUS = 3;
+const COLUMN_RADIUS = 0.5;
+const PLATFORM_THICKNESS = 0.4;
+const MIN_GAP = Math.PI * 0.22; // ~40deg
+const MAX_GAP = Math.PI * 0.55; // ~100deg
+const EDDIE_RADIUS = 2;
 const EDDIE_WORLD_ANGLE = Math.PI / 2; // Eddie sits toward +Z, facing the camera
-const GAP_ANGLE = 0.06;
-const SEGMENT_THICKNESS = 0.4;
 const GRAVITY = 16;
 const BOUNCE_VELOCITY = 9;
 const EDDIE_START_Y = 4;
-const GENERATE_AHEAD = 25;
-const GENERATE_BUFFER = 10;
+const GENERATE_AHEAD = 20;
+const GENERATE_BUFFER = 8;
 
-const COLOR_SAFE = "#22c55e";
+const SAFE_COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#06b6d4", "#a855f7"];
 const COLOR_DANGER = "#ef4444";
 const COLOR_SPINE = "#334155";
 const COLOR_BG = "#dbeafe";
 
-type SegmentType = "gap" | "safe" | "danger";
-type Level = { y: number; segments: SegmentType[] };
-
-function makeWedgeGeometry(innerR: number, outerR: number, thetaStart: number, thetaLength: number) {
-  const shape = new THREE.Shape();
-  const arcSegments = 8;
-  for (let i = 0; i <= arcSegments; i++) {
-    const t = thetaStart + (thetaLength * i) / arcSegments;
-    const x = outerR * Math.cos(t);
-    const y = outerR * Math.sin(t);
-    if (i === 0) shape.moveTo(x, y);
-    else shape.lineTo(x, y);
-  }
-  for (let i = arcSegments; i >= 0; i--) {
-    const t = thetaStart + (thetaLength * i) / arcSegments;
-    const x = innerR * Math.cos(t);
-    const y = innerR * Math.sin(t);
-    shape.lineTo(x, y);
-  }
-  shape.closePath();
-  return new THREE.ExtrudeGeometry(shape, {
-    depth: SEGMENT_THICKNESS,
-    bevelEnabled: false,
-    curveSegments: 8,
-  });
-}
-
-// Precompute one shared, reusable geometry per segment-index slot — every
-// level's segment at the same si has the identical shape, only its color
-// and Y position differ, so we avoid rebuilding geometry per level.
-const WEDGE_GEOMETRIES: THREE.ExtrudeGeometry[] = Array.from({ length: SEGMENTS }, (_, si) =>
-  makeWedgeGeometry(INNER_RADIUS, OUTER_RADIUS, si * SEGMENT_ANGLE + GAP_ANGLE / 2, SEGMENT_ANGLE - GAP_ANGLE)
-);
+type Level = {
+  y: number;
+  gapStart: number;
+  gapLength: number;
+  isDanger: boolean;
+  color: string;
+};
 
 function makeLevel(index: number, y: number): Level {
-  const segments: SegmentType[] = new Array(SEGMENTS).fill("safe");
-  const difficulty = Math.min(index / 30, 1);
-
-  const gapCount = 1 + Math.round(Math.random() * (1 - difficulty * 0.5));
-  const dangerCount = index < 3 ? 0 : Math.max(1, Math.round(difficulty * (1 + Math.random() * 2)));
-
-  const indices = Array.from({ length: SEGMENTS }, (_, i) => i);
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
-  }
-
-  let cursor = 0;
-  for (let i = 0; i < gapCount && cursor < indices.length; i++, cursor++) {
-    segments[indices[cursor]] = "gap";
-  }
-  for (let i = 0; i < dangerCount && cursor < indices.length; i++, cursor++) {
-    segments[indices[cursor]] = "danger";
-  }
-
-  return { y, segments };
+  const difficulty = Math.min(index / 25, 1);
+  const gapLength = MIN_GAP + Math.random() * (MAX_GAP - MIN_GAP);
+  const gapStart = Math.random() * Math.PI * 2;
+  const dangerChance = index < 3 ? 0 : 0.15 + difficulty * 0.35;
+  const isDanger = Math.random() < dangerChance;
+  const color = SAFE_COLORS[Math.floor(Math.random() * SAFE_COLORS.length)];
+  return { y, gapStart, gapLength, isDanger, color };
 }
 
 function generateLevels(startIndex: number, count: number): Level[] {
@@ -91,10 +50,16 @@ function generateLevels(startIndex: number, count: number): Level[] {
   return levels;
 }
 
-function SegmentMesh({ y, si, type }: { y: number; si: number; type: SegmentType }) {
-  const color = type === "danger" ? COLOR_DANGER : COLOR_SAFE;
+function PlatformMesh({ level }: { level: Level }) {
+  // Solid arc covering everything EXCEPT the gap, starting right after it.
+  const thetaStart = level.gapStart + level.gapLength;
+  const thetaLength = Math.PI * 2 - level.gapLength;
+  const color = level.isDanger ? COLOR_DANGER : level.color;
   return (
-    <mesh position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]} geometry={WEDGE_GEOMETRIES[si]}>
+    <mesh position={[0, level.y, 0]}>
+      <cylinderGeometry
+        args={[PLATFORM_RADIUS, PLATFORM_RADIUS, PLATFORM_THICKNESS, 48, 1, false, thetaStart, thetaLength]}
+      />
       <meshStandardMaterial color={color} side={THREE.DoubleSide} />
     </mesh>
   );
@@ -104,7 +69,7 @@ function CenterSpine({ topY, bottomY }: { topY: number; bottomY: number }) {
   const height = topY - bottomY;
   return (
     <mesh position={[0, bottomY + height / 2, 0]}>
-      <cylinderGeometry args={[0.22, 0.22, height, 12]} />
+      <cylinderGeometry args={[COLUMN_RADIUS, COLUMN_RADIUS, height, 16]} />
       <meshStandardMaterial color={COLOR_SPINE} />
     </mesh>
   );
@@ -126,6 +91,16 @@ function EddieSprite({ yRef, texture }: { yRef: React.MutableRefObject<number>; 
       <spriteMaterial map={texture} transparent />
     </sprite>
   );
+}
+
+function normalizeAngle(a: number) {
+  return ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+}
+
+// Is `angle` inside the arc [start, start+length] (all mod 2*PI, wrapping-safe)?
+function angleInArc(angle: number, start: number, length: number) {
+  const a = normalizeAngle(angle - start);
+  return a <= length;
 }
 
 function GameScene({
@@ -181,22 +156,29 @@ function GameScene({
 
     const currentLevelIndex = Math.floor((0 - eddieYRef.current) / LEVEL_HEIGHT);
     if (currentLevelIndex > lastLevelCrossedRef.current) {
-      const level = levelsRef.current[currentLevelIndex];
-      if (level) {
-        const localAngle =
-          (((EDDIE_WORLD_ANGLE + rotationRef.current) % (Math.PI * 2)) + Math.PI * 2) %
-          (Math.PI * 2);
-        const segIndex = Math.floor(localAngle / SEGMENT_ANGLE) % SEGMENTS;
-        const type = level.segments[segIndex];
+      // Process every level index between the last one we handled and the
+      // current one, in order — at high fall speed a single frame can cross
+      // more than one level, and skipping them silently is exactly what
+      // made it feel like "falls straight through" for no reason.
+      for (let li = lastLevelCrossedRef.current + 1; li <= currentLevelIndex; li++) {
+        const level = levelsRef.current[li];
+        if (!level) break;
 
-        lastLevelCrossedRef.current = currentLevelIndex;
+        // CylinderGeometry's own theta convention is x=r*sin(theta), z=r*cos(theta)
+        // (different from RingGeometry's x=r*cos, y=r*sin). Derived and
+        // numerically verified: the local theta that ends up under Eddie
+        // after the group's rotation.y is (PI/2 - EDDIE_WORLD_ANGLE) - rotation.
+        const matchAngle = normalizeAngle(Math.PI / 2 - EDDIE_WORLD_ANGLE - rotationRef.current);
+        const inGap = angleInArc(matchAngle, level.gapStart, level.gapLength);
 
-        if (type === "danger") {
-          overRef.current = true;
-          onGameOver(scoreRef.current);
-          return;
-        }
-        if (type === "safe") {
+        lastLevelCrossedRef.current = li;
+
+        if (!inGap) {
+          if (level.isDanger) {
+            overRef.current = true;
+            onGameOver(scoreRef.current);
+            return;
+          }
           velocityRef.current = BOUNCE_VELOCITY;
         }
         scoreRef.current += 1;
@@ -219,14 +201,9 @@ function GameScene({
       <directionalLight position={[5, 10, 6]} intensity={0.9} />
       <group ref={towerGroupRef}>
         <CenterSpine topY={topY + LEVEL_HEIGHT} bottomY={bottomY - LEVEL_HEIGHT} />
-        {levels.map((level, li) =>
-          level.segments.map((type, si) => {
-            if (type === "gap") return null;
-            return (
-              <SegmentMesh key={`${li}-${si}`} y={level.y} si={si} type={type} />
-            );
-          })
-        )}
+        {levels.map((level, li) => (
+          <PlatformMesh key={li} level={level} />
+        ))}
       </group>
       <EddieSprite yRef={eddieYRef} texture={texture} />
     </>
@@ -302,7 +279,7 @@ export default function HelixTower({
         </Canvas>
       </div>
       <p style={{ color: "#b7bade", fontSize: 12, textAlign: "center", maxWidth: 260 }}>
-        Zum Drehen des Turms ziehen (Maus/Finger) oder Pfeiltasten. Rot = Gefahr, blau =
+        Zum Drehen des Turms ziehen (Maus/Finger) oder Pfeiltasten. Rot = Gefahr, bunt =
         sicher, Lücke = durchfallen.
       </p>
     </div>
