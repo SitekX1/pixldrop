@@ -12,6 +12,7 @@ const OUTER_RADIUS = 3;
 const EDDIE_RADIUS = (INNER_RADIUS + OUTER_RADIUS) / 2;
 const EDDIE_WORLD_ANGLE = Math.PI / 2; // Eddie sits toward +Z, facing the camera
 const GAP_ANGLE = 0.06;
+const SEGMENT_THICKNESS = 0.4;
 const GRAVITY = 16;
 const BOUNCE_VELOCITY = 9;
 const EDDIE_START_Y = 4;
@@ -25,6 +26,37 @@ const COLOR_BG = "#dbeafe";
 
 type SegmentType = "gap" | "safe" | "danger";
 type Level = { y: number; segments: SegmentType[] };
+
+function makeWedgeGeometry(innerR: number, outerR: number, thetaStart: number, thetaLength: number) {
+  const shape = new THREE.Shape();
+  const arcSegments = 8;
+  for (let i = 0; i <= arcSegments; i++) {
+    const t = thetaStart + (thetaLength * i) / arcSegments;
+    const x = outerR * Math.cos(t);
+    const y = outerR * Math.sin(t);
+    if (i === 0) shape.moveTo(x, y);
+    else shape.lineTo(x, y);
+  }
+  for (let i = arcSegments; i >= 0; i--) {
+    const t = thetaStart + (thetaLength * i) / arcSegments;
+    const x = innerR * Math.cos(t);
+    const y = innerR * Math.sin(t);
+    shape.lineTo(x, y);
+  }
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, {
+    depth: SEGMENT_THICKNESS,
+    bevelEnabled: false,
+    curveSegments: 8,
+  });
+}
+
+// Precompute one shared, reusable geometry per segment-index slot — every
+// level's segment at the same si has the identical shape, only its color
+// and Y position differ, so we avoid rebuilding geometry per level.
+const WEDGE_GEOMETRIES: THREE.ExtrudeGeometry[] = Array.from({ length: SEGMENTS }, (_, si) =>
+  makeWedgeGeometry(INNER_RADIUS, OUTER_RADIUS, si * SEGMENT_ANGLE + GAP_ANGLE / 2, SEGMENT_ANGLE - GAP_ANGLE)
+);
 
 function makeLevel(index: number, y: number): Level {
   const segments: SegmentType[] = new Array(SEGMENTS).fill("safe");
@@ -59,20 +91,10 @@ function generateLevels(startIndex: number, count: number): Level[] {
   return levels;
 }
 
-function SegmentMesh({ y, startAngle, type }: { y: number; startAngle: number; type: SegmentType }) {
+function SegmentMesh({ y, si, type }: { y: number; si: number; type: SegmentType }) {
   const color = type === "danger" ? COLOR_DANGER : COLOR_SAFE;
   return (
-    <mesh position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]}>
-      <ringGeometry
-        args={[
-          INNER_RADIUS,
-          OUTER_RADIUS,
-          16,
-          1,
-          startAngle + GAP_ANGLE / 2,
-          SEGMENT_ANGLE - GAP_ANGLE,
-        ]}
-      />
+    <mesh position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]} geometry={WEDGE_GEOMETRIES[si]}>
       <meshStandardMaterial color={color} side={THREE.DoubleSide} />
     </mesh>
   );
@@ -162,7 +184,7 @@ function GameScene({
       const level = levelsRef.current[currentLevelIndex];
       if (level) {
         const localAngle =
-          (((EDDIE_WORLD_ANGLE - rotationRef.current) % (Math.PI * 2)) + Math.PI * 2) %
+          (((EDDIE_WORLD_ANGLE + rotationRef.current) % (Math.PI * 2)) + Math.PI * 2) %
           (Math.PI * 2);
         const segIndex = Math.floor(localAngle / SEGMENT_ANGLE) % SEGMENTS;
         const type = level.segments[segIndex];
@@ -201,7 +223,7 @@ function GameScene({
           level.segments.map((type, si) => {
             if (type === "gap") return null;
             return (
-              <SegmentMesh key={`${li}-${si}`} y={level.y} startAngle={si * SEGMENT_ANGLE} type={type} />
+              <SegmentMesh key={`${li}-${si}`} y={level.y} si={si} type={type} />
             );
           })
         )}
