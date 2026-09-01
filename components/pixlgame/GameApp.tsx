@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import HelixTower from "./HelixTower";
+import ShootingGallery from "./ShootingGallery";
 import RankReveal from "./RankReveal";
 import Leaderboard from "./Leaderboard";
 import { startGameSession, submitScore, getScoreRank } from "@/lib/pixlgame-supabase";
@@ -64,15 +64,15 @@ export default function GameApp() {
         gap: 18,
       }}
     >
-      <h1 style={{ fontSize: 22, fontWeight: 800 }}>🐾 Flucht aus dem Büro</h1>
+      <h1 style={{ fontSize: 22, fontWeight: 800 }}>🐾 Eddie-Schießbude</h1>
 
       {error && <div style={{ color: "#ff8080", fontSize: 13 }}>⚠ {error}</div>}
 
       {screen === "start" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
           <p style={{ color: "#b7bade", fontSize: 14, textAlign: "center", maxWidth: 280 }}>
-            Dreh den Bürogebäude-Turm und lass Eddie durch die Lücken fallen. Rote Etagen
-            (der Chef!) meiden — wie tief schaffst du's?
+            Die Eddies fliegen vorbei — triff so viele wie möglich, bevor die Munition
+            ausgeht. Der goldene Eddie bringt Bonuspunkte!
           </p>
           <button onClick={startGame} style={primaryBtn}>
             Spiel starten
@@ -80,7 +80,7 @@ export default function GameApp() {
         </div>
       )}
 
-      {screen === "playing" && <HelixTower onGameOver={handleGameOver} />}
+      {screen === "playing" && <ShootingGallery onGameOver={handleGameOver} />}
 
       {screen === "name" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
