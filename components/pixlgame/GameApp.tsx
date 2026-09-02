@@ -9,13 +9,24 @@ import { startGameSession, submitScore, getScoreRank } from "@/lib/pixlgame-supa
 type Screen = "start" | "playing" | "name" | "reveal" | "leaderboard";
 
 const RULES: { img: string; ring: string; label: string; value: string; valueColor: string }[] = [
-  { img: "/pixlgame-media/coffee-cup.jpg", ring: "#e4d3b8", label: "Kaffeetasse", value: "+10 PUNKTE", valueColor: "var(--navy)" },
-  { img: "/pixlgame-media/coffee-bean.jpg", ring: "#6b4226", label: "Kaffeebohne (klein, schnell)", value: "+25 PUNKTE", valueColor: "var(--navy)" },
-  { img: "/pixlgame-media/coffee-golden.jpg", ring: "#e7c25a", label: "Goldene Tasse (selten)", value: "+100 PUNKTE", valueColor: "#c9971f" },
-  { img: "/pixlgame-media/coffee-pot.jpg", ring: "#2fc2e8", label: "Kaffeekanne", value: "+5 SEK.", valueColor: "var(--cyan)" },
-  { img: "/pixlgame-media/coffee-muffin.jpg", ring: "#7b4fc4", label: "Gebäck (6 Sek. lang)", value: "2X PUNKTE", valueColor: "var(--violet)" },
+  { img: "/pixlgame-media/coffee-cup.png", ring: "#e4d3b8", label: "Kaffeetasse", value: "+10 PUNKTE", valueColor: "var(--navy)" },
+  { img: "/pixlgame-media/coffee-bean.png", ring: "#6b4226", label: "Kaffeebohne (klein, schnell)", value: "+25 PUNKTE", valueColor: "var(--navy)" },
+  { img: "/pixlgame-media/coffee-golden.png", ring: "#e7c25a", label: "Goldene Tasse (selten)", value: "+100 PUNKTE", valueColor: "#c9971f" },
+  { img: "/pixlgame-media/coffee-pot.png", ring: "#2fc2e8", label: "Kaffeekanne", value: "+5 SEK.", valueColor: "var(--cyan)" },
+  { img: "/pixlgame-media/coffee-muffin.png", ring: "#7b4fc4", label: "Gebäck (6 Sek. lang)", value: "2X PUNKTE", valueColor: "var(--violet)" },
   { img: "/pixlgame-media/eddie-sprite.png", ring: "#e0433c", label: "Eddie — NICHT treffen!", value: "−1 LEBEN", valueColor: "#e0433c" },
 ];
+
+// Dezentes Navy/Violet-Strukturmuster als pixldrop-eigener Seiten-Hintergrund
+// (Pendant zu honeycrews Honigwaben, aber in Markenfarben statt Honig-Thema).
+const PAGE_PATTERN_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56'>
+  <path d='M0 56L56 0' stroke='%235b2a9e' stroke-width='1' stroke-opacity='0.09'/>
+  <path d='M-14 14L14 -14' stroke='%232fc2e8' stroke-width='1' stroke-opacity='0.07'/>
+  <path d='M42 70L70 42' stroke='%232fc2e8' stroke-width='1' stroke-opacity='0.07'/>
+</svg>`;
+const PAGE_BACKGROUND = `radial-gradient(circle at 12% 10%, rgba(91,42,158,0.12), transparent 50%), radial-gradient(circle at 88% 90%, rgba(47,194,232,0.12), transparent 50%), url("data:image/svg+xml,${encodeURIComponent(
+  PAGE_PATTERN_SVG
+)}"), #eef0fb`;
 
 export default function GameApp() {
   const [screen, setScreen] = useState<Screen>("start");
@@ -58,33 +69,38 @@ export default function GameApp() {
     }
   }, [sessionId, name, finalScore]);
 
+  const playing = screen === "playing";
+
   return (
     <main
       style={{
-        minHeight: "100dvh",
-        background: "var(--bg)",
+        height: "100dvh",
+        background: PAGE_BACKGROUND,
         color: "var(--text)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
-        padding: "24px 16px",
+        justifyContent: playing ? "stretch" : "center",
+        padding: playing ? "8px" : "24px 16px",
+        overflowY: playing ? "hidden" : "auto",
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        gap: 18,
+        gap: playing ? 6 : 18,
       }}
     >
-      <h1
-        style={{
-          fontSize: 24,
-          fontWeight: 800,
-          background: "var(--gradient)",
-          WebkitBackgroundClip: "text",
-          backgroundClip: "text",
-          color: "transparent",
-        }}
-      >
-        ☕ Eddie&apos;s Café
-      </h1>
+      {!playing && (
+        <h1
+          style={{
+            fontSize: 24,
+            fontWeight: 800,
+            background: "var(--gradient)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+          }}
+        >
+          ☕ Eddie&apos;s Café
+        </h1>
+      )}
 
       {error && <div style={{ color: "#e0433c", fontSize: 13 }}>⚠ {error}</div>}
 
@@ -141,7 +157,11 @@ export default function GameApp() {
         </div>
       )}
 
-      {screen === "playing" && <ShootingGallery onGameOver={handleGameOver} />}
+      {playing && (
+        <div style={{ flex: 1, width: "100%", minHeight: 0, display: "flex" }}>
+          <ShootingGallery onGameOver={handleGameOver} />
+        </div>
+      )}
 
       {screen === "name" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", maxWidth: 320 }}>
