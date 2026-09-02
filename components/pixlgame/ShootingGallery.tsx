@@ -256,7 +256,9 @@ export default function ShootingGallery({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const reloadClusterRef = useRef<HTMLDivElement>(null);
+  const topHeaderRef = useRef<HTMLDivElement>(null);
   const bottomExclusionRef = useRef(150);
+  const topExclusionRef = useRef(100);
   const targetsRef = useRef<Target[]>([]);
   const overRef = useRef(false);
   const scoreRef = useRef(0);
@@ -274,7 +276,7 @@ export default function ShootingGallery({
     const cfg = KINDS[kind];
     const fromLeft = Math.random() < 0.5;
     const speed = rand(cfg.speed[0], cfg.speed[1]) * (fromLeft ? 1 : -1);
-    const baseY = rand(100, VIEWPORT_H - bottomExclusionRef.current);
+    const baseY = rand(topExclusionRef.current, VIEWPORT_H - bottomExclusionRef.current);
     const t: Target = {
       id: nextIdRef.current++,
       kind,
@@ -357,6 +359,14 @@ export default function ShootingGallery({
         const clusterTop = cluster.getBoundingClientRect().top;
         const realGap = Math.max(0, containerBottom - clusterTop);
         bottomExclusionRef.current = realGap / nextScale + 40; // +40 = Bob-Puffer
+      }
+
+      const header = topHeaderRef.current;
+      if (header && nextScale > 0) {
+        const containerTop = el.getBoundingClientRect().top;
+        const headerBottom = header.getBoundingClientRect().bottom;
+        const realGap = Math.max(0, headerBottom - containerTop);
+        topExclusionRef.current = realGap / nextScale + 20; // +20 = kleiner Puffer
       }
     };
     update();
@@ -612,21 +622,29 @@ export default function ShootingGallery({
           />
         )}
 
-        {/* Zwei dickere Balken übereinander oben — eigene Kopfzeile, in die nie ein
-            Ziel reinfliegt (Spawn-Bereich beginnt erst darunter). */}
-        <div style={{ position: "absolute", top: 12, left: 16, right: 16, display: "flex", flexDirection: "column", gap: 7 }}>
-          <MiniBar icon="⏱" frac={timeFrac} fillGradient="linear-gradient(90deg, #8fe6f7, #2fc2e8)" />
-          <MiniBar icon="⚡" frac={boostFrac} fillGradient="linear-gradient(90deg, #2fc2e8, #7b4fc4)" />
-        </div>
-
-        {/* HUD */}
-        <Badge style={{ top: 74, left: 16 }} icon="☕" value={score} />
       </div>
 
-      {/* Diese beiden liegen bewusst AUSSERHALB des skalierten Canvas-Divs, in echten
-          Bildschirm-Pixeln — sonst würde env(safe-area-inset-bottom) durch das
-          transform:scale() falsch mitskaliert und iOS Safaris untere Toolbar könnte
-          den Reload-Button trotzdem überlappen. */}
+      {/* Kopfzeile, Leben-Badge und Reload-Cluster liegen bewusst AUSSERHALB des
+          skalierten Canvas-Divs, in echten Bildschirm-Pixeln — sonst würde
+          env(safe-area-inset-*) durch das transform:scale() falsch mitskaliert und
+          iOS Safaris Status-/Toolbar könnte sie trotzdem überlappen. */}
+      <div
+        ref={topHeaderRef}
+        style={{
+          position: "absolute",
+          top: "max(12px, calc(env(safe-area-inset-top) + 8px))",
+          left: 16,
+          right: 16,
+          display: "flex",
+          flexDirection: "column",
+          gap: 7,
+        }}
+      >
+        <MiniBar icon="⏱" frac={timeFrac} fillGradient="linear-gradient(90deg, #8fe6f7, #2fc2e8)" />
+        <MiniBar icon="⚡" frac={boostFrac} fillGradient="linear-gradient(90deg, #2fc2e8, #7b4fc4)" />
+        <Badge style={{ position: "static", alignSelf: "flex-start", marginTop: 4 }} icon="☕" value={score} />
+      </div>
+
       <Badge style={{ bottom: 10, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
 
       <div
