@@ -5,8 +5,15 @@ import ShootingGallery from "./ShootingGallery";
 import RankReveal from "./RankReveal";
 import Leaderboard from "./Leaderboard";
 import { startGameSession, submitScore, getScoreRank } from "@/lib/pixlgame-supabase";
+import TrackedLink from "@/components/TrackedLink";
+import { TikTokIcon, InstagramIcon } from "@/components/Icons";
 
 type Screen = "intro" | "start" | "playing" | "name" | "reveal" | "leaderboard";
+
+const SOCIAL_LINKS = {
+  tiktok: "https://www.tiktok.com/@pixldropai",
+  instagram: "https://www.instagram.com/pixl.drop",
+};
 
 const RULES: { img: string; ring: string; label: string; value: string; valueColor: string }[] = [
   { img: "/pixlgame-media/coffee-cup.png", ring: "#e4d3b8", label: "Kaffeetasse", value: "+10 PUNKTE", valueColor: "var(--navy)" },
@@ -83,7 +90,10 @@ export default function GameApp() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: playing ? "stretch" : "center",
-        padding: playing ? "0" : "20px 12px",
+        paddingTop: playing ? 0 : "max(20px, calc(env(safe-area-inset-top) + 12px))",
+        paddingBottom: playing ? 0 : "max(20px, calc(env(safe-area-inset-bottom) + 12px))",
+        paddingLeft: playing ? 0 : 12,
+        paddingRight: playing ? 0 : 12,
         overflowY: playing ? "hidden" : "auto",
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         gap: playing ? 6 : 18,
@@ -190,11 +200,22 @@ export default function GameApp() {
               </div>
             ))}
           </div>
-          <p style={{ color: "var(--text-muted)", fontSize: 12, textAlign: "center" }}>
-            3 Leben · 30 Sekunden Start (mit Uhren bis zu 60) · manuelles Nachladen
-            <br />
-            🔥 Ab 30 Sek.: RUSH-Modus — 2x Punkte, mehr Tempo, unbegrenzte Munition
-          </p>
+          <div
+            className="card"
+            style={{
+              width: "100%",
+              padding: "8px 10px",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <InfoChip icon="❤️" label="3 Leben" />
+            <InfoChip icon="⏱" label="30 Sek. Start" />
+            <InfoChip icon="🔄" label="Manuelles Nachladen" />
+            <InfoChip icon="🔥" label="Ab 30s: Rush-Modus" />
+          </div>
           <button onClick={startGame} className="pill-btn" style={{ border: "none", cursor: "pointer" }}>
             Spiel starten
           </button>
@@ -294,6 +315,35 @@ export default function GameApp() {
       {screen === "leaderboard" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, width: "100%" }}>
           <Leaderboard />
+
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+            <p style={{ color: "var(--text-muted)", fontSize: 12, margin: 0 }}>Folg uns für mehr Eddie 🐾</p>
+            <div className="social-row" style={{ marginBottom: 0 }}>
+              <TrackedLink
+                href={SOCIAL_LINKS.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                event="social-click"
+                eventData={{ platform: "tiktok", source: "pixlgame" }}
+                aria-label="TikTok"
+              >
+                <TikTokIcon />
+              </TrackedLink>
+              <TrackedLink
+                href={SOCIAL_LINKS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                event="social-click"
+                eventData={{ platform: "instagram", source: "pixlgame" }}
+                aria-label="Instagram"
+              >
+                <InstagramIcon />
+              </TrackedLink>
+            </div>
+          </div>
+
           <button
             onClick={() => {
               setScreen("start");
@@ -311,6 +361,29 @@ export default function GameApp() {
         </div>
       )}
     </main>
+  );
+}
+
+function InfoChip({ icon, label }: { icon: string; label: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 5,
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        borderRadius: 999,
+        padding: "5px 10px",
+        fontSize: 11,
+        fontWeight: 700,
+        color: "var(--text)",
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span>{icon}</span>
+      <span>{label}</span>
+    </div>
   );
 }
 

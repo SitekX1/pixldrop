@@ -17,10 +17,12 @@ const BOOST_SECONDS = 6;
 const LIFE_BONUS_PER_LIFE = 50;
 
 const RUSH_START_SECONDS = 30;
-const RUSH_SPEED_MULT = 1.35;
-const RUSH_SPAWN_CAP = 4;
+const RUSH_SPEED_MULT = 1.65;
+const RUSH_SPAWN_CAP = 5;
 const RUSH_POINT_MULT = 2;
 const RUSH_BANNER_MS = 1800;
+const RUSH_PENALTY_WEIGHT_MULT = 2.4;
+const RUSH_FLASH_MS = 700;
 
 const IMG_SRC: Record<KindKey, string> = {
   cup: "/pixlgame-media/coffee-cup.png",
@@ -112,8 +114,10 @@ type Target = {
 
 type Floater = { id: number; x: number; y: number; text: string; color: string };
 
-function pickWeightedKind(): KindKey {
-  const entries = Object.entries(WEIGHTS) as [KindKey, number][];
+function pickWeightedKind(rush: boolean): KindKey {
+  const entries = (Object.entries(WEIGHTS) as [KindKey, number][]).map(
+    ([key, w]) => [key, rush && KINDS[key].role === "penalty" ? w * RUSH_PENALTY_WEIGHT_MULT : w] as [KindKey, number]
+  );
   const total = entries.reduce((s, [, w]) => s + w, 0);
   let r = Math.random() * total;
   for (const [key, w] of entries) {
@@ -256,6 +260,7 @@ export default function ShootingGallery({
   const [boostFrac, setBoostFrac] = useState(0);
   const [rushActive, setRushActive] = useState(false);
   const [showRushBanner, setShowRushBanner] = useState(false);
+  const [rushFlash, setRushFlash] = useState(false);
   const [flash, setFlash] = useState(false);
   const [crosshair, setCrosshair] = useState<{ x: number; y: number } | null>(null);
   const [muzzle, setMuzzle] = useState<{ x: number; y: number; id: number } | null>(null);
@@ -281,7 +286,7 @@ export default function ShootingGallery({
   const elapsedRef = useRef(0);
 
   const spawnTarget = useCallback(() => {
-    const kind = pickWeightedKind();
+    const kind = pickWeightedKind(rushActiveRef.current);
     const cfg = KINDS[kind];
     const fromLeft = Math.random() < 0.5;
     const speedMult = rushActiveRef.current ? RUSH_SPEED_MULT : 1;
@@ -330,8 +335,8 @@ export default function ShootingGallery({
         setRushActive(true);
         clipRef.current = CLIP_SIZE;
         setClipLeft(CLIP_SIZE);
-        setFlash(true);
-        setTimeout(() => setFlash(false), 220);
+        setRushFlash(true);
+        setTimeout(() => setRushFlash(false), RUSH_FLASH_MS);
         setShowRushBanner(true);
         setTimeout(() => setShowRushBanner(false), RUSH_BANNER_MS);
       }
@@ -654,6 +659,18 @@ export default function ShootingGallery({
           />
         )}
 
+        {rushFlash && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "radial-gradient(circle, rgba(255,179,71,0.9), rgba(224,67,60,0.75))",
+              pointerEvents: "none",
+              animation: `rushFlashFade ${RUSH_FLASH_MS}ms ease-out forwards`,
+            }}
+          />
+        )}
+
       </div>
 
       {/* Kopfzeile, Leben-Badge und Reload-Cluster liegen bewusst AUSSERHALB des
@@ -775,6 +792,11 @@ export default function ShootingGallery({
           25% { transform: translate(-50%, -50%) scale(1); }
           80% { opacity: 1; }
           100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes rushFlashFade {
+          0% { opacity: 1; }
+          20% { opacity: 0.9; }
+          100% { opacity: 0; }
         }
       `}</style>
     </div>
