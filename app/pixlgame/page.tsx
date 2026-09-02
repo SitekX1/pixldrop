@@ -1,6 +1,6 @@
 import GameApp from "@/components/pixlgame/GameApp";
 
-export const metadata = { title: "Survive Monday — PixlDrop", robots: { index: false, follow: false } };
+export const metadata = { title: "Eddie's Café — PixlDrop", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function PixlGamePage({

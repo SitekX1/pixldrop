@@ -255,6 +255,8 @@ export default function ShootingGallery({
   const [scale, setScale] = useState(1);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const reloadClusterRef = useRef<HTMLDivElement>(null);
+  const bottomExclusionRef = useRef(150);
   const targetsRef = useRef<Target[]>([]);
   const overRef = useRef(false);
   const scoreRef = useRef(0);
@@ -272,7 +274,7 @@ export default function ShootingGallery({
     const cfg = KINDS[kind];
     const fromLeft = Math.random() < 0.5;
     const speed = rand(cfg.speed[0], cfg.speed[1]) * (fromLeft ? 1 : -1);
-    const baseY = rand(100, VIEWPORT_H - 150);
+    const baseY = rand(100, VIEWPORT_H - bottomExclusionRef.current);
     const t: Target = {
       id: nextIdRef.current++,
       kind,
@@ -342,7 +344,20 @@ export default function ShootingGallery({
       // "cover"-Fit statt "contain": das Spielfeld soll den Bildschirm wirklich
       // komplett füllen (links-rechts UND oben-unten), notfalls mit minimalem
       // Beschnitt an einer Kante, statt Lücken zu lassen.
-      if (w > 0 && h > 0) setScale(Math.max(w / VIEWPORT_W, h / VIEWPORT_H));
+      const nextScale = w > 0 && h > 0 ? Math.max(w / VIEWPORT_W, h / VIEWPORT_H) : 1;
+      setScale(nextScale);
+
+      // Der Reload-Cluster liegt außerhalb des skalierten Canvas in echten
+      // Bildschirm-Pixeln (safe-area-aware, siehe unten). Wie weit er auf DIESEM
+      // Gerät tatsächlich vom unteren Rand absteht, messen wir direkt statt es
+      // zu erraten — daraus ergibt sich die logische Sperrzone für Spawns.
+      const cluster = reloadClusterRef.current;
+      if (cluster && nextScale > 0) {
+        const containerBottom = el.getBoundingClientRect().bottom;
+        const clusterTop = cluster.getBoundingClientRect().top;
+        const realGap = Math.max(0, containerBottom - clusterTop);
+        bottomExclusionRef.current = realGap / nextScale + 40; // +40 = Bob-Puffer
+      }
     };
     update();
     const ro = new ResizeObserver(update);
@@ -606,53 +621,66 @@ export default function ShootingGallery({
 
         {/* HUD */}
         <Badge style={{ top: 74, left: 16 }} icon="☕" value={score} />
-        <Badge style={{ bottom: 10, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
+      </div>
 
-        <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-          <div
-            style={{
-              display: "flex",
-              gap: 6,
-              background: "rgba(27,42,107,0.85)",
-              padding: "8px 14px",
-              borderRadius: 999,
-            }}
-          >
-            {Array.from({ length: CLIP_SIZE }).map((_, i) => (
-              <span
-                key={i}
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: "50%",
-                  background: i < clipLeft ? "#2fc2e8" : "rgba(255,255,255,0.25)",
-                }}
-              />
-            ))}
-          </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              reload();
-            }}
-            onPointerDown={(e) => e.stopPropagation()}
-            disabled={reloading || clipLeft >= CLIP_SIZE}
-            style={{
-              background: reloading ? "rgba(27,42,107,0.5)" : "var(--gradient)",
-              color: "#fff",
-              border: "none",
-              borderRadius: 999,
-              padding: "14px 28px",
-              fontWeight: 800,
-              fontSize: 15,
-              boxShadow: "0 6px 16px rgba(27,42,107,0.35)",
-              cursor: clipLeft >= CLIP_SIZE ? "default" : "pointer",
-              opacity: clipLeft >= CLIP_SIZE ? 0.55 : 1,
-            }}
-          >
-            {reloading ? "Lädt…" : "🔄 Nachladen"}
-          </button>
+      {/* Diese beiden liegen bewusst AUSSERHALB des skalierten Canvas-Divs, in echten
+          Bildschirm-Pixeln — sonst würde env(safe-area-inset-bottom) durch das
+          transform:scale() falsch mitskaliert und iOS Safaris untere Toolbar könnte
+          den Reload-Button trotzdem überlappen. */}
+      <Badge style={{ bottom: 10, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
+
+      <div
+        ref={reloadClusterRef}
+        style={{
+          position: "absolute",
+          bottom: "max(16px, calc(env(safe-area-inset-bottom) + 12px))",
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: 6,
+            background: "rgba(27,42,107,0.85)",
+            padding: "8px 14px",
+            borderRadius: 999,
+          }}
+        >
+          {Array.from({ length: CLIP_SIZE }).map((_, i) => (
+            <span
+              key={i}
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: i < clipLeft ? "#2fc2e8" : "rgba(255,255,255,0.25)",
+              }}
+            />
+          ))}
         </div>
+        <button
+          onClick={reload}
+          disabled={reloading || clipLeft >= CLIP_SIZE}
+          style={{
+            background: reloading ? "rgba(27,42,107,0.5)" : "var(--gradient)",
+            color: "#fff",
+            border: "none",
+            borderRadius: 999,
+            padding: "14px 28px",
+            fontWeight: 800,
+            fontSize: 15,
+            boxShadow: "0 6px 16px rgba(27,42,107,0.35)",
+            cursor: clipLeft >= CLIP_SIZE ? "default" : "pointer",
+            opacity: clipLeft >= CLIP_SIZE ? 0.55 : 1,
+          }}
+        >
+          {reloading ? "Lädt…" : "🔄 Nachladen"}
+        </button>
       </div>
 
       <style>{`
