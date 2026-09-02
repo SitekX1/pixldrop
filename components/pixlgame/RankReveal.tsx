@@ -57,7 +57,6 @@ export default function RankReveal({
           <video
             src={RANK_VIDEOS[key]}
             autoPlay
-            muted
             playsInline
             onError={() => setVideoFailed(true)}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}

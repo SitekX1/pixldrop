@@ -272,7 +272,7 @@ export default function ShootingGallery({
     const cfg = KINDS[kind];
     const fromLeft = Math.random() < 0.5;
     const speed = rand(cfg.speed[0], cfg.speed[1]) * (fromLeft ? 1 : -1);
-    const baseY = rand(100, VIEWPORT_H - 60);
+    const baseY = rand(100, VIEWPORT_H - 150);
     const t: Target = {
       id: nextIdRef.current++,
       kind,
