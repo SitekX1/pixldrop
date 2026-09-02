@@ -16,6 +16,12 @@ const LIVES_START = 3;
 const BOOST_SECONDS = 6;
 const LIFE_BONUS_PER_LIFE = 50;
 
+const RUSH_START_SECONDS = 30;
+const RUSH_SPEED_MULT = 1.35;
+const RUSH_SPAWN_CAP = 4;
+const RUSH_POINT_MULT = 2;
+const RUSH_BANNER_MS = 1800;
+
 const IMG_SRC: Record<KindKey, string> = {
   cup: "/pixlgame-media/coffee-cup.png",
   bean: "/pixlgame-media/coffee-bean.png",
@@ -248,6 +254,8 @@ export default function ShootingGallery({
   const [reloading, setReloading] = useState(false);
   const [boostActive, setBoostActive] = useState(false);
   const [boostFrac, setBoostFrac] = useState(0);
+  const [rushActive, setRushActive] = useState(false);
+  const [showRushBanner, setShowRushBanner] = useState(false);
   const [flash, setFlash] = useState(false);
   const [crosshair, setCrosshair] = useState<{ x: number; y: number } | null>(null);
   const [muzzle, setMuzzle] = useState<{ x: number; y: number; id: number } | null>(null);
@@ -267,6 +275,7 @@ export default function ShootingGallery({
   const clipRef = useRef(CLIP_SIZE);
   const reloadingRef = useRef(false);
   const boostUntilRef = useRef(0);
+  const rushActiveRef = useRef(false);
   const nextIdRef = useRef(1);
   const spawnTimerRef = useRef(600);
   const elapsedRef = useRef(0);
@@ -275,7 +284,8 @@ export default function ShootingGallery({
     const kind = pickWeightedKind();
     const cfg = KINDS[kind];
     const fromLeft = Math.random() < 0.5;
-    const speed = rand(cfg.speed[0], cfg.speed[1]) * (fromLeft ? 1 : -1);
+    const speedMult = rushActiveRef.current ? RUSH_SPEED_MULT : 1;
+    const speed = rand(cfg.speed[0], cfg.speed[1]) * speedMult * (fromLeft ? 1 : -1);
     const baseY = rand(topExclusionRef.current, VIEWPORT_H - bottomExclusionRef.current);
     const t: Target = {
       id: nextIdRef.current++,
@@ -315,8 +325,20 @@ export default function ShootingGallery({
       setBoostActive((prev) => (prev !== boostNow ? boostNow : prev));
       setBoostFrac(boostNow ? Math.max(0, (boostUntilRef.current - elapsedRef.current) / BOOST_SECONDS) : 0);
 
+      if (!rushActiveRef.current && elapsedRef.current >= RUSH_START_SECONDS) {
+        rushActiveRef.current = true;
+        setRushActive(true);
+        clipRef.current = CLIP_SIZE;
+        setClipLeft(CLIP_SIZE);
+        setFlash(true);
+        setTimeout(() => setFlash(false), 220);
+        setShowRushBanner(true);
+        setTimeout(() => setShowRushBanner(false), RUSH_BANNER_MS);
+      }
+
       spawnTimerRef.current -= TICK_MS;
-      if (spawnTimerRef.current <= 0 && targetsRef.current.length < 3) {
+      const spawnCap = rushActiveRef.current ? RUSH_SPAWN_CAP : 3;
+      if (spawnTimerRef.current <= 0 && targetsRef.current.length < spawnCap) {
         spawnTarget();
         spawnTimerRef.current = rand(500, 950);
       }
@@ -395,15 +417,19 @@ export default function ShootingGallery({
 
   const fire = useCallback(
     (clientX: number, clientY: number, rect: DOMRect) => {
-      if (overRef.current || reloadingRef.current || clipRef.current <= 0) return;
+      if (overRef.current || reloadingRef.current || (!rushActiveRef.current && clipRef.current <= 0)) return;
 
       // rect reflects the on-screen (scaled) size; normalize back to the fixed
       // logical VIEWPORT_W x VIEWPORT_H coordinate space the game simulates in.
       const x = ((clientX - rect.left) / rect.width) * VIEWPORT_W;
       const y = ((clientY - rect.top) / rect.height) * VIEWPORT_H;
 
-      clipRef.current -= 1;
-      setClipLeft(clipRef.current);
+      // Im Rush-Modus unbegrenzte Munition — Magazin bleibt sichtbar voll,
+      // Nachladen wird dadurch automatisch überflüssig (Button ist disabled).
+      if (!rushActiveRef.current) {
+        clipRef.current -= 1;
+        setClipLeft(clipRef.current);
+      }
       setMuzzle({ x, y, id: Date.now() });
 
       let hitTarget: Target | null = null;
@@ -444,10 +470,16 @@ export default function ShootingGallery({
           addFloater(hitTarget.x, hitTarget.y, "Boost x2!", "#7b4fc4");
         } else {
           const boosted = elapsedRef.current < boostUntilRef.current;
-          const gained = cfg.points * (boosted ? 2 : 1);
+          const mult = (boosted ? 2 : 1) * (rushActiveRef.current ? RUSH_POINT_MULT : 1);
+          const gained = cfg.points * mult;
           scoreRef.current += gained;
           setScore(scoreRef.current);
-          addFloater(hitTarget.x, hitTarget.y, `+${gained}${boosted ? " x2" : ""}`, boosted ? "#7b4fc4" : "#1b2a6b");
+          addFloater(
+            hitTarget.x,
+            hitTarget.y,
+            `+${gained}${mult > 1 ? ` x${mult}` : ""}`,
+            mult > 1 ? "#7b4fc4" : "#1b2a6b"
+          );
         }
       }
     },
@@ -640,12 +672,39 @@ export default function ShootingGallery({
           gap: 7,
         }}
       >
-        <MiniBar icon="⏱" frac={timeFrac} fillGradient="linear-gradient(90deg, #8fe6f7, #2fc2e8)" />
+        <MiniBar
+          icon={rushActive ? "🔥" : "⏱"}
+          frac={timeFrac}
+          fillGradient={rushActive ? "linear-gradient(90deg, #ffb347, #e0433c)" : "linear-gradient(90deg, #8fe6f7, #2fc2e8)"}
+        />
         <MiniBar icon="⚡" frac={boostFrac} fillGradient="linear-gradient(90deg, #2fc2e8, #7b4fc4)" />
         <Badge style={{ position: "static", alignSelf: "flex-start", marginTop: 4 }} icon="☕" value={score} />
       </div>
 
       <Badge style={{ bottom: 10, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
+
+      {showRushBanner && (
+        <div
+          style={{
+            position: "absolute",
+            top: "38%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "linear-gradient(90deg, #ffb347, #e0433c)",
+            color: "#fff",
+            fontWeight: 900,
+            fontSize: 26,
+            padding: "10px 26px",
+            borderRadius: 16,
+            boxShadow: "0 8px 24px rgba(224,67,60,0.5)",
+            pointerEvents: "none",
+            animation: `rushPop ${RUSH_BANNER_MS}ms ease-out forwards`,
+            whiteSpace: "nowrap",
+          }}
+        >
+          🔥 RUSH! 2X PUNKTE
+        </div>
+      )}
 
       <div
         ref={reloadClusterRef}
@@ -709,6 +768,13 @@ export default function ShootingGallery({
         @keyframes muzzlePulse {
           0% { opacity: 1; transform: translate(-50%, -50%) scale(0.4); }
           100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+        }
+        @keyframes rushPop {
+          0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+          15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+          25% { transform: translate(-50%, -50%) scale(1); }
+          80% { opacity: 1; }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
         }
       `}</style>
     </div>

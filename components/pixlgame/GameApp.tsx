@@ -192,6 +192,8 @@ export default function GameApp() {
           </div>
           <p style={{ color: "var(--text-muted)", fontSize: 12, textAlign: "center" }}>
             3 Leben · 30 Sekunden Start (mit Uhren bis zu 60) · manuelles Nachladen
+            <br />
+            🔥 Ab 30 Sek.: RUSH-Modus — 2x Punkte, mehr Tempo, unbegrenzte Munition
           </p>
           <button onClick={startGame} className="pill-btn" style={{ border: "none", cursor: "pointer" }}>
             Spiel starten
