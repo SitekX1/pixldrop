@@ -36,6 +36,7 @@ export default function GameApp() {
   const [rank, setRank] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
 
   const startGame = useCallback(async () => {
     setError(null);
@@ -81,7 +82,7 @@ export default function GameApp() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: playing ? "stretch" : "center",
-        padding: playing ? "8px" : "24px 16px",
+        padding: playing ? "8px" : "20px 12px",
         overflowY: playing ? "hidden" : "auto",
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         gap: playing ? 6 : 18,
@@ -105,7 +106,7 @@ export default function GameApp() {
       {error && <div style={{ color: "#e0433c", fontSize: 13 }}>⚠ {error}</div>}
 
       {screen === "start" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", maxWidth: 320 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", maxWidth: 420 }}>
           <div className="card" style={{ width: "100%", padding: 0, overflow: "hidden" }}>
             {RULES.map((r, i) => (
               <div
@@ -164,20 +165,25 @@ export default function GameApp() {
       )}
 
       {screen === "name" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", maxWidth: 320 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", maxWidth: 420 }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text)" }}>Runde beendet</div>
           <div
             style={{
-              fontSize: 36,
+              fontSize: 40,
               fontWeight: 800,
+              lineHeight: 1,
               background: "var(--gradient)",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               color: "transparent",
+              marginTop: -6,
             }}
           >
             {finalScore.total}
           </div>
-          <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: -12 }}>Runde beendet</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: "var(--violet)", marginTop: -12 }}>
+            PUNKTE
+          </div>
 
           <div className="card" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 8 }}>
             <Row label="Erspielte Punkte" value={finalScore.base} />
@@ -185,28 +191,55 @@ export default function GameApp() {
             <Row label="Gesamtpunktzahl" value={finalScore.total} bold />
           </div>
 
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value.slice(0, 20))}
-            placeholder="Dein Name"
-            style={{
-              background: "var(--card)",
-              border: "1px solid var(--border)",
-              borderRadius: 12,
-              padding: "12px 14px",
-              color: "var(--text)",
-              fontSize: 15,
-              width: "100%",
-              textAlign: "center",
-            }}
-          />
+          <div className="card" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text)" }}>In die Rangliste eintragen</div>
+            <label style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "left" }}>Öffentlicher Spielername</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value.slice(0, 20))}
+              placeholder="Dein Name"
+              style={{
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                borderRadius: 12,
+                padding: "12px 14px",
+                color: "var(--text)",
+                fontSize: 15,
+                width: "100%",
+                textAlign: "center",
+              }}
+            />
+            <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12, color: "var(--text-muted)", textAlign: "left", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                style={{ marginTop: 2, flexShrink: 0 }}
+              />
+              Ich bin damit einverstanden, dass mein Spielername, mein Score und das Spieldatum öffentlich in der Eddie&apos;s-Café-Rangliste angezeigt werden.
+            </label>
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || !name.trim() || !consent}
+              className="pill-btn"
+              style={{ border: "none", cursor: "pointer", justifyContent: "center", opacity: submitting || !name.trim() || !consent ? 0.5 : 1 }}
+            >
+              {submitting ? "Speichert…" : "Highscore eintragen"}
+            </button>
+          </div>
+
           <button
-            onClick={handleSubmit}
-            disabled={submitting || !name.trim()}
+            onClick={() => {
+              setScreen("start");
+              setSessionId(null);
+              setName("");
+              setConsent(false);
+              setFinalScore({ total: 0, base: 0, bonus: 0 });
+            }}
             className="pill-btn"
-            style={{ border: "none", cursor: "pointer", opacity: submitting || !name.trim() ? 0.6 : 1 }}
+            style={{ border: "none", cursor: "pointer", background: "var(--navy)" }}
           >
-            {submitting ? "Speichert…" : "Highscore eintragen"}
+            Nochmal spielen
           </button>
         </div>
       )}
@@ -223,6 +256,7 @@ export default function GameApp() {
               setScreen("start");
               setSessionId(null);
               setName("");
+              setConsent(false);
               setRank(null);
               setFinalScore({ total: 0, base: 0, bonus: 0 });
             }}
