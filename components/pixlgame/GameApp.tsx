@@ -14,7 +14,8 @@ const RULES: { img: string; ring: string; label: string; value: string; valueCol
   { img: "/pixlgame-media/coffee-golden.png", ring: "#e7c25a", label: "Goldene Tasse (selten)", value: "+100 PUNKTE", valueColor: "#c9971f" },
   { img: "/pixlgame-media/coffee-clock.png", ring: "#2fc2e8", label: "Kaffee-Uhr", value: "+5 SEK.", valueColor: "var(--cyan)" },
   { img: "/pixlgame-media/coffee-muffin.png", ring: "#7b4fc4", label: "Gebäck (6 Sek. lang)", value: "2X PUNKTE", valueColor: "var(--violet)" },
-  { img: "/pixlgame-media/eddie-sprite.png", ring: "#e0433c", label: "Eddie — NICHT treffen!", value: "−1 LEBEN", valueColor: "#e0433c" },
+  { img: "/pixlgame-media/eddie-iso.png", ring: "#e0433c", label: "Eddie — NICHT treffen!", value: "−1 LEBEN", valueColor: "#e0433c" },
+  { img: "/pixlgame-media/wasp.png", ring: "#e0433c", label: "Wespe — auch NICHT treffen!", value: "−1 LEBEN", valueColor: "#e0433c" },
 ];
 
 // Kräftiger Navy/Violet/Gold-Strukturhintergrund als pixldrop-eigene Seiten-Kulisse
@@ -133,7 +134,7 @@ export default function GameApp() {
           </h1>
           <p style={{ color: "var(--text)", fontSize: 14, textAlign: "center", lineHeight: 1.5 }}>
             Eddie hat sich ins Café geschlichen! Schieß Kaffeebohnen und Tassen für Punkte,
-            schnapp dir Uhr und Gebäck für Boni — aber lass Eddie in Ruhe, sonst kostet's ein Leben.
+            schnapp dir Uhr und Gebäck für Boni — aber lass Eddie und die Wespe in Ruhe, sonst kostet's ein Leben.
           </p>
           <button
             onClick={() => setScreen("start")}

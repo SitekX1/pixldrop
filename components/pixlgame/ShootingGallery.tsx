@@ -23,6 +23,7 @@ const IMG_SRC: Record<KindKey, string> = {
   clock: "/pixlgame-media/coffee-clock.png",
   muffin: "/pixlgame-media/coffee-muffin.png",
   eddie: "/pixlgame-media/eddie-iso.png",
+  wasp: "/pixlgame-media/wasp.png",
 };
 
 const KINDS = {
@@ -68,6 +69,13 @@ const KINDS = {
     bob: 0,
     points: 0,
   },
+  wasp: {
+    role: "penalty" as const,
+    size: 32,
+    speed: [160, 220] as [number, number],
+    bob: 24,
+    points: 0,
+  },
 };
 
 const WEIGHTS: Record<KindKey, number> = {
@@ -76,7 +84,8 @@ const WEIGHTS: Record<KindKey, number> = {
   golden: 6,
   clock: 10,
   muffin: 8,
-  eddie: 20,
+  eddie: 14,
+  wasp: 14,
 };
 
 type KindKey = keyof typeof KINDS;
@@ -175,6 +184,16 @@ function TargetVisual({ kind }: { kind: KindKey }) {
           <circle cx="42" cy="24" r="2.4" fill="#fff3d6" />
         </svg>
       );
+    case "wasp":
+      return (
+        <svg viewBox="0 0 64 64" width="100%" height="100%">
+          <ellipse cx="20" cy="30" rx="16" ry="10" fill="#e5e0d0" opacity="0.7" />
+          <ellipse cx="44" cy="30" rx="16" ry="10" fill="#e5e0d0" opacity="0.7" />
+          <ellipse cx="32" cy="32" rx="10" ry="7" fill="#1a1a1a" />
+          <path d="M24 27h16M25 32h14M26 37h12" stroke="#f2c94c" strokeWidth="2.4" strokeLinecap="round" />
+          <circle cx="32" cy="24" r="5" fill="#1a1a1a" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -253,7 +272,7 @@ export default function ShootingGallery({
     const cfg = KINDS[kind];
     const fromLeft = Math.random() < 0.5;
     const speed = rand(cfg.speed[0], cfg.speed[1]) * (fromLeft ? 1 : -1);
-    const baseY = rand(50, VIEWPORT_H - 60);
+    const baseY = rand(100, VIEWPORT_H - 60);
     const t: Target = {
       id: nextIdRef.current++,
       kind,
@@ -578,15 +597,18 @@ export default function ShootingGallery({
           />
         )}
 
-        {/* Balken oben (Zeit) und unten (Booster) — volle Breite, außerhalb der Ecken-Badges */}
-        <Bar frac={timeFrac} fillGradient="linear-gradient(90deg, #8fe6f7, #2fc2e8)" style={{ top: 0 }} />
-        <Bar frac={boostFrac} fillGradient="linear-gradient(90deg, #2fc2e8, #7b4fc4)" style={{ bottom: 0 }} />
+        {/* Zwei dickere Balken übereinander oben — eigene Kopfzeile, in die nie ein
+            Ziel reinfliegt (Spawn-Bereich beginnt erst darunter). */}
+        <div style={{ position: "absolute", top: 12, left: 16, right: 16, display: "flex", flexDirection: "column", gap: 7 }}>
+          <MiniBar icon="⏱" frac={timeFrac} fillGradient="linear-gradient(90deg, #8fe6f7, #2fc2e8)" />
+          <MiniBar icon="⚡" frac={boostFrac} fillGradient="linear-gradient(90deg, #2fc2e8, #7b4fc4)" />
+        </div>
 
         {/* HUD */}
-        <Badge style={{ top: 20, left: 10 }} icon="☕" value={score} />
-        <Badge style={{ bottom: 20, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
+        <Badge style={{ top: 74, left: 16 }} icon="☕" value={score} />
+        <Badge style={{ bottom: 10, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
 
-        <div style={{ position: "absolute", bottom: 26, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+        <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div
             style={{
               display: "flex",
@@ -647,37 +669,31 @@ export default function ShootingGallery({
   );
 }
 
-// Volle-Breite-Balken oben (Zeit) / unten (Booster) im Spielfeld, flush an der Kante.
-function Bar({
-  frac,
-  fillGradient,
-  style,
-}: {
-  frac: number;
-  fillGradient: string;
-  style: React.CSSProperties;
-}) {
+// Dicke Balken in der Kopfzeile (Zeit oben, Booster darunter) — dieser Bereich
+// ist bewusst frei von Zielen (siehe Spawn-baseY-Mindestwert).
+function MiniBar({ icon, frac, fillGradient }: { icon: string; frac: number; fillGradient: string }) {
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        height: 10,
-        background: "rgba(27,42,107,0.25)",
-        overflow: "hidden",
-        pointerEvents: "none",
-        ...style,
-      }}
-    >
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span style={{ fontSize: 14, width: 16, textAlign: "center", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}>{icon}</span>
       <div
         style={{
-          width: `${Math.max(0, Math.min(1, frac)) * 100}%`,
-          height: "100%",
-          background: fillGradient,
-          transition: "width 150ms linear",
+          flex: 1,
+          height: 14,
+          borderRadius: 999,
+          background: "rgba(27,42,107,0.4)",
+          boxShadow: "inset 0 0 4px rgba(0,0,0,0.2)",
+          overflow: "hidden",
         }}
-      />
+      >
+        <div
+          style={{
+            width: `${Math.max(0, Math.min(1, frac)) * 100}%`,
+            height: "100%",
+            background: fillGradient,
+            transition: "width 150ms linear",
+          }}
+        />
+      </div>
     </div>
   );
 }
