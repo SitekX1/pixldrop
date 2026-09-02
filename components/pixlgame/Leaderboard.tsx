@@ -101,7 +101,7 @@ export default function Leaderboard() {
             <div style={{ background: "var(--navy)", color: "#fff", fontSize: 15, fontWeight: 800, padding: "16px" }}>
               🏆 TOP 100
             </div>
-            <div style={{ overflowY: "auto" }}>
+            <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
               {allError && <div style={{ color: "#e0433c", fontSize: 13, padding: 16 }}>Fehler: {allError}</div>}
               {!allScores && !allError && <div style={{ color: "var(--text-muted)", fontSize: 13, padding: 16 }}>Lädt…</div>}
               {allScores &&

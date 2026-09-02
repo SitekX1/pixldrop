@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const VIEWPORT_W = 320;
-const VIEWPORT_H = 800;
+const VIEWPORT_W = 380;
+const VIEWPORT_H = 760;
 const TICK_MS = 16;
 
 const CLIP_SIZE = 5;
@@ -22,7 +22,7 @@ const IMG_SRC: Record<KindKey, string> = {
   golden: "/pixlgame-media/coffee-golden.png",
   clock: "/pixlgame-media/coffee-clock.png",
   muffin: "/pixlgame-media/coffee-muffin.png",
-  eddie: "/pixlgame-media/eddie-sprite.png",
+  eddie: "/pixlgame-media/eddie-iso.png",
 };
 
 const KINDS = {
@@ -63,8 +63,8 @@ const KINDS = {
   },
   eddie: {
     role: "penalty" as const,
-    size: 54,
-    speed: [110, 160] as [number, number],
+    size: 48,
+    speed: [130, 190] as [number, number],
     bob: 0,
     points: 0,
   },
@@ -76,7 +76,7 @@ const WEIGHTS: Record<KindKey, number> = {
   golden: 6,
   clock: 10,
   muffin: 8,
-  eddie: 16,
+  eddie: 20,
 };
 
 type KindKey = keyof typeof KINDS;
@@ -180,64 +180,38 @@ function TargetVisual({ kind }: { kind: KindKey }) {
   }
 }
 
-// Kaffee-Items sind freigestellte Fotos (echte Transparenz) und schweben frei mit
-// Schlagschatten, ohne Rahmen. Eddies Foto hat keine Transparenz (Party-Schnappschuss),
-// darum bekommt nur er eine runde Maske. Fällt auf die SVG-Form zurück, falls ein
-// Bild mal nicht lädt.
+// Alle Ziele (inkl. Eddie, seit sein Foto ebenfalls freigestellt ist) sind
+// transparente Fotos, die frei mit Schlagschatten schweben, ohne Rahmen/Ring.
+// Fällt auf die SVG-Form zurück, falls ein Bild mal nicht lädt.
 function TargetSprite({ kind, size }: { kind: KindKey; size: number }) {
   const isEddie = kind === "eddie";
-  const img = (
-    <img
-      src={IMG_SRC[kind]}
-      alt=""
-      onError={(e) => {
-        (e.target as HTMLImageElement).style.display = "none";
-        const fb = (e.target as HTMLImageElement).nextSibling as HTMLElement | null;
-        if (fb) fb.style.display = "flex";
-      }}
-      style={{ width: "100%", height: "100%", objectFit: isEddie ? "cover" : "contain" }}
-    />
-  );
-  const fallback = (
-    <div
-      style={{
-        display: "none",
-        width: "100%",
-        height: "100%",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "absolute",
-        inset: 0,
-        fontSize: size * 0.6,
-        background: isEddie ? "radial-gradient(circle, #ffd9a0, #e0433c)" : "transparent",
-      }}
-    >
-      {isEddie ? "🐾" : <TargetVisual kind={kind} />}
-    </div>
-  );
-
-  if (!isEddie) {
-    return (
-      <div style={{ position: "relative", width: "100%", height: "100%" }}>
-        {img}
-        {fallback}
-      </div>
-    );
-  }
-
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100%",
-        borderRadius: "50%",
-        overflow: "hidden",
-        boxShadow: "0 0 0 3px #e0433c, 0 3px 6px rgba(0,0,0,0.3)",
-      }}
-    >
-      {img}
-      {fallback}
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <img
+        src={IMG_SRC[kind]}
+        alt=""
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = "none";
+          const fb = (e.target as HTMLImageElement).nextSibling as HTMLElement | null;
+          if (fb) fb.style.display = "flex";
+        }}
+        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+      />
+      <div
+        style={{
+          display: "none",
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "absolute",
+          inset: 0,
+          fontSize: size * 0.6,
+          background: isEddie ? "radial-gradient(circle, #ffd9a0, #e0433c)" : "transparent",
+        }}
+      >
+        {isEddie ? "🐾" : <TargetVisual kind={kind} />}
+      </div>
     </div>
   );
 }
@@ -346,7 +320,10 @@ export default function ShootingGallery({
     const update = () => {
       const w = el.clientWidth;
       const h = el.clientHeight;
-      if (w > 0 && h > 0) setScale(Math.min(w / VIEWPORT_W, h / VIEWPORT_H));
+      // "cover"-Fit statt "contain": das Spielfeld soll den Bildschirm wirklich
+      // komplett füllen (links-rechts UND oben-unten), notfalls mit minimalem
+      // Beschnitt an einer Kante, statt Lücken zu lassen.
+      if (w > 0 && h > 0) setScale(Math.max(w / VIEWPORT_W, h / VIEWPORT_H));
     };
     update();
     const ro = new ResizeObserver(update);
@@ -436,45 +413,34 @@ export default function ShootingGallery({
   const timeFrac = Math.max(0, Math.min(1, timeLeft / TIME_CAP));
 
   return (
-    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, width: "100%", height: "100%" }}>
-      <SideBar icon="⚡" frac={boostFrac} ringColor="#7b4fc4" fillGradient="linear-gradient(180deg, #2fc2e8, #7b4fc4)" />
-
-      <div ref={containerRef} style={{ flex: 1, height: "100%", minWidth: 0, minHeight: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div
-          style={{
-            width: VIEWPORT_W * scale,
-            height: VIEWPORT_H * scale,
-            flexShrink: 0,
-            borderRadius: 16,
-            overflow: "hidden",
-            boxShadow: "0 10px 30px rgba(27, 42, 107, 0.25)",
-          }}
-        >
-          <div
-            onPointerMove={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              setCrosshair({
-                x: ((e.clientX - rect.left) / rect.width) * VIEWPORT_W,
-                y: ((e.clientY - rect.top) / rect.height) * VIEWPORT_H,
-              });
-            }}
-            onPointerDown={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              fire(e.clientX, e.clientY, rect);
-            }}
-            onPointerLeave={() => setCrosshair(null)}
-            style={{
-              position: "relative",
-              width: VIEWPORT_W,
-              height: VIEWPORT_H,
-              transform: `scale(${scale})`,
-              transformOrigin: "top left",
-              background: "linear-gradient(180deg, #fbeedd 0%, #f3d9b8 45%, #7a5236 100%)",
-              touchAction: "none",
-              cursor: "none",
-              userSelect: "none",
-            }}
-          >
+    <div ref={containerRef} style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden" }}>
+      <div
+        onPointerMove={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setCrosshair({
+            x: ((e.clientX - rect.left) / rect.width) * VIEWPORT_W,
+            y: ((e.clientY - rect.top) / rect.height) * VIEWPORT_H,
+          });
+        }}
+        onPointerDown={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          fire(e.clientX, e.clientY, rect);
+        }}
+        onPointerLeave={() => setCrosshair(null)}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: VIEWPORT_W,
+          height: VIEWPORT_H,
+          transform: `translate(-50%, -50%) scale(${scale})`,
+          transformOrigin: "center center",
+          background: "linear-gradient(180deg, #fbeedd 0%, #f3d9b8 45%, #7a5236 100%)",
+          touchAction: "none",
+          cursor: "none",
+          userSelect: "none",
+        }}
+      >
         {/* Deko: Café-Lichter + Theke, bis ein echtes Hintergrundbild da ist */}
         <div style={{ position: "absolute", top: 18, left: 30, width: 40, height: 40, borderRadius: "50%", background: "rgba(255,235,190,0.55)", filter: "blur(6px)" }} />
         <div style={{ position: "absolute", top: 34, right: 46, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,235,190,0.45)", filter: "blur(6px)" }} />
@@ -612,17 +578,21 @@ export default function ShootingGallery({
           />
         )}
 
-        {/* HUD */}
-        <Badge style={{ top: 10, left: 10 }} icon="☕" value={score} />
-        <Badge style={{ bottom: 10, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
+        {/* Balken oben (Zeit) und unten (Booster) — volle Breite, außerhalb der Ecken-Badges */}
+        <Bar frac={timeFrac} fillGradient="linear-gradient(90deg, #8fe6f7, #2fc2e8)" style={{ top: 0 }} />
+        <Bar frac={boostFrac} fillGradient="linear-gradient(90deg, #2fc2e8, #7b4fc4)" style={{ bottom: 0 }} />
 
-        <div style={{ position: "absolute", bottom: 10, right: 10, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+        {/* HUD */}
+        <Badge style={{ top: 20, left: 10 }} icon="☕" value={score} />
+        <Badge style={{ bottom: 20, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
+
+        <div style={{ position: "absolute", bottom: 26, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
           <div
             style={{
               display: "flex",
-              gap: 4,
+              gap: 6,
               background: "rgba(27,42,107,0.85)",
-              padding: "6px 10px",
+              padding: "8px 14px",
               borderRadius: 999,
             }}
           >
@@ -630,8 +600,8 @@ export default function ShootingGallery({
               <span
                 key={i}
                 style={{
-                  width: 8,
-                  height: 8,
+                  width: 10,
+                  height: 10,
                   borderRadius: "50%",
                   background: i < clipLeft ? "#2fc2e8" : "rgba(255,255,255,0.25)",
                 }}
@@ -650,9 +620,10 @@ export default function ShootingGallery({
               color: "#fff",
               border: "none",
               borderRadius: 999,
-              padding: "8px 14px",
+              padding: "14px 28px",
               fontWeight: 800,
-              fontSize: 12,
+              fontSize: 15,
+              boxShadow: "0 6px 16px rgba(27,42,107,0.35)",
               cursor: clipLeft >= CLIP_SIZE ? "default" : "pointer",
               opacity: clipLeft >= CLIP_SIZE ? 0.55 : 1,
             }}
@@ -660,11 +631,7 @@ export default function ShootingGallery({
             {reloading ? "Lädt…" : "🔄 Nachladen"}
           </button>
         </div>
-          </div>
-        </div>
       </div>
-
-      <SideBar icon="⏱" frac={timeFrac} ringColor="#2fc2e8" fillGradient="linear-gradient(180deg, #8fe6f7, #2fc2e8)" />
 
       <style>{`
         @keyframes floatUpGallery {
@@ -680,43 +647,37 @@ export default function ShootingGallery({
   );
 }
 
-// Statusbalken links/rechts neben dem Spielfeld, auf dem Seiten-Hintergrund
-// (nicht im Spielfeld selbst). Links = Booster-Füllstand, rechts = Restzeit.
-function SideBar({
-  icon,
+// Volle-Breite-Balken oben (Zeit) / unten (Booster) im Spielfeld, flush an der Kante.
+function Bar({
   frac,
-  ringColor,
   fillGradient,
+  style,
 }: {
-  icon: string;
   frac: number;
-  ringColor: string;
   fillGradient: string;
+  style: React.CSSProperties;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, height: "80%", flexShrink: 0 }}>
-      <span style={{ fontSize: 18, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.25))" }}>{icon}</span>
+    <div
+      style={{
+        position: "absolute",
+        left: 0,
+        right: 0,
+        height: 10,
+        background: "rgba(27,42,107,0.25)",
+        overflow: "hidden",
+        pointerEvents: "none",
+        ...style,
+      }}
+    >
       <div
         style={{
-          width: 18,
-          flex: 1,
-          borderRadius: 999,
-          background: "rgba(255,255,255,0.5)",
-          boxShadow: `0 0 0 2px ${ringColor}, inset 0 0 4px rgba(0,0,0,0.15)`,
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-end",
+          width: `${Math.max(0, Math.min(1, frac)) * 100}%`,
+          height: "100%",
+          background: fillGradient,
+          transition: "width 150ms linear",
         }}
-      >
-        <div
-          style={{
-            width: "100%",
-            height: `${Math.max(0, Math.min(1, frac)) * 100}%`,
-            background: fillGradient,
-          }}
-        />
-      </div>
+      />
     </div>
   );
 }

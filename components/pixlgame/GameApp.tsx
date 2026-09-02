@@ -82,7 +82,7 @@ export default function GameApp() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: playing ? "stretch" : "center",
-        padding: playing ? "8px" : "20px 12px",
+        padding: playing ? "0" : "20px 12px",
         overflowY: playing ? "hidden" : "auto",
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         gap: playing ? 6 : 18,
