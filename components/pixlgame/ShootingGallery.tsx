@@ -17,11 +17,14 @@ const BOOST_SECONDS = 6;
 const LIFE_BONUS_PER_LIFE = 50;
 
 const RUSH_START_SECONDS = 30;
-const RUSH_SPEED_MULT = 1.65;
-const RUSH_SPAWN_CAP = 5;
+const RUSH_SPEED_MULT = 1.8;
+const RUSH_SPAWN_CAP = 8;
+const RUSH_SPAWN_MS = [220, 420] as [number, number];
 const RUSH_POINT_MULT = 2;
 const RUSH_BANNER_MS = 1800;
-const RUSH_PENALTY_WEIGHT_MULT = 2.4;
+const RUSH_PENALTY_WEIGHT_MULT = 4.5;
+const RUSH_OTHER_WEIGHT_MULT = 1.6;
+const RUSH_CLOCK_WEIGHT_MULT = 0.3;
 const RUSH_FLASH_MS = 700;
 
 const IMG_SRC: Record<KindKey, string> = {
@@ -115,9 +118,13 @@ type Target = {
 type Floater = { id: number; x: number; y: number; text: string; color: string };
 
 function pickWeightedKind(rush: boolean): KindKey {
-  const entries = (Object.entries(WEIGHTS) as [KindKey, number][]).map(
-    ([key, w]) => [key, rush && KINDS[key].role === "penalty" ? w * RUSH_PENALTY_WEIGHT_MULT : w] as [KindKey, number]
-  );
+  const entries = (Object.entries(WEIGHTS) as [KindKey, number][]).map(([key, w]) => {
+    if (!rush) return [key, w] as [KindKey, number];
+    const role = KINDS[key].role;
+    const mult =
+      role === "penalty" ? RUSH_PENALTY_WEIGHT_MULT : role === "time" ? RUSH_CLOCK_WEIGHT_MULT : RUSH_OTHER_WEIGHT_MULT;
+    return [key, w * mult] as [KindKey, number];
+  });
   const total = entries.reduce((s, [, w]) => s + w, 0);
   let r = Math.random() * total;
   for (const [key, w] of entries) {
@@ -345,7 +352,7 @@ export default function ShootingGallery({
       const spawnCap = rushActiveRef.current ? RUSH_SPAWN_CAP : 3;
       if (spawnTimerRef.current <= 0 && targetsRef.current.length < spawnCap) {
         spawnTarget();
-        spawnTimerRef.current = rand(500, 950);
+        spawnTimerRef.current = rushActiveRef.current ? rand(RUSH_SPAWN_MS[0], RUSH_SPAWN_MS[1]) : rand(500, 950);
       }
 
       const survived: Target[] = [];
@@ -676,12 +683,17 @@ export default function ShootingGallery({
       {/* Kopfzeile, Leben-Badge und Reload-Cluster liegen bewusst AUSSERHALB des
           skalierten Canvas-Divs, in echten Bildschirm-Pixeln — sonst würde
           env(safe-area-inset-*) durch das transform:scale() falsch mitskaliert und
-          iOS Safaris Status-/Toolbar könnte sie trotzdem überlappen. */}
+          iOS Safaris Status-/Toolbar könnte sie trotzdem überlappen.
+          Fester 54px-Mindestabstand (statt nur 12px) als Fallback: auf manchen
+          Geräten/Browserkontexten (z.B. Dynamic-Island-iPhones in Safaris
+          Minimal-UI-Scrollzustand) liefert env(safe-area-inset-top) trotz
+          viewport-fit:cover einen zu kleinen oder gar keinen Wert — dann muss
+          dieser feste Boden allein reichen, um unter der Kamera-Insel zu bleiben. */}
       <div
         ref={topHeaderRef}
         style={{
           position: "absolute",
-          top: "max(12px, calc(env(safe-area-inset-top) + 8px))",
+          top: "max(54px, calc(env(safe-area-inset-top) + 12px))",
           left: 16,
           right: 16,
           display: "flex",
