@@ -2,16 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const VIEWPORT_W = 340;
-const VIEWPORT_H = 480;
+const VIEWPORT_W = 320;
+const VIEWPORT_H = 800;
 const TICK_MS = 16;
 
 const CLIP_SIZE = 5;
 const RELOAD_MS = 550;
 
-const TIME_START = 60;
-const TIME_CAP = 90;
-const TIME_POT_BONUS = 5;
+const TIME_START = 30;
+const TIME_CAP = 60;
+const TIME_CLOCK_BONUS = 5;
 const LIVES_START = 3;
 const BOOST_SECONDS = 6;
 const LIFE_BONUS_PER_LIFE = 50;
@@ -20,7 +20,7 @@ const IMG_SRC: Record<KindKey, string> = {
   cup: "/pixlgame-media/coffee-cup.png",
   bean: "/pixlgame-media/coffee-bean.png",
   golden: "/pixlgame-media/coffee-golden.png",
-  pot: "/pixlgame-media/coffee-pot.png",
+  clock: "/pixlgame-media/coffee-clock.png",
   muffin: "/pixlgame-media/coffee-muffin.png",
   eddie: "/pixlgame-media/eddie-sprite.png",
 };
@@ -47,7 +47,7 @@ const KINDS = {
     bob: 26,
     points: 100,
   },
-  pot: {
+  clock: {
     role: "time" as const,
     size: 50,
     speed: [90, 130] as [number, number],
@@ -74,7 +74,7 @@ const WEIGHTS: Record<KindKey, number> = {
   cup: 50,
   bean: 25,
   golden: 6,
-  pot: 10,
+  clock: 10,
   muffin: 8,
   eddie: 16,
 };
@@ -156,14 +156,13 @@ function TargetVisual({ kind }: { kind: KindKey }) {
           </g>
         </svg>
       );
-    case "pot":
+    case "clock":
       return (
         <svg viewBox="0 0 64 64" width="100%" height="100%">
-          <path d="M18 14h20l3 8v28a6 6 0 0 1-6 6H21a6 6 0 0 1-6-6V22z" fill="#f5ead9" stroke="#2fc2e8" strokeWidth="2" />
-          <rect x="16" y="8" width="24" height="8" rx="2" fill="#1b2a6b" />
-          <path d="M41 26h5a6 6 0 0 1 0 12h-5" fill="none" stroke="#1b2a6b" strokeWidth="3" />
-          <circle cx="46" cy="14" r="9" fill="#2fc2e8" stroke="#fff" strokeWidth="2" />
-          <path d="M46 9v5l3 3" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+          <circle cx="32" cy="34" r="22" fill="#f5ead9" stroke="#2fc2e8" strokeWidth="3" />
+          <path d="M20 8l6 6M44 8l-6 6" stroke="#2fc2e8" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="32" cy="34" r="2.4" fill="#1b2a6b" />
+          <path d="M32 34V20M32 34l10 6" stroke="#1b2a6b" strokeWidth="2.4" strokeLinecap="round" />
         </svg>
       );
     case "muffin":
@@ -415,9 +414,9 @@ export default function ShootingGallery({
             setTimeout(() => endGame(), 250);
           }
         } else if (cfg.role === "time") {
-          timeLeftRef.current = Math.min(TIME_CAP, timeLeftRef.current + TIME_POT_BONUS);
+          timeLeftRef.current = Math.min(TIME_CAP, timeLeftRef.current + TIME_CLOCK_BONUS);
           setTimeLeft(Math.ceil(timeLeftRef.current));
-          addFloater(hitTarget.x, hitTarget.y, `+${TIME_POT_BONUS}s`, "#2fc2e8");
+          addFloater(hitTarget.x, hitTarget.y, `+${TIME_CLOCK_BONUS}s`, "#2fc2e8");
         } else if (cfg.role === "boost") {
           boostUntilRef.current = elapsedRef.current + BOOST_SECONDS;
           setBoostActive(true);

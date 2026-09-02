@@ -6,30 +6,30 @@ import RankReveal from "./RankReveal";
 import Leaderboard from "./Leaderboard";
 import { startGameSession, submitScore, getScoreRank } from "@/lib/pixlgame-supabase";
 
-type Screen = "start" | "playing" | "name" | "reveal" | "leaderboard";
+type Screen = "intro" | "start" | "playing" | "name" | "reveal" | "leaderboard";
 
 const RULES: { img: string; ring: string; label: string; value: string; valueColor: string }[] = [
   { img: "/pixlgame-media/coffee-cup.png", ring: "#e4d3b8", label: "Kaffeetasse", value: "+10 PUNKTE", valueColor: "var(--navy)" },
   { img: "/pixlgame-media/coffee-bean.png", ring: "#6b4226", label: "Kaffeebohne (klein, schnell)", value: "+25 PUNKTE", valueColor: "var(--navy)" },
   { img: "/pixlgame-media/coffee-golden.png", ring: "#e7c25a", label: "Goldene Tasse (selten)", value: "+100 PUNKTE", valueColor: "#c9971f" },
-  { img: "/pixlgame-media/coffee-pot.png", ring: "#2fc2e8", label: "Kaffeekanne", value: "+5 SEK.", valueColor: "var(--cyan)" },
+  { img: "/pixlgame-media/coffee-clock.png", ring: "#2fc2e8", label: "Kaffee-Uhr", value: "+5 SEK.", valueColor: "var(--cyan)" },
   { img: "/pixlgame-media/coffee-muffin.png", ring: "#7b4fc4", label: "Gebäck (6 Sek. lang)", value: "2X PUNKTE", valueColor: "var(--violet)" },
   { img: "/pixlgame-media/eddie-sprite.png", ring: "#e0433c", label: "Eddie — NICHT treffen!", value: "−1 LEBEN", valueColor: "#e0433c" },
 ];
 
-// Dezentes Navy/Violet-Strukturmuster als pixldrop-eigener Seiten-Hintergrund
+// Kräftiger Navy/Violet/Gold-Strukturhintergrund als pixldrop-eigene Seiten-Kulisse
 // (Pendant zu honeycrews Honigwaben, aber in Markenfarben statt Honig-Thema).
 const PAGE_PATTERN_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56'>
-  <path d='M0 56L56 0' stroke='%235b2a9e' stroke-width='1' stroke-opacity='0.09'/>
-  <path d='M-14 14L14 -14' stroke='%232fc2e8' stroke-width='1' stroke-opacity='0.07'/>
-  <path d='M42 70L70 42' stroke='%232fc2e8' stroke-width='1' stroke-opacity='0.07'/>
+  <path d='M0 56L56 0' stroke='%235b2a9e' stroke-width='1' stroke-opacity='0.12'/>
+  <path d='M-14 14L14 -14' stroke='%23e7c25a' stroke-width='1' stroke-opacity='0.10'/>
+  <path d='M42 70L70 42' stroke='%23e7c25a' stroke-width='1' stroke-opacity='0.10'/>
 </svg>`;
-const PAGE_BACKGROUND = `radial-gradient(circle at 12% 10%, rgba(91,42,158,0.12), transparent 50%), radial-gradient(circle at 88% 90%, rgba(47,194,232,0.12), transparent 50%), url("data:image/svg+xml,${encodeURIComponent(
+const PAGE_BACKGROUND = `radial-gradient(circle at 8% 6%, rgba(91,42,158,0.30), transparent 55%), radial-gradient(circle at 92% 12%, rgba(231,194,90,0.30), transparent 50%), radial-gradient(circle at 88% 94%, rgba(47,194,232,0.28), transparent 55%), url("data:image/svg+xml,${encodeURIComponent(
   PAGE_PATTERN_SVG
-)}"), #eef0fb`;
+)}"), #fff3e6`;
 
 export default function GameApp() {
-  const [screen, setScreen] = useState<Screen>("start");
+  const [screen, setScreen] = useState<Screen>("intro");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [finalScore, setFinalScore] = useState({ total: 0, base: 0, bonus: 0 });
   const [name, setName] = useState("");
@@ -88,7 +88,7 @@ export default function GameApp() {
         gap: playing ? 6 : 18,
       }}
     >
-      {!playing && (
+      {screen !== "playing" && screen !== "intro" && (
         <h1
           style={{
             fontSize: 24,
@@ -104,6 +104,46 @@ export default function GameApp() {
       )}
 
       {error && <div style={{ color: "#e0433c", fontSize: 13 }}>⚠ {error}</div>}
+
+      {screen === "intro" && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, width: "100%", maxWidth: 360 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/pixlgame-media/eddie-iso.png"
+            alt="Eddie"
+            style={{
+              width: 180,
+              height: "auto",
+              filter: "drop-shadow(0 12px 18px rgba(27,42,107,0.35))",
+            }}
+          />
+          <h1
+            style={{
+              fontSize: 28,
+              fontWeight: 800,
+              margin: 0,
+              background: "var(--gradient)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+              textAlign: "center",
+            }}
+          >
+            ☕ Eddie&apos;s Café
+          </h1>
+          <p style={{ color: "var(--text)", fontSize: 14, textAlign: "center", lineHeight: 1.5 }}>
+            Eddie hat sich ins Café geschlichen! Schieß Kaffeebohnen und Tassen für Punkte,
+            schnapp dir Uhr und Gebäck für Boni — aber lass Eddie in Ruhe, sonst kostet's ein Leben.
+          </p>
+          <button
+            onClick={() => setScreen("start")}
+            className="pill-btn"
+            style={{ border: "none", cursor: "pointer" }}
+          >
+            Weiter
+          </button>
+        </div>
+      )}
 
       {screen === "start" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", maxWidth: 420 }}>
@@ -150,7 +190,7 @@ export default function GameApp() {
             ))}
           </div>
           <p style={{ color: "var(--text-muted)", fontSize: 12, textAlign: "center" }}>
-            3 Leben · 60 Sekunden · manuelles Nachladen
+            3 Leben · 30 Sekunden Start (mit Uhren bis zu 60) · manuelles Nachladen
           </p>
           <button onClick={startGame} className="pill-btn" style={{ border: "none", cursor: "pointer" }}>
             Spiel starten

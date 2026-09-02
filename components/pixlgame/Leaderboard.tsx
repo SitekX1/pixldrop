@@ -45,6 +45,7 @@ export default function Leaderboard() {
   }, [showAll, allScores, allError]);
 
   return (
+    <>
     <div className="card" style={{ width: "100%", maxWidth: 420, padding: 0, overflow: "hidden" }}>
       <div
         style={{
@@ -85,6 +86,7 @@ export default function Leaderboard() {
           )}
         </div>
       )}
+    </div>
 
       {showAll && (
         <div className="modal-overlay" onClick={() => setShowAll(false)}>
@@ -111,6 +113,6 @@ export default function Leaderboard() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
