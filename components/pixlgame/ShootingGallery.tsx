@@ -16,8 +16,24 @@ const LIVES_START = 3;
 const BOOST_SECONDS = 6;
 const LIFE_BONUS_PER_LIFE = 50;
 
-// Kaffeebohne/-tasse etc. sind saubere SVG-Platzhalter (kein Emoji, kein Bild-Ladeversuch).
-// Später einfach durch <img src="/pixlgame-media/<name>.png" /> ersetzen, wenn echte Kunst da ist.
+const IMG_SRC: Record<KindKey, string> = {
+  cup: "/pixlgame-media/coffee-cup.jpg",
+  bean: "/pixlgame-media/coffee-bean.jpg",
+  golden: "/pixlgame-media/coffee-golden.jpg",
+  pot: "/pixlgame-media/coffee-pot.jpg",
+  muffin: "/pixlgame-media/coffee-muffin.jpg",
+  eddie: "/pixlgame-media/eddie-sprite.png",
+};
+
+const RING_COLOR: Record<KindKey, string> = {
+  cup: "#e4d3b8",
+  bean: "#6b4226",
+  golden: "#e7c25a",
+  pot: "#2fc2e8",
+  muffin: "#7b4fc4",
+  eddie: "#e0433c",
+};
+
 const KINDS = {
   cup: {
     role: "score" as const,
@@ -174,6 +190,51 @@ function TargetVisual({ kind }: { kind: KindKey }) {
   }
 }
 
+// Foto-Ziele als runde Sticker-Badges (Foto + Farbring). Fällt auf die SVG-Form
+// zurück, falls das generierte Bild mal fehlt (z.B. neue Kind ohne Foto).
+function TargetSprite({ kind, size }: { kind: KindKey; size: number }) {
+  const isEddie = kind === "eddie";
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        borderRadius: "50%",
+        overflow: "hidden",
+        background: "#fff",
+        boxShadow: `0 0 0 3px ${RING_COLOR[kind]}, 0 3px 6px rgba(0,0,0,0.3)`,
+      }}
+    >
+      <img
+        src={IMG_SRC[kind]}
+        alt=""
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = "none";
+          const fb = (e.target as HTMLImageElement).nextSibling as HTMLElement | null;
+          if (fb) fb.style.display = "flex";
+        }}
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+      <div
+        style={{
+          display: "none",
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "absolute",
+          inset: 0,
+          fontSize: size * 0.6,
+          background: isEddie ? "radial-gradient(circle, #ffd9a0, #e0433c)" : "#f5ead9",
+        }}
+      >
+        {isEddie ? "🐾" : <TargetVisual kind={kind} />}
+      </div>
+    </div>
+  );
+}
+
 export default function ShootingGallery({
   onGameOver,
 }: {
@@ -186,6 +247,7 @@ export default function ShootingGallery({
   const [clipLeft, setClipLeft] = useState(CLIP_SIZE);
   const [reloading, setReloading] = useState(false);
   const [boostActive, setBoostActive] = useState(false);
+  const [boostFrac, setBoostFrac] = useState(0);
   const [flash, setFlash] = useState(false);
   const [crosshair, setCrosshair] = useState<{ x: number; y: number } | null>(null);
   const [muzzle, setMuzzle] = useState<{ x: number; y: number; id: number } | null>(null);
@@ -245,6 +307,7 @@ export default function ShootingGallery({
 
       const boostNow = elapsedRef.current < boostUntilRef.current;
       setBoostActive((prev) => (prev !== boostNow ? boostNow : prev));
+      setBoostFrac(boostNow ? Math.max(0, (boostUntilRef.current - elapsedRef.current) / BOOST_SECONDS) : 0);
 
       spawnTimerRef.current -= TICK_MS;
       if (spawnTimerRef.current <= 0 && targetsRef.current.length < 3) {
@@ -375,6 +438,27 @@ export default function ShootingGallery({
         <div style={{ position: "absolute", top: 34, right: 46, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,235,190,0.45)", filter: "blur(6px)" }} />
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 86, height: 3, background: "rgba(90,58,32,0.35)" }} />
 
+        {/* Dezente Muster-Textur (Kaffeebohnen/Tassen-Umrisse), bis ein echtes Hintergrundbild da ist */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.07,
+            mixBlendMode: "multiply",
+            pointerEvents: "none",
+            backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(
+              `<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'>
+                <ellipse cx='16' cy='16' rx='9' ry='11' fill='none' stroke='%235a3a1e' stroke-width='2'/>
+                <path d='M16 8v16' stroke='%235a3a1e' stroke-width='1.4'/>
+                <circle cx='54' cy='50' r='10' fill='none' stroke='%235a3a1e' stroke-width='2'/>
+                <path d='M46 44c4-4 12-4 16 0' fill='none' stroke='%235a3a1e' stroke-width='1.6'/>
+              </svg>`
+            )}")`,
+            backgroundSize: "72px 72px",
+          }}
+        />
+
         <img
           src="/pixlgame-media/gallery-bg.png"
           alt=""
@@ -391,69 +475,23 @@ export default function ShootingGallery({
           }}
         />
 
-        {targets.map((t) => {
-          if (t.kind === "eddie") {
-            return (
-              <div
-                key={t.id}
-                style={{
-                  position: "absolute",
-                  left: t.x,
-                  top: t.y,
-                  width: t.size,
-                  height: t.size,
-                  transform: `translate(-50%, -50%) scaleX(${t.dir})`,
-                  pointerEvents: "none",
-                }}
-              >
-                <img
-                  src="/pixlgame-media/eddie-sprite.png"
-                  alt=""
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                    const fb = (e.target as HTMLImageElement).nextSibling as HTMLElement | null;
-                    if (fb) fb.style.display = "flex";
-                  }}
-                  style={{ width: "100%", height: "100%" }}
-                />
-                <div
-                  style={{
-                    display: "none",
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: "50%",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: t.size * 0.6,
-                    position: "absolute",
-                    inset: 0,
-                    background: "radial-gradient(circle, #ffd9a0, #e0433c)",
-                    boxShadow: "0 0 0 3px rgba(224,67,60,0.5)",
-                  }}
-                >
-                  🐾
-                </div>
-              </div>
-            );
-          }
-          return (
-            <div
-              key={t.id}
-              style={{
-                position: "absolute",
-                left: t.x,
-                top: t.y,
-                width: t.size,
-                height: t.size,
-                transform: `translate(-50%, -50%) scaleX(${t.dir})`,
-                pointerEvents: "none",
-                filter: t.kind === "golden" ? "drop-shadow(0 0 8px rgba(231,194,90,0.8))" : "drop-shadow(0 2px 3px rgba(0,0,0,0.25))",
-              }}
-            >
-              <TargetVisual kind={t.kind} />
-            </div>
-          );
-        })}
+        {targets.map((t) => (
+          <div
+            key={t.id}
+            style={{
+              position: "absolute",
+              left: t.x,
+              top: t.y,
+              width: t.size,
+              height: t.size,
+              transform: `translate(-50%, -50%) scaleX(${t.dir})`,
+              pointerEvents: "none",
+              filter: t.kind === "golden" ? "drop-shadow(0 0 10px rgba(231,194,90,0.85))" : undefined,
+            }}
+          >
+            <TargetSprite kind={t.kind} size={t.size} />
+          </div>
+        ))}
 
         {floaters.map((f) => (
           <div
@@ -542,23 +580,40 @@ export default function ShootingGallery({
         />
         <Badge style={{ bottom: 10, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
 
+        <div
+          style={{
+            position: "absolute",
+            top: 56,
+            bottom: 88,
+            right: 10,
+            width: 16,
+            borderRadius: 999,
+            background: "rgba(27,42,107,0.35)",
+            boxShadow: `0 0 0 2px ${boostActive ? "#7b4fc4" : "rgba(255,255,255,0.3)"}`,
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "flex-end",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: `${boostFrac * 100}%`,
+              background: "linear-gradient(180deg, #2fc2e8, #7b4fc4)",
+            }}
+          />
+        </div>
         {boostActive && (
           <div
             style={{
               position: "absolute",
-              top: 10,
-              left: "50%",
-              transform: "translateX(-50%)",
-              background: "var(--gradient)",
-              color: "#fff",
-              fontWeight: 800,
-              fontSize: 12,
-              padding: "4px 12px",
-              borderRadius: 999,
-              boxShadow: "0 4px 10px rgba(91,42,158,0.4)",
+              top: 30,
+              right: 6,
+              fontSize: 16,
+              filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))",
             }}
           >
-            x2 BOOST
+            ⚡
           </div>
         )}
 

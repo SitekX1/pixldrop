@@ -8,6 +8,15 @@ import { startGameSession, submitScore, getScoreRank } from "@/lib/pixlgame-supa
 
 type Screen = "start" | "playing" | "name" | "reveal" | "leaderboard";
 
+const RULES: { img: string; ring: string; label: string; value: string; valueColor: string }[] = [
+  { img: "/pixlgame-media/coffee-cup.jpg", ring: "#e4d3b8", label: "Kaffeetasse", value: "+10 PUNKTE", valueColor: "var(--navy)" },
+  { img: "/pixlgame-media/coffee-bean.jpg", ring: "#6b4226", label: "Kaffeebohne (klein, schnell)", value: "+25 PUNKTE", valueColor: "var(--navy)" },
+  { img: "/pixlgame-media/coffee-golden.jpg", ring: "#e7c25a", label: "Goldene Tasse (selten)", value: "+100 PUNKTE", valueColor: "#c9971f" },
+  { img: "/pixlgame-media/coffee-pot.jpg", ring: "#2fc2e8", label: "Kaffeekanne", value: "+5 SEK.", valueColor: "var(--cyan)" },
+  { img: "/pixlgame-media/coffee-muffin.jpg", ring: "#7b4fc4", label: "Gebäck (6 Sek. lang)", value: "2X PUNKTE", valueColor: "var(--violet)" },
+  { img: "/pixlgame-media/eddie-sprite.png", ring: "#e0433c", label: "Eddie — NICHT treffen!", value: "−1 LEBEN", valueColor: "#e0433c" },
+];
+
 export default function GameApp() {
   const [screen, setScreen] = useState<Screen>("start");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -80,11 +89,51 @@ export default function GameApp() {
       {error && <div style={{ color: "#e0433c", fontSize: 13 }}>⚠ {error}</div>}
 
       {screen === "start" && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          <p style={{ color: "var(--text-muted)", fontSize: 14, textAlign: "center", maxWidth: 280 }}>
-            Schieß Kaffeebohnen und Tassen ab, schnapp dir die Kanne für mehr Zeit und das
-            Gebäck für Doppelpunkte — aber triff bloß nicht Eddie, sonst kostet es ein Leben!
-            3 Leben, 60 Sekunden.
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%", maxWidth: 320 }}>
+          <div className="card" style={{ width: "100%", padding: 0, overflow: "hidden" }}>
+            {RULES.map((r, i) => (
+              <div
+                key={r.label}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "10px 14px",
+                  borderTop: i === 0 ? "none" : "1px solid var(--border)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    flexShrink: 0,
+                    boxShadow: `0 0 0 2px ${r.ring}`,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={r.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+                <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "var(--text)" }}>{r.label}</span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: "#fff",
+                    background: r.valueColor,
+                    padding: "4px 8px",
+                    borderRadius: 999,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {r.value}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p style={{ color: "var(--text-muted)", fontSize: 12, textAlign: "center" }}>
+            3 Leben · 60 Sekunden · manuelles Nachladen
           </p>
           <button onClick={startGame} className="pill-btn" style={{ border: "none", cursor: "pointer" }}>
             Spiel starten
