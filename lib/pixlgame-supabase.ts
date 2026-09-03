@@ -74,7 +74,7 @@ export async function uploadStoryImage(blob: Blob, fileName: string): Promise<st
   const path = `${Date.now()}-${fileName}`;
   const { error } = await supabase.storage
     .from("pixlgame-story-images")
-    .upload(path, blob, { contentType: "image/png", cacheControl: "31536000" });
+    .upload(path, blob, { contentType: "image/jpeg", cacheControl: "31536000" });
   if (error) throw new Error(error.message);
   const { data } = supabase.storage.from("pixlgame-story-images").getPublicUrl(path);
   return data.publicUrl;

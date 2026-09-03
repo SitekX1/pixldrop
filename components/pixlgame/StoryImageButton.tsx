@@ -101,9 +101,12 @@ async function renderStoryImage(rank: number, score: number): Promise<{ dataUrl:
   // vielen Mobilbrowsern/In-App-Webviews für blob:-Bilder unzuverlässig,
   // data:-URLs werden dafür deutlich breiter unterstützt. Für die
   // Web-Share-API (braucht eine echte File) wird zusätzlich ein Blob erzeugt.
-  const dataUrl = canvas.toDataURL("image/png");
+  // JPEG statt PNG: das Bild ist überwiegend Foto (Eddie-Poster), JPEG bei
+  // hoher Qualität ist dafür ein Bruchteil der PNG-Dateigröße — merklich
+  // schnellerer Upload, damit der "Link kopieren"-Button zügiger auftaucht.
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
   const blob: Blob = await new Promise((resolve, reject) => {
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Export fehlgeschlagen"))), "image/png");
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Export fehlgeschlagen"))), "image/jpeg", 0.92);
   });
   return { dataUrl, blob };
 }
@@ -118,7 +121,7 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fileName = `eddies-cafe-platz-${rank <= 3 ? rank : "mitgespielt"}.png`;
+  const fileName = `eddies-cafe-platz-${rank <= 3 ? rank : "mitgespielt"}.jpg`;
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -134,7 +137,7 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
       // diese Datei true zurückgibt — sonst zeigen wir auf Browsern ohne
       // echte Datei-Unterstützung einen Teilen-Button, der nichts tut.
       const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean };
-      const file = new File([blob], fileName, { type: "image/png" });
+      const file = new File([blob], fileName, { type: "image/jpeg" });
       setCanShareFile(Boolean(nav.canShare?.({ files: [file] })));
       setGenerating(false);
 
@@ -166,7 +169,7 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
 
   const handleShare = async () => {
     if (!previewBlob) return;
-    const file = new File([previewBlob], fileName, { type: "image/png" });
+    const file = new File([previewBlob], fileName, { type: "image/jpeg" });
     try {
       await navigator.share({ files: [file], title: "Eddie's Café", text: "Ich hab bei Eddie's Café gespielt! 🐾☕" });
     } catch {
@@ -242,24 +245,18 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
                     manuell in Chrome/Safari öffnen und dort das Bild antippen &amp; halten zum Speichern.
                   </p>
                 </>
+              ) : uploadFailed ? (
+                <p style={{ fontSize: 12, color: "var(--text)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
+                  Stabiler Link konnte nicht erstellt werden — bitte Bild oben antippen &amp; halten,
+                  dann &quot;Speichern&quot; wählen.
+                </p>
               ) : (
-                <>
-                  <a
-                    href={previewUrl}
-                    download={fileName}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="pill-btn modal-copy-btn"
-                    style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)" }}
-                  >
-                    Herunterladen
-                  </a>
-                  <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
-                    {uploadFailed
-                      ? "Stabiler Link konnte nicht erstellt werden — bitte oben antippen & halten zum Speichern."
-                      : "Erstelle einen stabilen Link zum Speichern…"}
-                  </p>
-                </>
+                // Upload läuft noch — bewusst sichtbarer Ladezustand statt
+                // scheinbar nichts zu tun, damit niemand ungeduldig abbricht.
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "10px 0" }}>
+                  <span className="story-spinner" />
+                  <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Erstelle Link zum Speichern…</span>
+                </div>
               )}
             </div>
           </div>

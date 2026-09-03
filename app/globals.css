@@ -552,3 +552,19 @@ footer {
     font-size: 2.8rem;
   }
 }
+
+.story-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--violet);
+  animation: story-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes story-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
