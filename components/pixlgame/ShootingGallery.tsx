@@ -24,8 +24,13 @@ const RUSH_POINT_MULT = 2;
 const RUSH_BANNER_MS = 1800;
 const RUSH_PENALTY_WEIGHT_MULT = 4.5;
 const RUSH_OTHER_WEIGHT_MULT = 1.6;
-const RUSH_CLOCK_WEIGHT_MULT = 0.3;
 const RUSH_FLASH_MS = 700;
+
+// Uhren spawnen NICHT zufällig über die Gewichtungstabelle, sondern zu diesen
+// festen Zeitpunkten (Sekunden seit Rundenstart) — garantiert planbar statt
+// dem Zufall überlassen. 6 Stück x 5s Bonus = genau +30s: wer alle erwischt,
+// kommt exakt von den Start-30s auf die 60s-Obergrenze (TIME_CAP).
+const CLOCK_SCHEDULE = [4, 11, 18, 25, 32, 39] as const;
 
 const IMG_SRC: Record<KindKey, string> = {
   cup: "/pixlgame-media/coffee-cup.png",
@@ -89,11 +94,12 @@ const KINDS = {
   },
 };
 
+// clock: 0 — spawnt nicht zufällig, sondern nach CLOCK_SCHEDULE (siehe oben).
 const WEIGHTS: Record<KindKey, number> = {
   cup: 50,
   bean: 25,
   golden: 6,
-  clock: 10,
+  clock: 0,
   muffin: 8,
   eddie: 14,
   wasp: 14,
@@ -121,8 +127,7 @@ function pickWeightedKind(rush: boolean): KindKey {
   const entries = (Object.entries(WEIGHTS) as [KindKey, number][]).map(([key, w]) => {
     if (!rush) return [key, w] as [KindKey, number];
     const role = KINDS[key].role;
-    const mult =
-      role === "penalty" ? RUSH_PENALTY_WEIGHT_MULT : role === "time" ? RUSH_CLOCK_WEIGHT_MULT : RUSH_OTHER_WEIGHT_MULT;
+    const mult = role === "penalty" ? RUSH_PENALTY_WEIGHT_MULT : RUSH_OTHER_WEIGHT_MULT;
     return [key, w * mult] as [KindKey, number];
   });
   const total = entries.reduce((s, [, w]) => s + w, 0);
@@ -291,15 +296,15 @@ export default function ShootingGallery({
   const nextIdRef = useRef(1);
   const spawnTimerRef = useRef(600);
   const elapsedRef = useRef(0);
+  const clockScheduleIndexRef = useRef(0);
 
-  const spawnTarget = useCallback(() => {
-    const kind = pickWeightedKind(rushActiveRef.current);
+  const makeTarget = useCallback((kind: KindKey): Target => {
     const cfg = KINDS[kind];
     const fromLeft = Math.random() < 0.5;
     const speedMult = rushActiveRef.current ? RUSH_SPEED_MULT : 1;
     const speed = rand(cfg.speed[0], cfg.speed[1]) * speedMult * (fromLeft ? 1 : -1);
     const baseY = rand(topExclusionRef.current, VIEWPORT_H - bottomExclusionRef.current);
-    const t: Target = {
+    return {
       id: nextIdRef.current++,
       kind,
       x: fromLeft ? -cfg.size : VIEWPORT_W + cfg.size,
@@ -312,9 +317,21 @@ export default function ShootingGallery({
       size: cfg.size,
       hit: false,
     };
-    targetsRef.current = [...targetsRef.current, t];
-    setTargets(targetsRef.current);
   }, []);
+
+  const spawnTarget = useCallback(() => {
+    const kind = pickWeightedKind(rushActiveRef.current);
+    targetsRef.current = [...targetsRef.current, makeTarget(kind)];
+    setTargets(targetsRef.current);
+  }, [makeTarget]);
+
+  // Garantierter Uhr-Spawn nach CLOCK_SCHEDULE — bewusst außerhalb der
+  // normalen Spawn-Kappe, damit ein voller Bildschirm nie einen geplanten
+  // Uhr-Spawn verschluckt.
+  const spawnScheduledClock = useCallback(() => {
+    targetsRef.current = [...targetsRef.current, makeTarget("clock")];
+    setTargets(targetsRef.current);
+  }, [makeTarget]);
 
   const endGame = useCallback(() => {
     if (overRef.current) return;
@@ -348,6 +365,14 @@ export default function ShootingGallery({
         setTimeout(() => setShowRushBanner(false), RUSH_BANNER_MS);
       }
 
+      while (
+        clockScheduleIndexRef.current < CLOCK_SCHEDULE.length &&
+        elapsedRef.current >= CLOCK_SCHEDULE[clockScheduleIndexRef.current]
+      ) {
+        spawnScheduledClock();
+        clockScheduleIndexRef.current += 1;
+      }
+
       spawnTimerRef.current -= TICK_MS;
       const spawnCap = rushActiveRef.current ? RUSH_SPAWN_CAP : 3;
       if (spawnTimerRef.current <= 0 && targetsRef.current.length < spawnCap) {
@@ -369,7 +394,7 @@ export default function ShootingGallery({
       if (newTime <= 0) endGame();
     }, TICK_MS);
     return () => clearInterval(interval);
-  }, [spawnTarget, endGame]);
+  }, [spawnTarget, spawnScheduledClock, endGame]);
 
   useEffect(() => {
     const el = containerRef.current;
