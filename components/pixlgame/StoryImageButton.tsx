@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { uploadStoryImage } from "@/lib/pixlgame-supabase";
 
 const RANK_POSTERS: Record<string, string> = {
   "1": "/pixlgame-media/rank1-poster.jpg",
@@ -112,6 +113,9 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
   const [canShareFile, setCanShareFile] = useState(false);
+  const [hostedUrl, setHostedUrl] = useState<string | null>(null);
+  const [uploadFailed, setUploadFailed] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fileName = `eddies-cafe-platz-${rank <= 3 ? rank : "mitgespielt"}.png`;
@@ -119,6 +123,9 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
   const handleGenerate = async () => {
     setGenerating(true);
     setError(null);
+    setHostedUrl(null);
+    setUploadFailed(false);
+    setCopied(false);
     try {
       const { dataUrl, blob } = await renderStoryImage(rank, score);
       setPreviewBlob(blob);
@@ -129,9 +136,21 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
       const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean };
       const file = new File([blob], fileName, { type: "image/png" });
       setCanShareFile(Boolean(nav.canShare?.({ files: [file] })));
+      setGenerating(false);
+
+      // Im Hintergrund hochladen für eine ECHTE, dauerhafte URL — die lokale
+      // data:-URL geht verloren, sobald TikToks/Instagrams "Im Browser
+      // öffnen" die Seite in einem neuen Browser komplett neu lädt. Eine
+      // echte URL übersteht das und lässt sich zur Not auch einfach
+      // manuell in einen Browser kopieren.
+      try {
+        const url = await uploadStoryImage(blob, fileName);
+        setHostedUrl(url);
+      } catch {
+        setUploadFailed(true);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Bild konnte nicht erstellt werden");
-    } finally {
       setGenerating(false);
     }
   };
@@ -140,6 +159,9 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
     setPreviewUrl(null);
     setPreviewBlob(null);
     setCanShareFile(false);
+    setHostedUrl(null);
+    setUploadFailed(false);
+    setCopied(false);
   };
 
   const handleShare = async () => {
@@ -149,6 +171,16 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
       await navigator.share({ files: [file], title: "Eddie's Café", text: "Ich hab bei Eddie's Café gespielt! 🐾☕" });
     } catch {
       // Nutzer hat den Teilen-Dialog abgebrochen — kein Fehler.
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!hostedUrl) return;
+    try {
+      await navigator.clipboard.writeText(hostedUrl);
+      setCopied(true);
+    } catch {
+      setError("Link konnte nicht kopiert werden");
     }
   };
 
@@ -181,27 +213,54 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
                   Teilen
                 </button>
               )}
-              <a
-                href={previewUrl}
-                download={fileName}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pill-btn modal-copy-btn"
-                style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)" }}
-              >
-                Herunterladen
-              </a>
-              {/* Verlässliches Erkennen von TikToks/Instagrams eigenem
-                  In-App-Browser per User-Agent klappt nicht zuverlässig (ändert
-                  sich, wird nicht immer korrekt gemeldet) — und dort ist
-                  Speichern/Teilen/sogar Antippen&Halten oft komplett von der
-                  App selbst blockiert, unabhängig was wir hier programmieren.
-                  Deshalb immer diesen Hinweis als Ausweg zeigen statt zu raten. */}
-              <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
-                Tut sich nichts? Du bist wahrscheinlich im eingebauten Browser von TikTok/Instagram —
-                der blockiert das Speichern oft komplett. Tipp oben rechts auf ⋯ oder das
-                Teilen-Symbol und wähle &quot;Im Browser öffnen&quot;, dann geht&apos;s.
-              </p>
+
+              {hostedUrl ? (
+                <>
+                  {/* Echte, dauerhafte Bild-URL statt nur lokaler data:-URL —
+                      übersteht auch einen Browserwechsel (z.B. TikToks "Im
+                      Browser öffnen"), weil sie nicht vom lokalen
+                      Seiten-Speicher abhängt. Das ist der zuverlässigste Weg. */}
+                  <a
+                    href={hostedUrl}
+                    download={fileName}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pill-btn modal-copy-btn"
+                    style={{ border: "none" }}
+                  >
+                    🔗 Bild öffnen zum Speichern
+                  </a>
+                  <button
+                    onClick={handleCopyLink}
+                    className="pill-btn modal-copy-btn"
+                    style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)" }}
+                  >
+                    {copied ? "Link kopiert ✓" : "Link kopieren"}
+                  </button>
+                  <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
+                    Falls "Bild öffnen" im TikTok/Instagram-Browser nichts tut: Link kopieren, dann
+                    manuell in Chrome/Safari öffnen und dort das Bild antippen &amp; halten zum Speichern.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <a
+                    href={previewUrl}
+                    download={fileName}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pill-btn modal-copy-btn"
+                    style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)" }}
+                  >
+                    Herunterladen
+                  </a>
+                  <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
+                    {uploadFailed
+                      ? "Stabiler Link konnte nicht erstellt werden — bitte oben antippen & halten zum Speichern."
+                      : "Erstelle einen stabilen Link zum Speichern…"}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

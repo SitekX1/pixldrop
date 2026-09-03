@@ -63,3 +63,19 @@ export async function fetchTopScores(limit = 20): Promise<TopScore[]> {
   if (error) throw new Error(error.message);
   return (data as TopScore[]) ?? [];
 }
+
+// Lädt das clientseitig generierte Story-Bild hoch und gibt eine echte,
+// dauerhafte HTTPS-URL zurück. Wichtig speziell für TikTok/Instagram-
+// In-App-Browser: eine nur lokal im Browser-Speicher gehaltene blob:/data:-URL
+// geht verloren, sobald der Nutzer über "Im Browser öffnen" die Seite in
+// einem echten Browser neu lädt — eine echte URL übersteht das.
+export async function uploadStoryImage(blob: Blob, fileName: string): Promise<string> {
+  const supabase = getClient();
+  const path = `${Date.now()}-${fileName}`;
+  const { error } = await supabase.storage
+    .from("pixlgame-story-images")
+    .upload(path, blob, { contentType: "image/png", cacheControl: "31536000" });
+  if (error) throw new Error(error.message);
+  const { data } = supabase.storage.from("pixlgame-story-images").getPublicUrl(path);
+  return data.publicUrl;
+}
