@@ -46,6 +46,35 @@ export async function getClickStats(): Promise<ClickStats> {
   }
 }
 
+export type PixlgameLeaderboardEntry = { playerName: string; score: number; createdAt: string };
+
+export async function getPixlgameLeaderboard(limit = 100): Promise<{
+  entries: PixlgameLeaderboardEntry[];
+  error: string | null;
+}> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    return { entries: [], error: "Supabase env vars missing" };
+  }
+
+  const supabase = createClient(url, key);
+
+  try {
+    const { data, error } = await supabase.rpc("pixldrop_top_scores", { p_limit: limit });
+    if (error) throw error;
+    const entries: PixlgameLeaderboardEntry[] = (data ?? []).map((r: any) => ({
+      playerName: r.player_name,
+      score: Number(r.score),
+      createdAt: r.created_at,
+    }));
+    return { entries, error: null };
+  } catch (err) {
+    return { entries: [], error: err instanceof Error ? err.message : "Unknown error" };
+  }
+}
+
 export const EVENT_LABELS: Record<string, string> = {
   "social-click": "Social-Klicks",
   "spotify-embed-load": "Spotify-Player geladen",

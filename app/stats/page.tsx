@@ -1,4 +1,4 @@
-import { getClickStats, EVENT_LABELS } from "@/lib/click-stats";
+import { getClickStats, getPixlgameLeaderboard, EVENT_LABELS } from "@/lib/click-stats";
 import type { ClickBreakdown } from "@/lib/click-stats";
 
 export const metadata = { title: "Stats — PixlDrop", robots: { index: false, follow: false } };
@@ -41,7 +41,7 @@ export default async function StatsPage({
     );
   }
 
-  const data = await getClickStats();
+  const [data, leaderboard] = await Promise.all([getClickStats(), getPixlgameLeaderboard(100)]);
   const groups7d = groupByEvent(data.breakdown7d);
   const groups30d = groupByEvent(data.breakdown30d);
   const eventNames = Array.from(new Set([...groups7d.keys(), ...groups30d.keys(), ...Object.keys(EVENT_LABELS)]));
@@ -83,6 +83,26 @@ export default async function StatsPage({
         </section>
       )}
 
+      <h1 style={{ ...styles.h1, marginTop: 32 }}>🏆 Eddie&apos;s Café — Rangliste</h1>
+      {leaderboard.error ? (
+        <p style={styles.error}>Fehler beim Laden: {leaderboard.error}</p>
+      ) : leaderboard.entries.length === 0 ? (
+        <p style={{ ...styles.hint, marginTop: 0 }}>Noch keine Einträge.</p>
+      ) : (
+        <section style={styles.list}>
+          {leaderboard.entries.map((entry, i) => (
+            <div key={`${entry.playerName}-${entry.createdAt}`} style={styles.rankRow}>
+              <span style={styles.rankNumber}>{i + 1}.</span>
+              <span style={styles.rankName}>{entry.playerName}</span>
+              <span style={styles.rankScore}>{fmt(entry.score)}</span>
+              <span style={styles.rankDate}>
+                {new Date(entry.createdAt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" })}
+              </span>
+            </div>
+          ))}
+        </section>
+      )}
+
       <p style={styles.hint}>Aktualisiert bei jedem Aufruf dieser Seite.</p>
     </main>
   );
@@ -121,6 +141,20 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#b7bade",
   },
   error: { color: "#ff8080", fontSize: "0.9rem" },
+  rankRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    background: "#171928",
+    border: "1px solid #2a2d45",
+    borderRadius: 12,
+    padding: "10px 14px",
+    fontSize: "0.85rem",
+  },
+  rankNumber: { color: "#5a5d7a", fontWeight: 700, width: 26, flexShrink: 0 },
+  rankName: { flex: 1, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+  rankScore: { color: "#8fe6f7", fontWeight: 800 },
+  rankDate: { color: "#5a5d7a", fontSize: "0.72rem", width: 52, textAlign: "right", flexShrink: 0 },
   hint: { marginTop: 28, fontSize: "0.72rem", color: "#5a5d7a", textAlign: "center" },
   gate: { display: "flex", flexDirection: "column", gap: 10, marginTop: "35vh" },
   gateLabel: { fontSize: "0.85rem", color: "#9295b8" },
