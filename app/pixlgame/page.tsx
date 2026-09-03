@@ -1,7 +1,10 @@
 import type { Viewport } from "next";
 import GameApp from "@/components/pixlgame/GameApp";
 
-export const metadata = { title: "Eddie's Café — PixlDrop", robots: { index: false, follow: false } };
+export const metadata = {
+  title: "Eddie's Café — PixlDrop",
+  description: "Schieß Eddie's Café frei! Kaffeetassen abschießen, Highscore knacken und mit anderen vergleichen.",
+};
 // viewportFit "cover" ist Voraussetzung dafür, dass env(safe-area-inset-*) auf iOS
 // überhaupt echte Werte liefert (statt immer 0) — ohne das laufen alle Safe-Area-Fixes
 // im ShootingGallery-HUD nur auf ihren Fallback-Werten, unabhängig vom echten Gerät.
