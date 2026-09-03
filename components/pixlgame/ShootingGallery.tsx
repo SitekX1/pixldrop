@@ -424,24 +424,31 @@ export default function ShootingGallery({
           : 1;
       setScale(nextScale);
 
+      // Bei Höhen-Überskalierung (LANDSCAPE_HEIGHT_OVERSCAN) ist das Canvas
+      // oben/unten leicht abgeschnitten — dessen logisches y=0 liegt dann NICHT
+      // mehr auf Höhe der Container-Oberkante, sondern ein Stück darüber
+      // (außerhalb des sichtbaren Bereichs). Ohne diesen Versatz würden die
+      // Sperrzonen zu klein berechnet und Ziele könnten hinter den HUD-Balken
+      // spawnen, wo man sie nicht treffen kann.
+      const containerRect = el.getBoundingClientRect();
+      const canvasRealTop = h / 2 - (VIEWPORT_H * nextScale) / 2;
+
       // Der Reload-Cluster liegt außerhalb des skalierten Canvas in echten
       // Bildschirm-Pixeln (safe-area-aware, siehe unten). Wie weit er auf DIESEM
       // Gerät tatsächlich vom unteren Rand absteht, messen wir direkt statt es
       // zu erraten — daraus ergibt sich die logische Sperrzone für Spawns.
       const cluster = reloadClusterRef.current;
       if (cluster && nextScale > 0) {
-        const containerBottom = el.getBoundingClientRect().bottom;
-        const clusterTop = cluster.getBoundingClientRect().top;
-        const realGap = Math.max(0, containerBottom - clusterTop);
-        bottomExclusionRef.current = realGap / nextScale + 40; // +40 = Bob-Puffer
+        const clusterTopReal = cluster.getBoundingClientRect().top - containerRect.top;
+        const clusterTopLogical = (clusterTopReal - canvasRealTop) / nextScale;
+        bottomExclusionRef.current = Math.max(0, VIEWPORT_H - clusterTopLogical) + 40; // +40 = Bob-Puffer
       }
 
       const header = topHeaderRef.current;
       if (header && nextScale > 0) {
-        const containerTop = el.getBoundingClientRect().top;
-        const headerBottom = header.getBoundingClientRect().bottom;
-        const realGap = Math.max(0, headerBottom - containerTop);
-        topExclusionRef.current = realGap / nextScale + 20; // +20 = kleiner Puffer
+        const headerBottomReal = header.getBoundingClientRect().bottom - containerRect.top;
+        const headerBottomLogical = (headerBottomReal - canvasRealTop) / nextScale;
+        topExclusionRef.current = Math.max(0, headerBottomLogical) + 20; // +20 = kleiner Puffer
       }
     };
     update();
