@@ -5,6 +5,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const VIEWPORT_W = 380;
 const VIEWPORT_H = 760;
 const TICK_MS = 16;
+// Auf breiten Querformat-Containern (Laptop/Desktop) darf das Spielfeld etwas
+// höher skalieren als reines Contain-Fit erlauben würde — macht es spürbar
+// breiter, kostet dafür moderaten Beschnitt oben/unten (bei 1.2 max. ~10%
+// Höhe je Kante), statt stur auf die volle Höhe reinzupassen.
+const LANDSCAPE_HEIGHT_OVERSCAN = 1.2;
 
 const CLIP_SIZE = 5;
 const RELOAD_MS = 550;
@@ -414,7 +419,7 @@ export default function ShootingGallery({
       const nextScale =
         w > 0 && h > 0
           ? isLandscapeContainer
-            ? Math.min(w / VIEWPORT_W, h / VIEWPORT_H)
+            ? Math.min(w / VIEWPORT_W, (h * LANDSCAPE_HEIGHT_OVERSCAN) / VIEWPORT_H)
             : Math.max(w / VIEWPORT_W, h / VIEWPORT_H)
           : 1;
       setScale(nextScale);
@@ -563,6 +568,11 @@ export default function ShootingGallery({
           touchAction: "none",
           cursor: "none",
           userSelect: "none",
+          // Clip an der LOGISCHEN Spielfeldgröße (380x760), nicht erst am
+          // äußeren Container — sonst sind Ziele, die knapp außerhalb des
+          // 380px-Spielfelds spawnen, auf breiten Containern (Contain-Fit,
+          // Laptop) im leeren Rand trotzdem sichtbar, bevor sie "eintreten".
+          overflow: "hidden",
         }}
       >
         {/* Deko: Café-Lichter + Theke, bis ein echtes Hintergrundbild da ist */}
