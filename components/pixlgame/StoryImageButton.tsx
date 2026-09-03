@@ -23,6 +23,16 @@ const RANK_SUBLINES: Record<string, string> = {
   other: "bei Eddie's Café!",
 };
 
+// TikTok/Instagram/Facebook & Co. öffnen externe Links in ihrem eigenen
+// In-App-Browser (Android WebView), der Downloads und die Web-Share-API mit
+// Dateien absichtlich einschränkt oder blockiert — ein Klick auf "Herunterladen"
+// tut dort schlicht nichts. Erkennbar am User-Agent, dann direkt die
+// "Antippen & halten"-Anleitung zeigen statt eines Buttons, der nie greift.
+function isInAppBrowser(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Instagram|FBAN|FBAV|TikTok|BytedanceWebview|Line\//i.test(navigator.userAgent);
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -105,7 +115,11 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
   const [generating, setGenerating] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [canShareFile, setCanShareFile] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const fileName = `eddies-cafe-platz-${rank <= 3 ? rank : "mitgespielt"}.png`;
+  const inApp = isInAppBrowser();
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -114,6 +128,12 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
       const blob = await renderStoryImage(rank, score);
       setPreviewBlob(blob);
       setPreviewUrl(URL.createObjectURL(blob));
+      // Nicht nur prüfen OB canShare existiert, sondern ob es für GENAU
+      // diese Datei true zurückgibt — sonst zeigen wir auf Browsern ohne
+      // echte Datei-Unterstützung einen Teilen-Button, der nichts tut.
+      const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean };
+      const file = new File([blob], fileName, { type: "image/png" });
+      setCanShareFile(Boolean(nav.canShare?.({ files: [file] })));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Bild konnte nicht erstellt werden");
     } finally {
@@ -125,20 +145,16 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     setPreviewBlob(null);
+    setCanShareFile(false);
   };
-
-  const fileName = `eddies-cafe-platz-${rank <= 3 ? rank : "mitgespielt"}.png`;
 
   const handleShare = async () => {
     if (!previewBlob) return;
     const file = new File([previewBlob], fileName, { type: "image/png" });
-    const nav = navigator as Navigator & { canShare?: (data: { files: File[] }) => boolean };
-    if (nav.canShare?.({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: "Eddie's Café", text: "Ich hab bei Eddie's Café gespielt! 🐾☕" });
-      } catch {
-        // Nutzer hat den Teilen-Dialog abgebrochen — kein Fehler.
-      }
+    try {
+      await navigator.share({ files: [file], title: "Eddie's Café", text: "Ich hab bei Eddie's Café gespielt! 🐾☕" });
+    } catch {
+      // Nutzer hat den Teilen-Dialog abgebrochen — kein Fehler.
     }
   };
 
@@ -166,20 +182,43 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
               style={{ width: "100%", borderRadius: 16, marginBottom: 16, display: "block" }}
             />
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {typeof navigator !== "undefined" &&
-                (navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean }).canShare && (
-                  <button onClick={handleShare} className="pill-btn modal-copy-btn" style={{ border: "none" }}>
-                    Teilen
-                  </button>
-                )}
-              <a
-                href={previewUrl}
-                download={fileName}
-                className="pill-btn modal-copy-btn"
-                style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)" }}
-              >
-                Herunterladen
-              </a>
+              {inApp ? (
+                // TikTok/Instagram & Co. blockieren Downloads und Web-Share in
+                // ihrem eingebauten Browser — ein Button würde hier nur ins
+                // Leere klicken. Stattdessen direkt die zuverlässige manuelle
+                // Methode zeigen.
+                <p style={{ fontSize: 13, color: "var(--text)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
+                  📲 Bild oben antippen &amp; halten, dann &quot;Bild speichern&quot; wählen — Downloads
+                  funktionieren im TikTok/Instagram-Browser leider nicht direkt.
+                </p>
+              ) : (
+                <>
+                  {canShareFile && (
+                    <button onClick={handleShare} className="pill-btn modal-copy-btn" style={{ border: "none" }}>
+                      Teilen
+                    </button>
+                  )}
+                  {/* download-Attribut wird von iOS Safari bei Blob-Bildern oft
+                      ignoriert — target="_blank" ist der zuverlässige Fallback:
+                      öffnet das Bild in einem neuen Tab, von wo aus es sich
+                      manuell speichern lässt (Antippen & Halten). */}
+                  <a
+                    href={previewUrl}
+                    download={fileName}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pill-btn modal-copy-btn"
+                    style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)" }}
+                  >
+                    Herunterladen
+                  </a>
+                  {!canShareFile && (
+                    <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, textAlign: "center" }}>
+                      Öffnet sich nichts? Bild oben antippen &amp; halten, dann &quot;Speichern&quot; wählen.
+                    </p>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
