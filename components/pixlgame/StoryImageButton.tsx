@@ -23,16 +23,6 @@ const RANK_SUBLINES: Record<string, string> = {
   other: "bei Eddie's Café!",
 };
 
-// TikTok/Instagram/Facebook & Co. öffnen externe Links in ihrem eigenen
-// In-App-Browser (Android WebView), der Downloads und die Web-Share-API mit
-// Dateien absichtlich einschränkt oder blockiert — ein Klick auf "Herunterladen"
-// tut dort schlicht nichts. Erkennbar am User-Agent, dann direkt die
-// "Antippen & halten"-Anleitung zeigen statt eines Buttons, der nie greift.
-function isInAppBrowser(): boolean {
-  if (typeof navigator === "undefined") return false;
-  return /Instagram|FBAN|FBAV|TikTok|BytedanceWebview|Line\//i.test(navigator.userAgent);
-}
-
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -125,7 +115,6 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
   const [error, setError] = useState<string | null>(null);
 
   const fileName = `eddies-cafe-platz-${rank <= 3 ? rank : "mitgespielt"}.png`;
-  const inApp = isInAppBrowser();
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -187,43 +176,32 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
               style={{ width: "100%", borderRadius: 16, marginBottom: 16, display: "block" }}
             />
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {inApp ? (
-                // TikTok/Instagram & Co. blockieren Downloads und Web-Share in
-                // ihrem eingebauten Browser — ein Button würde hier nur ins
-                // Leere klicken. Stattdessen direkt die zuverlässige manuelle
-                // Methode zeigen.
-                <p style={{ fontSize: 13, color: "var(--text)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
-                  📲 Bild oben antippen &amp; halten, dann &quot;Bild speichern&quot; wählen — Downloads
-                  funktionieren im TikTok/Instagram-Browser leider nicht direkt.
-                </p>
-              ) : (
-                <>
-                  {canShareFile && (
-                    <button onClick={handleShare} className="pill-btn modal-copy-btn" style={{ border: "none" }}>
-                      Teilen
-                    </button>
-                  )}
-                  {/* download-Attribut wird von iOS Safari bei Blob-Bildern oft
-                      ignoriert — target="_blank" ist der zuverlässige Fallback:
-                      öffnet das Bild in einem neuen Tab, von wo aus es sich
-                      manuell speichern lässt (Antippen & Halten). */}
-                  <a
-                    href={previewUrl}
-                    download={fileName}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="pill-btn modal-copy-btn"
-                    style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)" }}
-                  >
-                    Herunterladen
-                  </a>
-                  {!canShareFile && (
-                    <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, textAlign: "center" }}>
-                      Öffnet sich nichts? Bild oben antippen &amp; halten, dann &quot;Speichern&quot; wählen.
-                    </p>
-                  )}
-                </>
+              {canShareFile && (
+                <button onClick={handleShare} className="pill-btn modal-copy-btn" style={{ border: "none" }}>
+                  Teilen
+                </button>
               )}
+              <a
+                href={previewUrl}
+                download={fileName}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pill-btn modal-copy-btn"
+                style={{ background: "var(--bg)", color: "var(--text)", border: "1px solid var(--border)" }}
+              >
+                Herunterladen
+              </a>
+              {/* Verlässliches Erkennen von TikToks/Instagrams eigenem
+                  In-App-Browser per User-Agent klappt nicht zuverlässig (ändert
+                  sich, wird nicht immer korrekt gemeldet) — und dort ist
+                  Speichern/Teilen/sogar Antippen&Halten oft komplett von der
+                  App selbst blockiert, unabhängig was wir hier programmieren.
+                  Deshalb immer diesen Hinweis als Ausweg zeigen statt zu raten. */}
+              <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0, textAlign: "center", lineHeight: 1.5 }}>
+                Tut sich nichts? Du bist wahrscheinlich im eingebauten Browser von TikTok/Instagram —
+                der blockiert das Speichern oft komplett. Tipp oben rechts auf ⋯ oder das
+                Teilen-Symbol und wähle &quot;Im Browser öffnen&quot;, dann geht&apos;s.
+              </p>
             </div>
           </div>
         </div>
