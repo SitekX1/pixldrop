@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import ShootingGallery from "./ShootingGallery";
 import RankReveal from "./RankReveal";
 import Leaderboard from "./Leaderboard";
+import StoryImageButton from "./StoryImageButton";
 import { startGameSession, submitScore, getScoreRank } from "@/lib/pixlgame-supabase";
 import TrackedLink from "@/components/TrackedLink";
 import { TikTokIcon, InstagramIcon } from "@/components/Icons";
@@ -324,6 +325,8 @@ export default function GameApp({ src }: { src?: "tiktok" | "instagram" }) {
       {screen === "leaderboard" && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, width: "100%" }}>
           <Leaderboard />
+
+          {rank !== null && <StoryImageButton rank={rank} score={finalScore.total} />}
 
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
             <p style={{ color: "var(--text-muted)", fontSize: 12, margin: 0 }}>Folg uns für mehr Eddie 🐾</p>
