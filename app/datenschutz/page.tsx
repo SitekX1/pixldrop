@@ -60,7 +60,21 @@ export default function Datenschutz() {
         weitergegeben.
       </p>
 
-      <h2>6. Deine Rechte</h2>
+      <h2>6. Minispiel &quot;Eddie&apos;s Café&quot;</h2>
+      <p>
+        Auf unserer Unterseite /pixlgame kannst du ein kleines Browserspiel spielen und deinen
+        Punktestand in einer öffentlichen Rangliste eintragen. Dabei speichern wir den von dir
+        frei gewählten Spielernamen (kein Klarname erforderlich), deinen erzielten Punktestand
+        und das Datum der Runde. Diese Angaben werden bei Supabase Inc. (Serverstandort
+        EU/Irland) gespeichert und öffentlich in der Rangliste (Top 100) angezeigt. Die
+        Speicherung und Veröffentlichung erfolgt ausschließlich, wenn du vor dem Absenden
+        ausdrücklich über eine Checkbox zustimmst. Rechtsgrundlage ist Art. 6 Abs. 1 lit. a
+        DSGVO (Einwilligung). Du kannst deine Einwilligung jederzeit für die Zukunft
+        widerrufen und die Löschung deines Ranglisteneintrags über die oben genannte
+        Kontaktadresse verlangen.
+      </p>
+
+      <h2>7. Deine Rechte</h2>
       <p>
         Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung,
         Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung deiner personenbezogenen

@@ -51,4 +51,5 @@ export const EVENT_LABELS: Record<string, string> = {
   "spotify-embed-load": "Spotify-Player geladen",
   "spotify-artist-click": "Spotify-Profil-Klicks",
   "aicut-click": "aicut-Klicks",
+  "pixlgame-click": "Spiel-Klicks",
 };

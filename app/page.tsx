@@ -26,7 +26,18 @@ const LINKS = {
   youtube: "https://www.youtube.com/@pixldropai",
 };
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ src?: string }>;
+}) {
+  const { src } = await searchParams;
+  // ?src=tiktok / ?src=instagram kommt vom Bio-Link der jeweiligen Plattform
+  // (siehe Datenschutz/Doku) — wird 1:1 an den Spiel-Link weitergereicht,
+  // damit das Spiel dort nur den passenden Folgen-Button zeigt.
+  const normalizedSrc = src === "tiktok" || src === "instagram" ? src : undefined;
+  const gameHref = normalizedSrc ? `/pixlgame?src=${normalizedSrc}` : "/pixlgame";
+
   return (
     <>
       <Image
@@ -103,6 +114,30 @@ export default function Home() {
         </div>
 
         <section className="bento">
+          <div className="section-label">🎮 Minigame</div>
+          <TrackedLink
+            href={gameHref}
+            className="card pixlgame-card"
+            event="pixlgame-click"
+            eventData={{ platform: normalizedSrc ?? "direct" }}
+          >
+            <div className="card-glow" />
+            <img
+              src="/pixlgame-media/promo-card.jpg"
+              alt=""
+              className="promo-card-img"
+              style={{ aspectRatio: "900 / 483" }}
+            />
+            <div className="eyebrow-small">Eddie hat sich ins Café geschlichen</div>
+            <h3>Eddie&apos;s Café — jetzt spielen</h3>
+            <p>
+              Schieß Kaffeebohnen &amp; Tassen für Punkte, überleb 30 Sekunden Rush und schnapp
+              dir einen Platz in der Rangliste.
+            </p>
+            <span className="pill-btn">Jetzt spielen →</span>
+          </TrackedLink>
+
+          <div className="section-label">🎬 Meine Tools &amp; Musik</div>
           <TrackedLink
             href={LINKS.aicut}
             target="_blank"
@@ -111,6 +146,12 @@ export default function Home() {
             event="aicut-click"
           >
             <div className="card-glow" />
+            <img
+              src="/aicut-promo-card.jpg"
+              alt=""
+              className="promo-card-img"
+              style={{ aspectRatio: "900 / 503" }}
+            />
             <div className="eyebrow-small">So mache ich meine Videos</div>
             <h3>aicut — von der Idee zum fertigen Clip</h3>
             <p>

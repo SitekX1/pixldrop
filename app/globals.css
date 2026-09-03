@@ -432,6 +432,58 @@ button {
   background: linear-gradient(135deg, var(--cyan), var(--violet-light));
 }
 
+.section-label {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 6px 2px -6px;
+}
+
+.pixlgame-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #2b1a0f, #4a2c1a);
+  color: #fff;
+  border: none;
+}
+
+.pixlgame-card .eyebrow-small {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ffcf8a;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.pixlgame-card h3 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.pixlgame-card p {
+  margin: 0 0 14px;
+  color: #e8d8c8;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.pixlgame-card .pill-btn {
+  background: linear-gradient(135deg, #ffb347, #e0433c);
+}
+
+/* Bündig bis an den Kartenrand (Karte hat overflow:hidden + border-radius,
+   das rundet die oberen Ecken des Bilds automatisch mit ab) — die negativen
+   Margins heben nur das 16px-Innenpadding der .card für dieses eine Kind auf. */
+.promo-card-img {
+  display: block;
+  width: calc(100% + 32px);
+  margin: -16px -16px 14px;
+  object-fit: cover;
+}
+
 footer {
   position: relative;
   z-index: 1;

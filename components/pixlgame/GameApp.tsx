@@ -36,7 +36,7 @@ const PAGE_BACKGROUND = `radial-gradient(circle at 8% 6%, rgba(91,42,158,0.30), 
   PAGE_PATTERN_SVG
 )}"), #fff3e6`;
 
-export default function GameApp() {
+export default function GameApp({ src }: { src?: "tiktok" | "instagram" }) {
   const [screen, setScreen] = useState<Screen>("intro");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [finalScore, setFinalScore] = useState({ total: 0, base: 0, bonus: 0 });
@@ -319,28 +319,32 @@ export default function GameApp() {
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
             <p style={{ color: "var(--text-muted)", fontSize: 12, margin: 0 }}>Folg uns für mehr Eddie 🐾</p>
             <div className="social-row" style={{ marginBottom: 0 }}>
-              <TrackedLink
-                href={SOCIAL_LINKS.tiktok}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-icon"
-                event="social-click"
-                eventData={{ platform: "tiktok", source: "pixlgame" }}
-                aria-label="TikTok"
-              >
-                <TikTokIcon />
-              </TrackedLink>
-              <TrackedLink
-                href={SOCIAL_LINKS.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-icon"
-                event="social-click"
-                eventData={{ platform: "instagram", source: "pixlgame" }}
-                aria-label="Instagram"
-              >
-                <InstagramIcon />
-              </TrackedLink>
+              {src !== "instagram" && (
+                <TrackedLink
+                  href={SOCIAL_LINKS.tiktok}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-icon"
+                  event="social-click"
+                  eventData={{ platform: "tiktok", source: "pixlgame" }}
+                  aria-label="TikTok"
+                >
+                  <TikTokIcon />
+                </TrackedLink>
+              )}
+              {src !== "tiktok" && (
+                <TrackedLink
+                  href={SOCIAL_LINKS.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-icon"
+                  event="social-click"
+                  eventData={{ platform: "instagram", source: "pixlgame" }}
+                  aria-label="Instagram"
+                >
+                  <InstagramIcon />
+                </TrackedLink>
+              )}
             </div>
           </div>
 

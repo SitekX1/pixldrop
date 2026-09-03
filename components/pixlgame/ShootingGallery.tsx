@@ -404,8 +404,19 @@ export default function ShootingGallery({
       const h = el.clientHeight;
       // "cover"-Fit statt "contain": das Spielfeld soll den Bildschirm wirklich
       // komplett füllen (links-rechts UND oben-unten), notfalls mit minimalem
-      // Beschnitt an einer Kante, statt Lücken zu lassen.
-      const nextScale = w > 0 && h > 0 ? Math.max(w / VIEWPORT_W, h / VIEWPORT_H) : 1;
+      // Beschnitt an einer Kante, statt Lücken zu lassen. Das ist für
+      // Hochformat (Handys) gedacht — auf einem breiten Querformat-Fenster
+      // (Laptop/Desktop, Breite > Höhe) würde Cover-Fit anhand der Breite
+      // skalieren und das Hochformat-Spielfeld dabei riesig aufblasen (Ziele
+      // und Fadenkreuz viel zu groß, oben/unten massiv abgeschnitten). Dort
+      // stattdessen "contain"-Fit (mit Rändern links/rechts statt Beschnitt).
+      const isLandscapeContainer = w > 0 && h > 0 && w > h;
+      const nextScale =
+        w > 0 && h > 0
+          ? isLandscapeContainer
+            ? Math.min(w / VIEWPORT_W, h / VIEWPORT_H)
+            : Math.max(w / VIEWPORT_W, h / VIEWPORT_H)
+          : 1;
       setScale(nextScale);
 
       // Der Reload-Cluster liegt außerhalb des skalierten Canvas in echten
@@ -719,8 +730,15 @@ export default function ShootingGallery({
         style={{
           position: "absolute",
           top: "max(54px, calc(env(safe-area-inset-top) + 12px))",
-          left: 16,
-          right: 16,
+          left: "50%",
+          transform: "translateX(-50%)",
+          // Auf breiten Querformat-Containern (Laptop/Desktop) ist das
+          // Spielfeld per Contain-Fit schmaler als der Container (Pillarbox
+          // links/rechts) — die Kopfzeile soll dann am tatsächlichen
+          // Spielfeld ausgerichtet sein statt im leeren Rand zu hängen.
+          // Auf Handys (Cover-Fit, Spielfeld ≥ Container) entspricht das
+          // exakt dem bisherigen left:16/right:16.
+          width: `min(calc(100% - 32px), ${Math.max(0, VIEWPORT_W * scale - 32)}px)`,
           display: "flex",
           flexDirection: "column",
           gap: 7,
@@ -735,7 +753,19 @@ export default function ShootingGallery({
         <Badge style={{ position: "static", alignSelf: "flex-start", marginTop: 4 }} icon="☕" value={score} />
       </div>
 
-      <Badge style={{ bottom: 10, left: 10 }} icon="❤️" value={lives} urgent={lives <= 1} />
+      <Badge
+        style={{
+          bottom: 10,
+          // Gleiche Pillarbox-Logik wie bei der Kopfzeile: am tatsächlichen
+          // Spielfeldrand ausrichten statt am Container-Rand, damit das
+          // Leben-Badge auf breiten Desktop-Fenstern nicht im leeren Rand
+          // hängt. Auf Handys entspricht das exakt dem bisherigen left:10.
+          left: `max(10px, calc(50% - ${Math.max(0, (VIEWPORT_W * scale) / 2 - 10)}px))`,
+        }}
+        icon="❤️"
+        value={lives}
+        urgent={lives <= 1}
+      />
 
       {showRushBanner && (
         <div
