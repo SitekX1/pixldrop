@@ -45,7 +45,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 // Vertikales 1080x1920-Story-Format (Instagram/TikTok-Standard) — Eddie-Poster
 // als Hintergrund, Platz + Score + CTA + Logo als Canvas-Text/Overlay obendrauf.
 // Läuft komplett clientseitig, kein Server-Rendering nötig.
-async function renderStoryImage(rank: number, score: number): Promise<Blob> {
+async function renderStoryImage(rank: number, score: number): Promise<{ dataUrl: string; blob: Blob }> {
   const key = rank <= 3 ? String(rank) : "other";
   const W = 1080;
   const H = 1920;
@@ -106,9 +106,15 @@ async function renderStoryImage(rank: number, score: number): Promise<Blob> {
   const logoH = (logo.height / logo.width) * logoW;
   ctx.drawImage(logo, (W - logoW) / 2, 1660, logoW, logoH);
 
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Export fehlgeschlagen"))), "image/png");
+  // data:-URL statt nur blob: — "Antippen & halten → Speichern" ist auf
+  // vielen Mobilbrowsern/In-App-Webviews für blob:-Bilder unzuverlässig,
+  // data:-URLs werden dafür deutlich breiter unterstützt. Für die
+  // Web-Share-API (braucht eine echte File) wird zusätzlich ein Blob erzeugt.
+  const dataUrl = canvas.toDataURL("image/png");
+  const blob: Blob = await new Promise((resolve, reject) => {
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Export fehlgeschlagen"))), "image/png");
   });
+  return { dataUrl, blob };
 }
 
 export default function StoryImageButton({ rank, score }: { rank: number; score: number }) {
@@ -125,9 +131,9 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
     setGenerating(true);
     setError(null);
     try {
-      const blob = await renderStoryImage(rank, score);
+      const { dataUrl, blob } = await renderStoryImage(rank, score);
       setPreviewBlob(blob);
-      setPreviewUrl(URL.createObjectURL(blob));
+      setPreviewUrl(dataUrl);
       // Nicht nur prüfen OB canShare existiert, sondern ob es für GENAU
       // diese Datei true zurückgibt — sonst zeigen wir auf Browsern ohne
       // echte Datei-Unterstützung einen Teilen-Button, der nichts tut.
@@ -142,7 +148,6 @@ export default function StoryImageButton({ rank, score }: { rank: number; score:
   };
 
   const closePreview = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     setPreviewBlob(null);
     setCanShareFile(false);
