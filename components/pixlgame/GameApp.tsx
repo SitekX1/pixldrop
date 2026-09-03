@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import ShootingGallery from "./ShootingGallery";
 import RankReveal from "./RankReveal";
 import Leaderboard from "./Leaderboard";
@@ -45,6 +45,7 @@ export default function GameApp({ src }: { src?: "tiktok" | "instagram" }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
+  const nameCardRef = useRef<HTMLDivElement>(null);
 
   const startGame = useCallback(async () => {
     setError(null);
@@ -255,12 +256,20 @@ export default function GameApp({ src }: { src?: "tiktok" | "instagram" }) {
             <Row label="Gesamtpunktzahl" value={finalScore.total} bold />
           </div>
 
-          <div className="card" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
+          <div ref={nameCardRef} className="card" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
             <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text)" }}>In die Rangliste eintragen</div>
             <label style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "left" }}>Öffentlicher Spielername</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value.slice(0, 20))}
+              onFocus={() => {
+                // Auf dem Handy schiebt sich die Tastatur über Eingabefeld
+                // und Button — sobald sie aufgeht (kurze Verzögerung fürs
+                // Animations-Timing), die ganze Karte ins Sichtbare scrollen.
+                setTimeout(() => {
+                  nameCardRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+                }, 300);
+              }}
               placeholder="Dein Name"
               style={{
                 background: "var(--bg)",

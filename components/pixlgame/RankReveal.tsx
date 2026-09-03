@@ -9,6 +9,16 @@ const RANK_VIDEOS: Record<string, string> = {
   other: "/pixlgame-media/rank-other.mp4",
 };
 
+// Frame direkt aus dem jeweiligen Video, als Poster — zeigt sofort etwas
+// Passendes statt eines grauen Player-Platzhalters, bis das Video selbst
+// bereit zum Abspielen ist.
+const RANK_POSTERS: Record<string, string> = {
+  "1": "/pixlgame-media/rank1-poster.jpg",
+  "2": "/pixlgame-media/rank2-poster.jpg",
+  "3": "/pixlgame-media/rank3-poster.jpg",
+  other: "/pixlgame-media/rank-other-poster.jpg",
+};
+
 const RANK_LABELS: Record<string, string> = {
   "1": "Platz 1 🏆",
   "2": "Platz 2 🥈",
@@ -67,7 +77,7 @@ export default function RankReveal({
           height: 462,
           borderRadius: 20,
           overflow: "hidden",
-          background: "#171928",
+          background: "linear-gradient(180deg, #fbeedd 0%, #f3d9b8 45%, #7a5236 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -78,6 +88,7 @@ export default function RankReveal({
             <video
               ref={videoRef}
               src={RANK_VIDEOS[key]}
+              poster={RANK_POSTERS[key]}
               autoPlay
               playsInline
               onPlay={() => setNeedsTap(false)}
@@ -110,9 +121,9 @@ export default function RankReveal({
             )}
           </>
         ) : (
-          <div style={{ textAlign: "center", color: "#b7bade", padding: 20 }}>
+          <div style={{ textAlign: "center", color: "#6b4226", padding: 20 }}>
             <div style={{ fontSize: 40, marginBottom: 10 }}>🐾</div>
-            <div style={{ fontWeight: 700, fontSize: 18, color: "#fff" }}>
+            <div style={{ fontWeight: 700, fontSize: 18, color: "#3f2716" }}>
               {RANK_LABELS[key]}
             </div>
           </div>
