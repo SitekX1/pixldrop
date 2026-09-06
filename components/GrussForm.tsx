@@ -12,14 +12,15 @@ export default function GrussForm() {
   const [occasion, setOccasion] = useState(OCCASIONS[0]);
   const [tone, setTone] = useState(TONES[0]);
   const [message, setMessage] = useState("");
+  const [privateUseConsent, setPrivateUseConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !contact.trim()) return;
+    if (!name.trim() || !contact.trim() || !privateUseConsent) return;
     setStatus("sending");
     try {
-      await submitGrussLead({ name, contact, occasion, tone, message });
+      await submitGrussLead({ name, contact, occasion, tone, message, privateUseConsent });
       // Benachrichtigung ist best-effort — schlägt sie fehl, ist die Anfrage
       // trotzdem sicher in der Datenbank, also den Erfolg davon nicht abhängig machen.
       fetch("/api/gruss-notify", {
@@ -100,7 +101,25 @@ export default function GrussForm() {
         />
       </label>
 
-      <button type="submit" className="pill-btn gruss-submit" disabled={status === "sending"}>
+      <label className="gruss-checkbox-label">
+        <input
+          type="checkbox"
+          checked={privateUseConsent}
+          onChange={(e) => setPrivateUseConsent(e.target.checked)}
+          required
+        />
+        <span>
+          Ich bestätige, dass ich das Video ausschließlich privat nutze (z.&nbsp;B. zum Teilen
+          mit Familie/Freunden via WhatsApp oder Social Media). Eine gewerbliche
+          Weiterverwendung oder ein Weiterverkauf ist nicht gestattet.
+        </span>
+      </label>
+
+      <button
+        type="submit"
+        className="pill-btn gruss-submit"
+        disabled={status === "sending" || !privateUseConsent}
+      >
         {status === "sending" ? "Wird gesendet…" : "Grußvideo anfragen"}
       </button>
 

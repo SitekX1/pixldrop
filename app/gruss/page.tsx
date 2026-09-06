@@ -119,6 +119,12 @@ export default function GrussPage() {
           </p>
           <GrussForm />
         </div>
+
+        <p className="gruss-legal-note">
+          <strong>Rechtliche Hinweise &amp; Lizenz:</strong> Nutzung ausschließlich zur privaten
+          Verwendung. Dieses kreative, fiktionale Animationsvideo wurde unter Zuhilfenahme von
+          KI-gestützten Design-Tools erstellt. Format: MP4.
+        </p>
       </section>
     </main>
   );

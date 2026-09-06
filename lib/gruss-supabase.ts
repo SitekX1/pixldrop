@@ -19,6 +19,7 @@ export type GrussLead = {
   occasion: string;
   tone: string;
   message?: string;
+  privateUseConsent: boolean;
 };
 
 export async function submitGrussLead(lead: GrussLead): Promise<void> {
@@ -29,6 +30,7 @@ export async function submitGrussLead(lead: GrussLead): Promise<void> {
     occasion: lead.occasion,
     tone: lead.tone,
     message: lead.message || null,
+    private_use_consent: lead.privateUseConsent,
   });
   if (error) throw new Error(error.message);
 }

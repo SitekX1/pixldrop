@@ -782,6 +782,38 @@ footer {
   outline-offset: 1px;
 }
 
+.gruss-checkbox-label {
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: 10px !important;
+  font-size: 0.78rem !important;
+  font-weight: 400 !important;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.gruss-checkbox-label input[type="checkbox"] {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  accent-color: var(--violet);
+}
+
+.gruss-legal-note {
+  max-width: 480px;
+  margin: 0 auto 32px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.gruss-legal-note strong {
+  color: var(--text);
+}
+
 .gruss-submit {
   border: none;
   cursor: pointer;
