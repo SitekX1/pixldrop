@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Image from "next/image";
 import GrussForm from "@/components/GrussForm";
 
 export const metadata: Metadata = {
@@ -8,6 +9,25 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
+
+const HOW_STEPS = [
+  {
+    title: "Anfrage abschicken",
+    text: "Formular unten ausfüllen, dauert eine Minute.",
+  },
+  {
+    title: "Preisangebot",
+    text: "Wir melden uns per E-Mail mit einem Preis, passend zum Aufwand deiner Wünsche.",
+  },
+  {
+    title: "Zusage & Zahlung",
+    text: "Du bestätigst, wir schicken dir einen Zahlungslink.",
+  },
+  {
+    title: "Lieferung",
+    text: "Dein fertiges Video kommt als Datei per E-Mail, fertig zum Weiterschicken.",
+  },
+];
 
 const EXAMPLES = [
   {
@@ -34,6 +54,14 @@ export default function GrussPage() {
   return (
     <main className="page gruss-page">
       <header className="gruss-hero">
+        <Image
+          src="/pixldrop-header-logo.png"
+          alt="PixlDrop"
+          width={728}
+          height={536}
+          className="gruss-logo"
+          priority
+        />
         <div className="eyebrow-small">Neu bei PixlDrop</div>
         <h1>Ein Grußvideo von Eddie</h1>
         <p className="gruss-sub">
@@ -66,25 +94,17 @@ export default function GrussPage() {
         ))}
       </section>
 
-      <section className="gruss-how">
-        <h2>So läuft's ab</h2>
-        <ol className="gruss-how-list">
-          <li>
-            <strong>Anfrage abschicken</strong> — Formular unten ausfüllen, dauert eine Minute.
-          </li>
-          <li>
-            <strong>Preisangebot</strong> — wir melden uns per E-Mail mit einem Preis, passend
-            zum Aufwand deiner Wünsche.
-          </li>
-          <li>
-            <strong>Zusage &amp; Zahlung</strong> — du bestätigst, wir schicken dir einen
-            Zahlungslink.
-          </li>
-          <li>
-            <strong>Lieferung</strong> — dein fertiges Video kommt als Datei direkt per E-Mail,
-            fertig zum Weiterschicken per WhatsApp, Instagram, TikTok oder wo du magst.
-          </li>
-        </ol>
+      <section className="gruss-how-section">
+        <h2 className="gruss-section-title">So läuft's ab</h2>
+        <div className="gruss-how-grid">
+          {HOW_STEPS.map((step, i) => (
+            <div className="card gruss-how-card" key={step.title}>
+              <div className="gruss-how-num">{i + 1}</div>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </div>
+          ))}
+        </div>
         <p className="gruss-how-note">
           Das Video ist für dich und die beschenkte Person gedacht — zum privaten Teilen, nicht
           zur kommerziellen Weiterverwendung.

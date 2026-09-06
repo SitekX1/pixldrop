@@ -560,7 +560,16 @@ footer {
 .gruss-hero {
   text-align: center;
   max-width: 560px;
-  margin: 0 auto 32px;
+  margin: 0 auto 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.gruss-logo {
+  width: min(55vw, 240px);
+  height: auto;
 }
 
 .gruss-hero .eyebrow-small {
@@ -569,12 +578,12 @@ footer {
   letter-spacing: 0.08em;
   color: var(--violet);
   font-weight: 700;
-  margin-bottom: 8px;
+  margin: 0;
 }
 
 .gruss-hero h1 {
   font-size: 1.9rem;
-  margin: 0 0 14px;
+  margin: 0;
   background: var(--gradient);
   -webkit-background-clip: text;
   background-clip: text;
@@ -585,14 +594,15 @@ footer {
   color: var(--text-muted);
   font-size: 0.95rem;
   line-height: 1.55;
-  margin: 0 0 18px;
+  margin: 0;
 }
 
 .gruss-price {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 .gruss-price-value {
@@ -652,62 +662,71 @@ footer {
   background: var(--navy-dark);
 }
 
-.gruss-how {
-  max-width: 480px;
-  margin: 0 auto 32px;
+.gruss-how-section {
+  margin: 0 0 40px;
 }
 
-.gruss-how h2 {
+.gruss-section-title {
   font-size: 1.15rem;
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   text-align: center;
 }
 
-.gruss-how-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.gruss-how-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .gruss-how-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.gruss-how-card {
+  text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  counter-reset: gruss-step;
+  align-items: center;
+  gap: 6px;
 }
 
-.gruss-how-list li {
-  counter-increment: gruss-step;
-  display: flex;
-  gap: 12px;
-  align-items: baseline;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--text-muted);
-}
-
-.gruss-how-list li::before {
-  content: counter(gruss-step);
-  flex: none;
-  width: 22px;
-  height: 22px;
+.gruss-how-num {
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--gradient);
   color: #fff;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 4px;
 }
 
-.gruss-how-list strong {
-  color: var(--text);
+.gruss-how-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.gruss-how-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 .gruss-how-note {
-  margin: 14px 0 0;
+  margin: 18px 0 0;
   font-size: 0.8rem;
   color: var(--text-muted);
   text-align: center;
   font-style: italic;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .gruss-form-section {
