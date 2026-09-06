@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LegalFooter from "@/components/LegalFooter";
 
 export const metadata = { title: "Datenschutz — PixlDrop" };
 
@@ -74,13 +75,53 @@ export default function Datenschutz() {
         Kontaktadresse verlangen.
       </p>
 
-      <h2>7. Deine Rechte</h2>
+      <h2>7. Anfragen für Grußvideos</h2>
+      <p>
+        Auf unserer Unterseite /gruss kannst du über ein Formular eine unverbindliche Anfrage
+        für ein personalisiertes Grußvideo stellen. Dabei verarbeiten wir die von dir
+        eingegebenen Angaben: deinen Namen, deine Kontaktdaten (E-Mail-Adresse oder
+        Social-Media-Profilname), den gewünschten Anlass, den gewünschten Ton sowie deinen
+        Freitext dazu, was im Video gesagt werden soll. Zweck ist ausschließlich die Bearbeitung
+        deiner Anfrage, die Erstellung eines Preisangebots und die spätere Vertragsabwicklung.
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Durchführung vorvertraglicher Maßnahmen
+        bzw. Vertragserfüllung). Die Angaben werden bei Supabase Inc. (Serverstandort EU/Irland)
+        gespeichert. Die Bereitstellung der Daten ist freiwillig, ohne sie können wir dir aber
+        kein Angebot machen.
+      </p>
+
+      <h2>8. Benachrichtigung über Telegram</h2>
+      <p>
+        Damit wir neue Anfragen zeitnah bemerken, senden wir uns bei jeder eingehenden
+        Grußvideo-Anfrage eine interne Benachrichtigung über den Messenger-Dienst Telegram. Dabei
+        werden die von dir im Formular gemachten Angaben (Name, Kontaktdaten, Anlass, Ton,
+        Freitext) an Telegram übermittelt. Anbieter ist die Telegram Messenger Inc. bzw. Telegram
+        FZ-LLC (Dubai, Vereinigte Arabische Emirate); es findet somit eine Übermittlung in ein
+        Drittland außerhalb der EU statt, für das kein Angemessenheitsbeschluss der EU-Kommission
+        vorliegt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer
+        zeitnahen Bearbeitung deiner Anfrage). Wenn du diese Übermittlung nicht wünschst, kannst
+        du uns deine Anfrage stattdessen direkt per E-Mail an die oben genannte Adresse senden.
+      </p>
+
+      <h2>9. Speicherdauer</h2>
+      <p>
+        Anfragen für Grußvideos bewahren wir so lange auf, wie es für die Bearbeitung und eine
+        etwaige Vertragsabwicklung erforderlich ist; bei zustande gekommenen Verträgen gelten
+        zusätzlich die gesetzlichen Aufbewahrungsfristen (bis zu 10 Jahre nach § 147 AO bzw.
+        § 257 HGB). Anfragen, die zu keinem Vertrag führen, löschen wir spätestens nach sechs
+        Monaten. Ranglisteneinträge aus dem Minispiel und die anonymen Klick-Statistiken
+        speichern wir unbefristet, bis du der Speicherung widersprichst bzw. eine Löschung
+        verlangst.
+      </p>
+
+      <h2>10. Deine Rechte</h2>
       <p>
         Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung,
         Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung deiner personenbezogenen
         Daten. Wende dich dazu an die oben genannte Kontaktadresse. Zudem steht dir ein
         Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde zu.
       </p>
+
+      <LegalFooter />
     </div>
   );
 }

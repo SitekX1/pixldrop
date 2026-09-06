@@ -13,12 +13,11 @@ export default function GrussForm() {
   const [tone, setTone] = useState(TONES[0]);
   const [message, setMessage] = useState("");
   const [privateUseConsent, setPrivateUseConsent] = useState(false);
-  const [withdrawalConsent, setWithdrawalConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !contact.trim() || !privateUseConsent || !withdrawalConsent) return;
+    if (!name.trim() || !contact.trim() || !privateUseConsent) return;
     setStatus("sending");
     try {
       await submitGrussLead({ name, contact, occasion, tone, message, privateUseConsent });
@@ -120,24 +119,16 @@ export default function GrussForm() {
         </span>
       </label>
 
-      <label className="gruss-checkbox-label">
-        <input
-          type="checkbox"
-          checked={withdrawalConsent}
-          onChange={(e) => setWithdrawalConsent(e.target.checked)}
-          required
-        />
-        <span>
-          Ich verlange ausdrücklich, dass mit der Erstellung und Bereitstellung des Videos vor
-          Ablauf der Widerrufsfrist begonnen wird. Mir ist bekannt, dass mein Widerrufsrecht mit
-          Beginn der Ausführung erlischt (siehe <a href="/widerrufsrecht">Widerrufsrecht</a>).
-        </span>
-      </label>
+      <p className="gruss-field-note">
+        Mit dem Absenden entstehen dir noch keine Kosten — du bekommst zuerst ein
+        unverbindliches Preisangebot. Zu deinem <a href="/widerrufsrecht">Widerrufsrecht</a>{" "}
+        informieren wir dich, bevor du das Angebot annimmst.
+      </p>
 
       <button
         type="submit"
         className="pill-btn gruss-submit"
-        disabled={status === "sending" || !privateUseConsent || !withdrawalConsent}
+        disabled={status === "sending" || !privateUseConsent}
       >
         {status === "sending" ? "Wird gesendet…" : "Grußvideo anfragen"}
       </button>

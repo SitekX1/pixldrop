@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LegalFooter from "@/components/LegalFooter";
 
 export const metadata = { title: "Widerrufsrecht — PixlDrop" };
 
@@ -34,8 +35,13 @@ export default function Widerrufsrecht() {
         deines Videos begonnen haben, nachdem du ausdrücklich zugestimmt hast, dass wir vor
         Ablauf der Widerrufsfrist mit der Ausführung des Vertrags beginnen, und du deine
         Kenntnis davon bestätigt hast, dass du durch deine Zustimmung mit Beginn der Ausführung
-        des Vertrags dein Widerrufsrecht verlierst. Diese Zustimmung holen wir vor der
-        Bestellung gesondert ein.
+        des Vertrags dein Widerrufsrecht verlierst.
+      </p>
+      <p>
+        Diese Zustimmung holen wir erst beim verbindlichen Kaufabschluss ein — also nachdem du
+        von uns ein Preisangebot erhalten hast und dieses annimmst. Das reine Absenden des
+        Anfrageformulars auf unserer Seite ist unverbindlich und kostenlos; dabei kommt noch
+        kein Vertrag zustande.
       </p>
 
       <h2>Muster-Widerrufsformular</h2>
@@ -55,6 +61,8 @@ export default function Widerrufsrecht() {
         <br />
         — Datum:
       </p>
+
+      <LegalFooter />
     </div>
   );
 }

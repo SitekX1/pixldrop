@@ -155,6 +155,12 @@ export default function GameApp({ src }: { src?: "tiktok" | "instagram" }) {
           >
             Weiter
           </button>
+          {/* Pflichtlinks müssen auch hier erreichbar sein — das Spiel ist eine
+              eigenständige Unterseite ohne den normalen Seitenfooter. */}
+          <div className="footer-links" style={{ fontSize: "0.75rem", marginTop: 4 }}>
+            <a href="/impressum">Impressum</a>
+            <a href="/datenschutz">Datenschutz</a>
+          </div>
         </div>
       )}
 

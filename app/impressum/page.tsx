@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LegalFooter from "@/components/LegalFooter";
 
 export const metadata = { title: "Impressum — PixlDrop" };
 
@@ -10,7 +11,7 @@ export default function Impressum() {
       </Link>
       <h1>Impressum</h1>
 
-      <p>Angaben gemäß § 5 TMG:</p>
+      <p>Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz):</p>
       <p>
         Alexander Sitek
         <br />
@@ -28,16 +29,17 @@ export default function Impressum() {
       </p>
 
       <p>
-        <strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</strong>
+        <strong>Verbraucherstreitbeilegung</strong>
         <br />
-        Alexander Sitek (Anschrift wie oben)
+        Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer
+        Verbraucherschlichtungsstelle teilzunehmen.
       </p>
 
       <h2>Haftungsausschluss</h2>
       <p>
-        <strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG
+        <strong>Haftung für Inhalte:</strong> Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG
         für eigene Inhalte auf dieser Website nach den allgemeinen Gesetzen verantwortlich. Nach
-        §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder
+        §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder
         gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf
         eine rechtswidrige Tätigkeit hinweisen.
       </p>
@@ -53,6 +55,8 @@ export default function Impressum() {
         aicut.pro). Bei einer Registrierung oder einem Kauf über diesen Link können wir eine
         Provision erhalten, ohne dass für dich dadurch zusätzliche Kosten entstehen.
       </p>
+
+      <LegalFooter />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import GrussForm from "@/components/GrussForm";
+import LegalFooter from "@/components/LegalFooter";
 
 export const metadata: Metadata = {
   title: "Grußvideo von Eddie — PixlDrop",
@@ -128,11 +129,7 @@ export default function GrussPage() {
       </section>
 
       <footer>
-        <div className="footer-links">
-          <a href="/impressum">Impressum</a>
-          <a href="/datenschutz">Datenschutz</a>
-          <a href="/widerrufsrecht">Widerrufsrecht</a>
-        </div>
+        <LegalFooter />
       </footer>
     </main>
   );

@@ -2,6 +2,7 @@ import Image from "next/image";
 import TikTokStats from "@/components/TikTokStats";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
 import TrackedLink from "@/components/TrackedLink";
+import LegalFooter from "@/components/LegalFooter";
 import SpotifyLinkButton from "@/components/SpotifyLinkButton";
 import {
   TikTokIcon,
@@ -152,7 +153,7 @@ export default async function Home({
               className="promo-card-img"
               style={{ aspectRatio: "900 / 503" }}
             />
-            <div className="eyebrow-small">So mache ich meine Videos</div>
+            <div className="eyebrow-small">Werbung &middot; So mache ich meine Videos</div>
             <h3>aicut — von der Idee zum fertigen Clip</h3>
             <p>
               Das KI-Tool, mit dem ich Eddie &amp; Co. zum Leben erwecke. Schau's dir an und
@@ -181,11 +182,7 @@ export default async function Home({
       </main>
 
       <footer>
-        <div className="footer-links">
-          <a href="/impressum">Impressum</a>
-          <a href="/datenschutz">Datenschutz</a>
-          <a href="/widerrufsrecht">Widerrufsrecht</a>
-        </div>
+        <LegalFooter />
         <div className="powered-by">
           Powered by{" "}
           <a href="https://sitekx.de" target="_blank" rel="noopener noreferrer">

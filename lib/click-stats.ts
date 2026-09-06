@@ -14,9 +14,18 @@ function daysAgoIso(days: number) {
   return d.toISOString();
 }
 
+// Diese Datei läuft ausschließlich serverseitig (passwortgeschützte /stats-Seite).
+// Deshalb bevorzugt der Service-Role-Key: die Statistik-RPCs sollen NICHT mit dem
+// öffentlichen anon-Key aufrufbar sein, sonst lässt sich das Passwort-Gate auf
+// /stats umgehen, indem man die RPC direkt aufruft. Solange SUPABASE_SERVICE_ROLE_KEY
+// nicht gesetzt ist, fällt es auf den anon-Key zurück, damit /stats weiter funktioniert.
+function serverKey() {
+  return process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+}
+
 export async function getClickStats(): Promise<ClickStats> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const key = serverKey();
 
   if (!url || !key) {
     return { breakdown7d: [], breakdown30d: [], error: "Supabase env vars missing" };
@@ -53,7 +62,7 @@ export async function getPixlgameLeaderboard(limit = 100): Promise<{
   error: string | null;
 }> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const key = serverKey();
 
   if (!url || !key) {
     return { entries: [], error: "Supabase env vars missing" };
