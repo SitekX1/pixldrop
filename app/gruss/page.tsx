@@ -30,25 +30,33 @@ const HOW_STEPS = [
   },
 ];
 
+// TODO: Platzhalter-Videos, sobald die drei echten Beispiele (Geburtstag gesprochen/gesungen,
+// Einladung gesprochen) produziert sind hier gegen die richtigen Dateien tauschen.
 const EXAMPLES = [
   {
     file: "beispiel-geburtstag.mp4",
-    label: "Geburtstag",
+    label: "Geburtstag · Gesprochen",
     title: "Alles Gute!",
-    text: "Der Klassiker — Eddie gratuliert mit Ballons, Kuchen und einer kleinen Spitze.",
+    text: "Eddie gratuliert persönlich mit ein paar netten (oder frechen) Worten.",
   },
   {
     file: "beispiel-gutenacht.mp4",
-    label: "Süß",
-    title: "Gute Nacht",
-    text: "Reine Süße, keine Fallhöhe — für alle, die es einfach nur herzlich mögen.",
+    label: "Geburtstag · Gesungen",
+    title: "Eddies Geburtstagslied",
+    text: "Der volle Songausschnitt, mit deinem Namen statt der Platzhalterzeile.",
   },
   {
     file: "beispiel-schwarzer-humor.mp4",
-    label: "Schwarzer Humor",
-    title: "Guten Morgen",
-    text: "Süß verpackt, mit Seitenhieb — Eddies Markenzeichen.",
+    label: "Einladung · Gesprochen",
+    title: "Du bist eingeladen!",
+    text: "Datum, Ort und alles Wichtige — persönlich von Eddie überbracht.",
   },
+];
+
+const PRICES = [
+  { label: "Geburtstag — Gesprochen", price: "3–6€" },
+  { label: "Geburtstag — Gesungen", price: "8–12€" },
+  { label: "Einladung — Gesprochen", price: "8–14€" },
 ];
 
 export default function GrussPage() {
@@ -66,13 +74,22 @@ export default function GrussPage() {
         <div className="eyebrow-small">Neu bei PixlDrop</div>
         <h1>Ein Grußvideo von Eddie</h1>
         <p className="gruss-sub">
-          Geburtstag, Jubiläum oder einfach nur, weil jemand ein Lächeln verdient hat — Eddie
-          nimmt ein kurzes, persönliches Video für diese Person auf. Süß, manchmal mit
-          Seitenhieb, immer eindeutig PixlDrop.
+          Ein Geburtstagsgruß — gesprochen oder als eigener Song — oder eine persönlich
+          überbrachte Einladung: Eddie nimmt ein kurzes, individuelles Video für diese Person
+          auf. Süß, manchmal mit Seitenhieb, immer eindeutig PixlDrop.
         </p>
         <div className="gruss-price">
-          <span className="gruss-price-value">Preis auf Anfrage</span>
-          <span className="gruss-price-note">richtet sich nach Aufwand &middot; ca. 8 Sekunden &middot; Lieferung in 24–48h</span>
+          <ul className="gruss-price-list">
+            {PRICES.map((p) => (
+              <li key={p.label}>
+                <span>{p.label}</span>
+                <strong>{p.price}</strong>
+              </li>
+            ))}
+          </ul>
+          <span className="gruss-price-note">
+            Richtwerte — genauer Preis kommt nach deiner Anfrage &middot; Lieferung in 24–48h
+          </span>
         </div>
       </header>
 

@@ -11,6 +11,7 @@ const MAX_LENGTHS: Record<string, number> = {
   occasion: 60,
   tone: 100,
   message: 1000,
+  textMode: 20,
 };
 
 // Einfache Drosselung pro IP. Bewusst nur In-Memory: das hält sich nicht über
@@ -65,6 +66,7 @@ export async function POST(request: Request) {
   const occasion = clean(raw.occasion, "occasion");
   const tone = clean(raw.tone, "tone");
   const message = clean(raw.message, "message");
+  const textMode = clean(raw.textMode, "textMode");
 
   if (!name || !contact || !occasion || !tone) {
     return NextResponse.json({ error: "Pflichtfelder fehlen" }, { status: 400 });
@@ -81,7 +83,8 @@ export async function POST(request: Request) {
     `Name: ${name}`,
     `Kontakt: ${contact}`,
     `Anlass: ${occasion}`,
-    `Ton: ${tone}`,
+    `Variante: ${tone}`,
+    textMode ? `Text-Modus: ${textMode === "exact_text" ? "genauer Text vorgegeben" : "nur Stichpunkte"}` : null,
     message ? `Nachricht: ${message}` : null,
   ]
     .filter(Boolean)

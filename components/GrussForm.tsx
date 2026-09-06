@@ -3,30 +3,51 @@
 import { useState, type FormEvent } from "react";
 import { submitGrussLead } from "@/lib/gruss-supabase";
 
-const OCCASIONS = ["Geburtstag", "Jubiläum", "Aufmunterung", "Einfach so"];
-const TONES = ["Süß", "Süß mit Seitenhieb (schwarzer Humor)"];
+const OCCASIONS = ["Geburtstag", "Einladung"] as const;
+const GEBURTSTAG_VARIANTEN = ["Gesprochen", "Gesungen"] as const;
+const EINLADUNG_VARIANTE = "Gesprochen";
+
+const MESSAGE_HINTS: Record<(typeof OCCASIONS)[number], string> = {
+  Geburtstag: "z. B. Name der Person, worüber sie sich freut, Insider-Witz...",
+  Einladung:
+    "Bitte angeben: Was wird gefeiert, Datum & Uhrzeit, Ort, Kleidung, bis wann Rückmeldung...",
+};
 
 export default function GrussForm() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
-  const [occasion, setOccasion] = useState(OCCASIONS[0]);
-  const [tone, setTone] = useState(TONES[0]);
+  const [occasion, setOccasion] = useState<(typeof OCCASIONS)[number]>(OCCASIONS[0]);
+  const [variante, setVariante] = useState<string>(GEBURTSTAG_VARIANTEN[0]);
+  const [textMode, setTextMode] = useState<"exact_text" | "stichpunkte">("stichpunkte");
   const [message, setMessage] = useState("");
   const [privateUseConsent, setPrivateUseConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  function handleOccasionChange(next: (typeof OCCASIONS)[number]) {
+    setOccasion(next);
+    setVariante(next === "Einladung" ? EINLADUNG_VARIANTE : GEBURTSTAG_VARIANTEN[0]);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!name.trim() || !contact.trim() || !privateUseConsent) return;
     setStatus("sending");
     try {
-      await submitGrussLead({ name, contact, occasion, tone, message, privateUseConsent });
+      await submitGrussLead({
+        name,
+        contact,
+        occasion,
+        tone: variante,
+        message,
+        privateUseConsent,
+        textMode,
+      });
       // Benachrichtigung ist best-effort — schlägt sie fehl, ist die Anfrage
       // trotzdem sicher in der Datenbank, also den Erfolg davon nicht abhängig machen.
       fetch("/api/gruss-notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, contact, occasion, tone, message }),
+        body: JSON.stringify({ name, contact, occasion, tone: variante, message, textMode }),
       }).catch(() => {});
       setStatus("sent");
     } catch {
@@ -71,7 +92,10 @@ export default function GrussForm() {
 
       <label>
         Anlass
-        <select value={occasion} onChange={(e) => setOccasion(e.target.value)}>
+        <select
+          value={occasion}
+          onChange={(e) => handleOccasionChange(e.target.value as (typeof OCCASIONS)[number])}
+        >
           {OCCASIONS.map((o) => (
             <option key={o} value={o}>
               {o}
@@ -80,26 +104,56 @@ export default function GrussForm() {
         </select>
       </label>
 
-      <label>
-        Ton
-        <select value={tone} onChange={(e) => setTone(e.target.value)}>
-          {TONES.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-      </label>
+      {occasion === "Geburtstag" ? (
+        <label>
+          Variante
+          <select value={variante} onChange={(e) => setVariante(e.target.value)}>
+            {GEBURTSTAG_VARIANTEN.map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <label>
+          Variante
+          <select value={EINLADUNG_VARIANTE} disabled>
+            <option value={EINLADUNG_VARIANTE}>{EINLADUNG_VARIANTE}</option>
+          </select>
+        </label>
+      )}
+
+      <fieldset className="gruss-textmode-fieldset">
+        <label className="gruss-radio-label">
+          <input
+            type="radio"
+            name="textMode"
+            checked={textMode === "stichpunkte"}
+            onChange={() => setTextMode("stichpunkte")}
+          />
+          <span>Nur Stichpunkte — ihr schreibt den Text für mich</span>
+        </label>
+        <label className="gruss-radio-label">
+          <input
+            type="radio"
+            name="textMode"
+            checked={textMode === "exact_text"}
+            onChange={() => setTextMode("exact_text")}
+          />
+          <span>Ich gebe dir den genauen Text vor, den Eddie sagen soll</span>
+        </label>
+      </fieldset>
 
       <label>
-        Was soll Eddie sagen? (Stichpunkte reichen)
+        {textMode === "exact_text" ? "Der genaue Text für Eddie" : "Was soll Eddie sagen?"}
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={3}
-          placeholder="z.B. Name der Person, worüber sich die Person freut, Insider-Witz..."
         />
       </label>
+      <p className="gruss-field-note">{MESSAGE_HINTS[occasion]}</p>
       <p className="gruss-field-note">
         Kein eigenes Foto oder eine Sprachaufnahme nötig — Eddie bleibt immer Eddie, nur der
         Text ändert sich.

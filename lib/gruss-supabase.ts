@@ -20,6 +20,7 @@ export type GrussLead = {
   tone: string;
   message?: string;
   privateUseConsent: boolean;
+  textMode: "exact_text" | "stichpunkte";
 };
 
 export async function submitGrussLead(lead: GrussLead): Promise<void> {
@@ -31,6 +32,7 @@ export async function submitGrussLead(lead: GrussLead): Promise<void> {
     tone: lead.tone,
     message: lead.message || null,
     private_use_consent: lead.privateUseConsent,
+    text_mode: lead.textMode,
   });
   if (error) throw new Error(error.message);
 }

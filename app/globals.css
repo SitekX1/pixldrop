@@ -642,6 +642,33 @@ footer {
   color: var(--text-muted);
 }
 
+.gruss-price-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gruss-price-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.gruss-price-list strong {
+  font-weight: 800;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  white-space: nowrap;
+}
+
 .gruss-examples {
   display: grid;
   grid-template-columns: 1fr;
@@ -810,6 +837,38 @@ footer {
   font-size: 0.78rem;
   color: var(--text-muted);
   font-style: italic;
+}
+
+.gruss-textmode-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.gruss-radio-label {
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: 10px !important;
+  font-size: 0.85rem !important;
+  font-weight: 400 !important;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.gruss-radio-label input[type="radio"] {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: var(--violet);
+}
+
+.gruss-form select:disabled {
+  opacity: 0.7;
+  cursor: default;
 }
 
 .gruss-checkbox-label {
