@@ -184,6 +184,7 @@ export default async function Home({
         <div className="footer-links">
           <a href="/impressum">Impressum</a>
           <a href="/datenschutz">Datenschutz</a>
+          <a href="/widerrufsrecht">Widerrufsrecht</a>
         </div>
         <div className="powered-by">
           Powered by{" "}

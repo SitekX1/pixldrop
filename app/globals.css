@@ -782,6 +782,13 @@ footer {
   outline-offset: 1px;
 }
 
+.gruss-field-note {
+  margin: -6px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 .gruss-checkbox-label {
   flex-direction: row !important;
   align-items: flex-start;

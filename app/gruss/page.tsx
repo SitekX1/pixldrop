@@ -126,6 +126,14 @@ export default function GrussPage() {
           KI-gestützten Design-Tools erstellt. Format: MP4.
         </p>
       </section>
+
+      <footer>
+        <div className="footer-links">
+          <a href="/impressum">Impressum</a>
+          <a href="/datenschutz">Datenschutz</a>
+          <a href="/widerrufsrecht">Widerrufsrecht</a>
+        </div>
+      </footer>
     </main>
   );
 }
