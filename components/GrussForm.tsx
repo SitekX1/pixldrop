@@ -20,6 +20,13 @@ export default function GrussForm() {
     setStatus("sending");
     try {
       await submitGrussLead({ name, contact, occasion, tone, message });
+      // Benachrichtigung ist best-effort — schlägt sie fehl, ist die Anfrage
+      // trotzdem sicher in der Datenbank, also den Erfolg davon nicht abhängig machen.
+      fetch("/api/gruss-notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, contact, occasion, tone, message }),
+      }).catch(() => {});
       setStatus("sent");
     } catch {
       setStatus("error");
@@ -30,7 +37,10 @@ export default function GrussForm() {
     return (
       <div className="gruss-form-done">
         <h3>Angekommen! 🎉</h3>
-        <p>Wir melden uns bei dir, sobald dein Eddie-Grußvideo bereit ist.</p>
+        <p>
+          Wir melden uns bei dir mit einem Preisvorschlag — je nach Aufwand kann der variieren.
+          Nach deiner Zusage produzieren wir das Video und schicken es dir per E-Mail zu.
+        </p>
       </div>
     );
   }

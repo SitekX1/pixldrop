@@ -42,8 +42,8 @@ export default function GrussPage() {
           Seitenhieb, immer eindeutig PixlDrop.
         </p>
         <div className="gruss-price">
-          <span className="gruss-price-value">ab 3–6&nbsp;€</span>
-          <span className="gruss-price-note">pro Video &middot; ca. 8 Sekunden &middot; Lieferung in 24–48h</span>
+          <span className="gruss-price-value">Preis auf Anfrage</span>
+          <span className="gruss-price-note">richtet sich nach Aufwand &middot; ca. 8 Sekunden &middot; Lieferung in 24–48h</span>
         </div>
       </header>
 
@@ -66,12 +66,36 @@ export default function GrussPage() {
         ))}
       </section>
 
+      <section className="gruss-how">
+        <h2>So läuft's ab</h2>
+        <ol className="gruss-how-list">
+          <li>
+            <strong>Anfrage abschicken</strong> — Formular unten ausfüllen, dauert eine Minute.
+          </li>
+          <li>
+            <strong>Preisangebot</strong> — wir melden uns per E-Mail mit einem Preis, passend
+            zum Aufwand deiner Wünsche.
+          </li>
+          <li>
+            <strong>Zusage &amp; Zahlung</strong> — du bestätigst, wir schicken dir einen
+            Zahlungslink.
+          </li>
+          <li>
+            <strong>Lieferung</strong> — dein fertiges Video kommt als Datei direkt per E-Mail,
+            fertig zum Weiterschicken per WhatsApp, Instagram, TikTok oder wo du magst.
+          </li>
+        </ol>
+        <p className="gruss-how-note">
+          Das Video ist für dich und die beschenkte Person gedacht — zum privaten Teilen, nicht
+          zur kommerziellen Weiterverwendung.
+        </p>
+      </section>
+
       <section className="gruss-form-section">
         <div className="card gruss-form-card">
           <h2>Video anfragen</h2>
           <p className="gruss-form-intro">
-            Kurz ausfüllen, wir melden uns mit dem fertigen Video. Die Bezahlung klären wir
-            direkt mit dir, sobald dein Video bereit ist.
+            Kurz ausfüllen, wir melden uns mit einem Preisvorschlag.
           </p>
           <GrussForm />
         </div>

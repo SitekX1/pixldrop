@@ -652,6 +652,64 @@ footer {
   background: var(--navy-dark);
 }
 
+.gruss-how {
+  max-width: 480px;
+  margin: 0 auto 32px;
+}
+
+.gruss-how h2 {
+  font-size: 1.15rem;
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+.gruss-how-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  counter-reset: gruss-step;
+}
+
+.gruss-how-list li {
+  counter-increment: gruss-step;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.gruss-how-list li::before {
+  content: counter(gruss-step);
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--gradient);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gruss-how-list strong {
+  color: var(--text);
+}
+
+.gruss-how-note {
+  margin: 14px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+}
+
 .gruss-form-section {
   max-width: 480px;
   margin: 0 auto;
