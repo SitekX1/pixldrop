@@ -1,4 +1,3 @@
-import Image from "next/image";
 import HeroLogo from "@/components/HeroLogo";
 import TikTokStats from "@/components/TikTokStats";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
@@ -42,15 +41,6 @@ export default async function Home({
 
   return (
     <>
-      <Image
-        src="/pixldrop-logo-transparent.png"
-        alt=""
-        width={1200}
-        height={1200}
-        className="bg-logo"
-        priority
-      />
-
       <main className="page">
         <div className="eyebrow">
           <HeroLogo />
