@@ -1,20 +1,23 @@
 :root {
-  --navy: #1b2a6b;
-  --navy-dark: #0f1b4d;
-  --violet: #5b2a9e;
-  --violet-light: #7b4fc4;
-  --cyan: #2fc2e8;
-  --cyan-light: #8fe6f7;
-  --bg: #f6f7fc;
-  --card: #ffffff;
-  --text: #171a2e;
-  --text-muted: #5a5f7a;
-  --border: #e4e6f5;
+  /* Honey & Mint — matches the "Eddie's Welt" logo (warm honey-gold + mint, replacing
+     the old blue/violet "Digital Solutions" scheme). --navy/--navy-dark/--violet/--cyan
+     keep their old names so every rule that references them updates automatically. */
+  --navy: #6b4423;
+  --navy-dark: #2e1c0f;
+  --violet: #d99a2b;
+  --violet-light: #f0bb55;
+  --cyan: #4fb894;
+  --cyan-light: #a9e8cf;
+  --bg: #fdf7ec;
+  --card: #fffdf9;
+  --text: #2a2014;
+  --text-muted: #8a7a62;
+  --border: #ecdfc7;
   --sitekx-grey: #8a8a93;
   --sitekx-orange: #f2542d;
   --gradient: linear-gradient(135deg, var(--navy) 0%, var(--violet) 55%, var(--cyan) 100%);
-  --shadow-card: 0 4px 20px rgba(27, 42, 107, 0.08);
-  --shadow-card-hover: 0 10px 30px rgba(27, 42, 107, 0.15);
+  --shadow-card: 0 4px 20px rgba(107, 68, 35, 0.1);
+  --shadow-card-hover: 0 10px 30px rgba(107, 68, 35, 0.18);
 }
 
 * {
@@ -302,7 +305,7 @@ button {
 }
 
 .spotify-placeholder-text small {
-  color: #b7bade;
+  color: #d4c4a8;
   font-weight: 400;
   font-size: 0.72rem;
 }
@@ -310,7 +313,7 @@ button {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 27, 77, 0.55);
+  background: rgba(46, 28, 15, 0.55);
   backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
@@ -423,7 +426,7 @@ button {
 
 .aicut-card p {
   margin: 0 0 14px;
-  color: #c8cbe6;
+  color: #e0d3c0;
   font-size: 0.88rem;
   line-height: 1.4;
 }

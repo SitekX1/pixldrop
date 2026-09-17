@@ -64,7 +64,7 @@ export default function GrussPage() {
     <main className="page gruss-page">
       <header className="gruss-hero">
         <Image
-          src="/pixldrop-header-logo.webp"
+          src="/pixldrop-logo-transparent.png"
           alt="PixlDrop"
           width={1200}
           height={1200}
