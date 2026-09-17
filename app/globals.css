@@ -139,13 +139,22 @@ button {
   opacity: 0;
 }
 
+/* The video ends noticeably more zoomed-in on Eddie than the full logo
+   graphic (which also has to fit the wordmark below him), so a plain
+   opacity crossfade at a fixed size read as a jarring size jump. Scaling
+   the incoming logo down from roughly the video's zoom level to 100% at
+   the same time as the fade reframes that as an intentional "zoom out to
+   reveal the full logo" instead. */
 .header-logo-static {
   opacity: 0;
-  transition: opacity 0.6s ease;
+  transform: scale(1.45);
+  transform-origin: 50% 30%;
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .header-logo-static.is-visible {
   opacity: 1;
+  transform: scale(1);
 }
 
 /* Off-screen source for the canvas chroma-key in HeroLogo.tsx — kept in the
