@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PixlDrop — Digital Solutions",
+  title: "PixlDrop — Eddie's Welt",
   description:
     "PixlDrop: CGI-Tiere mit zu vielen Gefühlen. 100% digital, 0% echt, trotzdem mit Herz. Musik, Videos & mehr von PixlDrop.",
   metadataBase: new URL("https://pixldrop.de"),
   openGraph: {
-    title: "PixlDrop — Digital Solutions",
+    title: "PixlDrop — Eddie's Welt",
     description:
       "CGI-Tiere mit zu vielen Gefühlen. 100% digital, 0% echt, trotzdem mit Herz.",
     url: "https://pixldrop.de",
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "PixlDrop — Digital Solutions",
+    title: "PixlDrop — Eddie's Welt",
     description:
       "CGI-Tiere mit zu vielen Gefühlen. 100% digital, 0% echt, trotzdem mit Herz.",
     images: ["/og-image.png"],
