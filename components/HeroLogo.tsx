@@ -1,13 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import ChromaKeyVideo from "./ChromaKeyVideo";
 
 // Plays the Eddie run-in/wave intro once, then crossfades (with a slight
 // zoom-out, since the video ends more zoomed-in on Eddie than the full
-// logo graphic) into the static logo.
+// logo graphic) into the static logo. "Once" means once per browser tab
+// session, not once per mount — navigating to /impressum and back to / is
+// a fresh mount of this component, so without sessionStorage it would
+// replay every time.
+const PLAYED_KEY = "eddie-hero-played";
+
 export default function HeroLogo() {
+  const [showIntro, setShowIntro] = useState(true);
   const [videoEnded, setVideoEnded] = useState(false);
+
+  // useLayoutEffect (not useEffect) so this resolves before the browser
+  // paints — on a repeat visit within the session the intro video never
+  // becomes visible for even a frame, it just skips straight to the logo.
+  useLayoutEffect(() => {
+    try {
+      if (sessionStorage.getItem(PLAYED_KEY) === "1") {
+        setShowIntro(false);
+        setVideoEnded(true);
+      }
+    } catch {
+      // sessionStorage can throw in locked-down contexts (e.g. some privacy
+      // modes) — falling back to "play it" is the safe default.
+    }
+  }, []);
+
+  function handleEnded() {
+    setVideoEnded(true);
+    try {
+      sessionStorage.setItem(PLAYED_KEY, "1");
+    } catch {}
+  }
 
   return (
     <div className="header-logo-wrap">
@@ -26,12 +54,14 @@ export default function HeroLogo() {
         alt="PixlDrop — Eddie's Welt"
         className={`header-logo header-logo-static${videoEnded ? " is-visible" : ""}`}
       />
-      <ChromaKeyVideo
-        src="/eddie-intro.mp4"
-        play={!videoEnded}
-        onEnded={() => setVideoEnded(true)}
-        className={`header-logo header-logo-video${videoEnded ? " is-hidden" : ""}`}
-      />
+      {showIntro && (
+        <ChromaKeyVideo
+          src="/eddie-intro.mp4"
+          play={!videoEnded}
+          onEnded={handleEnded}
+          className={`header-logo header-logo-video${videoEnded ? " is-hidden" : ""}`}
+        />
+      )}
     </div>
   );
 }
