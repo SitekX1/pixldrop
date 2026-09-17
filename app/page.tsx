@@ -1,4 +1,5 @@
 import HeroLogo from "@/components/HeroLogo";
+import EddieCameo from "@/components/EddieCameo";
 import TikTokStats from "@/components/TikTokStats";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
 import TrackedLink from "@/components/TrackedLink";
@@ -102,6 +103,7 @@ export default async function Home({
           <div className="section-label">🎮 Minigame</div>
           <TrackedLink
             href={gameHref}
+            id="pixlgame-target"
             className="card pixlgame-card"
             event="pixlgame-click"
             eventData={{ platform: normalizedSrc ?? "direct" }}
@@ -165,7 +167,10 @@ export default async function Home({
         </section>
       </main>
 
-      <footer>
+      <EddieCameo side="right" targetId="pixlgame-target" />
+      <EddieCameo side="left" targetId="page-bottom-target" />
+
+      <footer id="page-bottom-target">
         <LegalFooter />
         <div className="powered-by">
           Powered by{" "}
