@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LegalFooter from "@/components/LegalFooter";
+import KontaktForm from "@/components/KontaktForm";
 
 export const metadata = { title: "Impressum — PixlDrop" };
 
@@ -26,7 +27,13 @@ export default function Impressum() {
         <strong>Kontakt</strong>
         <br />
         E-Mail: <a href="mailto:as@sitekx.de">as@sitekx.de</a>
+        <br />
+        Für eine schnelle direkte Kontaktaufnahme nutze bitte alternativ das
+        Kontaktformular unten.
       </p>
+
+      <h2>Kontaktformular</h2>
+      <KontaktForm />
 
       <p>
         <strong>Verbraucherstreitbeilegung</strong>

@@ -97,12 +97,30 @@ export default function Datenschutz() {
         Freitext) an Telegram übermittelt. Anbieter ist die Telegram Messenger Inc. bzw. Telegram
         FZ-LLC (Dubai, Vereinigte Arabische Emirate); es findet somit eine Übermittlung in ein
         Drittland außerhalb der EU statt, für das kein Angemessenheitsbeschluss der EU-Kommission
-        vorliegt. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer
-        zeitnahen Bearbeitung deiner Anfrage). Wenn du diese Übermittlung nicht wünschst, kannst
-        du uns deine Anfrage stattdessen direkt per E-Mail an die oben genannte Adresse senden.
+        vorliegt. Rechtsgrundlage für die Verarbeitung ist Art. 6 Abs. 1 lit. f DSGVO
+        (berechtigtes Interesse an einer zeitnahen Bearbeitung deiner Anfrage); Rechtsgrundlage
+        für die Drittlandübermittlung selbst ist Art. 49 Abs. 1 lit. b DSGVO, da die
+        Übermittlung zur Durchführung vorvertraglicher Maßnahmen auf deine Anfrage hin
+        erforderlich ist. Wenn du diese Übermittlung nicht wünschst, kannst du uns deine Anfrage
+        stattdessen direkt per E-Mail an die oben genannte Adresse senden.
       </p>
 
-      <h2>9. Speicherdauer</h2>
+      <h2>9. Kontaktformular im Impressum</h2>
+      <p>
+        Über das Kontaktformular im <Link href="/impressum">Impressum</Link> kannst du uns
+        unabhängig von einer Grußvideo-Anfrage direkt erreichen. Dabei verarbeiten wir deinen
+        Namen, deine E-Mail-Adresse und deine Nachricht. Der Versand erfolgt über den
+        SMTP-Server von <strong>IONOS SE</strong> (Elgendorfer Str. 57, 56410 Montabaur,
+        Deutschland) an unsere oben genannte Kontaktadresse und wird dort zur Bearbeitung
+        deiner Anfrage genutzt. Die Daten werden nicht an weitere Dritte weitergegeben.
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
+        Beantwortung von Anfragen) bzw., soweit deine Nachricht bereits eine vertragliche
+        Anbahnung betrifft, Art. 6 Abs. 1 lit. b DSGVO. Die Angaben löschen wir, sobald deine
+        Anfrage abschließend bearbeitet ist und keine gesetzlichen Aufbewahrungspflichten
+        entgegenstehen.
+      </p>
+
+      <h2>10. Speicherdauer</h2>
       <p>
         Anfragen für Grußvideos bewahren wir so lange auf, wie es für die Bearbeitung und eine
         etwaige Vertragsabwicklung erforderlich ist; bei zustande gekommenen Verträgen gelten
@@ -113,7 +131,7 @@ export default function Datenschutz() {
         verlangst.
       </p>
 
-      <h2>10. Deine Rechte</h2>
+      <h2>11. Deine Rechte</h2>
       <p>
         Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung,
         Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung deiner personenbezogenen
