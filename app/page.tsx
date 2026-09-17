@@ -1,4 +1,5 @@
 import Image from "next/image";
+import HeroLogo from "@/components/HeroLogo";
 import TikTokStats from "@/components/TikTokStats";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
 import TrackedLink from "@/components/TrackedLink";
@@ -52,14 +53,7 @@ export default async function Home({
 
       <main className="page">
         <div className="eyebrow">
-          <Image
-            src="/pixldrop-logo-transparent.png"
-            alt="PixlDrop"
-            width={1200}
-            height={1200}
-            className="header-logo"
-            priority
-          />
+          <HeroLogo />
           <p className="tagline">
             🐾 CGI-Tiere mit zu vielen Gefühlen.
             <br />
