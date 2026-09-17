@@ -122,6 +122,7 @@ export default async function Home({
               dir einen Platz in der Rangliste.
             </p>
             <span className="pill-btn">Jetzt spielen →</span>
+            <EddieCameo side="right" targetId="pixlgame-target" />
           </TrackedLink>
 
           <div className="section-label">🎬 Meine Tools &amp; Musik</div>
@@ -167,10 +168,8 @@ export default async function Home({
         </section>
       </main>
 
-      <EddieCameo side="right" targetId="pixlgame-target" />
-      <EddieCameo side="left" targetId="page-bottom-target" />
-
       <footer id="page-bottom-target">
+        <EddieCameo side="left" targetId="page-bottom-target" />
         <LegalFooter />
         <div className="powered-by">
           Powered by{" "}

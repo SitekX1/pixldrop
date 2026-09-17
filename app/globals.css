@@ -168,45 +168,63 @@ button {
   pointer-events: none;
 }
 
-/* Eddie cameos that pop in at the viewport edge while the linked section
-   (game card / footer) is in view — see EddieCameo.tsx. Desktop-only: on
-   narrower viewports .page fills the width and there's no side margin to
-   place these in without covering content. */
+/* Eddie cameos that appear while the linked section (game card / footer)
+   is in view — see EddieCameo.tsx. Below 1300px there's no side margin
+   next to .page to pin a fixed edge-cameo in without covering content, so
+   on phone/tablet it instead overlays a corner of its own section (the
+   game card has position:relative + overflow:hidden via .card, and
+   footer is already position:relative) — small enough to sit inside the
+   card without touching the promo image's own corner or the CTA button
+   below it. From 1300px up it switches to the original fixed-viewport-
+   edge placement with a slide-in. */
 .eddie-cameo {
-  display: none;
-  position: fixed;
-  top: 50%;
-  width: 190px;
+  position: absolute;
+  top: 8px;
+  width: 92px;
   z-index: 5;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.5s ease;
+}
+
+.eddie-cameo-right {
+  right: 8px;
+}
+
+.eddie-cameo-left {
+  left: 8px;
+  transform: scaleX(-1);
+}
+
+.eddie-cameo.is-visible {
+  opacity: 1;
 }
 
 @media (min-width: 1300px) {
   .eddie-cameo {
-    display: block;
+    position: fixed;
+    top: 50%;
+    width: 190px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
   }
-}
 
-.eddie-cameo-right {
-  right: 16px;
-  transform: translateY(-50%) translateX(50px);
-}
+  .eddie-cameo-right {
+    right: 16px;
+    transform: translateY(-50%) translateX(50px);
+  }
 
-.eddie-cameo-right.is-visible {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
+  .eddie-cameo-right.is-visible {
+    transform: translateY(-50%) translateX(0);
+  }
 
-.eddie-cameo-left {
-  left: 16px;
-  transform: translateY(-50%) translateX(-50px) scaleX(-1);
-}
+  .eddie-cameo-left {
+    left: 16px;
+    transform: translateY(-50%) translateX(-50px) scaleX(-1);
+  }
 
-.eddie-cameo-left.is-visible {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0) scaleX(-1);
+  .eddie-cameo-left.is-visible {
+    transform: translateY(-50%) translateX(0) scaleX(-1);
+  }
 }
 
 .eddie-cameo-canvas {
