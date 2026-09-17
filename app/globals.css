@@ -157,14 +157,18 @@ button {
   transform: scale(1);
 }
 
-/* Off-screen source for the canvas chroma-key in HeroLogo.tsx — kept in the
-   layout (not display:none) so browsers keep decoding/rendering its frames. */
+/* Off-screen source for the canvas chroma-key in ChromaKeyVideo.tsx — kept
+   in the layout (not display:none) so browsers keep decoding/rendering its
+   frames. Sized normally but pushed off-canvas rather than shrunk to 1x1px,
+   since a 1x1 invisible <video>/<img> is the classic tracking-pixel shape
+   some ad-blockers or privacy extensions specifically look for and block. */
 .header-logo-source-video {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  top: 0;
+  left: -9999px;
+  width: 480px;
+  height: 480px;
   opacity: 0;
-  overflow: hidden;
   pointer-events: none;
 }
 

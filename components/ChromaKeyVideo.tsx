@@ -12,6 +12,12 @@ const KEY_COLOR = { r: 251, g: 244, b: 231 };
 const KEY_LOW = 25;
 const KEY_HIGH = 70;
 const CANVAS_SIZE = 480;
+// Belt-and-suspenders: if the video hasn't started (or finished) within
+// this long after being asked to play, something silently failed (seen
+// intermittently — autoplay throttling, a play() interrupted by a stray
+// re-render, possibly an extension misreading the hidden <video> as a
+// tracking pixel) — treat it as ended so the caller isn't stuck forever.
+const STALL_FALLBACK_MS = 4000;
 
 export default function ChromaKeyVideo({
   src,
@@ -29,6 +35,8 @@ export default function ChromaKeyVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number | undefined>(undefined);
+  const onEndedRef = useRef(onEnded);
+  onEndedRef.current = onEnded;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -63,7 +71,7 @@ export default function ChromaKeyVideo({
     function handleEnded() {
       if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
       rafRef.current = undefined;
-      onEnded?.();
+      onEndedRef.current?.();
     }
 
     video.addEventListener("playing", handlePlaying);
@@ -73,25 +81,30 @@ export default function ChromaKeyVideo({
       video.removeEventListener("ended", handleEnded);
       if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
     };
-  }, [onEnded]);
+    // Stable ref, not the raw prop — attaching these listeners doesn't need
+    // to happen again just because the caller re-created its callback.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    if (play) {
-      // Once the clip has played through (and loop is off), leave it be —
-      // this is what makes a cameo "play once, then Eddie stays standing"
-      // instead of restarting every time it scrolls back into view.
-      if (!video.ended) {
-        // play() can reject if the browser interrupts it (seen after rapid
-        // repeated hard-reloads) — without this fallback the hero would be
-        // left with a blank spot forever, since onEnded would never fire.
-        video.play().catch(() => onEnded?.());
-      }
-    } else {
+    if (!play) {
       video.pause();
+      return;
     }
-  }, [play, onEnded]);
+    // Once the clip has played through (and loop is off), leave it be —
+    // this is what makes a cameo "play once, then Eddie stays standing"
+    // instead of restarting every time it scrolls back into view.
+    if (video.ended) return;
+
+    video.play().catch(() => onEndedRef.current?.());
+
+    const stallTimer = window.setTimeout(() => {
+      if (!video.ended && video.paused) onEndedRef.current?.();
+    }, STALL_FALLBACK_MS);
+    return () => window.clearTimeout(stallTimer);
+  }, [play]);
 
   return (
     <>
@@ -103,6 +116,7 @@ export default function ChromaKeyVideo({
         autoPlay
         muted
         playsInline
+        preload="auto"
         loop={loop}
       />
     </>
