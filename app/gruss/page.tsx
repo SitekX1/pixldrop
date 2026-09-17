@@ -64,10 +64,10 @@ export default function GrussPage() {
     <main className="page gruss-page">
       <header className="gruss-hero">
         <Image
-          src="/pixldrop-header-logo.png"
+          src="/pixldrop-header-logo.webp"
           alt="PixlDrop"
-          width={728}
-          height={536}
+          width={1200}
+          height={1200}
           className="gruss-logo"
           priority
         />

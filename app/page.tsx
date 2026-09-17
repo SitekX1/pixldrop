@@ -44,8 +44,8 @@ export default async function Home({
       <Image
         src="/pixldrop-logo-transparent.png"
         alt=""
-        width={868}
-        height={628}
+        width={1200}
+        height={1200}
         className="bg-logo"
         priority
       />
@@ -53,10 +53,10 @@ export default async function Home({
       <main className="page">
         <div className="eyebrow">
           <Image
-            src="/pixldrop-header-logo.png"
+            src="/pixldrop-header-logo.webp"
             alt="PixlDrop"
-            width={728}
-            height={536}
+            width={1200}
+            height={1200}
             className="header-logo"
             priority
           />
