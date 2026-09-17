@@ -79,12 +79,19 @@ export default function ChromaKeyVideo({
     const video = videoRef.current;
     if (!video) return;
     if (play) {
-      video.currentTime = 0;
-      video.play().catch(() => {});
+      // Once the clip has played through (and loop is off), leave it be —
+      // this is what makes a cameo "play once, then Eddie stays standing"
+      // instead of restarting every time it scrolls back into view.
+      if (!video.ended) {
+        // play() can reject if the browser interrupts it (seen after rapid
+        // repeated hard-reloads) — without this fallback the hero would be
+        // left with a blank spot forever, since onEnded would never fire.
+        video.play().catch(() => onEnded?.());
+      }
     } else {
       video.pause();
     }
-  }, [play]);
+  }, [play, onEnded]);
 
   return (
     <>
@@ -93,6 +100,7 @@ export default function ChromaKeyVideo({
         ref={videoRef}
         className="header-logo-source-video"
         src={src}
+        autoPlay
         muted
         playsInline
         loop={loop}
