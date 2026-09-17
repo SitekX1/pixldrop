@@ -16,6 +16,7 @@
   --sitekx-grey: #8a8a93;
   --sitekx-orange: #f2542d;
   --gradient: linear-gradient(135deg, var(--navy) 0%, var(--violet) 55%, var(--cyan) 100%);
+  --bg-gradient: linear-gradient(160deg, #fdf7ec 0%, #f7e6bd 45%, #dcf0e4 100%);
   --shadow-card: 0 4px 20px rgba(107, 68, 35, 0.1);
   --shadow-card-hover: 0 10px 30px rgba(107, 68, 35, 0.18);
 }
@@ -28,7 +29,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  background: var(--bg);
+  background: var(--bg-gradient);
   color: var(--text);
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
@@ -43,17 +44,29 @@ button {
   font-family: inherit;
 }
 
+/* Sits fixed to the viewport, sized and positioned to land exactly behind
+   .header-logo at scroll position 0 (same width, same top offset as
+   .page's padding-top). Because .header-logo scrolls away with normal
+   page content while this stays fixed, the ghost logo only becomes
+   visible once the user scrolls past the hero. */
 .bg-logo {
   position: fixed;
-  top: 16vh;
+  top: 14px;
   left: 50%;
-  transform: translateX(-52%);
-  width: min(90vw, 1100px);
+  transform: translateX(-50%);
+  width: min(84vw, 380px);
   height: auto;
-  opacity: 0.14;
+  opacity: 0.16;
   z-index: 0;
   pointer-events: none;
   user-select: none;
+}
+
+@media (min-width: 900px) {
+  .bg-logo {
+    top: 20px;
+    width: min(34vw, 460px);
+  }
 }
 
 .page {
@@ -88,15 +101,17 @@ button {
 }
 
 .header-logo {
-  width: min(75vw, 340px);
+  width: min(80vw, 380px);
   height: auto;
   margin: 0 auto;
   display: block;
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 900px) {
   .header-logo {
-    width: min(30vw, 420px);
+    width: min(32vw, 460px);
   }
 }
 
