@@ -143,6 +143,17 @@ button {
   opacity: 1;
 }
 
+/* Off-screen source for the canvas chroma-key in HeroLogo.tsx — kept in the
+   layout (not display:none) so browsers keep decoding/rendering its frames. */
+.header-logo-source-video {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .tagline {
   color: var(--text-muted);
   font-size: 0.95rem;
