@@ -413,9 +413,12 @@ button {
 }
 
 .spotify-embed {
-  border-radius: 12px;
-  overflow: hidden;
   width: 100%;
+}
+
+.spotify-embed iframe {
+  border-radius: 12px;
+  display: block;
 }
 
 .spotify-placeholder {
