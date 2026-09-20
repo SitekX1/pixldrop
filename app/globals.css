@@ -417,6 +417,7 @@ button {
    narrow. Once a card's player is loaded, it takes the full row instead. */
 .song-card-expanded {
   grid-column: 1 / -1;
+  order: -1;
 }
 
 .spotify-embed {

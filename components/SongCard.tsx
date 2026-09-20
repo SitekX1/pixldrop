@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SpotifyEmbed from "./SpotifyEmbed";
 
 export default function SongCard({
@@ -13,9 +13,16 @@ export default function SongCard({
   cover: string;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (expanded) {
+      cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [expanded]);
 
   return (
-    <div className={`card${expanded ? " song-card-expanded" : ""}`}>
+    <div ref={cardRef} className={`card${expanded ? " song-card-expanded" : ""}`}>
       <div className="song-cover">
         <img src={cover} alt="" />
       </div>
