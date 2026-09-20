@@ -412,6 +412,13 @@ button {
   gap: 14px;
 }
 
+/* Spotify's compact iframe needs real width for its controls to render
+   without internal horizontal scrolling - a half-width mobile column is too
+   narrow. Once a card's player is loaded, it takes the full row instead. */
+.song-card-expanded {
+  grid-column: 1 / -1;
+}
+
 .spotify-embed {
   width: 100%;
 }

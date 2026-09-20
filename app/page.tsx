@@ -1,7 +1,7 @@
 import HeroLogo from "@/components/HeroLogo";
 import EddieCameo from "@/components/EddieCameo";
 import TikTokStats from "@/components/TikTokStats";
-import SpotifyEmbed from "@/components/SpotifyEmbed";
+import SongCard from "@/components/SongCard";
 import TrackedLink from "@/components/TrackedLink";
 import LegalFooter from "@/components/LegalFooter";
 import SpotifyLinkButton from "@/components/SpotifyLinkButton";
@@ -161,13 +161,12 @@ export default async function Home({
 
           <div className="song-grid">
             {SONGS.map((song) => (
-              <div className="card" key={song.trackId}>
-                <div className="song-cover">
-                  <img src={song.cover} alt="" />
-                </div>
-                <div className="song-title">{song.title}</div>
-                <SpotifyEmbed trackId={song.trackId} title={song.title} />
-              </div>
+              <SongCard
+                key={song.trackId}
+                title={song.title}
+                trackId={song.trackId}
+                cover={song.cover}
+              />
             ))}
           </div>
         </section>

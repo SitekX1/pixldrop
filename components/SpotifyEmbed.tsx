@@ -7,9 +7,11 @@ import { SpotifyIcon } from "./Icons";
 export default function SpotifyEmbed({
   trackId,
   title,
+  onLoad,
 }: {
   trackId: string;
   title: string;
+  onLoad?: () => void;
 }) {
   const [loaded, setLoaded] = useState(false);
 
@@ -36,6 +38,7 @@ export default function SpotifyEmbed({
       onClick={() => {
         trackClick("spotify-embed-load", { song: title });
         setLoaded(true);
+        onLoad?.();
       }}
     >
       <span className="spotify-placeholder-icon">
