@@ -15,8 +15,8 @@ import {
 
 const SONGS = [
   { title: "Schon wieder Montag", trackId: "1OBsbwEzhFstbQWtZhwftq", cover: "/song-covers/montag.jpg" },
+  { title: "Schon wieder Mittwoch", trackId: "4i8yV3ODVXS5sWAZn75LeU", cover: "/song-covers/mittwoch.jpg" },
   { title: "Dienstag ist wie Montag", trackId: "3sNTLakwqSOH7qfA1YREvz", cover: "/song-covers/dienstag.jpg" },
-  { title: "Kollegen Mittwoch", trackId: "2PSJdcbvCOzWeDfmXwhJlX", cover: "/song-covers/mittwoch.jpg" },
   { title: "Endlich Samstag", trackId: "6nWMTYQIVyGTxuxW3SFfUP", cover: "/song-covers/samstag.jpg" },
 ];
 
