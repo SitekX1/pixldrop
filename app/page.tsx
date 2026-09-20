@@ -1,7 +1,7 @@
 import HeroLogo from "@/components/HeroLogo";
 import EddieCameo from "@/components/EddieCameo";
 import TikTokStats from "@/components/TikTokStats";
-import SongCard from "@/components/SongCard";
+import SongGrid from "@/components/SongGrid";
 import TrackedLink from "@/components/TrackedLink";
 import LegalFooter from "@/components/LegalFooter";
 import SpotifyLinkButton from "@/components/SpotifyLinkButton";
@@ -160,16 +160,7 @@ export default async function Home({
             <SpotifyLinkButton href={LINKS.spotifyArtist} />
           </div>
 
-          <div className="song-grid">
-            {SONGS.map((song) => (
-              <SongCard
-                key={song.trackId}
-                title={song.title}
-                trackId={song.trackId}
-                cover={song.cover}
-              />
-            ))}
-          </div>
+          <SongGrid songs={SONGS} />
         </section>
       </main>
 

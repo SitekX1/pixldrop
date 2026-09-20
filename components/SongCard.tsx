@@ -1,18 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import SpotifyEmbed from "./SpotifyEmbed";
 
 export default function SongCard({
   title,
   trackId,
   cover,
+  expanded,
+  onExpand,
 }: {
   title: string;
   trackId: string;
   cover: string;
+  expanded: boolean;
+  onExpand: () => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,7 +30,7 @@ export default function SongCard({
         <img src={cover} alt="" />
       </div>
       <div className="song-title">{title}</div>
-      <SpotifyEmbed trackId={trackId} title={title} onLoad={() => setExpanded(true)} />
+      <SpotifyEmbed trackId={trackId} title={title} loaded={expanded} onLoad={onExpand} />
     </div>
   );
 }
