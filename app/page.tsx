@@ -18,6 +18,7 @@ const SONGS = [
   { title: "Schon wieder Mittwoch", trackId: "4i8yV3ODVXS5sWAZn75LeU", cover: "/song-covers/mittwoch.jpg" },
   { title: "Dienstag ist wie Montag", trackId: "3sNTLakwqSOH7qfA1YREvz", cover: "/song-covers/dienstag.jpg" },
   { title: "Endlich Samstag", trackId: "6nWMTYQIVyGTxuxW3SFfUP", cover: "/song-covers/samstag.jpg" },
+  { title: "Kollegen Mittwoch", trackId: "2PSJdcbvCOzWeDfmXwhJlX", cover: "/song-covers/mittwoch-kollegen.jpg" },
 ];
 
 const LINKS = {
