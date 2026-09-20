@@ -402,6 +402,16 @@ button {
   margin: 0 0 8px;
 }
 
+/* Own full-width row inside .bento with a fixed 2-column layout of its own
+   (2 per row even on phone, honeycrew-style) - independent of .bento's
+   1-col-on-mobile/2-col-on-desktop breakpoint used by the other cards. */
+.song-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
 .spotify-embed {
   border-radius: 12px;
   overflow: hidden;

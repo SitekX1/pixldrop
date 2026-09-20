@@ -14,10 +14,10 @@ import {
 } from "@/components/Icons";
 
 const SONGS = [
-  { title: "Schon wieder Montag", trackId: "1OBsbwEzhFstbQWtZhwftq" },
-  { title: "Dienstag ist wie Montag", trackId: "3sNTLakwqSOH7qfA1YREvz" },
-  { title: "Kollegen Mittwoch", trackId: "2PSJdcbvCOzWeDfmXwhJlX" },
-  { title: "Endlich Samstag", trackId: "6nWMTYQIVyGTxuxW3SFfUP" },
+  { title: "Schon wieder Montag", trackId: "1OBsbwEzhFstbQWtZhwftq", cover: "/song-covers/montag.jpg" },
+  { title: "Dienstag ist wie Montag", trackId: "3sNTLakwqSOH7qfA1YREvz", cover: "/song-covers/dienstag.jpg" },
+  { title: "Kollegen Mittwoch", trackId: "2PSJdcbvCOzWeDfmXwhJlX", cover: "/song-covers/mittwoch.jpg" },
+  { title: "Endlich Samstag", trackId: "6nWMTYQIVyGTxuxW3SFfUP", cover: "/song-covers/samstag.jpg" },
 ];
 
 const LINKS = {
@@ -159,12 +159,17 @@ export default async function Home({
             <SpotifyLinkButton href={LINKS.spotifyArtist} />
           </div>
 
-          {SONGS.map((song) => (
-            <div className="card" key={song.trackId}>
-              <div className="song-title">{song.title}</div>
-              <SpotifyEmbed trackId={song.trackId} title={song.title} />
-            </div>
-          ))}
+          <div className="song-grid">
+            {SONGS.map((song) => (
+              <div className="card" key={song.trackId}>
+                <div className="song-cover">
+                  <img src={song.cover} alt="" />
+                </div>
+                <div className="song-title">{song.title}</div>
+                <SpotifyEmbed trackId={song.trackId} title={song.title} />
+              </div>
+            ))}
+          </div>
         </section>
       </main>
 
