@@ -83,7 +83,7 @@ async function fetchFromWindsor(): Promise<TikTokStats> {
   const url = `https://connectors.windsor.ai/tiktok_organic?api_key=${apiKey}&fields=${fields}&date_preset=last_1d`;
 
   try {
-    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const res = await fetch(url, { next: { revalidate: 3600 }, signal: AbortSignal.timeout(3000) });
     if (!res.ok) {
       console.error("windsor fetch failed", res.status, await res.text());
       return { followers: null, likes: null, source: "fallback" };
