@@ -1,8 +1,58 @@
+import { createClient } from "@supabase/supabase-js";
+
 export type TikTokStats = {
   followers: number | null;
   likes: number | null;
-  source: "live" | "fallback";
+  source: "live" | "cache" | "fallback";
 };
+
+const CACHE_TABLE = "pixldrop_tiktok_stats_cache";
+
+function cacheClient(write: boolean) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = write
+    ? process.env.SUPABASE_SERVICE_ROLE_KEY
+    : process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false } });
+}
+
+// Letzten guten Windsor-Wert speichern (nur mit Service-Key; Fehler dürfen die Seite nie brechen).
+async function saveCache(followers: number | null, likes: number | null) {
+  try {
+    const supabase = cacheClient(true);
+    if (!supabase) return;
+    const { error } = await supabase
+      .from(CACHE_TABLE)
+      .upsert({ id: 1, followers, likes, updated_at: new Date().toISOString() });
+    if (error) console.error("tiktok stats cache save failed", error.message);
+  } catch (err) {
+    console.error("tiktok stats cache save error", err);
+  }
+}
+
+async function readCache(): Promise<TikTokStats> {
+  try {
+    const supabase = cacheClient(false);
+    if (!supabase) return { followers: null, likes: null, source: "fallback" };
+    const { data, error } = await supabase
+      .from(CACHE_TABLE)
+      .select("followers, likes")
+      .eq("id", 1)
+      .maybeSingle();
+    if (error || !data || (data.followers == null && data.likes == null)) {
+      return { followers: null, likes: null, source: "fallback" };
+    }
+    return {
+      followers: data.followers != null ? Number(data.followers) : null,
+      likes: data.likes != null ? Number(data.likes) : null,
+      source: "cache",
+    };
+  } catch (err) {
+    console.error("tiktok stats cache read error", err);
+    return { followers: null, likes: null, source: "fallback" };
+  }
+}
 
 /**
  * VERIFY BEFORE RELYING ON THIS: the exact Windsor.ai REST endpoint/field
@@ -15,6 +65,15 @@ export type TikTokStats = {
  * URL or field names here, nothing else in the app depends on the shape.
  */
 export async function fetchTikTokStats(): Promise<TikTokStats> {
+  const live = await fetchFromWindsor();
+  if (live.source === "live") {
+    await saveCache(live.followers, live.likes);
+    return live;
+  }
+  return readCache();
+}
+
+async function fetchFromWindsor(): Promise<TikTokStats> {
   const apiKey = process.env.WINDSOR_API_KEY;
   if (!apiKey) {
     return { followers: null, likes: null, source: "fallback" };
