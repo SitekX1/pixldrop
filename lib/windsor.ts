@@ -10,9 +10,8 @@ const CACHE_TABLE = "pixldrop_tiktok_stats_cache";
 
 function cacheClient(write: boolean) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = write
-    ? process.env.SUPABASE_SERVICE_ROLE_KEY
-    : process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Lesen ist per RLS öffentlich -> anon-Key reicht; Schreiben nur mit Service-Key.
+  const key = write ? process.env.SUPABASE_SERVICE_ROLE_KEY : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return null;
   return createClient(url, key, { auth: { persistSession: false } });
 }
@@ -40,6 +39,7 @@ async function readCache(): Promise<TikTokStats> {
       .select("followers, likes")
       .eq("id", 1)
       .maybeSingle();
+    if (error) console.error("tiktok stats cache read failed", error.message);
     if (error || !data || (data.followers == null && data.likes == null)) {
       return { followers: null, likes: null, source: "fallback" };
     }
