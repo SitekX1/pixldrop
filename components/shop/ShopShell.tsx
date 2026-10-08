@@ -12,7 +12,10 @@ export default function ShopShell({
       <div className="shop-wrap">
         <header className="shop-head">
           <a href="/">← PixlDrop</a>
-          <WarenkorbLink />
+          <span className="shop-head-r">
+            <Link className="shop-widerruf-btn" href="/3d-druck/widerruf#widerrufsfunktion">Vertrag widerrufen</Link>
+            <WarenkorbLink />
+          </span>
         </header>
       </div>
       <main id="inhalt" tabIndex={-1} style={{ outline: "none" }}>{children}</main>
@@ -24,6 +27,7 @@ export default function ShopShell({
               <li><a href="/datenschutz">Datenschutz</a></li>
               <li><Link href="/3d-druck/agb">AGB</Link></li>
               <li><Link href="/3d-druck/widerruf">Widerrufsbelehrung</Link></li>
+              <li><Link className="shop-widerruf-btn" href="/3d-druck/widerruf#widerrufsfunktion">Vertrag widerrufen</Link></li>
               <li><Link href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               <li><Link href="/3d-druck/anfrage">Individueller Druck</Link></li>
             </ul>

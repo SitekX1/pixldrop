@@ -279,3 +279,14 @@ test("Kundenmail-Fehler blockiert die Buchung nicht und wird protokolliert", asy
 test("Fake-DB ist von FakeDb-Instanz getrennt (Sicherheitsnetz fuer Testaufbau)", () => {
   assert.notEqual(new FakeDb(), new FakeDb());
 });
+
+test("Tischschild: Standardtext ohne Verzicht bestellbar, geaenderter Text braucht den Verzicht", async () => {
+  const { deps } = neueDeps();
+  const schild = (text: string) => ({ positionen: [{ slug: "tischschild-erster-kaffee", menge: 1, farbeId: "schwarz", text }] });
+  const std = await legeBestellungAn(deps, bestellEingabe(schild("Teamleiter\nSabine")), ctx);
+  assert.equal(std.status, 200);
+  const neuOhne = await legeBestellungAn(deps, bestellEingabe({ ...schild("Chef\nPetra"), idempotenzKey: "key-schild-eigener-text-1" }), ctx);
+  assert.equal(neuOhne.status, 422);
+  const neuMit = await legeBestellungAn(deps, bestellEingabe({ ...schild("Chef\nPetra"), idempotenzKey: "key-schild-eigener-text-2", einwilligungen: { agb: true, verzicht: true } }), ctx);
+  assert.equal(neuMit.status, 200);
+});

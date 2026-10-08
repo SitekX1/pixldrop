@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Produkt } from "@/lib/shop/produkte";
+import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import type { Farbe } from "@/lib/shop/farben";
 import { ladeAuswahl, speichereAuswahl, type Auswahl } from "@/lib/shop/auswahl";
 import { SHOP_AKTIV, TEXTE, VERKAEUFER, VERSAND_CENT, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
@@ -43,6 +43,7 @@ export default function Bestellablauf({
   const [geladen, setGeladen] = useState(false);
   const [daten, setDaten] = useState<Daten>(LEER);
   const [agb, setAgb] = useState(false);
+  const [verzicht, setVerzicht] = useState(false);
   const [fehler, setFehler] = useState<Fehler>({});
   const [entfernen, setEntfernen] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -90,6 +91,8 @@ export default function Bestellablauf({
   const farbe = farben.find((f) => f.id === auswahl.farbeId);
   const optText = p.optionen.map((g) => `${g.label}: ${g.optionen.find((o) => o.id === auswahl.optionen[g.id])?.label ?? ""}`);
   const gesamt = p.preisCent != null ? p.preisCent * auswahl.menge + (VERSAND_CENT ?? 0) : null;
+  const individuell = istIndividuell(p, auswahl.text);
+  const textAnzeige = auswahl.text.split("\n").join(" / ");
   const gehe = (n: number) => router.push(`/3d-druck/bestellung?schritt=${n}`);
   const setze = (a: Auswahl) => { setAuswahl(a); speichereAuswahl(a); };
   const upd = (k: keyof Daten) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -112,6 +115,7 @@ export default function Bestellablauf({
     if (laeuft || !auswahl) return;
     const f: Fehler = {};
     if (!agb) f.agb = "Bitte bestätige, dass du AGB und Widerrufsbelehrung gelesen hast und einverstanden bist.";
+    if (individuell && !verzicht) f.widerruf = "Bitte bestätige, dass für nach deinen Vorgaben gefertigte Ware kein Widerrufsrecht besteht.";
     setFehler(f);
     setServerFehler(null);
     if (Object.keys(f).length) {
@@ -131,7 +135,7 @@ export default function Bestellablauf({
     setToken(t);
     const inhalt = { auswahl, daten };
     const key = idempotenzKeyFuer(JSON.stringify(inhalt));
-    const r = await sendeBestellung(baueBestellung({ token: t, idempotenzKey: key, auswahl, kunde: daten, agb, widerruf: false, website }));
+    const r = await sendeBestellung(baueBestellung({ token: t, idempotenzKey: key, auswahl, kunde: daten, agb, verzicht: individuell && verzicht, website }));
     if (r.ok && istPaypalUrl(r.approveUrl)) {
       window.location.href = r.approveUrl; // Button bleibt gesperrt bis die Seite wechselt
       return;
@@ -199,6 +203,7 @@ export default function Bestellablauf({
                 <h2 style={{ fontSize: "1.125rem" }}>{p.name}</h2>
                 {farbe && <p className="muted">Farbe: {farbe.name}</p>}
                 {optText.map((t) => <p key={t} className="muted">{t}</p>)}
+                {auswahl.text && <p className="muted">Text: „{textAnzeige}“ · <Link className="shop-link" style={{ minHeight: 0 }} href={`/3d-druck/${p.slug}`}>Text ändern</Link></p>}
                 <p className="shop-price-small">{formatPreis(p.preisCent)}</p>
               </div>
             </div>
@@ -270,6 +275,15 @@ export default function Bestellablauf({
               </label>
             </div>
 
+            {individuell && (
+              <div className="shop-field">
+                <label className="shop-check" htmlFor="f-widerruf">
+                  <input id="f-widerruf" type="checkbox" checked={verzicht} onChange={(e) => { setVerzicht(e.target.checked); setFehler({ ...fehler, widerruf: undefined }); }} aria-invalid={!!fehler.widerruf} />
+                  <span>Mir ist bekannt, dass für nach meinen Vorgaben angefertigte Ware kein Widerrufsrecht besteht (§ 312g Abs. 2 Nr. 1 BGB). <span className="opt">(Pflicht)</span></span>
+                </label>
+              </div>
+            )}
+
             <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
               <label>Bitte leer lassen<input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
             </div>
@@ -279,6 +293,7 @@ export default function Bestellablauf({
                 <div><dt>Ware</dt><dd>{p.name}</dd></div>
                 {farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
                 {optText.map((t) => { const [a, b] = t.split(": "); return <div key={t}><dt>{a}</dt><dd>{b}</dd></div>; })}
+                {auswahl.text && <div><dt>Text</dt><dd>{textAnzeige}</dd></div>}
                 <div><dt>Maße</dt><dd>{p.masse ?? "folgen"}</dd></div>
                 <div><dt>Material</dt><dd>{p.material}</dd></div>
                 <div><dt>{auswahl.menge} × Einzelpreis</dt><dd>{formatPreis(p.preisCent)}</dd></div>
@@ -290,10 +305,11 @@ export default function Bestellablauf({
                 <p>Lieferzeit: {LIEFERZEIT_TEXT ?? "folgt"}. Lieferung nur innerhalb Deutschlands.</p>
                 <p>Zahlung: sofort per PayPal. {TEXTE.vertragsschluss}</p>
                 <p>
-                  Widerruf: 14 Tage Widerruf.{" "}
+                  Widerruf: {individuell ? <strong>vom Widerruf ausgenommen: {p.name} mit deinem Text (nach deinen Vorgaben gefertigt, § 312g Abs. 2 Nr. 1 BGB).</strong> : "14 Tage Widerruf."}{" "}
                   <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/widerruf" target="_blank" rel="noopener">Zur Belehrung</Link>
                 </p>
                 <p>Verkäufer: {VERKAEUFER.name}, {VERKAEUFER.anschrift}, {VERKAEUFER.mail}</p>
+                {auswahl.text && <p>Dein Text wird vor dem Druck von mir geprüft. Ist er unzulässig, erstatte ich dir den Betrag.</p>}
                 <p>{TEXTE.keinSpielzeug}</p>
               </div>
             </section>

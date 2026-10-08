@@ -2,7 +2,7 @@ import "server-only";
 // Serverseitige Preis- und Warenkorbberechnung. Preise kommen AUSSCHLIESSLICH aus
 // lib/shop/produkte.ts (bzw. dem uebergebenen Katalog); vom Client wird nie ein Betrag
 // uebernommen, nur Artikel-Slug, Menge und Auswahl.
-import type { Produkt } from "../produkte";
+import { istIndividuell, type Produkt } from "../produkte";
 import type { Farbe } from "../farben";
 import { SCHRIFTEN, unerlaubteZeichen } from "../schriften";
 
@@ -127,21 +127,33 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       optionen[g.label] = o.label;
     }
 
-    // Personalisierung
-    const textRoh = typeof roh.text === "string" ? roh.text.trim() : "";
+    // Personalisierung (Text einzeilig oder mehrzeilig "zeile1\nzeile2", Schrift fest oder aus der Liste)
+    const pers = produkt.personalisierung;
+    const textRoh = typeof roh.text === "string" ? roh.text.replace(/\r/g, "").trim() : "";
     let text: string | null = null;
     let schriftId: string | null = null;
     if (textRoh !== "") {
-      if (!produkt.personalisierung) return fehler("text_ungueltig", "Dieser Artikel hat keinen Wunschtext.");
-      if (textRoh.length > produkt.personalisierung.maxLaenge) {
-        return fehler("text_ungueltig", `Der Text darf höchstens ${produkt.personalisierung.maxLaenge} Zeichen haben.`);
+      if (!pers) return fehler("text_ungueltig", "Dieser Artikel hat keinen Wunschtext.");
+      const zeilen = textRoh.split("\n").map((z) => z.trim());
+      if (pers.zeilen) {
+        if (zeilen.length !== pers.zeilen.length || zeilen.some((z) => z === "")) {
+          return fehler("text_ungueltig", "Bitte fülle alle Textzeilen aus.");
+        }
+        const zu = zeilen.findIndex((z, i) => z.length > pers.zeilen![i].max);
+        if (zu >= 0) return fehler("text_ungueltig", `„${pers.zeilen[zu].label}“ darf höchstens ${pers.zeilen[zu].max} Zeichen haben.`);
+      } else {
+        if (zeilen.length !== 1) return fehler("text_ungueltig", "Der Text darf nur eine Zeile haben.");
+        if (textRoh.length > pers.maxLaenge) {
+          return fehler("text_ungueltig", `Der Text darf höchstens ${pers.maxLaenge} Zeichen haben.`);
+        }
       }
-      if (unerlaubteZeichen(textRoh).length > 0) {
+      if (unerlaubteZeichen(zeilen.join("")).length > 0) {
         return fehler("text_ungueltig", "Der Text enthält Zeichen, die nicht gedruckt werden können.");
       }
-      const s = typeof roh.schriftId === "string" ? SCHRIFTEN.find((x) => x.id === roh.schriftId) : undefined;
+      const wunsch = pers.festeSchrift ?? (typeof roh.schriftId === "string" ? roh.schriftId : "");
+      const s = SCHRIFTEN.find((x) => x.id === wunsch);
       if (!s) return fehler("text_ungueltig", "Bitte wähle eine Schrift.");
-      text = textRoh;
+      text = zeilen.join("\n");
       schriftId = s.id;
     } else if (produkt.nurMitText) {
       return fehler("text_ungueltig", "Für diesen Artikel ist ein Text erforderlich.");
@@ -158,7 +170,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       optionen,
       text,
       schriftId,
-      individuell: text != null,
+      individuell: istIndividuell(produkt, text),
     });
   }
 

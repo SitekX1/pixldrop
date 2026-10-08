@@ -119,3 +119,51 @@ export function pruefeAnfrage(roh: Record<string, unknown>): Pruefung<AnfrageDat
     wert: { beschreibung: beschreibung!, breite: m.breite, tiefe: m.tiefe, hoehe: m.hoehe, farbe, name: name!, email: email!, datenschutz, rechte },
   };
 }
+
+export interface WiderrufDaten {
+  name: string;
+  /** Vertragsangabe wie eingegeben (Bestellnummer oder freie Angabe) */
+  vertrag: string;
+  /** erkannte Bestellnummer PD-JJJJ-NNNN (GROSS) oder null */
+  bestellnummer: string | null;
+  /** null = ganzer Vertrag */
+  positionen: string | null;
+  email: string;
+}
+
+const BESTELLNUMMER = /\bPD-\d{4}-\d{4,}\b/i;
+
+/**
+ * Widerruf nach § 356a BGB: Name, Vertragsangabe (Bestellnummer bzw. freie Angabe), optionale Positionen
+ * (String oder Liste; leer = ganzer Vertrag), E-Mail fuer die Eingangsbestaetigung.
+ */
+export function pruefeWiderruf(roh: Record<string, unknown>): Pruefung<WiderrufDaten> {
+  const f: FeldFehler = {};
+  const name = einzeilig(roh.name, 2, 100);
+  if (!name) f.name = "Bitte gib deinen Namen ein.";
+  const vertrag = einzeilig(roh.vertrag ?? roh.bestellnummer, 3, 200);
+  if (!vertrag) f.vertrag = "Bitte gib die Bestellnummer (z. B. PD-2026-0001) oder eine Angabe zum Vertrag ein.";
+  const email = einzeilig(roh.email, 5, 200)?.toLowerCase() ?? null;
+  if (!email || !EMAIL.test(email)) f.email = "Bitte eine gültige E-Mail-Adresse für die Eingangsbestätigung eingeben.";
+
+  let positionen: string | null = null;
+  const pr = roh.positionen;
+  if (Array.isArray(pr)) {
+    const teile = pr.map((x) => (typeof x === "string" ? x.trim() : null));
+    if (teile.length > 10 || teile.some((t) => t === null || t.length > 120 || STEUERZEICHEN.test(t))) {
+      f.positionen = "Bitte prüfe die Angabe der betroffenen Positionen.";
+    } else {
+      positionen = (teile as string[]).filter(Boolean).join("\n") || null;
+    }
+  } else if (pr != null && text(pr) !== "") {
+    const t = text(pr);
+    // eslint-disable-next-line no-control-regex
+    if (!t || t.length > 500 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(t)) f.positionen = "Bitte prüfe die Angabe der betroffenen Positionen.";
+    else positionen = t;
+  }
+  if (positionen && positionen.length > 500) f.positionen = "Die Angabe der Positionen ist zu lang.";
+
+  if (Object.keys(f).length) return { ok: false, felder: f };
+  const m = BESTELLNUMMER.exec(vertrag!);
+  return { ok: true, wert: { name: name!, vertrag: vertrag!, bestellnummer: m ? m[0].toUpperCase() : null, positionen, email: email! } };
+}

@@ -5,15 +5,15 @@ import { baueBestellung, bestellnummerOk, istPaypalUrl, sendeBestellung, sendeAn
 const auswahl = { slug: "x", farbeId: "mintgruen", optionen: { a: "b" }, text: "", schriftId: null, menge: 2 };
 const kunde = { name: " Max ", strasse: "Weg 1", plz: "86663", ort: "Ort", email: "a@b.de", hinweis: "" };
 
-test("Bestell-Payload: Honeypot, Key, ohne Text keine Widerrufs-Einwilligung", () => {
-  const b = baueBestellung({ token: "t", idempotenzKey: "k".repeat(20), auswahl, kunde, agb: true, widerruf: true });
+test("Bestell-Payload: Honeypot, Key, ohne Text Verzicht-Einwilligung nur wenn gesetzt", () => {
+  const b = baueBestellung({ token: "t", idempotenzKey: "k".repeat(20), auswahl, kunde, agb: true, verzicht: false });
   assert.equal(b.website, "");
   assert.deepEqual(b.einwilligungen, { agb: true });
   assert.equal(b.kunde.name, "Max");
   assert.equal("hinweis" in b.kunde, false);
   assert.equal(b.positionen[0].schriftId, null);
-  const m = baueBestellung({ token: "t", idempotenzKey: "k".repeat(20), auswahl: { ...auswahl, text: "Montag", schriftId: "f" }, kunde, agb: true, widerruf: true });
-  assert.deepEqual(m.einwilligungen, { agb: true, widerruf: true });
+  const m = baueBestellung({ token: "t", idempotenzKey: "k".repeat(20), auswahl: { ...auswahl, text: "Montag", schriftId: "f" }, kunde, agb: true, verzicht: true });
+  assert.deepEqual(m.einwilligungen, { agb: true, verzicht: true });
 });
 test("Bestellnummer und PayPal-URL", () => {
   assert.equal(bestellnummerOk("PD-2026-0001"), "PD-2026-0001");

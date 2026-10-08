@@ -11,6 +11,18 @@ export interface Optionsgruppe {
   optionen: { id: string; label: string }[];
 }
 
+export interface TextZeile { label: string; max: number; standard: string }
+export interface Personalisierung {
+  maxLaenge: number;
+  label: string;
+  beispiel: string;
+  /** Mehrzeiliger Text (Tischschild): je Zeile Label, Maximallaenge und Standardtext. Gespeichert als "zeile1
+zeile2". */
+  zeilen?: TextZeile[];
+  /** Feste Schrift (id aus lib/shop/schriften.ts), keine Auswahl; andere Schrift nur ueber "Individuell anfragen". */
+  festeSchrift?: string;
+}
+
 export interface Produkt {
   slug: string;
   name: string;
@@ -24,7 +36,7 @@ export interface Produkt {
   masse: string | null; // null = "Maße folgen"
   material: string;
   optionen: Optionsgruppe[];
-  personalisierung: null | { maxLaenge: number; label: string; beispiel: string };
+  personalisierung: null | Personalisierung;
   nurMitText?: boolean;
   /** Nur über „Individueller Druck“ (Preis nach Anfrage), nie im Warenkorb (Variante B). */
   nurAnfrage?: boolean;
@@ -36,6 +48,9 @@ const KEIN_SPIELZEUG = "Kein Spielzeug.";
 const HITZE = "Nicht für Töpfe oder direkt heiße Gefäße. Hitzegrenze folgt nach eigenem Test.";
 const LED = "Dekoration, nur mit LED-Teelichtern verwenden.";
 const MATERIAL = "PLA (Angabe vorläufig)";
+// TESTWERT: Platzhalterpreis (9,90 EUR) fuer alle bestellbaren Artikel, damit der Server Bestellungen annimmt.
+// Alex ersetzt ihn je Artikel durch den echten Preis.
+const TESTPREIS_CENT = 990;
 
 export const PRODUKTE: Produkt[] = [
   {
@@ -45,7 +60,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Fünf Untersetzer für Montag bis Freitag mit Halter, damit der Tisch sauber bleibt, auch wenn der Kaffee es nicht ist. Auf Wunsch später mit QR-Code zum Song des Tages auf der Rückseite.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "set", grundfarbe: "#4fb894",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG], bestseller: true,
   },
   {
@@ -55,7 +70,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein kleiner Aufsteller mit Schieber in fünf Stufen. Du stellst ein, wie viel Kaffee schon durch ist, die Kollegen wissen Bescheid.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "pegel", grundfarbe: "#6b4423",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
@@ -65,20 +80,26 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Untersetzer mit deinem Namen oder Spruch, in einer von acht Schriften. Jedes Stück wird einzeln für dich gedruckt.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#f0bb55",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: { maxLaenge: 18, label: "Dein Text", beispiel: "Montag" },
-    nurMitText: true, nurAnfrage: true, hinweise: [HITZE, KEIN_SPIELZEUG],
+    nurMitText: true, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {
     slug: "tischschild-erster-kaffee",
     name: "Tischschild „Bitte nicht vor dem ersten Kaffee“",
-    kurz: "Das Schild für den Schreibtisch. Eigene Zeile nur auf Anfrage.",
+    kurz: "Das Schild für den Schreibtisch. Der Name ist änderbar.",
     beschreibung:
-      "Ein Tischschild mit dem Satz, den jeder schon mal denken wollte. Eine eigene Zeile dazu fragst du über „Individueller Druck“ an.",
+      "Ein Tischschild mit dem Satz, den jeder schon mal denken wollte. Die kleine Zeile und der große Name sind vorbelegt („Teamleiter“, „Sabine“). Du kannst beide ändern, die Vorschau zeigt sofort, wie es aussieht.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1c1c1c",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
-    personalisierung: { maxLaenge: 24, label: "Eigene Zeile", beispiel: "Alex" },
-    nurAnfrage: true, hinweise: [KEIN_SPIELZEUG],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: {
+      maxLaenge: 30, label: "Text auf dem Schild", beispiel: "Sabine", festeSchrift: "montserrat",
+      zeilen: [
+        { label: "Kleine Zeile oben links", max: 16, standard: "Teamleiter" },
+        { label: "Große Zeile in der Mitte", max: 12, standard: "Sabine" },
+      ],
+    },
+    hinweise: [KEIN_SPIELZEUG],
   },
   {
     slug: "kuerbis-laterne",
@@ -87,7 +108,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Eine ausgehöhlte Kürbis-Laterne für ein LED-Teelicht. Das Licht scheint durch das Gesicht. Der Drehverschluss sitzt unten, das Teelicht wechselst du ohne Werkzeug.",
     gruppe: "halloween", kategorien: ["halloween"], form: "laterne", grundfarbe: "#ff8a1f",
-    preisCent: null, masse: null, material: MATERIAL,
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
     optionen: [
       { id: "gesicht", label: "Gesicht", optionen: [{ id: "a", label: "Gesicht A" }, { id: "b", label: "Gesicht B" }, { id: "c", label: "Gesicht C" }] },
       { id: "groesse", label: "Größe", optionen: [{ id: "klein", label: "Klein" }, { id: "mittel", label: "Mittel" }] },
@@ -101,7 +122,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Drei kleine Geister, die mit einem LED-Mini-Teelicht von innen leuchten. Der Verschluss sitzt unten.",
     gruppe: "halloween", kategorien: ["halloween"], form: "geister", grundfarbe: "#f4f1ea",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
@@ -111,7 +132,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein offener Kürbis-Halter. Das LED-Teelicht kommt von oben hinein, fertig. Der einfachste und günstigste Weg zur Deko.",
     gruppe: "halloween", kategorien: ["halloween"], form: "teelicht", grundfarbe: "#ff8a1f",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
@@ -121,7 +142,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Untersetzer mit Halloween-Motiv für die Tasse. Motiv und Lizenz stehen noch nicht endgültig fest.",
     gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
 ];
@@ -146,4 +167,17 @@ export function holeProdukt(slug: string): Produkt | undefined {
 export function istBestellbar(p: Produkt): boolean {
   if (p.nurAnfrage) return false;
   return p.gruppe !== "halloween" || halloweenModus() === "sale";
+}
+
+/** Der vorbelegte Standardtext (mehrzeilig, mit "\n" verbunden) oder null, wenn der Artikel keinen hat. */
+export function standardText(p: Produkt): string | null {
+  const z = p.personalisierung?.zeilen;
+  return z ? z.map((x) => x.standard).join("\n") : null;
+}
+
+/** Individuell gefertigt = Text vorhanden und nicht der unveraenderte Standardtext (dann normale Standardware). */
+export function istIndividuell(p: Produkt, text: string | null | undefined): boolean {
+  const t = (text ?? "").trim();
+  if (t === "" || !p.personalisierung) return false;
+  return t !== standardText(p);
 }

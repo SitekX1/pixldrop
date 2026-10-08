@@ -30,7 +30,7 @@ export const TEXTE = {
   anfrageInaktiv: "Anfrage noch nicht aktiv",
   preisFolgt: "Preis folgt",
   preisAnfrage: "Preis nach Anfrage",
-  startHinweis: "Lieferung nur innerhalb Deutschlands. Bezahlung sofort per PayPal. Individuelles (Wunschtext, Namen, Bilder): Preis nach Anfrage, bitte über „Individueller Druck“ anfragen.",
+  startHinweis: "Lieferung nur innerhalb Deutschlands. Bezahlung sofort per PayPal. Sonderwünsche (andere Schrift, Logo, Bild): bitte über „Individueller Druck“ anfragen.",
   vertragsschluss: "Nach dem Klick geht es direkt zu PayPal. Der Vertrag kommt mit meiner Bestellbestätigung per E-Mail nach erfolgter Zahlung zustande.",
   datenschutzHinweis: "Informationen zur Verarbeitung deiner Daten findest du in der",
   versandHinweis: "Versandkosten folgen (Lieferung nur innerhalb Deutschlands)",
@@ -42,9 +42,10 @@ export const TEXTE = {
   widerrufNormal: "14 Tage Widerruf, Rücksendekosten trägt der Kunde.",
 } as const;
 
-// Platzhalterwerte, solange Alex nichts bestätigt hat. null = "folgt", keine erfundenen Zahlen.
-export const VERSAND_CENT: number | null = null;
-export const LIEFERZEIT_TEXT: string | null = null;
+// TESTWERTE (Platzhalter, damit der Server Bestellungen annimmt). Alex ersetzt sie durch die echten Werte
+// (null = "folgt", dann ist nichts bestellbar). Artikelpreise: TESTPREIS_CENT in lib/shop/produkte.ts.
+export const VERSAND_CENT: number | null = 490; // TESTWERT 4,90 EUR
+export const LIEFERZEIT_TEXT: string | null = "3-5 Werktage"; // TESTWERT
 
 export const VERKAEUFER = {
   name: "Alex Sitek",

@@ -29,7 +29,7 @@ test("Vom Client gesendete Preise werden ignoriert", () => {
 });
 
 test("Artikel ohne Preis (Preis folgt) ist nicht bestellbar", () => {
-  const leer = PRODUKTE.map((p) => ({ ...p })); // Originaldaten: preisCent = null
+  const leer = PRODUKTE.map((p) => ({ ...p, preisCent: null }));
   const r = berechneWarenkorb([pos()], ctx({ produkte: leer }));
   assert.ok(!r.ok);
   assert.equal(r.fehler.code, "preis_folgt");
@@ -133,4 +133,20 @@ test("Farb-IDs und Lager-Zeilen", () => {
   assert.equal(f.length, 1);
   assert.deepEqual(f[0], { id: "schwarz", name: "Schwarz", hex: "#1c1c1c", material: "PLA / PETG" });
   assert.deepEqual(farbenAusZeilen(null), []);
+});
+
+test("Tischschild: Standardtext = Standardware, geaenderter Text = individuell, Zeilen werden geprueft", () => {
+  const basis = { slug: "tischschild-erster-kaffee", menge: 1, farbeId: "schwarz" };
+  const std = berechneWarenkorb([{ ...basis, text: "Teamleiter\nSabine" }], ctx());
+  assert.ok(std.ok);
+  assert.equal(std.wert.individuell, false);
+  assert.equal(std.wert.positionen[0].schriftId, "montserrat", "feste Schrift");
+  const neu = berechneWarenkorb([{ ...basis, text: "Chef\nPetra" }], ctx());
+  assert.ok(neu.ok);
+  assert.equal(neu.wert.individuell, true);
+  assert.equal(neu.wert.positionen[0].text, "Chef\nPetra");
+  assert.ok(!berechneWarenkorb([{ ...basis, text: "nur eine Zeile" }], ctx()).ok, "zwei Zeilen noetig");
+  assert.ok(!berechneWarenkorb([{ ...basis, text: "Chef\nPetra Maria Katharina" }], ctx()).ok, "Zeile zu lang");
+  assert.ok(!berechneWarenkorb([{ ...basis, text: "Chef\n<b>" }], ctx()).ok, "unerlaubte Zeichen");
+  assert.ok(berechneWarenkorb([{ ...basis }], ctx()).ok, "ohne Text bestellbar (Standard)");
 });

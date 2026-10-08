@@ -5,6 +5,20 @@ import type { Form } from "@/lib/shop/produkte";
 const DUNKEL = "#1f1428";
 const LICHT = "#ffe9a8";
 
+function Schild({ c, text, family }: { c: string; text?: string; family?: string }) {
+  const [klein, gross] = (text ?? "Teamleiter\nSabine").split("\n");
+  const f = family ?? "sans-serif";
+  const gs = Math.min(15, 70 / Math.max(4, (gross ?? "").length * 0.62));
+  return (
+    <g>
+      <rect x="10" y="28" width="80" height="46" rx="7" fill={c} stroke="rgba(0,0,0,.25)" strokeWidth="1.5" />
+      <text x="16" y="39" fontSize="5.2" fill="rgba(255,255,255,.8)" style={{ fontFamily: f }}>{klein}</text>
+      <text x="50" y="59" fontSize={gs} fontWeight="700" textAnchor="middle" fill="#fff" style={{ fontFamily: f }}>{gross}</text>
+      <rect x="22" y="74" width="56" height="5" rx="2" fill="rgba(0,0,0,.25)" />
+    </g>
+  );
+}
+
 function Kuerbis({ c, gesicht, offen }: { c: string; gesicht?: boolean; offen?: boolean }) {
   return (
     <g>
@@ -39,14 +53,18 @@ function Geist({ x, y, s, c }: { x: number; y: number; s: number; c: string }) {
   );
 }
 
-function Motiv({ form, c }: { form: Form; c: string }) {
+function Motiv({ form, c, text, family }: { form: Form; c: string; text?: string; family?: string }) {
   switch (form) {
     case "rund":
       return (
         <g>
           <circle cx="50" cy="50" r="35" fill={c} stroke="rgba(0,0,0,.2)" strokeWidth="1.5" />
           <circle cx="50" cy="50" r="27" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" />
-          <rect x="30" y="46" width="40" height="8" rx="4" fill="rgba(0,0,0,.22)" />
+          {text ? (
+            <text x="50" y="54" fontSize={Math.min(11, 44 / Math.max(3, text.length * 0.62))} fontWeight="700" textAnchor="middle" fill="rgba(0,0,0,.65)" style={{ fontFamily: family ?? "sans-serif" }}>{text}</text>
+          ) : (
+            <rect x="30" y="46" width="40" height="8" rx="4" fill="rgba(0,0,0,.22)" />
+          )}
         </g>
       );
     case "set":
@@ -68,14 +86,7 @@ function Motiv({ form, c }: { form: Form; c: string }) {
         </g>
       );
     case "schild":
-      return (
-        <g>
-          <rect x="12" y="28" width="76" height="46" rx="7" fill={c} stroke="rgba(0,0,0,.25)" strokeWidth="1.5" />
-          <rect x="22" y="40" width="56" height="5" rx="2.5" fill="rgba(255,255,255,.75)" />
-          <rect x="30" y="52" width="40" height="5" rx="2.5" fill="rgba(255,255,255,.55)" />
-          <rect x="22" y="74" width="56" height="5" rx="2" fill="rgba(0,0,0,.25)" />
-        </g>
-      );
+      return <Schild c={c} text={text} family={family} />;
     case "laterne":
       return <Kuerbis c={c} gesicht />;
     case "geister":
@@ -101,13 +112,13 @@ function Motiv({ form, c }: { form: Form; c: string }) {
 }
 
 export default function ProductImage({
-  form, farbe, typ = "Muster · Foto folgt", breit = false,
-}: { form: Form; farbe: string; typ?: string; breit?: boolean }) {
+  form, farbe, typ = "Muster · Foto folgt", breit = false, text, family,
+}: { form: Form; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string }) {
   return (
     <div className={`shop-img ${breit ? "shop-img--wide" : ""}`} role="img" aria-label={`Platzhalterbild: ${typ}`}>
       <svg className="motiv" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <path d="M70 92C86 86 96 70 94 54" fill="none" stroke="rgba(107,68,35,.28)" strokeWidth="5" strokeLinecap="round" />
-        <Motiv form={form} c={farbe} />
+        <Motiv form={form} c={farbe} text={text} family={family} />
       </svg>
       <span className="shop-placeholder-tag">{typ}</span>
     </div>

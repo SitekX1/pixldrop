@@ -39,7 +39,7 @@ export function neuerIdempotenzKey(): string {
   return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 }
 
-export function baueBestellung(p: { token: string; idempotenzKey: string; auswahl: Auswahl; kunde: Kunde; agb: boolean; widerruf: boolean; website?: string }) {
+export function baueBestellung(p: { token: string; idempotenzKey: string; auswahl: Auswahl; kunde: Kunde; agb: boolean; verzicht: boolean; website?: string }) {
   const { auswahl: a, kunde: k } = p;
   const mitText = a.text.trim() !== "";
   return {
@@ -54,7 +54,7 @@ export function baueBestellung(p: { token: string; idempotenzKey: string; auswah
       name: k.name.trim(), strasse: k.strasse.trim(), plz: k.plz.trim(), ort: k.ort.trim(), email: k.email.trim(),
       ...(k.hinweis.trim() ? { hinweis: k.hinweis.trim() } : {}),
     },
-    einwilligungen: { agb: p.agb, ...(mitText ? { widerruf: p.widerruf } : {}) },
+    einwilligungen: { agb: p.agb, ...(p.verzicht ? { verzicht: true } : {}) },
   };
 }
 
@@ -124,6 +124,40 @@ async function verkleinere(datei: File, maxBytes: number): Promise<File> {
   }
   bmp.close();
   throw new Error("verkleinern_fehlgeschlagen");
+}
+
+// ---- Widerrufsfunktion (§ 356a BGB) ----
+export interface WiderrufEingabe { name: string; vertrag: string; positionen: string; email: string }
+export interface WiderrufZusammenfassung { name: string; vertrag: string; ganzerVertrag: boolean; positionen: string | null; email: string }
+export interface WiderrufErfolg { widerrufsnummer: string; eingegangenAmText: string; eingangsbestaetigung: boolean }
+type WiderrufAntwort = { schritt?: string; zusammenfassung?: WiderrufZusammenfassung } & Partial<WiderrufErfolg>;
+
+export async function holeWiderrufToken(f: FetchFn = fetch): Promise<string | null> {
+  try {
+    const r = await f("/api/shop/formtoken?f=widerruf", { cache: "no-store" });
+    const b = (await r.json()) as { ok?: boolean; token?: string };
+    return r.ok && b.ok && typeof b.token === "string" ? b.token : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Ohne confirm nur Pruefung (Zusammenfassung), mit confirm: true wird der Widerruf abgesendet. */
+export async function sendeWiderruf(
+  p: { token: string; website: string; daten: WiderrufEingabe; confirm: boolean },
+  f: FetchFn = fetch,
+): Promise<ApiErgebnis<WiderrufAntwort>> {
+  try {
+    const body = {
+      token: p.token, website: p.website, name: p.daten.name.trim(), vertrag: p.daten.vertrag.trim(), email: p.daten.email.trim(),
+      ...(p.daten.positionen.trim() ? { positionen: p.daten.positionen.trim() } : {}),
+      ...(p.confirm ? { confirm: true } : {}),
+    };
+    const r = await lies(await f("/api/shop/widerruf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
+    return r as ApiErgebnis<WiderrufAntwort>;
+  } catch {
+    return { ok: false, fehler: { code: "netz", meldung: "Keine Verbindung zum Server. Deine Eingaben sind noch da. Bitte versuch es gleich noch einmal oder schreibe deinen Widerruf an as@sitekx.de." } };
+  }
 }
 
 // Zwischenstand nur im sessionStorage dieses Tabs (technisch erforderlich: PayPal-Rückkehr lädt die Seite neu).

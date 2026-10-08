@@ -355,7 +355,7 @@ async function nachBezahlt(
       const d = await deps.db.rpc<Record<string, unknown> & { ok: boolean }>("shop_bestellung_mail_daten", { p_id: id });
       if (d.ok) {
         const b = d as unknown as MailBestellung & { email: string };
-        const { betreff, text } = bestaetigungsMail(b, deps.pflichtangabenText, deps.pflichtangabenFreigegeben);
+        const { betreff, text } = bestaetigungsMail(b, deps.pflichtangabenText, deps.pflichtangabenFreigegeben, { siteUrl: deps.env.siteUrl });
         if (await deps.notifier.mailKunde(b.email, betreff, text)) {
           await deps.db.rpc("shop_markiere", { p_art: "bestellung_bestaetigt", p_id: id }).catch(() => undefined);
         } else {

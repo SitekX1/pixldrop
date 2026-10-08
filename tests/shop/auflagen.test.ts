@@ -40,7 +40,7 @@ test("Route Bestellung/Anfrage/Formtoken mit SHOP_AKTIV=false: 503, nichts gespe
   const { ergebnis, fetchAufrufe } = await mitEnv({ SHOP_AKTIV: "false" }, async () => {
     const a = await bestellung.POST(new Request("https://t.example/api/shop/bestellung", { method: "POST", body: JSON.stringify(bestellEingabe()) }));
     const b = await anfrage.POST(new Request("https://t.example/api/shop/anfrage", { method: "POST", body: new FormData() }));
-    const c = await formtoken.GET();
+    const c = await formtoken.GET(new Request("https://t.example/api/shop/formtoken"));
     return [a.status, b.status, c.status];
   });
   assert.deepEqual(ergebnis, [503, 503, 503]);
@@ -177,7 +177,7 @@ test("Bestaetigungsmail: bei freigegebenen Pflichtangaben nie mit Platzhalter", 
   const b = { nummer: "PD-2026-0001", name: "E", strasse: "S 1", plz: "86663", ort: "O", gesamt_cent: 3070, summe_waren_cent: 2580, versand_cent: 490, individuell: false, positionen: [] };
   assert.throws(() => bestaetigungsMail(b, PFLICHTANGABEN_PLATZHALTER, true));
   assert.match(bestaetigungsMail(b, PFLICHTANGABEN_PLATZHALTER, false).text, /PLATZHALTER/);
-  const echt = bestaetigungsMail(b, "Echter Rechtstext", true).text;
+  const echt = bestaetigungsMail(b, "Echter Rechtstext", true, { lieferzeit: "5 Werktage" }).text;
   assert.ok(echt.includes("Echter Rechtstext") && !echt.includes("PLATZHALTER"));
 });
 

@@ -34,6 +34,8 @@ export class FakeDb implements Db {
   uploads: { pfad: string; mime: string; bytes: number }[] = [];
   entfernt: string[] = [];
   aufrufe: string[] = [];
+  widerrufe: { id: string; nummer: string; eingegangen_am: string; args: Row; abgleich: string; bestaetigt: boolean; benachrichtigt: boolean }[] = [];
+  widerrufGrund: string | null = null;
   uploadOk = true;
   entfernenOk = true;
   anfrageGrund: string | null = null;
@@ -162,6 +164,26 @@ export class FakeDb implements Db {
         if (!an) return { ok: false };
         an.pfade = p.p_pfade as string[];
         an.fehler = p.p_fehler as boolean;
+        return { ok: true };
+      }
+      case "shop_widerruf_anlegen": {
+        if (this.widerrufGrund) return { ok: false, grund: this.widerrufGrund };
+        const vorh = this.widerrufe.find((w) => w.args.p_email === p.p_email && w.args.p_vertrag === p.p_vertrag && w.args.p_positionen === p.p_positionen);
+        if (vorh) return { ok: true, wiederholt: true, id: vorh.id, nummer: vorh.nummer, eingegangen_am: vorh.eingegangen_am, bestaetigt: vorh.bestaetigt, abgleich: vorh.abgleich };
+        const b = p.p_bestellnummer ? this.bestellungen.find((x) => x.nummer === p.p_bestellnummer) : undefined;
+        const abgleich = !b ? "nicht_gefunden" : b.kunde.email === p.p_email ? "passt" : b.kunde.name === p.p_name ? "name_passt" : "abweichend";
+        const w = {
+          id: `22222222-2222-4222-8222-${String(this.widerrufe.length + 1).padStart(12, "0")}`,
+          nummer: `WR-2026-${String(this.widerrufe.length + 1).padStart(4, "0")}`,
+          eingegangen_am: "2026-10-08T12:03:21.000+00:00", args: p, abgleich, bestaetigt: false, benachrichtigt: false,
+        };
+        this.widerrufe.push(w);
+        return { ok: true, wiederholt: false, id: w.id, nummer: w.nummer, eingegangen_am: w.eingegangen_am, bestaetigt: false, abgleich };
+      }
+      case "shop_widerruf_markiere": {
+        const w = this.widerrufe.find((x) => x.id === p.p_id);
+        if (w && p.p_art === "bestaetigt") w.bestaetigt = true;
+        if (w && p.p_art === "benachrichtigt") w.benachrichtigt = true;
         return { ok: true };
       }
       case "shop_bereinige_bilder_liste":
