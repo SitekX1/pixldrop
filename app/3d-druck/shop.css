@@ -232,7 +232,7 @@
 .shop-steps li::after { content: ""; position: absolute; left: 17px; top: 40px; bottom: 4px; border-left: 2px dotted var(--shop-control); }
 .shop-steps li:last-child::after { display: none; }
 .shop-steps strong { display: block; font: 700 1.0625rem var(--shop-display); color: var(--shop-ink); }
-@media (min-width: 900px) { .shop-steps { grid-template-columns: repeat(3, 1fr); gap: 32px; } .shop-steps li { padding: 52px 0 0; } .shop-steps li::after { left: 44px; right: -32px; top: 17px; bottom: auto; border-left: 0; border-top: 2px dotted var(--shop-control); } }
+@media (min-width: 900px) { .shop-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; align-self: stretch; width: 100%; } .shop-steps li { padding: 52px 0 0; } .shop-steps li::after { left: 44px; right: -28px; top: 17px; bottom: auto; border-left: 0; border-top: 2px dotted var(--shop-control); } }
 .shop-individuell { display: grid; gap: 12px; padding: 20px; border: 2px dashed var(--shop-ink); border-radius: var(--shop-r-l); margin-top: 40px; }
 .shop-individuell h2 { font-size: 1.375rem; }
 @media (min-width: 900px) { .shop-individuell { grid-template-columns: 1fr auto; align-items: center; padding: 28px 32px; } }
@@ -437,3 +437,5 @@
 .shop-alex-eddie img { width: 100%; height: auto; display: block; }
 @media (min-width: 640px) { .shop-alex { grid-template-columns: 160px minmax(0, 1fr); gap: 24px; } .shop-alex-eddie { width: 160px; } }
 .shop-alex-text { display: grid; gap: 10px; justify-items: start; }
+.shop-danke > p { max-width: 62ch; }
+.shop-danke > section { width: 100%; }

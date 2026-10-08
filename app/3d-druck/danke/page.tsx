@@ -5,7 +5,7 @@ import Ring from "@/components/shop/Ring";
 import { bestellnummerOk } from "@/lib/shop/client";
 import BestellungAbschluss from "@/components/shop/BestellungAbschluss";
 
-export const metadata = { title: "Zahlung eingegangen" };
+export const metadata = { title: "Danke für deine Bestellung" };
 
 // Höhepunkt der Signature: Der Ring zeichnet sich in 700 ms um die Bestellnummer.
 // Ohne Animation (Reduced Motion) steht er sofort. Anschrift wird nie angezeigt.
@@ -15,7 +15,7 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
   const nummer = echt ?? "VORSCHAU";
   return (
     <ShopShell>
-      <div className="shop-wrap" style={{ maxWidth: 720 }}>
+      <div className="shop-wrap" style={{ maxWidth: 1040 }}>
         <section className="shop-danke" aria-labelledby="titel">
           {!echt && (
             <p className="shop-demo" role="note"><strong>Vorschau:</strong> Das ist keine echte Bestellung. Hier fehlt eine gültige Bestellnummer.</p>
@@ -24,7 +24,7 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
           {hinweis === "pruefung" && (
             <p className="shop-alert" role="status">Deine Zahlung ist eingegangen, wird aber noch kurz geprüft. Du bekommst eine E-Mail von mir. Bitte bestelle nicht erneut.</p>
           )}
-          <h1 id="titel">Zahlung eingegangen.</h1>
+          <h1 id="titel">Danke für deine Bestellung!</h1>
           <p className="shop-overline">Deine Bestellnummer</p>
           <div className="shop-nr">
             <Ring draw />
