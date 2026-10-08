@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 import type { Produkt } from "@/lib/shop/produkte";
 import type { Farbe } from "@/lib/shop/farben";
 import { ladeAuswahl, speichereAuswahl, type Auswahl } from "@/lib/shop/auswahl";
-import { SCHRIFTEN } from "@/lib/shop/schriften";
 import { SHOP_AKTIV, TEXTE, VERKAEUFER, VERSAND_CENT, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
 import ProductImage from "./ProductImage";
 import { baueBestellung, holeFormToken, idempotenzKeyFuer, istPaypalUrl, ladeKunde, sendeBestellung, speichereKunde } from "@/lib/shop/client";
 
 const ZAHLUNG_HINWEIS: Record<string, string> = {
-  abgebrochen: "Die Zahlung wurde abgebrochen. Es wurde nichts abgebucht. Du kannst unten erneut bestellen.",
+  abgebrochen: "Zahlung nicht abgeschlossen, es ist kein Vertrag zustande gekommen. Es wurde nichts abgebucht. Du kannst unten erneut bestellen.",
   fehler: "Die Zahlung hat nicht geklappt. Es wurde nichts abgebucht. Bitte versuch es noch einmal oder schreib an as@sitekx.de.",
-  unklar: "Wir konnten deine Zahlung gerade nicht zuordnen. Bitte bestelle nicht erneut, sondern prüfe zuerst dein PayPal-Konto und schreib an as@sitekx.de, falls Geld abgebucht wurde.",
+  unklar: "Wir konnten deine Zahlung gerade nicht zuordnen. Bitte bestelle nicht erneut. Falls bei PayPal etwas abgebucht wurde, bekommst du eine Bestätigung per E-Mail, sonst schreib bitte an as@sitekx.de.",
 };
 
 interface Daten { name: string; strasse: string; plz: string; ort: string; email: string; hinweis: string }
@@ -33,7 +32,7 @@ function pruefeDaten(d: Daten): Fehler {
 }
 
 const FELDNAMEN: Record<string, string> = {
-  name: "Name", strasse: "Straße", plz: "Postleitzahl", ort: "Ort", email: "E-Mail", agb: "AGB und Datenschutz", widerruf: "Widerrufsausschluss",
+  name: "Name", strasse: "Straße", plz: "Postleitzahl", ort: "Ort", email: "E-Mail", agb: "AGB und Widerrufsbelehrung", widerruf: "Widerrufsausschluss",
 };
 
 export default function Bestellablauf({
@@ -44,7 +43,6 @@ export default function Bestellablauf({
   const [geladen, setGeladen] = useState(false);
   const [daten, setDaten] = useState<Daten>(LEER);
   const [agb, setAgb] = useState(false);
-  const [widerruf, setWiderruf] = useState(false);
   const [fehler, setFehler] = useState<Fehler>({});
   const [entfernen, setEntfernen] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -90,8 +88,6 @@ export default function Bestellablauf({
   }
 
   const farbe = farben.find((f) => f.id === auswahl.farbeId);
-  const schrift = SCHRIFTEN.find((s) => s.id === auswahl.schriftId);
-  const mitText = auswahl.text !== "";
   const optText = p.optionen.map((g) => `${g.label}: ${g.optionen.find((o) => o.id === auswahl.optionen[g.id])?.label ?? ""}`);
   const gesamt = p.preisCent != null ? p.preisCent * auswahl.menge + (VERSAND_CENT ?? 0) : null;
   const gehe = (n: number) => router.push(`/3d-druck/bestellung?schritt=${n}`);
@@ -115,8 +111,7 @@ export default function Bestellablauf({
   async function bestellen() {
     if (laeuft || !auswahl) return;
     const f: Fehler = {};
-    if (!agb) f.agb = "Bitte bestätige, dass du AGB und Datenschutzerklärung gelesen hast.";
-    if (mitText && !widerruf) f.widerruf = "Bitte bestätige den Widerrufsausschluss für dein individuell gefertigtes Stück.";
+    if (!agb) f.agb = "Bitte bestätige, dass du AGB und Widerrufsbelehrung gelesen hast und einverstanden bist.";
     setFehler(f);
     setServerFehler(null);
     if (Object.keys(f).length) {
@@ -136,7 +131,7 @@ export default function Bestellablauf({
     setToken(t);
     const inhalt = { auswahl, daten };
     const key = idempotenzKeyFuer(JSON.stringify(inhalt));
-    const r = await sendeBestellung(baueBestellung({ token: t, idempotenzKey: key, auswahl, kunde: daten, agb, widerruf, website }));
+    const r = await sendeBestellung(baueBestellung({ token: t, idempotenzKey: key, auswahl, kunde: daten, agb, widerruf: false, website }));
     if (r.ok && istPaypalUrl(r.approveUrl)) {
       window.location.href = r.approveUrl; // Button bleibt gesperrt bis die Seite wechselt
       return;
@@ -204,7 +199,6 @@ export default function Bestellablauf({
                 <h2 style={{ fontSize: "1.125rem" }}>{p.name}</h2>
                 {farbe && <p className="muted">Farbe: {farbe.name}</p>}
                 {optText.map((t) => <p key={t} className="muted">{t}</p>)}
-                {mitText && <p className="muted" style={{ overflowWrap: "anywhere" }}>Text: „{auswahl.text}“ in {schrift?.name}</p>}
                 <p className="shop-price-small">{formatPreis(p.preisCent)}</p>
               </div>
             </div>
@@ -217,6 +211,7 @@ export default function Bestellablauf({
                 <button type="button" aria-label="Menge erhöhen" onClick={() => setze({ ...auswahl, menge: Math.min(20, auswahl.menge + 1) })}>+</button>
               </div>
             </div>
+            <p className="shop-note" role="note">{TEXTE.startHinweis} <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/anfrage">Individueller Druck</Link></p>
             <p className="muted">Zwischensumme: {formatPreis(p.preisCent != null ? p.preisCent * auswahl.menge : null)} · {TEXTE.versandHinweis}</p>
             <div className="shop-actions" style={{ marginTop: 0 }}>
               <button type="button" className="shop-btn" onClick={() => gehe(2)}>Weiter</button>
@@ -271,16 +266,13 @@ export default function Bestellablauf({
             <div className="shop-field">
               <label className="shop-check" htmlFor="f-agb" id="f-agb-l">
                 <input id="f-agb" type="checkbox" checked={agb} onChange={(e) => { setAgb(e.target.checked); setFehler({ ...fehler, agb: undefined }); }} aria-invalid={!!fehler.agb} />
-                <span>Ich habe die <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/agb" target="_blank" rel="noopener">AGB</Link> und die <a href="/datenschutz" target="_blank" rel="noopener" style={{ textDecoration: "underline" }}>Datenschutzerklärung</a> gelesen. <span className="opt">(Pflicht)</span></span>
+                <span>Ich habe die <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/agb" target="_blank" rel="noopener">AGB</Link> und die <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/widerruf" target="_blank" rel="noopener">Widerrufsbelehrung</Link> gelesen und bin damit einverstanden. <span className="opt">(Pflicht)</span></span>
               </label>
-              {mitText && (
-                <label className="shop-check" htmlFor="f-widerruf">
-                  <input id="f-widerruf" type="checkbox" checked={widerruf} onChange={(e) => { setWiderruf(e.target.checked); setFehler({ ...fehler, widerruf: undefined }); }} aria-invalid={!!fehler.widerruf} />
-                  <span>Mir ist bekannt, dass mein individuell gefertigtes Stück vom Widerruf ausgeschlossen ist. <span className="opt">(Pflicht)</span></span>
-                </label>
-              )}
             </div>
 
+            <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
+              <label>Bitte leer lassen<input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
+            </div>
             <section className="shop-bon" aria-labelledby="bon-t">
               <h2 id="bon-t">Dein Bon</h2>
               <dl>
@@ -289,7 +281,6 @@ export default function Bestellablauf({
                 {optText.map((t) => { const [a, b] = t.split(": "); return <div key={t}><dt>{a}</dt><dd>{b}</dd></div>; })}
                 <div><dt>Maße</dt><dd>{p.masse ?? "folgen"}</dd></div>
                 <div><dt>Material</dt><dd>{p.material}</dd></div>
-                {mitText && <div><dt>Wunschtext</dt><dd>„{auswahl.text}“, {schrift?.name}</dd></div>}
                 <div><dt>{auswahl.menge} × Einzelpreis</dt><dd>{formatPreis(p.preisCent)}</dd></div>
                 <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "folgt"}</dd></div>
               </dl>
@@ -297,22 +288,20 @@ export default function Bestellablauf({
               <div className="kleinteil">
                 <p>{TEXTE.kleinunternehmer}</p>
                 <p>Lieferzeit: {LIEFERZEIT_TEXT ?? "folgt"}. Lieferung nur innerhalb Deutschlands.</p>
-                <p>Zahlung: sofort per PayPal. Nach dem Klick auf „{TEXTE.bestellButton}“ wirst du zu PayPal weitergeleitet.</p>
+                <p>Zahlung: sofort per PayPal. {TEXTE.vertragsschluss}</p>
                 <p>
-                  Widerruf: {mitText ? TEXTE.widerrufAusschluss : TEXTE.widerrufNormal}{" "}
+                  Widerruf: 14 Tage Widerruf.{" "}
                   <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/widerruf" target="_blank" rel="noopener">Zur Belehrung</Link>
                 </p>
                 <p>Verkäufer: {VERKAEUFER.name}, {VERKAEUFER.anschrift}, {VERKAEUFER.mail}</p>
                 <p>{TEXTE.keinSpielzeug}</p>
               </div>
             </section>
-            <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
-              <label>Bitte leer lassen<input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
-            </div>
             <button type="button" className="shop-btn shop-btn--block" aria-disabled={!SHOP_AKTIV || laeuft} aria-busy={laeuft} onClick={bestellen}>
               {laeuft ? "Einen Moment, weiter zu PayPal…" : SHOP_AKTIV ? TEXTE.bestellButton : TEXTE.bestellInaktiv}
               {!SHOP_AKTIV && !laeuft && <small>Im Echtbetrieb: „{TEXTE.bestellButton}“</small>}
             </button>
+            <p className="muted">{TEXTE.datenschutzHinweis} <a href="/datenschutz" target="_blank" rel="noopener" style={{ textDecoration: "underline" }}>Datenschutzerklärung</a>.</p>
             {status && <p className="shop-demo" role="status">{status}</p>}
             <div className="shop-actions" style={{ marginTop: 0 }}>
               <button type="button" className="shop-link" style={{ background: "none", border: 0, cursor: "pointer", font: "inherit", fontWeight: 600 }} onClick={() => gehe(2)}>Daten ändern</button>

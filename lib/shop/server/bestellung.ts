@@ -106,7 +106,7 @@ export async function legeBestellungAn(
   if (!k.ok) return fehler(422, "kunde_ungueltig", "Bitte prüfe deine Angaben.", { felder: k.felder });
 
   const einw = obj(e.einwilligungen);
-  if (einw.agb !== true) return fehler(422, "einwilligung_fehlt", "Bitte bestätige AGB und Datenschutzerklärung.");
+  if (einw.agb !== true) return fehler(422, "einwilligung_fehlt", "Bitte bestätige AGB und Widerrufsbelehrung.");
   if (korb.wert.individuell && einw.verzicht !== true) {
     return fehler(422, "einwilligung_fehlt", "Bitte bestätige den Widerrufsausschluss für dein individuell gefertigtes Stück.");
   }

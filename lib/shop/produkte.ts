@@ -26,6 +26,8 @@ export interface Produkt {
   optionen: Optionsgruppe[];
   personalisierung: null | { maxLaenge: number; label: string; beispiel: string };
   nurMitText?: boolean;
+  /** Nur über „Individueller Druck“ (Preis nach Anfrage), nie im Warenkorb (Variante B). */
+  nurAnfrage?: boolean;
   hinweise: string[];
   bestseller?: boolean;
 }
@@ -65,18 +67,18 @@ export const PRODUKTE: Produkt[] = [
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#f0bb55",
     preisCent: null, masse: null, material: MATERIAL, optionen: [],
     personalisierung: { maxLaenge: 18, label: "Dein Text", beispiel: "Montag" },
-    nurMitText: true, hinweise: [HITZE, KEIN_SPIELZEUG],
+    nurMitText: true, nurAnfrage: true, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {
     slug: "tischschild-erster-kaffee",
     name: "Tischschild „Bitte nicht vor dem ersten Kaffee“",
-    kurz: "Das Schild für den Schreibtisch. Auf Wunsch mit eigenem Zusatz.",
+    kurz: "Das Schild für den Schreibtisch. Eigene Zeile nur auf Anfrage.",
     beschreibung:
-      "Ein Tischschild mit dem Satz, den jeder schon mal denken wollte. Optional kannst du eine eigene Zeile dazu drucken lassen.",
+      "Ein Tischschild mit dem Satz, den jeder schon mal denken wollte. Eine eigene Zeile dazu fragst du über „Individueller Druck“ an.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1c1c1c",
     preisCent: null, masse: null, material: MATERIAL, optionen: [],
     personalisierung: { maxLaenge: 24, label: "Eigene Zeile", beispiel: "Alex" },
-    hinweise: [KEIN_SPIELZEUG],
+    nurAnfrage: true, hinweise: [KEIN_SPIELZEUG],
   },
   {
     slug: "kuerbis-laterne",
@@ -142,5 +144,6 @@ export function holeProdukt(slug: string): Produkt | undefined {
 }
 
 export function istBestellbar(p: Produkt): boolean {
+  if (p.nurAnfrage) return false;
   return p.gruppe !== "halloween" || halloweenModus() === "sale";
 }

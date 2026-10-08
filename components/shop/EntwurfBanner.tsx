@@ -2,7 +2,7 @@
 export default function EntwurfBanner() {
   return (
     <div className="shop-entwurf" role="note">
-      ENTWURF – Texte folgen von Dr. Justus, nicht rechtsverbindlich
+      ENTWURF – nicht rechtsverbindlich, gelbe Platzhalter sind noch offen
     </div>
   );
 }

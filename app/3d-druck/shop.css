@@ -387,3 +387,12 @@
   .shop *, .shop *::before, .shop *::after { animation: none !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
   .shop-ring path { stroke-dashoffset: 0 !important; }
 }
+
+/* ---------- Rechtstexte (Entwurf) ---------- */
+.shop-legal-sec { display: grid; gap: 10px; }
+.shop-ph { background: #ffe08a; color: #2e1c0f; padding: 0 3px; border-radius: 2px; font-weight: 600; overflow-wrap: anywhere; }
+.shop-marker { border: 3px solid #b3261e; background: #fff1ef; color: #2e1c0f; padding: 14px 16px; font-weight: 700; display: grid; gap: 8px; }
+.shop-marker strong { color: #b3261e; letter-spacing: 0.02em; }
+.shop-legal { overflow-wrap: anywhere; }
+.shop-legal table { width: 100%; border-collapse: collapse; }
+.shop-legal th, .shop-legal td { border: 1px solid var(--shop-ink); padding: 6px 8px; text-align: left; vertical-align: top; }

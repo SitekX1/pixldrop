@@ -25,7 +25,7 @@ export default async function Produktseite({ params }: Props) {
   const farben = await holeFarben();
   const bestellbar = istBestellbar(p);
   const halloween = p.gruppe === "halloween";
-  const preis = formatPreis(p.preisCent);
+  const preis = p.nurAnfrage ? TEXTE.preisAnfrage : formatPreis(p.preisCent);
 
   return (
     <ShopShell theme={halloween ? "halloween" : undefined}>
@@ -44,8 +44,8 @@ export default async function Produktseite({ params }: Props) {
               <span className="shop-price">{preis}</span>
               <ul>
                 <li>{TEXTE.kleinunternehmer}</li>
-                <li>{VERSAND_CENT != null ? `zzgl. ${formatPreis(VERSAND_CENT)} Versand (nur Deutschland)` : TEXTE.versandHinweis}</li>
-                <li>{LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}</li>
+                <li>{p.nurAnfrage ? "Preis, Versand und Lieferzeit stehen im Angebot per E-Mail" : VERSAND_CENT != null ? `zzgl. ${formatPreis(VERSAND_CENT)} Versand (nur Deutschland)` : TEXTE.versandHinweis}</li>
+                {!p.nurAnfrage && <li>{LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}</li>}
                 <li><Link className="shop-link" href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               </ul>
             </div>
