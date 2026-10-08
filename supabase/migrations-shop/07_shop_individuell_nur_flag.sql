@@ -1,0 +1,6 @@
+-- Migration 07 (angewendet 2026-10-08 per DO-Block): shop_bestellung_anlegen
+-- Individuell (Widerrufsausschluss) gilt nur noch bei gesetztem Flag "individuell" je Position,
+-- nicht mehr automatisch bei jedem Text (Tischschild mit unverändertem Standardtext = Standardware).
+-- Änderung in der Funktion: 
+--   alt: if v_p->>'text' is not null or coalesce(v_p->>'individuell', 'false') = 'true' then
+--   neu: if coalesce(v_p->>'individuell', 'false') = 'true' then
