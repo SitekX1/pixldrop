@@ -5,7 +5,7 @@ import { fontVariablen } from "./fonts";
 // Shop-Gerüst: nicht öffentlich, nicht indexiert, nicht verlinkt (robots.ts sperrt /3d-druck zusätzlich).
 export const metadata: Metadata = {
   title: { default: "3D-Druck — PixlDrop", template: "%s — 3D-Druck, PixlDrop" },
-  description: "Untersetzer und mehr, in Asbach-Bäumenheim gedruckt.",
+  description: "Untersetzer, Halloween-Deko und Individuelles aus dem 3D-Drucker.",
   robots: { index: false, follow: false, nocache: true },
   openGraph: null,
   twitter: null,

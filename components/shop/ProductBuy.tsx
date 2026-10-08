@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN, unerlaubteZeichen } from "@/lib/shop/schriften";
 import ProductImage from "./ProductImage";
+import { useVorschauSetzen } from "./Vorschau";
 import type { Farbe } from "@/lib/shop/farben";
 import { TEXTE } from "@/lib/shop/config";
-import { speichereAuswahl } from "@/lib/shop/auswahl";
+import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
 
 function hell(hex: string) {
   const n = parseInt(hex.slice(1), 16);
@@ -18,7 +18,6 @@ function hell(hex: string) {
 export default function ProductBuy({
   produkt, farben, bestellbar, preisText,
 }: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string }) {
-  const router = useRouter();
   const [farbeId, setFarbeId] = useState<string | null>(farben[0]?.id ?? null);
   const [opt, setOpt] = useState<Record<string, string>>(() =>
     Object.fromEntries(produkt.optionen.map((g) => [g.id, g.optionen[0].id])),
@@ -29,6 +28,7 @@ export default function ProductBuy({
   const [schriftId, setSchriftId] = useState(pers?.festeSchrift ?? SCHRIFTEN[0].id);
   const [stickyZeigen, setStickyZeigen] = useState(false);
   const aktion = useRef<HTMLDivElement>(null);
+  const [hinzu, setHinzu] = useState<{ ok: boolean; menge: number } | null>(null);
 
   useEffect(() => {
     const el = aktion.current;
@@ -46,9 +46,15 @@ export default function ProductBuy({
     : unerlaubteZeichen(zeilen.join("")).length > 0 ? `Nicht druckbare Zeichen: ${unerlaubteZeichen(zeilen.join("")).join(" ")}`
     : null;
   const individuell = istIndividuell(produkt, text);
+  const setzeVorschau = useVorschauSetzen();
+  const vorFarbe = farbe?.hex ?? produkt.grundfarbe;
+  const vorFamily = schrift?.family;
+  useEffect(() => {
+    setzeVorschau({ farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily });
+  }, [setzeVorschau, vorFarbe, text, vorFamily, pers]);
   function weiter() {
     if (textFehler) { document.getElementById("t-fehler")?.scrollIntoView({ block: "center" }); return; }
-    speichereAuswahl({
+    const r = fuegeHinzu(ladeKorb(), {
       slug: produkt.slug,
       farbeId,
       optionen: opt,
@@ -56,7 +62,9 @@ export default function ProductBuy({
       schriftId: pers ? (pers.festeSchrift ?? schriftId) : null,
       menge,
     });
-    router.push("/3d-druck/bestellung?schritt=1");
+    if (r.ok) speichereKorb(r.korb);
+    setHinzu({ ok: r.ok, menge });
+    requestAnimationFrame(() => document.getElementById("hinzu")?.scrollIntoView({ block: "center", behavior: "smooth" }));
   }
 
   if (produkt.nurAnfrage) {
@@ -70,7 +78,7 @@ export default function ProductBuy({
   }
 
   const knopf = bestellbar ? (
-    <button type="button" className="shop-btn" onClick={weiter}>Weiter zur Bestellung</button>
+    <button type="button" className="shop-btn" onClick={weiter}>In den Warenkorb</button>
   ) : (
     <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>
   );
@@ -168,11 +176,26 @@ export default function ProductBuy({
         </div>
       </div>
       <div ref={aktion}>{knopf}</div>
+      <div id="hinzu" role="status" aria-live="polite">
+        {hinzu && (
+          <div className={hinzu.ok ? "shop-note" : "shop-note shop-note--warn"} style={{ display: "grid", gap: 10 }}>
+            {hinzu.ok ? (
+              <strong>Hinzugefügt: {hinzu.menge} × {produkt.name}</strong>
+            ) : (
+              <strong>Der Warenkorb ist voll (höchstens 5 verschiedene Positionen). Bitte schließe zuerst die Bestellung ab oder entferne eine Position.</strong>
+            )}
+            <div className="shop-actions" style={{ marginTop: 0 }}>
+              <Link className="shop-btn" href="/3d-druck/warenkorb">Zum Warenkorb</Link>
+              <Link className="shop-btn shop-btn--ghost" href="/3d-druck#stuecke">Weiter einkaufen</Link>
+            </div>
+          </div>
+        )}
+      </div>
       {!bestellbar && <p className="muted">Dieser Artikel ist noch nicht bestellbar. Du kannst ihn dir schon ansehen.</p>}
 
       <div className="shop-sticky" data-show={stickyZeigen}>
         <span className="shop-price-small">{preisText}</span>
-        {bestellbar ? <button type="button" className="shop-btn" onClick={weiter}>Weiter zur Bestellung</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
+        {bestellbar ? <button type="button" className="shop-btn" onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
       </div>
     </>
   );

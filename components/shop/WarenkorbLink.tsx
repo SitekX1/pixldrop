@@ -1,16 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ladeAuswahl } from "@/lib/shop/auswahl";
+import { anzahlStuecke, ladeKorb } from "@/lib/shop/auswahl";
 
-// "Dein Stück (1)" nur sichtbar, wenn im Tab eine Auswahl liegt (sessionStorage, lokal).
+// "Warenkorb (2)" im Kopf; zählt Stücke aus dem sessionStorage dieses Tabs (lokal).
 export default function WarenkorbLink() {
   const [n, setN] = useState(0);
   useEffect(() => {
-    const lies = () => setN(ladeAuswahl() ? 1 : 0);
+    const lies = () => setN(anzahlStuecke(ladeKorb()));
     lies();
     window.addEventListener("shop-auswahl", lies);
     return () => window.removeEventListener("shop-auswahl", lies);
   }, []);
-  if (!n) return <span />;
-  return <a href="/3d-druck/bestellung?schritt=1">Dein Stück ({n})</a>;
+  return (
+    <a className="shop-cart-link" href="/3d-druck/warenkorb" aria-label={n ? `Warenkorb, ${n} ${n === 1 ? "Stück" : "Stücke"}` : "Warenkorb, leer"}>
+      Warenkorb{n ? ` (${n})` : ""}
+    </a>
+  );
 }

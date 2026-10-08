@@ -39,17 +39,20 @@ export function neuerIdempotenzKey(): string {
   return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 }
 
-export function baueBestellung(p: { token: string; idempotenzKey: string; auswahl: Auswahl; kunde: Kunde; agb: boolean; verzicht: boolean; website?: string }) {
-  const { auswahl: a, kunde: k } = p;
-  const mitText = a.text.trim() !== "";
+export function baueBestellung(p: { token: string; idempotenzKey: string; auswahl: Auswahl | Auswahl[]; kunde: Kunde; agb: boolean; verzicht: boolean; website?: string }) {
+  const k = p.kunde;
+  const liste = Array.isArray(p.auswahl) ? p.auswahl : [p.auswahl];
   return {
     token: p.token,
     website: p.website ?? "",
     idempotenzKey: p.idempotenzKey,
-    positionen: [{
-      slug: a.slug, menge: a.menge, farbeId: a.farbeId, optionen: a.optionen,
-      text: mitText ? a.text.trim() : "", schriftId: mitText ? a.schriftId : null,
-    }],
+    positionen: liste.map((a) => {
+      const mitText = a.text.trim() !== "";
+      return {
+        slug: a.slug, menge: a.menge, farbeId: a.farbeId, optionen: a.optionen,
+        text: mitText ? a.text.trim() : "", schriftId: mitText ? a.schriftId : null,
+      };
+    }),
     kunde: {
       name: k.name.trim(), strasse: k.strasse.trim(), plz: k.plz.trim(), ort: k.ort.trim(), email: k.email.trim(),
       ...(k.hinweis.trim() ? { hinweis: k.hinweis.trim() } : {}),
@@ -157,6 +160,42 @@ export async function sendeWiderruf(
     return r as ApiErgebnis<WiderrufAntwort>;
   } catch {
     return { ok: false, fehler: { code: "netz", meldung: "Keine Verbindung zum Server. Deine Eingaben sind noch da. Bitte versuch es gleich noch einmal oder schreibe deinen Widerruf an as@sitekx.de." } };
+  }
+}
+
+// ---- Kontaktformular (Backend: /api/shop/kontakt) ----
+export interface KontaktEingabe { name: string; email: string; nachricht: string }
+export const KONTAKT_NICHT_ERREICHBAR = "Das Kontaktformular ist gerade nicht erreichbar. Bitte versuch es später noch einmal.";
+
+export async function holeKontaktToken(f: FetchFn = fetch): Promise<string | null> {
+  try {
+    const r = await f("/api/shop/formtoken?f=kontakt", { cache: "no-store" });
+    const b = (await r.json()) as { ok?: boolean; token?: string };
+    return r.ok && b.ok && typeof b.token === "string" ? b.token : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Sendet die Kontaktnachricht. 422 = Feldfehler (fehler.felder), 429 = zu oft, 503/Netz = nicht erreichbar. */
+export async function sendeKontakt(
+  p: { token: string; website: string; daten: KontaktEingabe },
+  f: FetchFn = fetch,
+): Promise<ApiErgebnis<object>> {
+  try {
+    const res = await f("/api/shop/kontakt", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: p.token, website: p.website, name: p.daten.name.trim(), email: p.daten.email.trim(), nachricht: p.daten.nachricht.trim() }),
+    });
+    const status = res.status;
+    const r = await lies(res);
+    if (r.ok) return { ok: true };
+    if (status === 503) return { ok: false, fehler: { ...r.fehler, code: r.fehler.code === "fehler" ? "nicht_erreichbar" : r.fehler.code, meldung: KONTAKT_NICHT_ERREICHBAR } };
+    if (status === 429 && r.fehler.code === "fehler") return { ok: false, fehler: { code: "zu_oft", meldung: "Du hast gerade schon mehrere Nachrichten geschickt. Bitte warte kurz und versuch es dann noch einmal." } };
+    return r;
+  } catch {
+    return { ok: false, fehler: { code: "netz", meldung: NETZ.meldung } };
   }
 }
 

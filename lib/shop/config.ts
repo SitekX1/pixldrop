@@ -34,10 +34,10 @@ export const TEXTE = {
   vertragsschluss: "Nach dem Klick geht es direkt zu PayPal. Der Vertrag kommt mit meiner Bestellbestätigung per E-Mail nach erfolgter Zahlung zustande.",
   datenschutzHinweis: "Informationen zur Verarbeitung deiner Daten findest du in der",
   versandHinweis: "Versandkosten folgen (Lieferung nur innerhalb Deutschlands)",
-  lieferzeitHinweis: "Lieferzeit folgt (Druckzeit plus Versand, Wert bestätigt Alex)",
+  lieferzeitHinweis: "Lieferzeit folgt (Druckzeit plus Versand)",
   kleinunternehmer: "Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer",
-  keinSpielzeug: "Kein Spielzeug. Nicht für Kinder unter 3 Jahren. Nicht für offene Flamme.",
-  ledHinweis: "Dekoration, nur mit LED-Teelichtern verwenden.",
+  keinSpielzeug: "Kein Spielzeug, nicht für Kinder.",
+  ledHinweis: "Nicht für offene Flammen (nur mit LED-Teelichtern).",
   widerrufAusschluss: "Individuell gefertigt: vom Widerruf ausgeschlossen.",
   widerrufNormal: "14 Tage Widerruf, Rücksendekosten trägt der Kunde.",
 } as const;

@@ -13,7 +13,7 @@ export interface Benachrichtiger {
   /** Kurze Push-Nachricht an Alex (nur Nummer/Art!). true = zugestellt. */
   telegram(text: string): Promise<boolean>;
   /** Mail an Alex (nur Nummer + Link). true = zugestellt. */
-  mailAlex(betreff: string, text: string): Promise<boolean>;
+  mailAlex(betreff: string, text: string, replyTo?: string): Promise<boolean>;
   /** Mail an den Kunden (Bestellbestaetigung). true = zugestellt. */
   mailKunde(an: string, betreff: string, text: string): Promise<boolean>;
 }
@@ -82,9 +82,9 @@ export function erzeugeBenachrichtiger(
         return false;
       }
     },
-    async mailAlex(betreff, text) {
+    async mailAlex(betreff, text, replyTo) {
       if (!env.alexMail) return false;
-      return senden(env.alexMail, betreff, text);
+      return senden(env.alexMail, betreff, text, replyTo);
     },
     async mailKunde(an, betreff, text) {
       return senden(an, betreff, text, env.alexMail);

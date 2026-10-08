@@ -167,3 +167,25 @@ export function pruefeWiderruf(roh: Record<string, unknown>): Pruefung<WiderrufD
   const m = BESTELLNUMMER.exec(vertrag!);
   return { ok: true, wert: { name: name!, vertrag: vertrag!, bestellnummer: m ? m[0].toUpperCase() : null, positionen, email: email! } };
 }
+
+export interface KontaktDaten {
+  name: string;
+  email: string;
+  nachricht: string;
+}
+
+/** Kontaktformular: Name 2-100, E-Mail wie beim Widerruf, Nachricht 5-2000 (Zeilenumbrueche erlaubt, sonst keine Steuerzeichen). */
+export function pruefeKontakt(roh: Record<string, unknown>): Pruefung<KontaktDaten> {
+  const f: FeldFehler = {};
+  const name = einzeilig(roh.name, 2, 100);
+  if (!name) f.name = "Bitte gib deinen Namen ein.";
+  const email = einzeilig(roh.email, 5, 200)?.toLowerCase() ?? null;
+  if (!email || !EMAIL.test(email)) f.email = "Bitte eine gültige E-Mail-Adresse eingeben.";
+  const n = text(roh.nachricht);
+  // eslint-disable-next-line no-control-regex
+  if (!n || n.length < 5 || n.length > 2000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(n)) {
+    f.nachricht = "Bitte schreibe eine Nachricht mit 5 bis 2000 Zeichen.";
+  }
+  if (Object.keys(f).length) return { ok: false, felder: f };
+  return { ok: true, wert: { name: name!, email: email!, nachricht: n! } };
+}

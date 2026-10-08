@@ -17,13 +17,13 @@ export default function HalloweenBanner({ modus }: { modus: HalloweenModus }) {
     <section className="shop-halloween" aria-labelledby="hw-titel">
       <div className="shop-bats" aria-hidden="true"><Fledermaus /><Fledermaus /></div>
       <Ring />
-      <p className="shop-overline">Spuk-Kollektion</p>
+      <p className="shop-overline">Halloween-Kollektion</p>
       <h2 id="hw-titel">Bis Anfang November dürfen sie spuken.</h2>
       <p>
         Laternen, Geister und Untersetzer für den Herbst, {HALLOWEEN_ENDE_TEXT}.
         {modus === "preview" && " Noch nicht bestellbar: Du kannst schon stöbern, der Verkauf startet später."}
       </p>
-      <Link className="shop-btn" href="/3d-druck?kategorie=halloween#stuecke">Spuk ansehen</Link>
+      <Link className="shop-btn" href="/3d-druck?kategorie=halloween" scroll>Spuk ansehen</Link>
     </section>
   );
 }

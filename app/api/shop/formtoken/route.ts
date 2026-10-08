@@ -8,7 +8,9 @@ import { erzeugeFormToken } from "@/lib/shop/server/spam";
 // solange Widerrufsfristen laufen.
 export async function GET(request: Request) {
   const env = leseEnv();
-  const fuerWiderruf = new URL(request.url).searchParams.get("f") === "widerruf";
+  const f = new URL(request.url).searchParams.get("f");
+  // widerruf und kontakt: muessen auch bei SHOP_AKTIV=false erreichbar bleiben
+  const fuerWiderruf = f === "widerruf" || f === "kontakt";
   if ((!env.shopAktiv && !fuerWiderruf) || !env.ipSalt) {
     return NextResponse.json({ ok: false, error: "Nicht aktiv" }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }

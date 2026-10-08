@@ -44,9 +44,9 @@ export interface Produkt {
   bestseller?: boolean;
 }
 
-const KEIN_SPIELZEUG = "Kein Spielzeug.";
+const KEIN_SPIELZEUG = "Kein Spielzeug, nicht für Kinder.";
 const HITZE = "Nicht für Töpfe oder direkt heiße Gefäße. Hitzegrenze folgt nach eigenem Test.";
-const LED = "Dekoration, nur mit LED-Teelichtern verwenden.";
+const LED = "Nicht für offene Flammen (nur mit LED-Teelichtern).";
 const MATERIAL = "PLA (Angabe vorläufig)";
 // TESTWERT: Platzhalterpreis (9,90 EUR) fuer alle bestellbaren Artikel, damit der Server Bestellungen annimmt.
 // Alex ersetzt ihn je Artikel durch den echten Preis.

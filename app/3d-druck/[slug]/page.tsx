@@ -4,10 +4,11 @@ import type { Metadata } from "next";
 import ShopShell from "@/components/shop/ShopShell";
 import ProductImage from "@/components/shop/ProductImage";
 import Galerie from "@/components/shop/Galerie";
+import { VorschauProvider, LiveProductImage } from "@/components/shop/Vorschau";
 import ProductBuy from "@/components/shop/ProductBuy";
 import { holeProdukt, istBestellbar } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
-import { formatPreis, halloweenModus, LIEFERZEIT_TEXT, TEXTE, VERKAEUFER, VERSAND_CENT } from "@/lib/shop/config";
+import { formatPreis, halloweenModus, LIEFERZEIT_TEXT, TEXTE, VERSAND_CENT } from "@/lib/shop/config";
 
 export const dynamic = "force-dynamic";
 
@@ -31,10 +32,11 @@ export default async function Produktseite({ params }: Props) {
     <ShopShell theme={halloween ? "halloween" : undefined}>
       <div className="shop-wrap" style={{ paddingBottom: 96 }}>
         <Link className="shop-crumb" href={halloween ? "/3d-druck?kategorie=halloween#stuecke" : "/3d-druck#stuecke"}>← Alle Stücke</Link>
+        <VorschauProvider>
         <div className="shop-product">
-          <Galerie bild={<ProductImage form={p.form} farbe={p.grundfarbe} />} />
+          <Galerie bild={<LiveProductImage form={p.form} grundfarbe={p.grundfarbe} />} />
           <div className="shop-info">
-            <p className="shop-overline">{halloween ? "Spuk-Kollektion" : "3D-Druck"}</p>
+            <p className="shop-overline">{halloween ? "Halloween-Kollektion" : "3D-Druck"}</p>
             <h1 style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)", overflowWrap: "anywhere" }}>{p.name}</h1>
             <p className="kurz">{p.beschreibung}</p>
             {halloween && !bestellbar && (
@@ -66,12 +68,13 @@ export default async function Produktseite({ params }: Props) {
             </section>
             <section className="shop-gpsr" aria-labelledby="gpsr">
               <h2 id="gpsr">Hersteller und Sicherheit</h2>
-              <p>{VERKAEUFER.name}, {VERKAEUFER.anschrift}, <a href={`mailto:${VERKAEUFER.mail}`}>{VERKAEUFER.mail}</a></p>
+              <p>Herstellerangaben: siehe <Link className="shop-link" style={{ minHeight: 0 }} href="/impressum">Impressum</Link></p>
               <p>{TEXTE.keinSpielzeug}</p>
-              {p.hinweise.filter((h) => h !== "Kein Spielzeug.").map((h) => <p key={h}>{h}</p>)}
+              {p.hinweise.filter((h) => h !== TEXTE.keinSpielzeug).map((h) => <p key={h}>{h}</p>)}
             </section>
           </div>
         </div>
+        </VorschauProvider>
       </div>
     </ShopShell>
   );

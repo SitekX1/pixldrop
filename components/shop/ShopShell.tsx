@@ -32,7 +32,6 @@ export default function ShopShell({
               <li><Link href="/3d-druck/anfrage">Individueller Druck</Link></li>
             </ul>
           </nav>
-          <p className="muted">Gedruckt in Asbach-Bäumenheim von Alex Sitek. Powered by SitekX</p>
         </footer>
       </div>
     </div>

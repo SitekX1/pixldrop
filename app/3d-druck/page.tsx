@@ -2,6 +2,7 @@ import Link from "next/link";
 import ShopShell from "@/components/shop/ShopShell";
 import ProductCard from "@/components/shop/ProductCard";
 import HalloweenBanner from "@/components/shop/HalloweenBanner";
+import KontaktDialog from "@/components/shop/KontaktDialog";
 import EddieSchnitt from "@/components/shop/EddieSchnitt";
 import HeroEddie from "@/components/shop/HeroEddie";
 import Ring from "@/components/shop/Ring";
@@ -27,7 +28,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
       <div className="shop-wrap">
         {halloween ? (
           <section className="shop-hero" style={{ minHeight: 0, paddingTop: 12 }} aria-labelledby="titel">
-            <p className="shop-overline" style={{ color: "#ff8a1f" }}>Spuk-Kollektion</p>
+            <p className="shop-overline" style={{ color: "#ff8a1f" }}>Halloween-Kollektion</p>
             <h1 id="titel">Bis Anfang November dürfen sie spuken.</h1>
             <p className="lead">
               Laternen, Geister und Untersetzer für den Herbst.
@@ -41,9 +42,9 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
             <div style={{ display: "grid", gap: 14, position: "relative", zIndex: 1 }}>
               <h1 id="titel">
                 <span className="sr-only">3D-Druck von PixlDrop: </span>
-                Eddie hat die Ideen. Alex hat den <span className="shop-hero-word">Drucker.<Ring /></span>
+                Eddie hat die Ideen. Ich habe den <span className="shop-hero-word">Drucker.<Ring /></span>
               </h1>
-              <p className="lead">Untersetzer, Halloween, Deko und Individuelles, in Asbach-Bäumenheim gedruckt.</p>
+              <p className="lead">Untersetzer, Halloween, Deko und Individuelles aus dem 3D-Drucker.</p>
               <div className="shop-hero-actions">
                 <a className="shop-btn" href="#stuecke">Stücke ansehen</a>
                 <Link className="shop-link" href="/3d-druck/anfrage">Etwas Eigenes anfragen</Link>
@@ -98,13 +99,17 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
           <ol className="shop-steps">
             <li><strong>Aussuchen</strong>Farbe, Größe und auf Wunsch deinen Text wählen.</li>
             <li><strong>Bestellen</strong>In drei Schritten, mit Bon und allen Angaben vorab.</li>
-            <li><strong>Alex druckt und verschickt</strong>Gedruckt und verpackt wird bei mir in Asbach-Bäumenheim.</li>
+            <li><strong>Ich drucke und verschicke</strong>Dein Stück wird frisch für dich gedruckt und von mir verpackt.</li>
           </ol>
         </section>
 
-        <aside className="shop-alex">
-          <h2 style={{ fontSize: "1.25rem" }}>Von Alex</h2>
-          <p>Ich entwerfe, drucke und verpacke selbst. Wenn etwas nicht passt, schreib mir an as@sitekx.de.</p>
+        <aside className="shop-alex" aria-labelledby="eddie-sagt">
+          <EddieSchnitt className="shop-alex-eddie" />
+          <div className="shop-alex-text">
+            <h2 id="eddie-sagt" style={{ fontSize: "1.25rem" }}>Eddie sagt</h2>
+            <p>Ich entwerfe, drucke und verpacke selbst. Wenn etwas nicht passt, schreib mir.</p>
+            <KontaktDialog label="Schreib mir" />
+          </div>
         </aside>
       </div>
     </ShopShell>
