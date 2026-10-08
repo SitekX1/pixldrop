@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:shop": "node --import ./tests/shop/register.mjs --test tests/shop/*.test.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
