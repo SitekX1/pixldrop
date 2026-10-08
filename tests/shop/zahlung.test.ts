@@ -290,3 +290,10 @@ test("Tischschild: Standardtext ohne Verzicht bestellbar, geaenderter Text brauc
   const neuMit = await legeBestellungAn(deps, bestellEingabe({ ...schild("Chef\nPetra"), idempotenzKey: "key-schild-eigener-text-2", einwilligungen: { agb: true, verzicht: true } }), ctx);
   assert.equal(neuMit.status, 200);
 });
+
+test("Mehrzeiliger Text wird als einzeiliger Text an die DB gegeben (kein Steuerzeichen)", async () => {
+  const re = /\r?\n/g;
+  const text = "Teamleiter\nSabine".replace(re, " / ");
+  assert.equal(text, "Teamleiter / Sabine");
+  assert.ok(/^[^\u0000-\u001f\u007f]{1,40}$/.test(text));
+});

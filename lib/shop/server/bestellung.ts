@@ -127,7 +127,8 @@ export async function legeBestellungAn(
         farbe_name: p.farbeName,
         farbe_hex: p.farbeHex,
         optionen: p.optionen,
-        text: p.text,
+        // Mehrzeilige Texte (Tischschild) als einzeilig mit " / " speichern: die DB-Regel lässt keine Steuerzeichen zu.
+        text: p.text ? p.text.replace(/\r?\n/g, " / ") : p.text,
         schrift: p.schriftId,
         individuell: p.individuell,
       })),
