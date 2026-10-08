@@ -15,7 +15,7 @@ import { PayPalFehler } from "./paypal";
 import type { Benachrichtiger } from "./benachrichtigung";
 import { berechneWarenkorb, type Kontext } from "./preise";
 import { pruefeKunde } from "./validierung";
-import { PFLICHTANGABEN_FREIGEGEBEN, PFLICHTANGABEN_PLATZHALTER, PLATZHALTER_MARKER, alexMail, bestaetigungsMail, telegramBestellung, telegramPruefen, type MailBestellung } from "./vorlagen";
+import { PFLICHTANGABEN_FREIGEGEBEN, PLATZHALTER_MARKER, alexMail, bestaetigungsMail, telegramBestellung, telegramPruefen, type MailBestellung } from "./vorlagen";
 
 export interface Deps {
   db: Db;
@@ -86,7 +86,7 @@ export async function legeBestellungAn(
 ): Promise<Antwort> {
   const { env } = deps;
   const frei = deps.pflichtangabenFreigegeben ?? PFLICHTANGABEN_FREIGEGEBEN;
-  const block = deps.pflichtangabenText ?? PFLICHTANGABEN_PLATZHALTER;
+  const block = deps.pflichtangabenText ?? "";
   if (env.paypalEnv === "live" && (!frei || block.includes(PLATZHALTER_MARKER))) {
     return fehler(503, "texte_fehlen", "Der Shop ist noch nicht freigegeben.");
   }

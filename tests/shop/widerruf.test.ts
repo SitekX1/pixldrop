@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { verarbeiteWiderruf } from "@/lib/shop/server/widerruf";
 import { pruefeWiderruf } from "@/lib/shop/server/validierung";
-import { ablehnungsMail, bestaetigungsMail, widerrufEingangsMail, type MailBestellung } from "@/lib/shop/server/vorlagen";
+import { ablehnungsMail, bestaetigungsMail, PFLICHTANGABEN_PLATZHALTER, widerrufEingangsMail, type MailBestellung } from "@/lib/shop/server/vorlagen";
 import { FakeDb, FakeNotifier, testEnv, KUNDE } from "./mocks";
 
 const ctx = { ipHash: "ip-hash-0123456789abcdef" };
@@ -142,10 +142,20 @@ test("Bestellbestätigung: Annahme, Vertragsschluss, Übersicht, Transaktion, Ko
   assert.match(text, /https:\/\/pixldrop\.de\/3d-druck\/widerruf/);
 });
 
-test("Platzhalter-Guard: Lieferzeit-Platzhalter blockiert freigegebene Mail, Echttext geht durch", () => {
-  assert.throws(() => bestaetigungsMail(bestellung, "Echter Rechtstext", true));
-  assert.doesNotThrow(() => bestaetigungsMail(bestellung, "Echter Rechtstext", true, { lieferzeit: "5 Werktage" }));
-  assert.throws(() => bestaetigungsMail(bestellung, undefined, true, { lieferzeit: "5 Werktage" }));
+test("Platzhalter-Guard: Platzhalter-Block blockiert freigegebene Mail, Echttext (Lieferzeit aus config) geht durch", () => {
+  assert.throws(() => bestaetigungsMail(bestellung, PFLICHTANGABEN_PLATZHALTER, true));
+  assert.doesNotThrow(() => bestaetigungsMail(bestellung, "Echter Rechtstext", true));
+  assert.doesNotThrow(() => bestaetigungsMail(bestellung, undefined, true, { siteUrl: "https://pixldrop.de" }));
+});
+
+test("Rechtsblock: Belehrung und Formular fuer Standard, nur Hinweis bei individuell", () => {
+  const std = bestaetigungsMail(bestellung, undefined, false, { siteUrl: "https://pixldrop.de/" }).text;
+  assert.match(std, /Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter/);
+  assert.match(std, /MUSTER-WIDERRUFSFORMULAR/);
+  assert.match(std, /https:\/\/pixldrop\.de\/3d-druck\/agb/);
+  const ind = bestaetigungsMail({ ...bestellung, individuell: true }, undefined, false, { siteUrl: "https://pixldrop.de" }).text;
+  assert.match(ind, /kein Widerrufsrecht.*§ 312g Abs\. 2 Nr\. 1 BGB/);
+  assert.ok(!ind.includes("MUSTER-WIDERRUFSFORMULAR"));
 });
 
 test("Ablehnungs- und Widerrufsmail: Inhalt", () => {

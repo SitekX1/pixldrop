@@ -1,12 +1,83 @@
 import "server-only";
 // Mail- und Nachrichtentexte. Reiner Text (kein HTML), damit Kundeneingaben nichts einschleusen.
-// ACHTUNG: Der Rechtsblock ist ein PLATZHALTER. Dr. Justus liefert den Text; erst dann
-// PFLICHTANGABEN_FREIGEGEBEN auf true setzen. Solange false, weigert sich der Shop,
+// Rechtsblock der Bestellbestaetigung (Dr. Justus, Entwurf 2026-10-08): Widerrufsbelehrung und Muster-Widerrufsformular
+// WOERTLICH nach Anlage 1 und 2 zu Art. 246a EGBGB (Kaufvertrag, eine Sendung, Textbaustein b), bzw. Hinweis W2 bei
+// individueller Ware. PFLICHTANGABEN_FREIGEGEBEN bleibt false bis Alex' Go. Solange false, weigert sich der Shop,
 // mit PAYPAL_ENV=live Bestellungen anzunehmen (siehe bestellung.ts).
 // Vorlage: D:\Apps\3D-Druck\shop\recht-texte\bestellbestaetigung-mail.md (Variante B).
 
+import { LIEFERZEIT_TEXT } from "../config";
+
 export const PFLICHTANGABEN_FREIGEGEBEN = false;
 
+const UNTERNEHMER = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: as@sitekx.de";
+const UNTERNEHMER_ANSCHRIFT = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim";
+const STANDARD_SITE = "https://pixldrop.de";
+
+/** Rechtsblock fuer die Mail (Klartext, dauerhafter Datenträger, Art. 246a § 4 Abs. 3 EGBGB). */
+export function pflichtangabenText(individuell: boolean, siteUrl?: string, mehrere = false): string {
+  const site = (siteUrl || STANDARD_SITE).replace(/\/+$/, "");
+  const agb = `Allgemeine Geschäftsbedingungen (in der bei deiner Bestellung gültigen Fassung): ${site}/3d-druck/agb`;
+  const maengel = "Es gelten die gesetzlichen Mängelrechte (Gewährleistung).";
+  if (individuell) {
+    return [
+      "HINWEIS ZUM WIDERRUF",
+      "Für Stücke, die nach deinen Angaben individuell angefertigt werden (z. B. mit Wunschtext), besteht kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB). Deine gesetzlichen Mängelrechte bleiben unberührt.",
+      "",
+      ...(mehrere
+        ? ["Für alle übrigen Artikel deiner Bestellung (ohne individuellen Wunschtext) gilt die folgende Widerrufsbelehrung:", "", pflichtangabenText(false, siteUrl), ""]
+        : []),
+      agb,
+    ].join("\n");
+  }
+  return [
+    "WIDERRUFSBELEHRUNG",
+    "",
+    "Widerrufsrecht",
+    `Sie können Ihr Widerrufsrecht auch online unter ${site}/3d-druck/widerruf ausüben. Wenn Sie diese Online-Funktion nutzen, übermitteln wir Ihnen auf einem dauerhaften Datenträger (z. B. durch eine E-Mail) unverzüglich eine Eingangsbestätigung mit Informationen zum Inhalt der Widerrufserklärung sowie dem Datum und der Uhrzeit ihres Eingangs.`,
+    "",
+    "Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.",
+    "",
+    "Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die Waren in Besitz genommen haben bzw. hat.",
+    "",
+    `Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (${UNTERNEHMER}) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.`,
+    "",
+    "Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.",
+    "",
+    "Folgen des Widerrufs",
+    "Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, einschließlich der Lieferkosten (mit Ausnahme der zusätzlichen Kosten, die sich daraus ergeben, dass Sie eine andere Art der Lieferung als die von uns angebotene, günstigste Standardlieferung gewählt haben), unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.",
+    "",
+    "Wir können die Rückzahlung verweigern, bis wir die Waren wieder zurückerhalten haben oder bis Sie den Nachweis erbracht haben, dass Sie die Waren zurückgesandt haben, je nachdem, welches der frühere Zeitpunkt ist.",
+    "",
+    `Sie haben die Waren unverzüglich und in jedem Fall spätestens binnen vierzehn Tagen ab dem Tag, an dem Sie uns über den Widerruf dieses Vertrags unterrichten, an ${UNTERNEHMER_ANSCHRIFT} zurückzusenden oder zu übergeben. Die Frist ist gewahrt, wenn Sie die Waren vor Ablauf der Frist von vierzehn Tagen absenden.`,
+    "",
+    "Sie tragen die unmittelbaren Kosten der Rücksendung der Waren.",
+    "",
+    "Sie müssen für einen etwaigen Wertverlust der Waren nur aufkommen, wenn dieser Wertverlust auf einen zur Prüfung der Beschaffenheit, Eigenschaften und Funktionsweise der Waren nicht notwendigen Umgang mit ihnen zurückzuführen ist.",
+    "",
+    "----------------------------------------",
+    "",
+    "MUSTER-WIDERRUFSFORMULAR",
+    "(Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück.)",
+    "",
+    `– An ${UNTERNEHMER}:`,
+    "– Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über den Kauf der folgenden Waren (*)/die Erbringung der folgenden Dienstleistung (*)",
+    "– Bestellt am (*)/erhalten am (*)",
+    "– Name des/der Verbraucher(s)",
+    "– Anschrift des/der Verbraucher(s)",
+    "– Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier)",
+    "– Datum",
+    "",
+    "(*) Unzutreffendes streichen.",
+    "",
+    "----------------------------------------",
+    "",
+    agb,
+    maengel,
+  ].join("\n");
+}
+
+/** Nur fuer Tests des Freigabe-Guards (dep-Override); wird in der echten Mail nicht mehr verwendet. */
 export const PFLICHTANGABEN_PLATZHALTER = [
   "[[PLATZHALTER - TEXT VON DR. JUSTUS]]",
   "Hier stehen vor dem Livegang die gesetzlich nötigen Angaben (Art. 246a EGBGB, § 312f BGB):",
@@ -50,8 +121,7 @@ export interface MailBestellung {
 
 export const PLATZHALTER_MARKER = "[[PLATZHALTER";
 
-/** Lieferzeit-Text; null = Alex hat noch keinen Wert bestaetigt -> Platzhalter (blockiert die Freigabe). */
-export const LIEFERZEIT_TEXT: string | null = null;
+/** Lieferzeit kommt aus lib/shop/config.ts (LIEFERZEIT_TEXT); null dort -> Platzhalter (blockiert die Freigabe). */
 export const LIEFERZEIT_PLATZHALTER = "[[PLATZHALTER - Lieferzeit, Alex bestätigt]]";
 
 export const KONTAKT_ALEX = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail as@sitekx.de";
@@ -92,10 +162,11 @@ export interface MailOptionen {
  */
 export function bestaetigungsMail(
   b: MailBestellung,
-  block: string = PFLICHTANGABEN_PLATZHALTER,
+  blockOverride?: string,
   freigegeben: boolean = PFLICHTANGABEN_FREIGEGEBEN,
   opt: MailOptionen = {},
 ): { betreff: string; text: string } {
+  const block = blockOverride ?? pflichtangabenText(b.individuell, opt.siteUrl, b.positionen.length > 1);
   const zeilen = b.positionen.map((p) => {
     const extras = [
       p.farbe ? `Farbe: ${p.farbe}` : null,
@@ -129,12 +200,14 @@ export function bestaetigungsMail(
     `${b.name}, ${b.strasse}, ${b.plz} ${b.ort}`,
     zahlung,
     `Lieferzeit: ${lieferzeit} ab heute`,
-    b.individuell ? "\nHinweis: Dein Stück wird nach deinen Vorgaben (Wunschtext) gefertigt, dafür besteht kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB). Ich prüfe den Text vor dem Druck. Ist er unzulässig, erstatte ich dir den Betrag." : "",
+    b.individuell ? "\nHinweis: Dein Stück wird nach deinen Vorgaben (Wunschtext) gefertigt. Ich prüfe den Text vor dem Druck. Ist er unzulässig, erstatte ich dir den Betrag." : "",
     "",
     `Verkäufer: ${KONTAKT_ALEX}`,
     "",
-    "Diese Bestätigung dient als Beleg für deine Bestellung. Widerrufsbelehrung und Muster-Widerrufsformular stehen unten; die AGB in der bei deiner Bestellung gültigen Fassung gehören ebenfalls dazu.",
-    widerrufLink ? `Du kannst deinen Vertrag auch online widerrufen: ${widerrufLink}` : "",
+    b.individuell
+      ? "Diese Bestätigung dient als Beleg für deine Bestellung. Der Hinweis zum Widerruf und der Link zu den AGB stehen unten."
+      : "Diese Bestätigung dient als Beleg für deine Bestellung. Widerrufsbelehrung, Muster-Widerrufsformular und der Link zu den AGB stehen unten.",
+    widerrufLink && !b.individuell ? `Du kannst deinen Vertrag auch online widerrufen: ${widerrufLink}` : "",
     "",
     block,
     "",

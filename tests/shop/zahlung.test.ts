@@ -76,7 +76,7 @@ test("Live-Betrieb ohne freigegebene Pflichtangaben wird verweigert", async () =
   assert.equal(a.body.code, "texte_fehlen");
   assert.equal(db.bestellungen.length, 0);
   const frei = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true, pflichtangabenText: "Echter Rechtstext" });
-  const mitPlatzhalter = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true });
+  const mitPlatzhalter = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true, pflichtangabenText: "[[PLATZHALTER - Text]]" });
   assert.equal((await legeBestellungAn(mitPlatzhalter.deps, bestellEingabe(), ctx)).status, 503, "freigegeben, aber Platzhalter noch drin");
   assert.equal((await legeBestellungAn(frei.deps, bestellEingabe(), ctx)).status, 200);
 });
@@ -117,10 +117,12 @@ test("Rueckkehr: Capture, bezahlt, genau eine Telegram-Nachricht NUR mit Nummer"
   const alles = [...notifier.telegrams, ...notifier.alexMails.map((m) => m.betreff + m.text)].join("\n");
   for (const geheim of [KUNDE.name, KUNDE.strasse, KUNDE.email, KUNDE.ort]) assert.ok(!alles.includes(geheim), `enthaelt ${geheim}`);
   assert.match(notifier.alexMails[0].text, /https:\/\/admin\.example\/shop/);
-  // Kundenbestaetigung mit Platzhalterblock
+  // Kundenbestaetigung mit echtem Rechtsblock (kein Platzhalter)
   assert.equal(notifier.kundenMails.length, 1);
   assert.equal(notifier.kundenMails[0].an, KUNDE.email);
-  assert.match(notifier.kundenMails[0].text, /PLATZHALTER - TEXT VON DR\. JUSTUS/);
+  assert.match(notifier.kundenMails[0].text, /WIDERRUFSBELEHRUNG/);
+  assert.match(notifier.kundenMails[0].text, /MUSTER-WIDERRUFSFORMULAR/);
+  assert.ok(!notifier.kundenMails[0].text.includes("[[PLATZHALTER"));
   assert.match(notifier.kundenMails[0].text, new RegExp(r.nummer!));
 });
 
