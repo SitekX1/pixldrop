@@ -189,12 +189,12 @@ export default function ProductBuy({
           <div className="shop-hinweis">
             <ul>
               <li>Erlaubt: Buchstaben, Zahlen und . , ! ? &amp; - &apos;</li>
-              <li><strong>Eigener Text = individuell gefertigt, kein Widerrufsrecht</strong> (§ 312g Abs. 2 Nr. 1 BGB). Das gilt auch, wenn du nur Format oder Größe änderst.</li>
+              <li><strong>Eigener Text = individuell gefertigt, kein Widerrufsrecht</strong> (§ 312g Abs. 2 Nr. 1 BGB). Das gilt nur, wenn du den Text änderst. Fett, Kursiv oder eine andere Größe allein ändern daran nichts: Widerruf bleibt.</li>
               <li>Der Text wird automatisch geprüft. Die Prüfung und Annahme erfolgt innerhalb von 24 Stunden nach Zahlung; lehne ich ihn ab, erstatte ich den vollen Betrag.</li>
             </ul>
             <details>
               <summary>Mehr dazu</summary>
-              <p>Erst nach meiner Prüfung bekommst du die Bestellbestätigung; vorher nur eine Eingangsbestätigung (AGB Ziffer 9 Abs. 3). Der unveränderte Vorschlagstext im Standardformat bleibt normale Standardware mit 14 Tagen Widerruf. Im Zweifel hilft eine individuelle Anfrage.</p>
+              <p>Erst nach meiner Prüfung bekommst du die Bestellbestätigung; vorher nur eine Eingangsbestätigung (AGB Ziffer 9 Abs. 3). Der unveränderte Vorschlagstext (auch mit Fett, Kursiv oder anderer Größe) bleibt normale Standardware mit 14 Tagen Widerruf. Im Zweifel hilft eine individuelle Anfrage.</p>
             </details>
           </div>
           <p className="muted">Andere Schrift, Logo oder Bild? <Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></p>

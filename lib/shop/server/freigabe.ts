@@ -23,6 +23,8 @@ import {
   wunschtextKurzliste,
   eingangsMail,
   istFreigabeGrund,
+  istWaehlbarerGrund,
+  telegramFristAbgesagt,
   telegramErstattungOffen,
   telegramFreigabe,
   telegramFreigabeErinnerung,
@@ -32,6 +34,9 @@ import {
 
 export const FREIGABE_GUELTIG_SEK = 7 * 24 * 60 * 60;
 export const ERINNERUNG_NACH_STUNDEN = 20;
+/** Frist-Automatik: Wunschtext-Bestellungen muessen binnen 24 h nach Zahlung entschieden sein. */
+export const FRIST_OK_SPERRE_STUNDEN = 23.5; // ab hier ist der Link "ok" gesperrt (409 frist_abgelaufen)
+export const FRIST_AUTO_ABSAGE_STUNDEN = 23; // ab hier sagt der Cron automatisch ab (ganze Stunden, DB-Grenze 1..168)
 export type FreigabeAktion = "ok" | "nein";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -212,6 +217,58 @@ async function erstatte(deps: Deps, id: string, nummer: string): Promise<Erstatt
   return status;
 }
 
+// ---------------------------------------------------------------------------
+// Frist-Automatik (24 h nach Zahlung)
+// ---------------------------------------------------------------------------
+export type FristErgebnis = "abgelehnt" | "bereits_entschieden" | "nicht_moeglich" | "fehler";
+
+/** Setzt die Ablehnung mit Grund 'frist' (idempotent), erstattet, sendet die Absage und meldet es per Telegram (nur beim ersten Mal). */
+export async function lehneAbWegenFrist(deps: Deps, id: string): Promise<FristErgebnis> {
+  let r: { ok: boolean; neu?: boolean; nummer?: string; status?: string; erstattung_status?: string | null };
+  try {
+    r = await deps.db.rpc("shop_freigabe_setzen", { p_id: id, p_aktion: "nein", p_grund: "frist" });
+  } catch (err) {
+    console.error("Shop: Frist-Absage fehlgeschlagen:", err instanceof DbFehler ? err.message : "unbekannt");
+    return "fehler";
+  }
+  if (!r.ok || !r.nummer) return "nicht_moeglich";
+  if (r.status !== "abgelehnt") return "bereits_entschieden"; // inzwischen freigegeben
+  if (r.erstattung_status !== "erstattet") await erstatte(deps, id, r.nummer);
+  await sendeAbsage(deps, id);
+  if (r.neu === true) await deps.notifier.telegram(telegramFristAbgesagt(r.nummer));
+  return "abgelehnt";
+}
+
+/** Lazy-Pruefung: ist die Freigabe noch offen und aelter als `stunden`? Fehler/unklar = false (die DB sperrt zusaetzlich). */
+async function freigabeFristAbgelaufen(db: Db, id: string, jetzt: number, stunden = FRIST_OK_SPERRE_STUNDEN): Promise<boolean> {
+  try {
+    const d = await db.rpc<{ ok: boolean; status?: string; angefordert_am?: string | null }>("shop_freigabe_daten", { p_id: id });
+    if (!d.ok || d.status !== "offen" || !d.angefordert_am) return false;
+    const t = Date.parse(d.angefordert_am);
+    return Number.isFinite(t) && jetzt - t >= stunden * 3_600_000;
+  } catch {
+    return false;
+  }
+}
+
+const FRIST_MELDUNG = "Die Frist von 24 Stunden nach Zahlung ist abgelaufen. Die Bestellung wurde automatisch abgesagt, der Betrag wird erstattet.";
+
+/** Cron: offene Freigaben > 23 h automatisch ablehnen. Gibt die Anzahl der abgesagten Bestellungen zurueck. */
+export async function sageAbgelaufeneFreigabenAb(deps: Deps, stunden: number = FRIST_AUTO_ABSAGE_STUNDEN): Promise<number> {
+  let liste: { ok: boolean; bestellungen?: { id: string; nummer: string }[] };
+  try {
+    liste = await deps.db.rpc("shop_freigabe_frist_liste", { p_stunden: stunden });
+  } catch {
+    return 0; // Migration 13 noch nicht angewendet: die Bereinigung darf deswegen nicht scheitern
+  }
+  if (!liste.ok) return 0;
+  let n = 0;
+  for (const b of liste.bestellungen ?? []) {
+    if ((await lehneAbWegenFrist(deps, b.id)) === "abgelehnt") n++;
+  }
+  return n;
+}
+
 /** Positionen aus shop_freigabe_daten fuer die API und die Kurzliste in der Mail an Alex. */
 export function mappePositionen(roh: unknown) {
   return (Array.isArray(roh) ? roh : []).map((p) => {
@@ -238,7 +295,7 @@ export function mappePositionen(roh: unknown) {
 // API: Daten fuer die Seite (GET, aendert nichts)
 // ---------------------------------------------------------------------------
 export async function holeFreigabeDaten(
-  deps: { db: Db; env: ShopEnv },
+  deps: { db: Db; env: ShopEnv; paypal?: Deps["paypal"]; notifier?: Benachrichtiger },
   q: { b: unknown; t: unknown },
   jetzt: number = Date.now(),
 ): Promise<Antwort> {
@@ -258,6 +315,12 @@ export async function holeFreigabeDaten(
   };
   try {
     d = await deps.db.rpc("shop_freigabe_daten", { p_id: q.b });
+    // Lazy-Frist: offen und > 23,5 h alt -> sofort absagen (idempotent), dann den neuen Stand liefern
+    if (d.ok && d.status === "offen" && d.angefordert_am && deps.paypal && deps.notifier
+        && jetzt - Date.parse(d.angefordert_am) >= FRIST_OK_SPERRE_STUNDEN * 3_600_000) {
+      const fd: Deps = { db: deps.db, env: deps.env, paypal: deps.paypal, notifier: deps.notifier };
+      if ((await lehneAbWegenFrist(fd, q.b)) === "abgelehnt") d = await deps.db.rpc("shop_freigabe_daten", { p_id: q.b });
+    }
   } catch (err) {
     console.error("Shop: Freigabe-Daten fehlgeschlagen:", err instanceof DbFehler ? err.message : "unbekannt");
     return DB_FEHLER();
@@ -297,8 +360,14 @@ export async function entscheideFreigabe(deps: Deps, eingabe: unknown, jetzt: nu
 
   let grund: FreigabeGrund | null = null;
   if (aktion === "nein") {
-    if (!istFreigabeGrund(e.grund)) return fehler(422, "grund_fehlt", "Bitte wähle einen Grund aus.");
+    if (!istWaehlbarerGrund(e.grund)) return fehler(422, "grund_fehlt", "Bitte wähle einen Grund aus.");
     grund = e.grund;
+  }
+
+  // Frist: "ok" ist nach 23,5 h gesperrt; stattdessen wird sofort automatisch abgesagt. "nein" bleibt moeglich.
+  if (aktion === "ok" && (await freigabeFristAbgelaufen(deps.db, id, jetzt))) {
+    await lehneAbWegenFrist(deps, id);
+    return fehler(409, "frist_abgelaufen", FRIST_MELDUNG);
   }
 
   let r: { ok: boolean; grund?: string; neu?: boolean; nummer?: string; status?: string; erstattung_status?: string | null };
@@ -311,6 +380,11 @@ export async function entscheideFreigabe(deps: Deps, eingabe: unknown, jetzt: nu
   if (!r.ok || !r.nummer || !r.status) {
     if (r.grund === "nicht_moeglich") return fehler(409, "nicht_moeglich", "Diese Bestellung kann nicht freigegeben oder abgelehnt werden.");
     if (r.grund === "ungueltige_eingabe") return fehler(422, "ungueltig", "Ungültige Anfrage.");
+    if (r.grund === "frist_abgelaufen") {
+      // DB-Sperre (Rueckfall, falls die Code-Pruefung oben nicht greifen konnte)
+      await lehneAbWegenFrist(deps, id);
+      return fehler(409, "frist_abgelaufen", FRIST_MELDUNG);
+    }
     console.error("Shop: Freigabe abgelehnt, Grund:", r.grund ?? "unbekannt");
     return fehler(500, "intern", "Gerade nicht möglich.");
   }

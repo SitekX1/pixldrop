@@ -162,8 +162,8 @@ export default function Datenschutz() {
         automatisch mit Wortlisten auf unzulässige Inhalte (z. B. Beleidigungen, Hass) und
         geschützte Marken abgeglichen. Das geschieht in deinem Browser und beim Absenden
         nochmals auf unserem Server. Beanstandete Texte können nicht bestellt werden; du kannst
-        sie ändern oder eine individuelle Anfrage stellen. Beanstandete Texte werden von uns
-        weder gespeichert noch in eigenen Protokollen festgehalten. Es handelt sich um eine bloße
+        sie ändern oder eine individuelle Anfrage stellen. Beanstandete Eingaben werden von uns
+        nicht gespeichert. Es handelt sich um eine bloße
         Eingabeprüfung ohne Profilbildung; eine ausschließlich automatisierte Entscheidung mit
         rechtlicher Wirkung im Sinne von Art. 22 DSGVO findet nicht statt, den Vertrag und
         eine etwaige Ablehnung nach den AGB entscheiden wir selbst.
@@ -173,7 +173,9 @@ export default function Datenschutz() {
       <p>
         <strong>Prüfung und Freigabe des Wunschtextes:</strong> Bestellst du einen geänderten
         Wunschtext, prüfe ich ihn nach der Zahlung selbst (innerhalb von 24 Stunden) und gebe ihn
-        frei oder lehne ihn ab. Dafür sehe ich den Wunschtext zusammen mit der Bestellnummer, und
+        frei oder lehne ihn ab. Entscheide ich nicht innerhalb dieser 24 Stunden, wird die Bestellung
+        automatisch abgelehnt und der gezahlte Betrag einschließlich Versand erstattet; eine
+        Annahme nach Fristablauf findet nicht statt. Dafür sehe ich den Wunschtext zusammen mit der Bestellnummer, und
         ich speichere die Entscheidung (Freigabe oder Ablehnung mit Grund, Zeitpunkt) bei der
         Bestellung. Bei Ablehnung erstatte ich den gezahlten Betrag einschließlich Versand über
         PayPal (siehe 12.3). Die Entscheidung trifft ein Mensch, keine automatisierte Entscheidung
@@ -219,15 +221,16 @@ export default function Datenschutz() {
 
       <h3>12.4 Benachrichtigung über neue Bestellungen (E-Mail und Telegram)</h3>
       <p>
-        Bei einer Bestellung oder Anfrage erhalten wir eine E-Mail und eine Telegram-Nachricht,
-        die <strong>nur die Bestellnummer</strong> (und die Art, z. B. Bestellung/Anfrage)
-        enthält, keine Namen, Anschriften, Texte oder Bilder. Bei Bestellungen mit geändertem
-        Wunschtext enthält die Telegram-Nachricht zusätzlich einen <strong>Freigabelink</strong> zu
-        einer nicht öffentlichen Seite dieses Shops, auf der nur ich den Text sehe und
-        freigebe oder ablehne; der Wunschtext selbst wird nicht über Telegram übertragen. Anbieter: Telegram FZ-LLC (Dubai,
+        Bei einer Bestellung oder Anfrage erhalten wir eine E-Mail und eine Telegram-Nachricht.
+        <strong> Der Wunschtext wird nicht über Telegram übertragen;</strong> Telegram erhält nur
+        die Bestellnummer (und die Art, z. B. Bestellung/Anfrage), bei Bestellungen mit
+        geändertem Wunschtext zusätzlich die Anzahl der Wunschtexte und einen{" "}
+        <strong>geheimen Link</strong> zu einer nicht öffentlichen Seite dieses Shops, auf der
+        ich den Text sehe und freigebe oder ablehne. Zugriff auf diese Seite besteht nur über den
+        geheimen Link. Namen, Anschriften, Texte und Bilder enthält die Nachricht nicht. Anbieter: Telegram FZ-LLC (Dubai,
         Vereinigte Arabische Emirate), ein Drittland ohne Angemessenheitsbeschluss.{" "}
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (zeitnahe Bearbeitung). Da
-        keine Daten mit direktem Personenbezug übermittelt werden, ist das Risiko gering. Die
+        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (zeitnahe Bearbeitung). Die
+        übermittelte Bestellnummer ist pseudonym. Die
         Benachrichtigung bei Grußvideo-Anfragen (Abschnitt 8) funktioniert anders und bleibt davon
         unberührt.
       </p>
@@ -274,6 +277,11 @@ export default function Datenschutz() {
         <li>
           Name, Anschrift, E-Mail, Wunschtext, Hinweise: bis <strong>90 Tage nach Lieferung</strong>,
           danach anonymisiert oder gelöscht (Zeit für Widerruf und Reklamation).
+        </li>
+        <li>
+          Abgelehnte (auch automatisch abgelehnte) und stornierte Bestellungen: <strong>30 Tage</strong>
+          nach Ablehnung bzw. Stornierung, danach anonymisiert; die Erstattung bleibt als
+          Buchungsbeleg ohne Namen erhalten (siehe unten).
         </li>
         <li>Bilder zu Anfragen: <strong>30 Tage</strong> nach Ende der Anfrage.</li>
         <li>Anfragen ohne Vertrag: <strong>30 Tage</strong> nach Beendigung der Anfrage.</li>

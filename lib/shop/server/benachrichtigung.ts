@@ -80,7 +80,7 @@ export function erzeugeBenachrichtiger(
         const res = await fetchImpl(`https://api.telegram.org/bot${env.telegramToken}/sendMessage`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ chat_id: env.telegramChatId, text }),
+          body: JSON.stringify({ chat_id: env.telegramChatId, text, link_preview_options: { is_disabled: true } }),
           signal: AbortSignal.timeout(8000),
         });
         if (!res.ok) console.error("Shop-Telegram-Fehler:", res.status);

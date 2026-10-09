@@ -187,14 +187,14 @@ export function standardText(p: Produkt): string | null {
 }
 
 /**
- * Individuell gefertigt = Text vorhanden und (Text geaendert ODER Format/Groesse gewaehlt).
- * Der unveraenderte Standardtext im Standardformat bleibt normale Standardware. Eine Formatwahl (Fett, Kursiv,
- * andere Groesse) beim Standardtext ist eine Vorgabe des Kunden und macht das Stueck individuell (kein Widerruf).
+ * Individuell gefertigt (Widerrufsausschluss) = Text vorhanden UND Text vom Standardtext abweichend (beim Untersetzer:
+ * jeder eigene Text). Format (Fett/Kursiv) und Groessenstufe allein machen das Stueck NICHT individuell: das ist eine
+ * Variantenwahl, der Widerruf bleibt. Kommt ein geaenderter Text dazu, ist es wegen des Textes individuell.
+ * `optionen` bleibt als Parameter fuer bestehende Aufrufer, wird bewusst nicht ausgewertet.
  */
-export function istIndividuell(p: Produkt, text: string | null | undefined, optionen?: Record<string, unknown> | null): boolean {
+export function istIndividuell(p: Produkt, text: string | null | undefined, _optionen?: Record<string, unknown> | null): boolean {
   const t = (text ?? "").trim();
   if (t === "" || !p.personalisierung) return false;
-  if (hatFormatwahl(optionen)) return true;
   return t !== standardText(p);
 }
 

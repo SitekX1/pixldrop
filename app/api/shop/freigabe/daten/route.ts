@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { leseEnv } from "@/lib/shop/server/env";
-import { anfrageDeps, NichtEingerichtet } from "@/lib/shop/server/deps";
+import { bestellDeps, NichtEingerichtet } from "@/lib/shop/server/deps";
 import { holeFreigabeDaten } from "@/lib/shop/server/freigabe";
 import { clientIp, erzeugeBremse, ipHash } from "@/lib/shop/server/spam";
 
@@ -9,6 +9,7 @@ import { clientIp, erzeugeBremse, ipHash } from "@/lib/shop/server/spam";
 // 200: { ok:true, aktion:"ok"|"nein", bestellnummer, status:"offen"|"freigegeben"|"abgelehnt", angefordertAm, entschiedenAm,
 //        grund:string|null, positionen:[{name,menge,farbe,farbeHex,text,schrift,optionen,individuell}], gruende:[{id,label}] }
 //      Keine Kundendaten. Ist status nicht "offen", ist schon entschieden worden.
+// Ist die Freigabe offen und > 23,5 h alt, wird sie hier sofort automatisch abgelehnt (Grund "frist", Erstattung, Absage); die Antwort zeigt dann status "abgelehnt".
 // Fehler: { ok:false, code, error }  400 ungueltig | 403 link_ungueltig (falsch/abgelaufen/unbekannt, bewusst gleich) |
 //         429 zu_viele | 503 nicht_eingerichtet / db
 // Unabhaengig von SHOP_AKTIV: eine bezahlte Bestellung muss immer entscheidbar sein.
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
   const env = leseEnv();
   let deps;
   try {
-    deps = anfrageDeps(env);
+    deps = bestellDeps(env); // inkl. PayPal/Notifier fuer die Lazy-Frist (automatische Absage beim Oeffnen)
   } catch (err) {
     if (err instanceof NichtEingerichtet) console.error("Shop Freigabe nicht eingerichtet, es fehlen:", err.fehlend.join(", "));
     return antwort(503, { ok: false, code: "nicht_eingerichtet", error: "Die Freigabe ist gerade nicht verfügbar." });

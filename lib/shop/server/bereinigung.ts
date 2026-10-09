@@ -4,7 +4,8 @@ import "server-only";
 import type { Db } from "./db";
 import type { ShopEnv } from "./env";
 import type { Benachrichtiger } from "./benachrichtigung";
-import { erinnereOffeneFreigaben } from "./freigabe";
+import { erinnereOffeneFreigaben, sageAbgelaufeneFreigabenAb } from "./freigabe";
+import type { Deps } from "./bestellung";
 
 export interface BereinigungsErgebnis {
   bilderGeloescht: number;
@@ -12,11 +13,13 @@ export interface BereinigungsErgebnis {
   datenbank: unknown;
   /** Nur gesetzt, wenn Erinnerungs-Abhaengigkeiten uebergeben wurden: Anzahl gesendeter Freigabe-Erinnerungen. */
   freigabeErinnerungen?: number;
+  /** Nur gesetzt, wenn zusaetzlich PayPal uebergeben wurde: Anzahl wegen Fristablauf (> 23 h) automatisch abgesagter Freigaben. */
+  freigabeFristAbgesagt?: number;
 }
 
 export async function fuehreBereinigungAus(
   db: Db,
-  erinnerung?: { env: ShopEnv; notifier: Benachrichtiger },
+  erinnerung?: { env: ShopEnv; notifier: Benachrichtiger; paypal?: Deps["paypal"] },
 ): Promise<BereinigungsErgebnis> {
   const liste = await db.rpc<{ ok: boolean; anfragen?: { id: string; pfade: string[] }[] }>(
     "shop_bereinige_bilder_liste",
@@ -47,6 +50,14 @@ export async function fuehreBereinigungAus(
   if (!r.ok) throw new Error("Bereinigung in der Datenbank fehlgeschlagen");
   const ergebnis: BereinigungsErgebnis = { bilderGeloescht: geloescht, bilderFehler: fehler, datenbank: r.ergebnis ?? null };
   if (erinnerung) {
+    // Frist: offene Freigaben > 23 h werden automatisch abgelehnt (Absage-Mail, PayPal-Erstattung, Telegram).
+    if (erinnerung.paypal) {
+      try {
+        ergebnis.freigabeFristAbgesagt = await sageAbgelaufeneFreigabenAb({ db, env: erinnerung.env, notifier: erinnerung.notifier, paypal: erinnerung.paypal });
+      } catch {
+        ergebnis.freigabeFristAbgesagt = 0;
+      }
+    }
     // Wunschtext-Freigaben, die > 20 h offen sind: Erinnerung per Telegram/Mail. Ein Fehler hier bricht die Bereinigung nicht ab.
     try {
       ergebnis.freigabeErinnerungen = await erinnereOffeneFreigaben({ db, ...erinnerung });

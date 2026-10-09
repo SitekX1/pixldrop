@@ -97,15 +97,21 @@ test("individuell: Formatwahl beim Standardtext macht das Stück individuell, Pr
   assert.equal(ohne.wert.positionen[0].individuell, false);
   const mit = bestell("tischschild-erster-kaffee", std, undefined, { fett_1: "1", groesse: "s" });
   assert.ok(mit.ok, JSON.stringify(mit));
-  assert.equal(mit.wert.positionen[0].individuell, true);
+  assert.equal(mit.wert.positionen[0].individuell, false);  // Format/Groesse allein: Variantenwahl, Widerruf bleibt
   assert.equal(mit.wert.gesamtCent, ohne.wert.gesamtCent);
   assert.deepEqual(mit.wert.positionen[0].optionen, { "Format Große Zeile in der Mitte": "Fett", "Schriftgröße": "Klein" });
   // explizit gesendeter Standard (groesse m) ändert nichts
   const m = bestell("tischschild-erster-kaffee", std, undefined, { groesse: "m" });
   assert.ok(m.ok);
   assert.equal(m.wert.positionen[0].individuell, false);
-  assert.equal(istIndividuell(schild, std, { fett_0: "1" }), true);
+  assert.equal(istIndividuell(schild, std, { fett_0: "1" }), false);
+  assert.equal(istIndividuell(schild, std, { groesse: "xl" }), false);
   assert.equal(istIndividuell(schild, std, {}), false);
+  // geaenderter Text bleibt individuell, mit oder ohne Format
+  const anders = std.replace(/^./, "X");
+  assert.equal(istIndividuell(schild, anders, {}), true);
+  assert.equal(istIndividuell(schild, anders, { fett_0: "1" }), true);
+  assert.equal(istIndividuell(schild, "", { fett_0: "1" }), false);
 });
 
 test("Automatische Groesse: groesste Stufe, die noch passt", () => {
@@ -128,4 +134,12 @@ test("Automatische Groesse: groesste Stufe, die noch passt", () => {
   // Server prueft die vom Client gesendete Stufe
   const r = bestell("spruch-untersetzer", "Mo", "oswald", { groesse: "xl" });
   assert.ok(r.ok, JSON.stringify(r));
+});
+
+test("Katalog: keine Optionsgruppe traegt 'Format…' oder 'Schriftgröße' als Label (Kollision mit formatAnzeige)", () => {
+  for (const p of PRODUKTE) {
+    for (const g of p.optionen) {
+      assert.ok(!/^\s*Format/i.test(g.label) && !/^\s*Schriftgr(ö|oe)ße/i.test(g.label), `${p.slug}: Optionsgruppe "${g.label}" kollidiert`);
+    }
+  }
 });

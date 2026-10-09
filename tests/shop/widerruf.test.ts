@@ -96,9 +96,9 @@ test("Ungültige Eingaben, Rate-Limit und DB-Ausfall", async () => {
   assert.match(String(x.body.error), /as@sitekx\.de/);
 });
 
-test("Widerruf: 3. Mail an dieselbe Adresse binnen 24 h -> gespeichert, aber keine Mail, Hinweis, Alex benachrichtigt", async () => {
+test("Widerruf: 6. Mail an dieselbe Adresse binnen 24 h (Limit 5) -> gespeichert, aber keine Mail, Hinweis, Alex benachrichtigt", async () => {
   const { db, notifier, deps } = aufbau();
-  db.zielAnzahlFest = 2;
+  db.zielAnzahlFest = 5;
   const a = await verarbeiteWiderruf(deps, eingabe({ confirm: true }), ctx);
   assert.equal(a.status, 200);
   assert.equal(db.widerrufe.length, 1);
@@ -107,7 +107,7 @@ test("Widerruf: 3. Mail an dieselbe Adresse binnen 24 h -> gespeichert, aber kei
   assert.equal(notifier.kundenMails.length, 0);
   assert.equal(db.widerrufe[0].bestaetigt, false);
   assert.ok(notifier.telegrams.some((t) => /Limit je Adresse/.test(t)));
-  db.zielAnzahlFest = 1;
+  db.zielAnzahlFest = 4;
   const b = await verarbeiteWiderruf(deps, eingabe({ confirm: true, vertrag: "PD-2026-0002" }), ctx);
   assert.equal(b.body.eingangsbestaetigung, true);
   assert.equal(notifier.kundenMails.length, 1);

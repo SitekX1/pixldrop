@@ -308,7 +308,7 @@ export default function Bestellablauf({
                   <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/widerruf" target="_blank" rel="noopener">Zur Belehrung</Link>
                 </p>
                 <p>Verkäufer: siehe <a className="shop-link" style={{ minHeight: 0 }} href="/impressum" target="_blank" rel="noopener">Impressum</a></p>
-                {pos.some(({ a }) => a.text) && <p>Dein Text wurde automatisch vorgeprüft. Nach der Zahlung prüfe ich ihn selbst, innerhalb von 24 Stunden: Du bekommst zuerst nur eine Eingangsbestätigung, der Vertrag kommt erst mit meiner Bestellbestätigung zustande. Lehne ich den Text ab (AGB Ziffer 9 Abs. 3), bekommst du den Grund und den vollen Betrag einschließlich Versand über PayPal zurück.</p>}
+                {individuell && <p>Dein Text wurde automatisch vorgeprüft. Nach der Zahlung prüfe ich ihn selbst, innerhalb von 24 Stunden: Du bekommst zuerst nur eine Eingangsbestätigung, der Vertrag kommt erst mit meiner Bestellbestätigung zustande. Lehne ich den Text ab (AGB Ziffer 9 Abs. 3), bekommst du den Grund und den vollen Betrag einschließlich Versand über PayPal zurück.</p>}
                 <p>{TEXTE.keinSpielzeug}</p>
               </div>
             </section>

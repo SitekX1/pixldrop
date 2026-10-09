@@ -25,11 +25,12 @@ const fehler = (status: number, code: string, meldung: string, extra: Record<str
 
 const AUSWEICH = "Bitte versuch es später noch einmal oder schreibe deinen Widerruf an as@sitekx.de.";
 
-// Mail-Relay-Schutz: max. 2 Eingangsbestaetigungen je Ziel-Adresse und 24 h (Zaehlung in der DB).
+// Mail-Relay-Schutz: max. 5 Eingangsbestaetigungen je Ziel-Adresse und 24 h (Zaehlung in der DB).
+// Nur bei sehr hohem Missbrauch wird die Bestaetigung unterdrueckt (§ 356a Abs. 4 BGB verlangt sie sonst unverzueglich).
 // Der Widerruf wird trotzdem gespeichert (Zugang § 356a Abs. 5 BGB), es geht nur keine Mail an diese Adresse.
-export const MAX_BESTAETIGUNGEN_JE_ADRESSE = 2;
+export const MAX_BESTAETIGUNGEN_JE_ADRESSE = 5;
 const LIMIT_HINWEIS =
-  "Für diese E-Mail-Adresse wurde bereits eine Bestätigungsmail gesendet. Dein Widerruf ist trotzdem eingegangen. Bei Fragen schreibe an as@sitekx.de.";
+  "Für diese E-Mail-Adresse wurden heute bereits mehrere Bestätigungsmails gesendet, deshalb schicke ich keine weitere. Dein Widerruf ist trotzdem eingegangen. Bei Fragen schreibe an as@sitekx.de.";
 // Auffaelliges Aufkommen: mehr als 20 Widerrufe in der letzten Stunde -> Telegram an Alex, hoechstens einmal pro Stunde (je Instanz).
 export const AUFKOMMEN_SCHWELLE_STUNDE = 20;
 const AUFKOMMEN_PAUSE_MS = 60 * 60 * 1000;

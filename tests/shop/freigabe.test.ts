@@ -3,9 +3,10 @@ import assert from "node:assert/strict";
 import { legeBestellungAn, schliesseZahlungAb, verarbeiteWebhook } from "@/lib/shop/server/bestellung";
 import {
   ERINNERUNG_NACH_STUNDEN, FREIGABE_GUELTIG_SEK, entscheideFreigabe, erinnereOffeneFreigaben, freigabeLinks,
-  holeFreigabeDaten, pruefeFreigabeToken, signiereFreigabe,
+  holeFreigabeDaten, pruefeFreigabeToken, sageAbgelaufeneFreigabenAb, signiereFreigabe,
 } from "@/lib/shop/server/freigabe";
 import { fuehreBereinigungAus } from "@/lib/shop/server/bereinigung";
+import { erzeugeBenachrichtiger } from "@/lib/shop/server/benachrichtigung";
 import { legeAnfrageAn } from "@/lib/shop/server/anfrage";
 import { PayPalFehler } from "@/lib/shop/server/paypal";
 import { bestellEingabe, kontext, neueDeps, testEnv, type FakePayPal } from "./mocks";
@@ -399,4 +400,87 @@ test("Kurzliste der Wunschtexte: gekuerzt, mit Schrift/Format, ohne Kundendaten;
   const tg = telegramFreigabe("PD-1", links, 2);
   assert.ok(tg.includes("2 Wunschtexte") && !tg.includes("AAAA"));
   assert.ok(alexMailFreigabe("PD-1", links, "neu", kl).text.includes("Wunschtexte (gekürzt"));
+});
+
+test("Frist: Link 'ok' nach 23,5 h -> 409 frist_abgelaufen, automatische Absage mit Grund 'frist', Erstattung, Telegram; 'nein' bleibt moeglich", async () => {
+  const { db, deps, paypal, notifier, id } = await bezahlteWunschBestellung();
+  const l = freigabeLinks(deps.env, id)!;
+  db.bestellungen[0].angefordertVorH = 23;
+  const spaet = await entscheideFreigabe(deps, { b: id, t: param(l.ok, "t"), aktion: "ok" });
+  assert.equal(spaet.status, 200, "bei 23 h ist 'ok' noch erlaubt");
+  const t2 = await bezahlteWunschBestellung();
+  const l2 = freigabeLinks(t2.deps.env, t2.id)!;
+  t2.db.bestellungen[0].angefordertVorH = 24;
+  const r = await entscheideFreigabe(t2.deps, { b: t2.id, t: param(l2.ok, "t"), aktion: "ok" });
+  assert.equal(r.status, 409);
+  assert.equal(r.body.code, "frist_abgelaufen");
+  assert.match(String(r.body.error), /24 Stunden/);
+  assert.equal(t2.db.bestellungen[0].freigabe, "abgelehnt");
+  assert.equal(t2.db.bestellungen[0].freigabeGrund, "frist");
+  assert.equal(t2.db.bestellungen[0].bestaetigt, false);
+  assert.equal(t2.paypal.erstattungen.length, 1);
+  const absage = t2.notifier.kundenMails[t2.notifier.kundenMails.length - 1];
+  assert.match(absage.text, /nicht rechtzeitig prüfen/);
+  assert.match(t2.notifier.telegrams[t2.notifier.telegrams.length - 1], /Frist abgelaufen, automatisch abgesagt/);
+  // Wiederholung: nichts doppelt
+  const tg = t2.notifier.telegrams.length;
+  await entscheideFreigabe(t2.deps, { b: t2.id, t: param(l2.ok, "t"), aktion: "ok" });
+  assert.equal(t2.paypal.erstattungen.length, 1);
+  assert.equal(t2.notifier.telegrams.length, tg);
+  // 'frist' ist kein waehlbarer Grund
+  const t3 = await bezahlteWunschBestellung();
+  const l3 = freigabeLinks(t3.deps.env, t3.id)!;
+  assert.equal((await entscheideFreigabe(t3.deps, { b: t3.id, t: param(l3.nein, "t"), aktion: "nein", grund: "frist" })).status, 422);
+  // 'nein' nach 24 h bleibt moeglich (Absage mit gewaehltem Grund)
+  t3.db.bestellungen[0].angefordertVorH = 24;
+  const n = await entscheideFreigabe(t3.deps, { b: t3.id, t: param(l3.nein, "t"), aktion: "nein", grund: "marke" });
+  assert.equal(n.status, 200);
+  assert.equal(t3.db.bestellungen[0].freigabeGrund, "marke");
+  void paypal; void notifier;
+});
+
+test("Frist-Cron: offene Freigaben > 23 h werden automatisch abgesagt (einmal), Bereinigung meldet die Anzahl; fehlende Migration bricht nichts", async () => {
+  const { db, deps, paypal, notifier } = await bezahlteWunschBestellung();
+  assert.equal(await sageAbgelaufeneFreigabenAb(deps), 0);
+  db.bestellungen[0].angefordertVorH = 22;
+  assert.equal(await sageAbgelaufeneFreigabenAb(deps), 0);
+  db.bestellungen[0].angefordertVorH = 23;
+  const erg = await fuehreBereinigungAus(db, { env: deps.env, notifier, paypal });
+  assert.equal(erg.freigabeFristAbgesagt, 1);
+  assert.equal(db.bestellungen[0].freigabe, "abgelehnt");
+  assert.equal(db.bestellungen[0].freigabeGrund, "frist");
+  assert.equal(paypal.erstattungen.length, 1);
+  assert.equal(notifier.telegrams.filter((t) => /Frist abgelaufen, automatisch abgesagt/.test(t)).length, 1);
+  assert.equal(await sageAbgelaufeneFreigabenAb(deps), 0);
+  db.ohneFreigabeMigration = true;
+  assert.equal(await sageAbgelaufeneFreigabenAb(deps), 0);
+});
+
+test("Frist lazy: Freigabe-Seite nach 23,5 h loest die Absage aus (idempotent), davor nicht", async () => {
+  const { db, deps, paypal, id } = await bezahlteWunschBestellung();
+  const l = freigabeLinks(deps.env, id)!;
+  const q = { b: id, t: param(l.nein, "t") };
+  db.bestellungen[0].angefordertVorH = 10;
+  assert.equal((await holeFreigabeDaten(deps, q)).body.status, "offen");
+  db.bestellungen[0].angefordertVorH = 24;
+  const r = await holeFreigabeDaten(deps, q);
+  assert.equal(r.body.status, "abgelehnt");
+  assert.equal(r.body.grund, "frist");
+  assert.equal(paypal.erstattungen.length, 1);
+  await holeFreigabeDaten(deps, q);
+  assert.equal(paypal.erstattungen.length, 1);
+  // ohne PayPal/Notifier (nur db+env) keine Seiteneffekte
+  const t2 = await bezahlteWunschBestellung();
+  t2.db.bestellungen[0].angefordertVorH = 24;
+  const l2 = freigabeLinks(t2.deps.env, t2.id)!;
+  assert.equal((await holeFreigabeDaten({ db: t2.db, env: t2.deps.env }, { b: t2.id, t: param(l2.nein, "t") })).body.status, "offen");
+});
+
+test("Telegram: sendMessage mit link_preview_options.is_disabled (Telegram ruft Freigabe-Links nicht selbst ab)", async () => {
+  const bodies: Record<string, unknown>[] = [];
+  const fake = (async (_u: unknown, init?: { body?: string }) => { bodies.push(JSON.parse(init?.body ?? "{}")); return new Response("{}", { status: 200 }); }) as unknown as typeof fetch;
+  const env = testEnv({ SHOP_TELEGRAM_BOT_TOKEN: "t-123", SHOP_TELEGRAM_CHAT_ID: "42" });
+  const n = erzeugeBenachrichtiger({ ...env, telegramToken: "t-123", telegramChatId: "42" }, fake);
+  assert.equal(await n.telegram("Freigeben: https://x"), true);
+  assert.deepEqual(bodies[0].link_preview_options, { is_disabled: true });
 });

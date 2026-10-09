@@ -272,7 +272,7 @@ export type FreigabeErgebnisDaten =
   | { status: "freigegeben"; neu: boolean; mail: boolean }
   | { status: "abgelehnt"; neu: boolean; erstattung: "erstattet" | "erstattung_offen"; mail: boolean };
 export type FreigabeFehlerCode = "ungueltig" | "bereits_entschieden" | "nicht_moeglich" | "zu_oft" | "nicht_erreichbar" | "netz" | "fehler";
-export interface FreigabeFehler { code: FreigabeFehlerCode; meldung: string; status?: "freigegeben" | "abgelehnt" }
+export interface FreigabeFehler { code: FreigabeFehlerCode; meldung: string; status?: "freigegeben" | "abgelehnt"; grund?: string }
 export type FreigabeErgebnis<T> = { ok: true; daten: T } | { ok: false; fehler: FreigabeFehler };
 
 /** API-Fehler (HTTP-Status + Body) auf Anzeige-Codes abbilden. */
@@ -283,6 +283,8 @@ export function freigabeFehler(status: number, b: Record<string, unknown>): Frei
     const s = b.status === "freigegeben" || b.status === "abgelehnt" ? b.status : undefined;
     return { code: "bereits_entschieden", meldung: "Diese Freigabe ist schon entschieden.", status: s };
   }
+  // Frist (24 h nach Zahlung) abgelaufen: die Bestellung ist automatisch abgesagt worden
+  if (status === 409 && code === "frist_abgelaufen") return { code: "bereits_entschieden", meldung: "Frist abgelaufen, die Bestellung wurde automatisch abgesagt.", status: "abgelehnt", grund: "frist" };
   if (status === 409) return { code: "nicht_moeglich", meldung: "Das geht für diese Bestellung nicht mehr. Bitte im Admin-Panel nachsehen." };
   if (status === 429) return { code: "zu_oft", meldung: "Zu viele Versuche. Bitte kurz warten und noch einmal versuchen." };
   if (status === 503) return { code: "nicht_erreichbar", meldung: "Der Shop ist gerade nicht erreichbar. Bitte gleich noch einmal versuchen." };

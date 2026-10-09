@@ -5,6 +5,7 @@ import {
   type FreigabeDaten, type FreigabeErgebnisDaten, type FreigabeFehler, type FreigabePosition,
 } from "@/lib/shop/client";
 import { SCHRIFTEN } from "@/lib/shop/schriften";
+import { PRODUKTE } from "@/lib/shop/produkte";
 
 type Phase =
   | { t: "laden" }
@@ -19,10 +20,12 @@ const schriftVon = (s: string | null) => {
   return SCHRIFTEN.find((x) => x.id === k || x.name.toLowerCase() === k);
 };
 
-// Format aus den lesbaren optionen (Server: "Format…" = Fett/Kursiv je Zeile, "Schriftgröße")
-function formatStil(p: FreigabePosition, klein: boolean): React.CSSProperties {
-  const e = Object.entries(p.optionen ?? {}).find(([k]) => k.startsWith("Format") && (/kleine/i.test(k) === klein) && (klein || !/kleine/i.test(k)));
-  const v = e?.[1] ?? "";
+// Format aus den lesbaren optionen. Die Zeile wird ueber den Zeilenindex bestimmt (Schluessel "Format <Zeilenlabel>"
+// bei mehrzeiligen Artikeln, sonst "Format"), nicht ueber Label-Muster.
+function formatStil(p: FreigabePosition, zeile: number): React.CSSProperties {
+  const zeilenDef = PRODUKTE.find((x) => x.name === p.name)?.personalisierung?.zeilen;
+  const key = zeilenDef ? (zeilenDef[zeile] ? `Format ${zeilenDef[zeile].label}` : null) : zeile === 0 ? "Format" : null;
+  const v = (key && p.optionen?.[key]) || "";
   return { fontWeight: /Fett/.test(v) ? 900 : undefined, fontStyle: /Kursiv/.test(v) ? "italic" : undefined };
 }
 
@@ -32,8 +35,8 @@ function Schild({ p }: { p: FreigabePosition }) {
   const gross = zeilen.length > 1 ? zeilen.slice(1).join("\n") : zeilen[0];
   return (
     <div className="fg-schild" style={{ fontFamily: schriftVon(p.schrift)?.family }} role="group" aria-label={`Wunschtext: ${(p.text ?? "").replace(/\n/g, ", ")}`}>
-      {klein && <span className="fg-klein" style={formatStil(p, true)} aria-hidden="true">{klein}</span>}
-      <span className="fg-gross" style={formatStil(p, false)} aria-hidden="true">{gross}</span>
+      {klein && <span className="fg-klein" style={formatStil(p, 0)} aria-hidden="true">{klein}</span>}
+      <span className="fg-gross" style={formatStil(p, zeilen.length > 1 ? 1 : 0)} aria-hidden="true">{gross}</span>
     </div>
   );
 }
@@ -107,7 +110,7 @@ export default function FreigabeSeite({ b, t, vorauswahl }: { b: string; t: stri
     if (r.ok) { setDialog(null); setPhase({ t: "fertig", daten: phase.daten, ergebnis: r.daten }); return; }
     if (r.fehler.code === "bereits_entschieden" && r.fehler.status) {
       setDialog(null);
-      setPhase({ t: "daten", daten: { ...phase.daten, status: r.fehler.status } });
+      setPhase({ t: "daten", daten: { ...phase.daten, status: r.fehler.status, grund: r.fehler.grund ?? phase.daten.grund } });
       return;
     }
     if (r.fehler.code === "ungueltig") { setDialog(null); setPhase({ t: "fehler", fehler: r.fehler }); return; }
@@ -162,7 +165,7 @@ export default function FreigabeSeite({ b, t, vorauswahl }: { b: string; t: stri
         <p className={d.status === "freigegeben" ? "fg-ok" : "fg-nok"} role="status">
           <strong>Bereits {d.status === "freigegeben" ? "freigegeben" : "abgelehnt"}</strong>
           {d.entschiedenAm ? ` am ${datum(d.entschiedenAm)}` : ""}.
-          {d.grund ? ` Grund: ${d.gruende.find((g) => g.id === d.grund)?.label ?? d.grund}.` : ""} Keine weitere Aktion nötig.
+          {d.grund ? ` Grund: ${d.grund === "frist" ? "Frist von 24 Stunden abgelaufen, automatisch abgesagt" : (d.gruende.find((g) => g.id === d.grund)?.label ?? d.grund)}.` : ""} Keine weitere Aktion nötig.
         </p>
       )}
       <Positionen liste={d.positionen} />

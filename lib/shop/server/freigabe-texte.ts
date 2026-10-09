@@ -14,9 +14,18 @@ export const FREIGABE_GRUENDE = [
   { id: "sonstiges", label: "Sonstiger Grund", text: "Ich kann deine Bestellung mit diesem Text nicht annehmen. Bei Fragen dazu schreib mir bitte an as@sitekx.de." },
 ] as const;
 
-export type FreigabeGrund = (typeof FREIGABE_GRUENDE)[number]["id"];
+/** Waehlbare Gruende (Freigabe-Seite). */
+export type WaehlbarerGrund = (typeof FREIGABE_GRUENDE)[number]["id"];
+/** Zusaetzlich 'frist': nur automatisch gesetzt (Frist von 24 h nach Zahlung ohne Entscheidung), nie waehlbar. */
+export type FreigabeGrund = WaehlbarerGrund | "frist";
+export const FRIST_BAUSTEIN = "Ich konnte deinen Text nicht rechtzeitig prüfen. Deshalb kommt kein Vertrag zustande und ich erstatte dir den vollen Betrag.";
 
+/** Jeder in der DB mögliche Grund (für die Absage-Mail). */
 export function istFreigabeGrund(v: unknown): v is FreigabeGrund {
+  return v === "frist" || istWaehlbarerGrund(v);
+}
+/** Nur Gründe, die Alex auf der Freigabe-Seite wählen darf (ohne 'frist'). */
+export function istWaehlbarerGrund(v: unknown): v is WaehlbarerGrund {
   return typeof v === "string" && FREIGABE_GRUENDE.some((g) => g.id === v);
 }
 
@@ -51,6 +60,9 @@ Ablehnen: ${links.nein}`;
 
 export const telegramFreigabeErinnerung = (nummer: string, stunden: number, links: FreigabeLinks): string =>
   `Erinnerung: Bestellung ${nummer} wartet seit über ${stunden} Stunden auf die Prüfung des Wunschtexts (Frist 24 Stunden)\nFreigeben: ${links.ok}\nAblehnen: ${links.nein}`;
+
+export const telegramFristAbgesagt = (nummer: string): string =>
+  `Frist abgelaufen, automatisch abgesagt: ${nummer} (Erstattung wird veranlasst)`;
 
 export const telegramErstattungOffen = (nummer: string): string =>
   `Erstattung fehlgeschlagen: ${nummer} - bitte in PayPal erstatten`;
@@ -113,13 +125,15 @@ export function absageMail(
   siteUrl: string = "https://pixldrop.de",
 ): { betreff: string; text: string } {
   const site = siteUrl.replace(/\/+$/, "");
-  const baustein = FREIGABE_GRUENDE.find((g) => g.id === grund)?.text ?? FREIGABE_GRUENDE[3].text;
+  const baustein = grund === "frist" ? FRIST_BAUSTEIN : (FREIGABE_GRUENDE.find((g) => g.id === grund)?.text ?? FREIGABE_GRUENDE[3].text);
   return {
     betreff: `Deine Bestellung ${b.nummer}: leider kann ich sie nicht annehmen, Erstattung erfolgt`,
     text: [
       `Hallo ${b.name},`,
       "",
-      `ich habe deinen Wunschtext zu Bestellung ${b.nummer} geprüft und kann sie leider nicht annehmen. Es ist deshalb kein Kaufvertrag zustande gekommen.`,
+      grund === "frist"
+        ? `zu deiner Bestellung ${b.nummer} muss ich leider absagen. Es ist kein Kaufvertrag zustande gekommen.`
+        : `ich habe deinen Wunschtext zu Bestellung ${b.nummer} geprüft und kann sie leider nicht annehmen. Es ist deshalb kein Kaufvertrag zustande gekommen.`,
       "",
       "Grund:",
       baustein,

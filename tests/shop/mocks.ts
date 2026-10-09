@@ -176,7 +176,7 @@ export class FakeDb implements Db {
         const b = this.find({ id: p.p_id });
         if (!b || (b.freigabe ?? null) === null) return { ok: false, grund: "unbekannt" };
         return {
-          ok: true, nummer: b.nummer, status: b.freigabe, angefordert_am: "2026-10-09T10:00:00Z", entschieden_am: b.freigabe === "offen" ? null : "2026-10-09T11:00:00Z",
+          ok: true, nummer: b.nummer, status: b.freigabe, angefordert_am: new Date(Date.now() - (b.angefordertVorH ?? 0) * 3_600_000).toISOString(), entschieden_am: b.freigabe === "offen" ? null : "2026-10-09T11:00:00Z",
           grund: b.freigabeGrund,
           positionen: b.positionen.map((x) => ({ name: x.name, menge: x.menge, farbe: x.farbe_name ?? null, farbe_hex: null, text: x.text ?? null, schrift: x.schrift ?? null, optionen: x.optionen ?? {}, individuell: x.individuell === true })),
         };
@@ -184,7 +184,7 @@ export class FakeDb implements Db {
       case "shop_freigabe_setzen": {
         const b = this.find({ id: p.p_id });
         if (!b || (b.freigabe ?? null) === null) return { ok: false, grund: "nicht_moeglich" };
-        if (p.p_aktion === "nein" && !["marke", "unzulaessig", "unleserlich", "sonstiges"].includes(p.p_grund as string)) return { ok: false, grund: "ungueltige_eingabe" };
+        if (p.p_aktion === "nein" && !["marke", "unzulaessig", "unleserlich", "sonstiges", "frist"].includes(p.p_grund as string)) return { ok: false, grund: "ungueltige_eingabe" };
         let neu = false;
         if (b.freigabe === "offen") {
           if (b.zahlungsstatus !== "bezahlt") return { ok: false, grund: "nicht_moeglich" };
@@ -233,6 +233,11 @@ export class FakeDb implements Db {
       case "shop_freigabe_erinnerung_liste": {
         if (this.ohneFreigabeMigration) throw new Error("function does not exist");
         const l = this.bestellungen.filter((b) => b.freigabe === "offen" && !b.erinnert && (b.angefordertVorH ?? 0) >= (p.p_stunden as number));
+        return { ok: true, bestellungen: l.map((b) => ({ id: b.id, nummer: b.nummer })) };
+      }
+      case "shop_freigabe_frist_liste": {
+        if (this.ohneFreigabeMigration) throw new Error("function does not exist");
+        const l = this.bestellungen.filter((b) => b.freigabe === "offen" && (b.angefordertVorH ?? 0) >= (p.p_stunden as number));
         return { ok: true, bestellungen: l.map((b) => ({ id: b.id, nummer: b.nummer })) };
       }
       case "shop_ereignis_schreiben":

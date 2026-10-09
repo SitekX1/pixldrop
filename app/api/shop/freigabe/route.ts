@@ -10,6 +10,7 @@ import { clientIp, erzeugeBremse, ipHash, leseBegrenzt } from "@/lib/shop/server
 //      { ok:true, status:"abgelehnt", neu:boolean, erstattung:"erstattet"|"erstattung_offen", mail:boolean }
 //      neu:false = Entscheidung stand schon so fest (Wiederholung; fehlende Mail/Erstattung wird nachgeholt, nie doppelt).
 // Fehler: { ok:false, code, error }  400 ungueltig | 403 link_ungueltig | 409 bereits_entschieden ({status}) / nicht_moeglich |
+//         409 frist_abgelaufen (nur "ok": > 23,5 h nach Anforderung; die Bestellung wird dabei automatisch abgesagt und erstattet) |
 //         413 zu_gross | 422 grund_fehlt / ungueltig | 429 zu_viele | 503 nicht_eingerichtet / db
 // Unabhaengig von SHOP_AKTIV.
 
