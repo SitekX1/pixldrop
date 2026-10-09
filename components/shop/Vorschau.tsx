@@ -30,7 +30,7 @@ export function LiveProductImage({ form, grundfarbe }: { form: Form; grundfarbe:
       farbe={w.farbe ?? grundfarbe}
       text={w.text}
       family={w.family}
-      typ={w.text ? "Live-Vorschau · Foto folgt" : undefined}
+      typ={w.text ? "Live-Vorschau" : undefined}
     />
   );
 }

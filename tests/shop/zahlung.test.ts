@@ -81,7 +81,7 @@ test("Live-Betrieb ohne freigegebene Pflichtangaben wird verweigert", async () =
   assert.equal((await legeBestellungAn(mitPlatzhalter.deps, bestellEingabe(), ctx)).status, 503, "freigegeben, aber Platzhalter noch drin");
   assert.equal((await legeBestellungAn(agbMitPlatzhalter.deps, bestellEingabe(), ctx)).status, 503, "AGB-Text mit Platzhalter blockiert Live");
   const live = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true, pflichtangabenText: "Echter Rechtstext" });
-  assert.equal((await legeBestellungAn(live.deps, bestellEingabe(), ctx)).status, 503, "echter AGB_TEXT enthaelt noch Platzhalter -> Live gesperrt");
+  assert.equal((await legeBestellungAn(live.deps, bestellEingabe(), ctx)).status, 200, "echter AGB_TEXT ist platzhalterfrei -> Live nicht gesperrt");
   assert.equal((await legeBestellungAn(frei.deps, bestellEingabe(), ctx)).status, 200);
 });
 
@@ -124,12 +124,13 @@ test("Rueckkehr: Capture, bezahlt, genau eine Telegram-Nachricht NUR mit Nummer"
   // Kundenbestaetigung mit echtem Rechtsblock (kein Platzhalter)
   assert.equal(notifier.kundenMails.length, 1);
   assert.equal(notifier.kundenMails[0].an, KUNDE.email);
-  assert.match(notifier.kundenMails[0].text, /WIDERRUFSBELEHRUNG/);
-  assert.match(notifier.kundenMails[0].text, /MUSTER-WIDERRUFSFORMULAR/);
-  assert.ok(!notifier.kundenMails[0].text.includes("[[PLATZHALTER"));
-  // AGB-Klartext als Abschnitt (dauerhafter Datentraeger)
-  assert.match(notifier.kundenMails[0].text, /ALLGEMEINE GESCHÄFTSBEDINGUNGEN\r?\n[^\r\n]*\r?\n\r?\nAllgemeine Geschäftsbedingungen für den Online-Shop/);
-  assert.match(notifier.kundenMails[0].text, /1\. Geltungsbereich und Anbieter/);
+  // Mailkoerper kurz, Rechtstexte als PDF-Anhaenge (dauerhafter Datentraeger)
+  const km = notifier.kundenMails[0];
+  assert.ok(km.text.length < 2500, "Mailtext kurz");
+  assert.ok(!km.text.includes("MUSTER-WIDERRUFSFORMULAR") && !km.text.includes("1. Geltungsbereich"));
+  assert.match(km.text, /Im Anhang findest du/);
+  assert.deepEqual(km.anhaenge?.map((a) => a.filename), ["AGB.pdf", "Widerrufsbelehrung.pdf", "Muster-Widerrufsformular.pdf"]);
+  assert.ok(km.anhaenge?.every((a) => a.contentType === "application/pdf" && a.content.subarray(0, 5).toString() === "%PDF-"));
   assert.match(notifier.kundenMails[0].text, new RegExp(r.nummer!));
 });
 

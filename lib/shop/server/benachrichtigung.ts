@@ -9,17 +9,24 @@ import "server-only";
 import type { ShopEnv } from "./env";
 import type { FetchFn } from "./db";
 
+/** Mail-Anhang (nodemailer-kompatibel). */
+export interface MailAnhang {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+}
+
 export interface Benachrichtiger {
   /** Kurze Push-Nachricht an Alex (nur Nummer/Art!). true = zugestellt. */
   telegram(text: string): Promise<boolean>;
   /** Mail an Alex (nur Nummer + Link). true = zugestellt. */
   mailAlex(betreff: string, text: string, replyTo?: string): Promise<boolean>;
   /** Mail an den Kunden (Bestellbestaetigung). true = zugestellt. */
-  mailKunde(an: string, betreff: string, text: string): Promise<boolean>;
+  mailKunde(an: string, betreff: string, text: string, anhaenge?: MailAnhang[]): Promise<boolean>;
 }
 
 export interface MailTransport {
-  sendMail(opts: { from: string; to: string; subject: string; text: string; replyTo?: string }): Promise<unknown>;
+  sendMail(opts: { from: string; to: string; subject: string; text: string; replyTo?: string; attachments?: MailAnhang[] }): Promise<unknown>;
 }
 
 export type TransportFactory = (smtp: ShopEnv["smtp"]) => Promise<MailTransport>;
@@ -47,7 +54,7 @@ export function erzeugeBenachrichtiger(
 ): Benachrichtiger {
   const mailBereit = Boolean(env.smtp.host && env.smtp.user && env.smtp.pass);
 
-  async function senden(an: string, betreff: string, text: string, replyTo?: string): Promise<boolean> {
+  async function senden(an: string, betreff: string, text: string, replyTo?: string, anhaenge?: MailAnhang[]): Promise<boolean> {
     if (!mailBereit) return false;
     try {
       const t = await transportFactory(env.smtp);
@@ -57,6 +64,7 @@ export function erzeugeBenachrichtiger(
         subject: einzeilig(betreff),
         text,
         ...(replyTo ? { replyTo } : {}),
+        ...(anhaenge && anhaenge.length ? { attachments: anhaenge } : {}),
       });
       return true;
     } catch (err) {
@@ -86,8 +94,8 @@ export function erzeugeBenachrichtiger(
       if (!env.alexMail) return false;
       return senden(env.alexMail, betreff, text, replyTo);
     },
-    async mailKunde(an, betreff, text) {
-      return senden(an, betreff, text, env.alexMail);
+    async mailKunde(an, betreff, text, anhaenge) {
+      return senden(an, betreff, text, env.alexMail, anhaenge);
     },
   };
 }

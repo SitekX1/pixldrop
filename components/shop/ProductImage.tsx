@@ -112,10 +112,10 @@ function Motiv({ form, c, text, family }: { form: Form; c: string; text?: string
 }
 
 export default function ProductImage({
-  form, farbe, typ = "Muster · Foto folgt", breit = false, text, family,
+  form, farbe, typ = "Illustration", breit = false, text, family,
 }: { form: Form; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string }) {
   return (
-    <div className={`shop-img ${breit ? "shop-img--wide" : ""}`} role="img" aria-label={`Platzhalterbild: ${typ}`}>
+    <div className={`shop-img ${breit ? "shop-img--wide" : ""}`} role="img" aria-label={`Produktillustration: ${typ}`}>
       <svg className="motiv" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <path d="M70 92C86 86 96 70 94 54" fill="none" stroke="rgba(107,68,35,.28)" strokeWidth="5" strokeLinecap="round" />
         <Motiv form={form} c={farbe} text={text} family={family} />

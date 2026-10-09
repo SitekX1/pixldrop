@@ -1,6 +1,6 @@
 import "server-only";
 // Mail- und Nachrichtentexte. Reiner Text (kein HTML), damit Kundeneingaben nichts einschleusen.
-// Rechtsblock der Bestellbestaetigung (Dr. Justus, Entwurf 2026-10-08): Widerrufsbelehrung und Muster-Widerrufsformular
+// Rechtsblock der Bestellbestaetigung (Dr. Justus, Stand 2026-10-09, Endpruefung Magnus offen): Widerrufsbelehrung und Muster-Widerrufsformular
 // WOERTLICH nach Anlage 1 und 2 zu Art. 246a EGBGB (Kaufvertrag, eine Sendung, Textbaustein b), bzw. Hinweis W2 bei
 // individueller Ware. PFLICHTANGABEN_FREIGEGEBEN bleibt false bis Alex' Go. Solange false, weigert sich der Shop,
 // mit PAYPAL_ENV=live Bestellungen anzunehmen (siehe bestellung.ts).
@@ -8,6 +8,7 @@ import "server-only";
 
 import { LIEFERZEIT_TEXT } from "../config";
 import { AGB_TEXT } from "./agb-text";
+import type { RechtsDokument } from "./pdf";
 
 export const PFLICHTANGABEN_FREIGEGEBEN = false;
 
@@ -170,6 +171,22 @@ export function datumKurz(iso: string | Date): string {
   return new Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" }).format(d);
 }
 
+/**
+ * Teilt den Widerrufsblock in Belehrung und Muster-Widerrufsformular (Ueberschrift "MUSTER-WIDERRUFSFORMULAR").
+ * Ohne diese Ueberschrift (z. B. Test-Override): alles ist Belehrung, kein Formular.
+ */
+export function teileWiderrufsblock(block: string): { belehrung: string; formular: string | null } {
+  const zeilen = block.split("\n");
+  const i = zeilen.findIndex((z) => z.trim() === "MUSTER-WIDERRUFSFORMULAR");
+  if (i < 0) return { belehrung: block.trim(), formular: null };
+  const strich = (z: string) => /^-{5,}$/.test(z.trim());
+  const belehrung = zeilen.slice(0, i).join("\n").replace(/[\s-]+$/, "").trim();
+  const rest = zeilen.slice(i);
+  const ende = rest.findIndex((z, n) => n > 0 && strich(z));
+  const formular = (ende < 0 ? rest : rest.slice(0, ende)).join("\n").trim();
+  return { belehrung, formular };
+}
+
 export interface MailOptionen {
   /** z. B. https://pixldrop.de (fuer den Link zur Widerrufsfunktion) */
   siteUrl?: string;
@@ -189,7 +206,7 @@ export function bestaetigungsMail(
   blockOverride?: string,
   freigegeben: boolean = PFLICHTANGABEN_FREIGEGEBEN,
   opt: MailOptionen = {},
-): { betreff: string; text: string } {
+): { betreff: string; text: string; volltext: string; anhaenge: RechtsDokument[] } {
   const mitStandardware = b.individuell && enthaeltStandardware(b);
   const block = blockOverride ?? pflichtangabenText(b.individuell, opt.siteUrl, mitStandardware);
   const zeilen = b.positionen.map((p) => {
@@ -209,7 +226,7 @@ export function bestaetigungsMail(
     (b.capture_id ? ` (Transaktion ${b.capture_id})` : "");
   const widerrufLink = opt.siteUrl ? `${opt.siteUrl.replace(/\/+$/, "")}/3d-druck/widerruf` : null;
 
-  const text = [
+  const kopf = [
     `Hallo ${b.name},`,
     "",
     `danke für deine Bestellung ${b.nummer}${bestelltAm ? ` vom ${bestelltAm}` : ""}. Ich habe deine Zahlung erhalten und nehme deine Bestellung hiermit an. Damit ist der Kaufvertrag zustande gekommen.`,
@@ -229,10 +246,16 @@ export function bestaetigungsMail(
     b.individuell ? "\nHinweis: Dein Stück wird nach deinen Vorgaben (geänderter Wunschtext) gefertigt. Ich prüfe den Text nach deiner Zahlung vor dem Druck. Verstößt er gegen Ziffer 9 Abs. 3 der AGB (z. B. Rechte Dritter, Beleidigung), trete ich vom Vertrag zurück und erstatte dir den gezahlten Betrag einschließlich Versand vollständig." : "",
     "",
     `Verkäufer: ${KONTAKT_ALEX}`,
-    "",
+  ];
+  const anhangHinweisVolltext =
     b.individuell && !mitStandardware
       ? "Diese Bestätigung dient als Beleg für deine Bestellung. Der Hinweis zum Widerruf und der Link zu den AGB stehen unten."
-      : "Diese Bestätigung dient als Beleg für deine Bestellung. Widerrufsbelehrung, Muster-Widerrufsformular und der Link zu den AGB stehen unten.",
+      : "Diese Bestätigung dient als Beleg für deine Bestellung. Widerrufsbelehrung, Muster-Widerrufsformular und der Link zu den AGB stehen unten.";
+  // Volltext (Fallback, wenn die PDF-Erzeugung scheitert): kompletter Rechtsblock + AGB im Mailkoerper.
+  const volltext = [
+    ...kopf,
+    "",
+    anhangHinweisVolltext,
     widerrufLink && (!b.individuell || mitStandardware) ? `Du kannst deinen Vertrag auch online widerrufen: ${widerrufLink}` : "",
     "",
     block,
@@ -249,10 +272,41 @@ export function bestaetigungsMail(
     "Viele Grüße",
     "Alex",
   ].join("\n");
-  if (freigegeben && (block.includes(PLATZHALTER_MARKER) || agbText.includes(PLATZHALTER_MARKER) || text.includes(PLATZHALTER_MARKER))) {
+
+  // Anhaenge als PDF: AGB immer; Widerrufsbelehrung + Muster-Widerrufsformular nur mit Standardware.
+  const anhaenge: RechtsDokument[] = [{ dateiname: "AGB.pdf", titel: "Allgemeine Geschäftsbedingungen", text: agbText }];
+  if (!b.individuell || mitStandardware) {
+    const { belehrung, formular } = teileWiderrufsblock(blockOverride ?? pflichtangabenText(false, opt.siteUrl));
+    anhaenge.push({ dateiname: "Widerrufsbelehrung.pdf", titel: "Widerrufsbelehrung", text: belehrung });
+    if (formular) anhaenge.push({ dateiname: "Muster-Widerrufsformular.pdf", titel: "Muster-Widerrufsformular", text: formular });
+  }
+  const anhangListe = anhaenge.map((d) => `- ${d.titel} (PDF)`);
+  const hinweisWiderruf =
+    b.individuell && !mitStandardware
+      ? pflichtangabenText(true, opt.siteUrl, false).split("\n").filter((z) => !z.startsWith("Allgemeine Geschäftsbedingungen (")).join("\n").trim()
+      : b.individuell
+        ? "Hinweis zum Widerruf: Für Stücke mit geändertem Wunschtext besteht kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB). Für alle übrigen Artikel deiner Bestellung gilt die beigefügte Widerrufsbelehrung."
+        : "";
+  const kurz = [
+    ...kopf,
+    ...(hinweisWiderruf ? ["", hinweisWiderruf] : []),
+    "",
+    "Im Anhang findest du (zum Aufbewahren):",
+    ...anhangListe,
+    "Diese Bestätigung dient als Beleg für deine Bestellung. Die AGB kannst du auch online abrufen: " + `${(opt.siteUrl || STANDARD_SITE).replace(/\/+$/, "")}/3d-druck/agb`,
+    widerrufLink && (!b.individuell || mitStandardware) ? `Du kannst deinen Vertrag auch online widerrufen: ${widerrufLink}` : "",
+    "",
+    "Viele Grüße",
+    "Alex",
+  ].join("\n");
+
+  if (
+    freigegeben &&
+    [block, agbText, volltext, kurz, ...anhaenge.map((d) => d.text)].some((t) => t.includes(PLATZHALTER_MARKER))
+  ) {
     throw new Error("Pflichtangaben freigegeben, aber Platzhalter noch im Mailtext");
   }
-  return { betreff: `Bestellbestätigung ${b.nummer}: dein Kauf ist abgeschlossen`, text };
+  return { betreff: `Bestellbestätigung ${b.nummer}: dein Kauf ist abgeschlossen`, text: kurz, volltext, anhaenge };
 }
 
 /** Mail 1b: Ablehnung mit Erstattung (nur wenn eine bezahlte Bestellung nicht lieferbar ist). Keine Werbung. */

@@ -16,6 +16,7 @@ import type { Benachrichtiger } from "./benachrichtigung";
 import { berechneWarenkorb, type Kontext } from "./preise";
 import { pruefeKunde } from "./validierung";
 import { AGB_TEXT } from "./agb-text";
+import { mailMitAnhaengen, type AnhangErzeuger } from "./pdf";
 import { PFLICHTANGABEN_FREIGEGEBEN, PLATZHALTER_MARKER, alexMail, bestaetigungsMail, telegramBestellung, telegramPruefen, type MailBestellung } from "./vorlagen";
 
 export interface Deps {
@@ -29,6 +30,8 @@ export interface Deps {
   pflichtangabenText?: string;
   /** Test-Hook; Standard: AGB_TEXT aus agb-text.ts (AGB-Klartext in der Bestaetigungsmail) */
   agbText?: string;
+  /** Test-Hook; Standard: pdf-lib (erzeugeAnhaenge aus pdf.ts) */
+  anhangErzeuger?: AnhangErzeuger;
   /** Test-Hook fuer deterministische Request-Ids */
   zufall?: () => string;
 }
@@ -360,8 +363,10 @@ async function nachBezahlt(
       const d = await deps.db.rpc<Record<string, unknown> & { ok: boolean }>("shop_bestellung_mail_daten", { p_id: id });
       if (d.ok) {
         const b = d as unknown as MailBestellung & { email: string };
-        const { betreff, text } = bestaetigungsMail(b, deps.pflichtangabenText, deps.pflichtangabenFreigegeben, { siteUrl: deps.env.siteUrl, agbText: deps.agbText });
-        if (await deps.notifier.mailKunde(b.email, betreff, text)) {
+        const mail = bestaetigungsMail(b, deps.pflichtangabenText, deps.pflichtangabenFreigegeben, { siteUrl: deps.env.siteUrl, agbText: deps.agbText });
+        // Kurzer Mailtext + PDF-Anhaenge; scheitert die PDF-Erzeugung, geht der Volltext im Mailkoerper raus.
+        const { betreff, text, anhaenge } = await mailMitAnhaengen(mail, deps.anhangErzeuger);
+        if (await deps.notifier.mailKunde(b.email, betreff, text, anhaenge)) {
           await deps.db.rpc("shop_markiere", { p_art: "bestellung_bestaetigt", p_id: id }).catch(() => undefined);
         } else {
           await ereignis(deps, id, "benachrichtigung", { ergebnis: "kundenmail_fehlgeschlagen" });

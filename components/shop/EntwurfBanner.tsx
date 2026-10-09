@@ -1,8 +1,11 @@
-// Sichtbarer Hinweis auf allen Rechts-Platzhalterseiten. Es stehen KEINE Rechtstexte darin.
+// Sichtbarer Entwurf-Hinweis auf den Rechtsseiten; verschwindet über ENTWURF_MODUS (lib/shop/config.ts).
+import { ENTWURF_MODUS } from "@/lib/shop/config";
+
 export default function EntwurfBanner() {
+  if (!ENTWURF_MODUS) return null;
   return (
     <div className="shop-entwurf" role="note">
-      ENTWURF – nicht rechtsverbindlich, gelbe Platzhalter sind noch offen
+      ENTWURF – noch nicht rechtsverbindlich
     </div>
   );
 }

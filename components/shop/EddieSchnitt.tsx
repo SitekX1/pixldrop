@@ -1,5 +1,5 @@
-// PLATZHALTER: Eddie als freigestellter Halbfigur-Ausschnitt aus dem bestehenden Asset
-// (public/pixlgame-media/eddie-iso.png). Wird durch die Shop-Assets 1-4 ersetzt (aicut-Briefing, Mira).
+// Eddie als freigestellter Halbfigur-Ausschnitt aus dem bestehenden Asset
+// (public/pixlgame-media/eddie-iso.png). Kann später durch eigene Shop-Assets ersetzt werden.
 export default function EddieSchnitt({ className, priority = false }: { className: string; priority?: boolean }) {
   return (
     <div className={className} aria-hidden="true">

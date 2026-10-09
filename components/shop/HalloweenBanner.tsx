@@ -10,7 +10,7 @@ function Fledermaus() {
   );
 }
 
-// Statisch, ohne Countdown (Enddatum nur als Text). Eddie im Halloween-Outfit folgt (Asset 4).
+// Statisch, ohne Countdown (Enddatum nur als Text).
 export default function HalloweenBanner({ modus }: { modus: HalloweenModus }) {
   if (modus === "off") return null;
   return (

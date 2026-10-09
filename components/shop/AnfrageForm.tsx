@@ -156,7 +156,7 @@ export default function AnfrageForm({ farben }: { farben: Farbe[] }) {
           <span className="muted">Tippen zum Auswählen</span>
           <input id="a-bilder" type="file" multiple accept="image/*" onChange={neueDateien} aria-describedby={fehler.bilder ? "a-bilder-e" : "a-bilder-h"} />
         </label>
-        <span id="a-bilder-h" className="muted">Bilder mit Personen nur, wenn du das Recht dazu hast. Löschfrist nach Ende der Anfrage: folgt von Dr. Justus.</span>
+        <span id="a-bilder-h" className="muted">Bilder mit Personen nur, wenn du das Recht dazu hast. Bilder werden 30 Tage nach Ende der Anfrage gelöscht.</span>
         {err("bilder")}
         {dateien.length > 0 && (
           <ul className="shop-thumbs" aria-label="Ausgewählte Bilder">

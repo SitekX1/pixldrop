@@ -1,9 +1,10 @@
 import ShopShell from "@/components/shop/ShopShell";
 import EntwurfBanner from "@/components/shop/EntwurfBanner";
 import { Abschnitt } from "@/components/shop/RechtText";
+import { entwurfTitel } from "@/lib/shop/config";
 import WiderrufForm from "@/components/shop/WiderrufForm";
 
-export const metadata = { title: "Widerrufsbelehrung (Entwurf)" };
+export const metadata = { title: entwurfTitel("Widerrufsbelehrung") };
 
 // Wortlaut: Muster-Widerrufsbelehrung (Anlage 1) und Muster-Widerrufsformular (Anlage 2) zu Art. 246a EGBGB,
 // Kaufvertrag über Waren, Lieferung in einer Sendung (Textbaustein b), Rücksendekosten trägt der Verbraucher,

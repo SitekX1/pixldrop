@@ -5,6 +5,13 @@
  * (nichts wird gesendet oder gespeichert). Auch bei true ist in diesem Gerüst noch KEIN
  * Backend angebunden (Ben), der Schalter ist nur die Sollbruchstelle für später.
  */
+/**
+ * Zentraler Schalter für alle Entwurf-Hinweise (Titelzusatz "(Entwurf)", Zeile "noch nicht rechtsverbindlich",
+ * EntwurfBanner). Standard: an. Beim Livegang NEXT_PUBLIC_SHOP_ENTWURF=false setzen, ohne Codeänderung.
+ */
+export const ENTWURF_MODUS: boolean = process.env.NEXT_PUBLIC_SHOP_ENTWURF !== "false";
+export const entwurfTitel = (titel: string): string => (ENTWURF_MODUS ? `${titel} (Entwurf)` : titel);
+
 export const SHOP_AKTIV: boolean = process.env.NEXT_PUBLIC_SHOP_AKTIV === "true";
 
 export type HalloweenModus = "off" | "preview" | "sale";
@@ -28,13 +35,13 @@ export const TEXTE = {
   bestellInaktiv: "Bestellung noch nicht aktiv",
   anfrageButton: "Anfrage absenden (unverbindlich)",
   anfrageInaktiv: "Anfrage noch nicht aktiv",
-  preisFolgt: "Preis folgt",
+  preisFolgt: "Preis auf Anfrage",
   preisAnfrage: "Preis nach Anfrage",
   startHinweis: "Lieferung nur innerhalb Deutschlands. Bezahlung sofort per PayPal. Sonderwünsche (andere Schrift, Logo, Bild): bitte über „Individueller Druck“ anfragen.",
   vertragsschluss: "Nach dem Klick geht es direkt zu PayPal. Der Vertrag kommt mit meiner Bestellbestätigung per E-Mail nach erfolgter Zahlung zustande.",
   datenschutzHinweis: "Informationen zur Verarbeitung deiner Daten findest du in der",
-  versandHinweis: "Versandkosten folgen (Lieferung nur innerhalb Deutschlands)",
-  lieferzeitHinweis: "Lieferzeit folgt (Druckzeit plus Versand)",
+  versandHinweis: "Versandkosten werden im Warenkorb angezeigt (Lieferung nur innerhalb Deutschlands)",
+  lieferzeitHinweis: "Lieferzeit: Druckzeit plus Versand, genaue Angabe in der Bestellbestätigung",
   kleinunternehmer: "Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer",
   keinSpielzeug: "Kein Spielzeug, nicht für Kinder.",
   ledHinweis: "Nicht für offene Flammen (nur mit LED-Teelichtern).",
@@ -42,8 +49,8 @@ export const TEXTE = {
   widerrufNormal: "14 Tage Widerruf, Rücksendekosten trägt der Kunde.",
 } as const;
 
-// TESTWERTE (Platzhalter, damit der Server Bestellungen annimmt). Alex ersetzt sie durch die echten Werte
-// (null = "folgt", dann ist nichts bestellbar). Artikelpreise: TESTPREIS_CENT in lib/shop/produkte.ts.
+// TESTWERTE, damit der Server Bestellungen annimmt. Alex ersetzt sie durch die echten Werte
+// (null = nicht angegeben, dann ist nichts bestellbar). Artikelpreise: TESTPREIS_CENT in lib/shop/produkte.ts.
 export const VERSAND_CENT: number | null = 490; // TESTWERT 4,90 EUR
 export const LIEFERZEIT_TEXT: string | null = "3-5 Werktage"; // TESTWERT
 

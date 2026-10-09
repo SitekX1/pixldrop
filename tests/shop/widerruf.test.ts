@@ -147,21 +147,21 @@ test("Platzhalter-Guard: Platzhalter-Block blockiert freigegebene Mail, Echttext
   const agb = { agbText: "Echte AGB" };
   assert.doesNotThrow(() => bestaetigungsMail(bestellung, "Echter Rechtstext", true, agb));
   assert.doesNotThrow(() => bestaetigungsMail(bestellung, undefined, true, { siteUrl: "https://pixldrop.de", ...agb }));
-  assert.throws(() => bestaetigungsMail(bestellung, "Echter Rechtstext", true), "AGB-Entwurf mit [PLATZHALTER blockiert");
+  assert.doesNotThrow(() => bestaetigungsMail(bestellung, "Echter Rechtstext", true), "echter AGB_TEXT ist platzhalterfrei");
 });
 
 test("Rechtsblock: Belehrung und Formular fuer Standard, nur Hinweis bei individuell", () => {
-  const std = bestaetigungsMail(bestellung, undefined, false, { siteUrl: "https://pixldrop.de/" }).text;
+  const std = bestaetigungsMail(bestellung, undefined, false, { siteUrl: "https://pixldrop.de/" }).volltext;
   assert.match(std, /Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter/);
   assert.match(std, /MUSTER-WIDERRUFSFORMULAR/);
   assert.match(std, /https:\/\/pixldrop\.de\/3d-druck\/agb/);
-  const ind = bestaetigungsMail({ ...bestellung, individuell: true }, undefined, false, { siteUrl: "https://pixldrop.de" }).text;
+  const ind = bestaetigungsMail({ ...bestellung, individuell: true }, undefined, false, { siteUrl: "https://pixldrop.de" }).volltext;
   assert.match(ind, /kein Widerrufsrecht.*§ 312g Abs\. 2 Nr\. 1 BGB/);
   assert.ok(!ind.includes("MUSTER-WIDERRUFSFORMULAR"));
 });
 
 test("Online-Widerrufssatz steht hinter dem Absatz 'Um Ihr Widerrufsrecht auszuueben' (Gestaltungshinweis 3)", () => {
-  const std = bestaetigungsMail(bestellung, undefined, false, { siteUrl: "https://pixldrop.de" }).text;
+  const std = bestaetigungsMail(bestellung, undefined, false, { siteUrl: "https://pixldrop.de" }).volltext;
   const a = std.indexOf("Um Ihr Widerrufsrecht auszuüben");
   const o = std.indexOf("Sie können Ihr Widerrufsrecht auch online");
   const w = std.indexOf("Zur Wahrung der Widerrufsfrist");
@@ -176,9 +176,9 @@ test("Individuelle Bestellung: Standard-Belehrung nur, wenn Standardware enthalt
   // Flag fehlt: vorsichtig nach Anzahl
   assert.equal(enthaeltStandardware({ individuell: true, positionen: [pos()] }), false);
   assert.equal(enthaeltStandardware({ individuell: true, positionen: [pos(), pos()] }), true);
-  const nurInd = bestaetigungsMail({ ...bestellung, individuell: true, positionen: [pos(true), pos(true)] }, undefined, false, { siteUrl: "https://pixldrop.de" }).text;
+  const nurInd = bestaetigungsMail({ ...bestellung, individuell: true, positionen: [pos(true), pos(true)] }, undefined, false, { siteUrl: "https://pixldrop.de" }).volltext;
   assert.ok(!nurInd.includes("MUSTER-WIDERRUFSFORMULAR"));
-  const gemischt = bestaetigungsMail({ ...bestellung, individuell: true, positionen: [pos(true), pos(false)] }, undefined, false, { siteUrl: "https://pixldrop.de" }).text;
+  const gemischt = bestaetigungsMail({ ...bestellung, individuell: true, positionen: [pos(true), pos(false)] }, undefined, false, { siteUrl: "https://pixldrop.de" }).volltext;
   assert.ok(gemischt.includes("MUSTER-WIDERRUFSFORMULAR"));
 });
 

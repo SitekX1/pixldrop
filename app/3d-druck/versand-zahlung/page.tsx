@@ -1,31 +1,34 @@
 import ShopShell from "@/components/shop/ShopShell";
 import EntwurfBanner from "@/components/shop/EntwurfBanner";
 import { Abschnitt } from "@/components/shop/RechtText";
+import { ENTWURF_MODUS, entwurfTitel, LIEFERZEIT_TEXT, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
 
-export const metadata = { title: "Versand & Zahlung (Entwurf)" };
+export const metadata = { title: entwurfTitel("Versand & Zahlung") };
 
-// ENTWURF (recht-texte/versand-und-zahlung.md, Variante B, 2026-10-08). Werte (Kosten, Lieferzeit) liefert Alex.
+// recht-texte/versand-und-zahlung.md, Variante B, Stand 2026-10-09. Kosten und Lieferzeit kommen aus lib/shop/config.ts.
 export default function Versand() {
+  const versand = VERSAND_CENT != null ? `**${formatPreis(VERSAND_CENT)}** je Bestellung` : "wie auf der Übersichtsseite angezeigt";
+  const lieferzeit = LIEFERZEIT_TEXT ? `**${LIEFERZEIT_TEXT}** ab Vertragsschluss (Bestellbestätigung).` : "Die Lieferzeit steht bei jedem Artikel und auf der Übersichtsseite; sie läuft ab Vertragsschluss (Bestellbestätigung).";
   return (
     <ShopShell banner={<EntwurfBanner />}>
       <div className="shop-wrap" style={{ maxWidth: 720 }}>
         <article className="shop-legal">
           <h1 style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)" }}>Versand &amp; Zahlung</h1>
-          <p className="muted">Entwurf, noch nicht rechtsverbindlich. Gelb markierte Stellen sind noch offen.</p>
+          {ENTWURF_MODUS && <p className="muted">Entwurf, noch nicht rechtsverbindlich.</p>}
           <Abschnitt titel="Lieferung" absaetze={[
-            "Ich liefere **nur innerhalb Deutschlands** an die Adresse, die du bei der Bestellung angibst. [PLATZHALTER: Packstation/Postfach möglich ja/nein; Inseln/Sonderfälle]",
+            "Ich liefere **nur innerhalb Deutschlands** an die Adresse, die du bei der Bestellung angibst. Eine Lieferung an Packstationen, Postfächer und Paketshops ist nicht möglich; bitte gib eine Straßenanschrift an, an der du das Paket annehmen kannst. Deutsche Inseln werden ohne Aufpreis beliefert.",
           ]} />
           <Abschnitt titel="Versandarten und Kosten" absaetze={[
-            "Versandart: [PLATZHALTER z. B. Deutsche Post Päckchen/Warenpost oder DHL Paket] · Kosten: [PLATZHALTER €] · Sendungsverfolgung: [PLATZHALTER ja/nein]",
-            "Die Versandkosten werden vor dem Bestellbutton auf der Übersichtsseite angezeigt. Versandkostenfrei ab einem Bestellwert von [PLATZHALTER ja/nein, Betrag].",
+            `Versandart: Paket oder Päckchen mit DHL, **mit Sendungsverfolgung** · Kosten: ${versand} (Deutschland). Sobald die Sendung übergeben ist, schicke ich dir die Sendungsnummer per E-Mail.`,
+            "Die Versandkosten werden vor dem Bestellbutton auf der Übersichtsseite angezeigt. Eine versandkostenfreie Lieferung gibt es nicht.",
           ]} />
           <Abschnitt titel="Lieferzeit" absaetze={[
-            "**[PLATZHALTER z. B. 3 bis 5 Werktage Fertigung + 1 bis 3 Werktage Versand]** ab Vertragsschluss (Bestellbestätigung). Bei Individuellem nach Anfrage steht die Frist im Angebot.",
+            `${lieferzeit} Bei Individuellem nach Anfrage steht die Frist im Angebot.`,
           ]} />
           <Abschnitt titel="Zahlung" absaetze={[
-            "**PayPal, sofort bei Bestellung** (Vorkasse). Nach „Zahlungspflichtig bestellen“ wirst du direkt zu PayPal weitergeleitet. Der Kaufvertrag kommt mit meiner **Bestellbestätigung per E-Mail** nach erfolgter Zahlung zustande. PayPal bietet je nach Verfügbarkeit weitere Optionen (z. B. Lastschrift, Karte) an; es gelten PayPals Bedingungen. [PLATZHALTER: PayPal-Geschäftskonto folgt, Wortlaut danach abgleichen]",
+            "**PayPal, sofort bei Bestellung** (Vorkasse). Nach „Zahlungspflichtig bestellen“ wirst du direkt zu PayPal weitergeleitet. Der Kaufvertrag kommt mit meiner **Bestellbestätigung per E-Mail** nach erfolgter Zahlung zustande. PayPal bietet je nach Verfügbarkeit weitere Optionen (z. B. Lastschrift, Karte) an; es gelten PayPals Bedingungen.",
             "Wird die Zahlung bei PayPal nicht abgeschlossen, kommt kein Vertrag zustande. Ist ein Artikel trotz Zahlung nicht lieferbar (z. B. Farbe nicht mehr vorrätig), lehne ich die Bestellung ab und erstatte den Betrag unverzüglich über PayPal.",
-            "**Individuelles (Wunschtext, Namen, Bilder, Sonderanfertigung): Preis nach Anfrage.** Du schickst eine unverbindliche Anfrage, ich sende ein Angebot per E-Mail. Nach Annahme zahlst du per PayPal (Zahlungslink) **innerhalb von [PLATZHALTER 7] Tagen**; gedruckt wird nach Zahlungseingang.",
+            "**Individuelles (Wunschtext, Namen, Bilder, Sonderanfertigung): Preis nach Anfrage.** Du schickst eine unverbindliche Anfrage, ich sende ein Angebot per E-Mail. Nach Annahme zahlst du per PayPal (Zahlungslink) den vollen Preis **innerhalb von 7 Tagen**; gedruckt wird nach Zahlungseingang.",
             "Es entstehen für dich keine Zusatzgebühren für die Zahlung.",
             "Preise: Endpreise, **ohne Umsatzsteuerausweis gemäß § 19 UStG** (Kleinunternehmer).",
             "Rückerstattungen (z. B. nach Widerruf) laufen über dasselbe Zahlungsmittel.",
@@ -37,7 +40,7 @@ export default function Versand() {
             "Kann das Paket nicht zugestellt werden (falsche Adresse, nicht abgeholt), melde ich mich per E-Mail. Entstehen durch falsche Angaben von dir zusätzliche Kosten, kann ich sie dir berechnen, soweit gesetzlich zulässig.",
           ]} />
           <Abschnitt titel="Verpackung" absaetze={[
-            "[PLATZHALTER: Versandkarton/Füllmaterial; Hinweis zur Verpackungsregistrierung erst, wenn LUCID/Systembeteiligung erledigt ist.]",
+            "Ich verpacke selbst, in Versandkartons bzw. Versandtaschen mit Papier- oder Pappfüllmaterial, damit die Ware den Transport übersteht. Verpackungen, die ich in Verkehr bringe, sind nach dem Verpackungsgesetz bei der Zentralen Stelle Verpackungsregister (LUCID) registriert und an einem dualen System beteiligt.",
           ]} />
         </article>
       </div>

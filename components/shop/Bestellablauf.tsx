@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { istIndividuell, MASSE_PLATZHALTER, type Produkt } from "@/lib/shop/produkte";
+import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import type { Farbe } from "@/lib/shop/farben";
 import { ladeKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { SHOP_AKTIV, TEXTE, VERSAND_CENT, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
@@ -242,24 +242,24 @@ export default function Bestellablauf({
                         {farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
                         {optText.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
                         {a.text && <div><dt>Text</dt><dd>{a.text.split("\n").join(" / ")}</dd></div>}
-                        <div><dt>Maße</dt><dd>{p.masse ? `ca. ${p.masse} mm${p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}` : MASSE_PLATZHALTER}</dd></div>
+                        {p.masse && <div><dt>Maße</dt><dd>{`ca. ${p.masse} mm${p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}`}</dd></div>}
                         <div><dt>Material</dt><dd>{p.material}</dd></div>
                         <div><dt>Hersteller</dt><dd>siehe <a className="shop-link" style={{ minHeight: 0 }} href="/impressum" target="_blank" rel="noopener">Impressum</a></dd></div>
                         <div><dt>{a.menge} × Einzelpreis</dt><dd>{formatPreis(p.preisCent)}</dd></div>
-                        <div><dt>Summe</dt><dd>{p.preisCent != null ? formatPreis(p.preisCent * a.menge) : "folgt"}</dd></div>
+                        <div><dt>Summe</dt><dd>{p.preisCent != null ? formatPreis(p.preisCent * a.menge) : "auf Anfrage"}</dd></div>
                       </dl>
                     </li>
                   );
                 })}
               </ul>
               <dl>
-                <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "folgt"}</dd></div>
-                <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "folgt"}</dd></div>
+                <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
+                <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "auf Anfrage"}</dd></div>
               </dl>
-              <dl><div className="gesamt"><dt>Gesamtpreis</dt><dd>{gesamt != null ? formatPreis(gesamt) : "folgt"}</dd></div></dl>
+              <dl><div className="gesamt"><dt>Gesamtpreis</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div></dl>
               <div className="kleinteil">
                 <p>{TEXTE.kleinunternehmer}</p>
-                <p>Lieferzeit: {LIEFERZEIT_TEXT ?? "folgt"}. Lieferung nur innerhalb Deutschlands.</p>
+                <p>Lieferzeit: {LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}. Lieferung nur innerhalb Deutschlands.</p>
                 <p>Zahlung: sofort per PayPal. {TEXTE.vertragsschluss}</p>
                 <p>
                   Widerruf: {individuell ? <><strong>vom Widerruf ausgenommen: {ausgenommen.map(({ p }) => p.name).join(", ")} mit deinem Text (nach deinen Vorgaben gefertigt, § 312g Abs. 2 Nr. 1 BGB).</strong>{pos.length > ausgenommen.length && " Alle anderen Positionen: 14 Tage Widerruf."}</> : "14 Tage Widerruf."}{" "}

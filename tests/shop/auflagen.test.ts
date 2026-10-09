@@ -4,6 +4,7 @@ import { legeBestellungAn, schliesseZahlungAb, verarbeiteWebhook } from "@/lib/s
 import { fuehreBereinigungAus } from "@/lib/shop/server/bereinigung";
 import { bestaetigungsMail, enthaeltStandardware, PFLICHTANGABEN_PLATZHALTER, type MailBestellung } from "@/lib/shop/server/vorlagen";
 import { AGB_TEXT } from "@/lib/shop/server/agb-text";
+import { LIEFERZEIT_TEXT, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
 import { PayPalFehler } from "@/lib/shop/server/paypal";
 import { pruefeKunde } from "@/lib/shop/server/validierung";
 import { FakeDb, bestellEingabe, kontext, neueDeps, KUNDE } from "./mocks";
@@ -178,13 +179,15 @@ test("Bestaetigungsmail: bei freigegebenen Pflichtangaben nie mit Platzhalter", 
   const b = { nummer: "PD-2026-0001", name: "E", strasse: "S 1", plz: "86663", ort: "O", gesamt_cent: 3070, summe_waren_cent: 2580, versand_cent: 490, individuell: false, positionen: [] };
   const agbEcht = { agbText: "Echte AGB" };
   assert.throws(() => bestaetigungsMail(b, PFLICHTANGABEN_PLATZHALTER, true, agbEcht));
-  assert.throws(() => bestaetigungsMail(b, "Echter Rechtstext", true, { lieferzeit: "5 Werktage" }), /Platzhalter/, "echter AGB_TEXT mit [PLATZHALTER blockiert");
+  assert.doesNotThrow(() => bestaetigungsMail(b, "Echter Rechtstext", true, { lieferzeit: "5 Werktage" }), "echter AGB_TEXT ist platzhalterfrei");
   assert.throws(() => bestaetigungsMail(b, "Echter Rechtstext", true, { lieferzeit: "5 Werktage", agbText: "x [PLATZHALTER 2] y" }));
-  assert.match(bestaetigungsMail(b, PFLICHTANGABEN_PLATZHALTER, false).text, /PLATZHALTER/);
-  const echt = bestaetigungsMail(b, "Echter Rechtstext", true, { lieferzeit: "5 Werktage", agbText: "Echte AGB" }).text;
+  assert.match(bestaetigungsMail(b, PFLICHTANGABEN_PLATZHALTER, false).volltext, /PLATZHALTER/);
+  const echt = bestaetigungsMail(b, "Echter Rechtstext", true, { lieferzeit: "5 Werktage", agbText: "Echte AGB" }).volltext;
   assert.ok(echt.includes("Echter Rechtstext") && !echt.includes("PLATZHALTER"));
   assert.ok(echt.includes("ALLGEMEINE GESCHÄFTSBEDINGUNGEN") && echt.includes("Echte AGB"));
-  assert.ok(AGB_TEXT.includes("[PLATZHALTER"), "AGB-Entwurf enthaelt noch Platzhalter (Guard greift)");
+  assert.ok(!/PLATZHALTER/i.test(AGB_TEXT), "AGB-Text ist platzhalterfrei");
+  assert.ok(AGB_TEXT.includes("Stand: 9. Oktober 2026") && !AGB_TEXT.includes("**"), "Stand gesetzt, Klartext ohne Fett-Markierung");
+  assert.ok(AGB_TEXT.includes(LIEFERZEIT_TEXT ?? "\0") && AGB_TEXT.includes(VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "\0"), "Lieferzeit und Versandkosten kommen aus config.ts");
 });
 
 test("enthaeltStandardware nutzt das Positions-Flag, sonst Fallback", () => {

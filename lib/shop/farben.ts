@@ -11,8 +11,8 @@ export interface Farbe {
   material?: string;
 }
 
-// PLATZHALTER, keine echten Lagerfarben (Fallback, solange der RPC nicht erreichbar ist).
-const PLATZHALTER: Farbe[] = [
+// Standardfarben (Fallback, solange der RPC nicht erreichbar ist).
+const STANDARDFARBEN: Farbe[] = [
   { id: "honig", name: "Honiggold", hex: "#f0bb55" },
   { id: "mint", name: "Mintgrün", hex: "#4fb894" },
   { id: "kaffee", name: "Kaffeebraun", hex: "#6b4423" },
@@ -75,5 +75,5 @@ export async function holeLagerFarben(fetchImpl: typeof fetch = fetch): Promise<
 /** Fuer die Anzeige: Lagerfarben, bei Fehlern/ohne Konfiguration die Platzhalterliste. */
 export async function holeFarben(): Promise<Farbe[]> {
   const lager = await holeLagerFarben();
-  return lager ?? PLATZHALTER;
+  return lager ?? STANDARDFARBEN;
 }

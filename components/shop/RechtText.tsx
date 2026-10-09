@@ -1,4 +1,4 @@
-// Rendert Entwurfs-Rechtstexte aus Zeichenketten: [PLATZHALTER ...] wird sichtbar markiert,
+// Rendert Rechtstexte aus Zeichenketten: [PLATZHALTER ...] (falls vorhanden) wird sichtbar markiert,
 // **fett** wird hervorgehoben. Reiner Text, kein HTML aus Fremdquellen.
 import type { ReactNode } from "react";
 

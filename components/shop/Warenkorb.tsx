@@ -81,9 +81,9 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
       </ul>
 
       <dl className="shop-cart-sum">
-        <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "folgt"}</dd></div>
-        <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "folgt"}</dd></div>
-        <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : "folgt"}</dd></div>
+        <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
+        <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "auf Anfrage"}</dd></div>
+        <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div>
       </dl>
       <p className="muted">{TEXTE.kleinunternehmer}</p>
       {ausgenommen.length > 0 && (

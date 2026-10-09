@@ -1,5 +1,5 @@
-// Produktdaten (PLATZHALTER). Später durch DB/Supabase ersetzbar, die Typen bleiben gleich.
-// Keine erfundenen Preise, Maße, Gewichte, Lieferzeiten oder Bewertungen: null = "folgt".
+// Produktdaten. Später durch DB/Supabase ersetzbar, die Typen bleiben gleich.
+// Keine erfundenen Maße, Gewichte oder Bewertungen: masse null = Maßblock wird nicht angezeigt.
 import { halloweenModus } from "./config";
 
 export type Kategorie = "halloween" | "untersetzer" | "sonstiges";
@@ -32,9 +32,9 @@ export interface Produkt {
   kategorien: Kategorie[];
   form: Form;
   grundfarbe: string; // nur für den Bildplatzhalter
-  preisCent: number | null; // null = "Preis folgt"
-  masse: string | null; // "L × B × H" in mm, z. B. "90 × 90 × 6"; null = "Maße folgen"
-  toleranzMm?: string; // z. B. "0,5"; gehört zur Maßangabe, Pflicht für Live
+  preisCent: number | null; // null = "Preis auf Anfrage"
+  masse: string | null; // "L × B × H" in mm, z. B. "90 × 90 × 6"; null = keine Maßangabe, Block entfällt
+  toleranzMm?: string; // z. B. "0,5"; gehört zur Maßangabe; fehlt sie, gilt der allgemeine FDM-Hinweis
   material: string;
   optionen: Optionsgruppe[];
   personalisierung: null | Personalisierung;
@@ -46,10 +46,15 @@ export interface Produkt {
 }
 
 const KEIN_SPIELZEUG = "Kein Spielzeug, nicht für Kinder.";
-const HITZE = "Nicht für Töpfe oder direkt heiße Gefäße. Hitzegrenze folgt nach eigenem Test.";
+/** Hitzehinweis je Material. */
+export function hitzeHinweis(material: string): string {
+  const grenze = /petg/i.test(material) ? "ca. 70 °C" : "ca. 50 °C";
+  return `Nicht für Töpfe oder direkt heiße Gefäße; nicht für dauerhaft über ${grenze}.`;
+}
 const LED = "Nicht für offene Flammen (nur mit LED-Teelichtern).";
-const MATERIAL = "PLA (Angabe vorläufig)";
-// TESTWERT: Platzhalterpreis (9,90 EUR) fuer alle bestellbaren Artikel, damit der Server Bestellungen annimmt.
+const MATERIAL = "PLA"; // Alex trägt je Artikel das echte Material ein (PLA oder PETG)
+const HITZE = hitzeHinweis(MATERIAL);
+// TESTWERT: Testpreis (9,90 EUR) fuer alle bestellbaren Artikel, damit der Server Bestellungen annimmt.
 // Alex ersetzt ihn je Artikel durch den echten Preis.
 const TESTPREIS_CENT = 990;
 
@@ -141,7 +146,7 @@ export const PRODUKTE: Produkt[] = [
     name: "Halloween-Untersetzer",
     kurz: "Der Untersetzer für die Tasse im Herbst, mit Halloween-Motiv.",
     beschreibung:
-      "Ein Untersetzer mit Halloween-Motiv für die Tasse. Motiv und Lizenz stehen noch nicht endgültig fest.",
+      "Ein Untersetzer mit Halloween-Motiv für die Tasse.",
     gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
@@ -170,17 +175,8 @@ export function istLiveBetrieb(): boolean {
   return typeof process !== "undefined" && process.env?.PAYPAL_ENV === "live";
 }
 
-/** Platzhalter-Marker für fehlende Maße (Preview). Im Live-Betrieb ist der Artikel dann nicht bestellbar. */
-export const MASSE_PLATZHALTER = "[Maße folgen]";
-
-/** Angaben, die für den Live-Betrieb Pflicht sind: Maße vorhanden, Material nicht mehr "vorläufig". */
-export function hatLivePflichtangaben(p: Produkt): boolean {
-  return !!p.masse && p.masse.trim() !== "" && !!p.toleranzMm && !/vorläufig/i.test(p.material);
-}
-
 export function istBestellbar(p: Produkt): boolean {
   if (p.nurAnfrage) return false;
-  if (istLiveBetrieb() && !hatLivePflichtangaben(p)) return false;
   return p.gruppe !== "halloween" || halloweenModus() === "sale";
 }
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import ShopShell from "@/components/shop/ShopShell";
 import EddieSchnitt from "@/components/shop/EddieSchnitt";
 import Ring from "@/components/shop/Ring";
+import { LIEFERZEIT_TEXT, TEXTE } from "@/lib/shop/config";
 import { bestellnummerOk } from "@/lib/shop/client";
 import BestellungAbschluss from "@/components/shop/BestellungAbschluss";
 
@@ -37,7 +38,7 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
               <li><strong>Zahlung</strong>Du hast per PayPal bezahlt. Den Beleg schickt dir PayPal.</li>
               <li><strong>Bestätigung per E-Mail</strong>Sobald die Zahlung bestätigt ist, folgt sie mit AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Kommt nichts an, schreib an as@sitekx.de.</li>
               <li><strong>Wunschtext-Prüfung</strong>Hast du den Text geändert, prüfe ich ihn nach deiner Zahlung vor dem Druck. Ist er unzulässig (AGB Ziffer 9 Abs. 3), trete ich vom Vertrag zurück, melde mich bei dir und erstatte dir den vollen Betrag einschließlich Versand.</li>
-              <li><strong>Druck und Versand</strong>Lieferzeit: folgt. Ich druck und verpacke selbst.</li>
+              <li><strong>Druck und Versand</strong>Lieferzeit: {LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}. Ich drucke und verpacke selbst.</li>
             </ol>
           </section>
           <EddieSchnitt className="shop-eddie-mini" />
