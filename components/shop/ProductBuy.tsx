@@ -95,10 +95,19 @@ export default function ProductBuy({
     <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>
   );
 
+  const widerruf = pers && individuell ? (
+    <p className="shop-widerruf shop-widerruf--warn" role="note">Mit geändertem Text wird das Stück nach deinen Vorgaben gefertigt. Dafür besteht <strong>kein Widerrufsrecht</strong> (§ 312g Abs. 2 Nr. 1 BGB). Du bestätigst das vor der Bestellung.</p>
+  ) : pers ? (
+    <p className="shop-widerruf" role="note">Unverändert bestellt ist es Standardware mit 14 Tagen Widerruf.</p>
+  ) : (
+    <p className="shop-widerruf" role="note">Standardware mit 14 Tagen Widerruf.</p>
+  );
+  const aendereZeile = (i: number, v: string) => { setZeilen(zeilen.map((x, k) => (k === i ? v : x))); setFilterZeigen(true); };
+
   return (
-    <>
+    <div className="shop-buy">
       {pers && (
-        <fieldset>
+        <fieldset className="shop-step">
           <legend>{pers.label}</legend>
           <div className="shop-textvorschau">
             <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} typ="Live-Vorschau" breit />
@@ -108,14 +117,14 @@ export default function ProductBuy({
               <div className="shop-field" key={z.label}>
                 <label htmlFor={`t-${i}`}>{z.label}</label>
                 <input id={`t-${i}`} className="shop-input" type="text" maxLength={z.max} value={zeilen[i]} autoComplete="off" spellCheck={false}
-                  aria-invalid={filterFehler ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => setZeilen(zeilen.map((x, k) => (k === i ? e.target.value : x)))} />
+                  aria-invalid={filterFehler ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => aendereZeile(i, e.target.value)} />
               </div>
             ))
           ) : (
             <div className="shop-field">
               <label htmlFor="t-0">{pers.label}</label>
               <input id="t-0" className="shop-input" type="text" maxLength={pers.maxLaenge} value={zeilen[0]} autoComplete="off" spellCheck={false}
-                placeholder={`z. B. ${pers.beispiel}…`} aria-invalid={filterFehler ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => setZeilen([e.target.value])} />
+                placeholder={`z. B. ${pers.beispiel}…`} aria-invalid={filterFehler ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => aendereZeile(0, e.target.value)} />
             </div>
           )}
           {textFehler && <p id="t-fehler" className="shop-err" role="alert">{textFehler}</p>}
@@ -124,31 +133,29 @@ export default function ProductBuy({
               <span>{filterFehler}<br /><Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></span>
             </p>
           )}
-          {!pers.festeSchrift && (
-            <fieldset className="shop-schriften">
-              <legend>Schrift wählen</legend>
-              {SCHRIFTEN.map((sf) => (
-                <label key={sf.id} className="shop-schrift">
-                  <input type="radio" name="t-schrift" value={sf.id} checked={schriftId === sf.id} onChange={() => setSchriftId(sf.id)} />
-                  <span className="shop-schrift-bsp" style={{ fontFamily: sf.family }} aria-hidden="true">{beispielText}</span>
-                  <span className="shop-schrift-name">{sf.name}</span>
-                </label>
-              ))}
-            </fieldset>
-          )}
           <p className="muted">Erlaubt: Buchstaben, Zahlen und . , ! ? &amp; - &apos;. Der Text wird automatisch auf unzulässige Inhalte und Marken geprüft; im Zweifel hilft eine individuelle Anfrage. Bei geändertem Text prüfe ich ihn nach der Zahlung noch selbst, innerhalb von 24 Stunden; erst danach bekommst du die Bestellbestätigung. Lehne ich ihn ab, erstatte ich den vollen Betrag (AGB Ziffer 9 Abs. 3).</p>
-          {individuell ? (
-            <p className="shop-note shop-note--warn" role="note">Mit geändertem Text wird das Stück nach deinen Vorgaben gefertigt. Dafür besteht <strong>kein Widerrufsrecht</strong> (§ 312g Abs. 2 Nr. 1 BGB). Du bestätigst das vor der Bestellung.</p>
-          ) : (
-            <p className="muted">Unverändert bestellt ist es normale Standardware mit 14 Tagen Widerruf.</p>
-          )}
           <p className="muted">Andere Schrift, Logo oder Bild? <Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></p>
+        </fieldset>
+      )}
+
+      {pers && !pers.festeSchrift && (
+        <fieldset className="shop-step shop-schriften">
+          <legend>Schrift wählen</legend>
+          <div className="shop-schriften-raster">
+            {SCHRIFTEN.map((sf) => (
+              <label key={sf.id} className="shop-schrift">
+                <input type="radio" name="t-schrift" value={sf.id} checked={schriftId === sf.id} onChange={() => setSchriftId(sf.id)} />
+                <span className="shop-schrift-bsp" style={{ fontFamily: sf.family }} aria-hidden="true">{beispielText}</span>
+                <span className="shop-schrift-name">{sf.name}</span>
+              </label>
+            ))}
+          </div>
         </fieldset>
       )}
 
       {/* Farbwahl */}
       {farben.length > 0 ? (
-        <fieldset>
+        <fieldset className="shop-step">
           <legend>Farbe</legend>
           <div className="shop-swatches">
             {farben.map((f) => (
@@ -173,7 +180,7 @@ export default function ProductBuy({
       )}
 
       {produkt.optionen.map((g) => (
-        <fieldset key={g.id}>
+        <fieldset key={g.id} className="shop-step">
           <legend>{g.label}</legend>
           <div className="shop-options">
             {g.optionen.map((o) => (
@@ -187,16 +194,19 @@ export default function ProductBuy({
       ))}
 
       {/* Menge + Aktion */}
-      <div className="shop-field">
-        <label htmlFor="menge">Menge</label>
+      <fieldset className="shop-step shop-step--menge">
+        <legend>Menge</legend>
         <div className="shop-stepper">
           <button type="button" aria-label="Menge verringern" onClick={() => setMenge(Math.max(1, menge - 1))}>−</button>
-          <input id="menge" className="shop-input" type="number" inputMode="numeric" min={1} max={20} value={menge}
+          <input id="menge" className="shop-input" type="number" inputMode="numeric" min={1} max={20} value={menge} aria-label="Menge"
             onChange={(e) => setMenge(Math.min(20, Math.max(1, Number(e.target.value) || 1)))} />
           <button type="button" aria-label="Menge erhöhen" onClick={() => setMenge(Math.min(20, menge + 1))}>+</button>
         </div>
+      </fieldset>
+      <div className="shop-kaufzeile">
+        <div ref={aktion} className="shop-kaufknopf">{knopf}</div>
+        {widerruf}
       </div>
-      <div ref={aktion}>{knopf}</div>
       <div id="hinzu" role="status" aria-live="polite">
         {hinzu && (
           <div className={hinzu.ok ? "shop-note" : "shop-note shop-note--warn"} style={{ display: "grid", gap: 10 }}>
@@ -218,6 +228,6 @@ export default function ProductBuy({
         <span className="shop-price-small">{preisText}</span>
         {bestellbar ? <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
       </div>
-    </>
+    </div>
   );
 }

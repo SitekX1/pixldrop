@@ -51,42 +51,44 @@ export default async function Produktseite({ params }: Props) {
                 <li><Link className="shop-link" href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               </ul>
             </div>
-            <div className="shop-note shop-note--warn" role="note">
-              {p.hinweise.map((h) => <p key={h}>{h}</p>)}
-            </div>
             <ProductBuy produkt={p} farben={farben} bestellbar={bestellbar} preisText={preis} />
-
-            <section aria-labelledby="masse-druckbild" style={{ display: "grid", gap: 8 }}>
-              <h2 id="masse-druckbild" style={{ fontSize: "1.25rem" }}>{p.masse ? "Maße und Druckbild" : "Druckbild"}</h2>
-              {p.masse && (
-                <p>
-                  <strong>Maße:</strong> ca. {p.masse} mm.{" "}
-                  {p.toleranzMm ? `Toleranz ±${p.toleranzMm} mm.` : "Maße sind ca.-Angaben, Toleranz im Rahmen des FDM-Verfahrens."}
-                </p>
-              )}
-              <p>
-                <strong>Druckbild:</strong> Das Stück wird im FDM-Verfahren Schicht für Schicht gedruckt; feine Schichtlinien sind sichtbar und gehören zu diesem Produkt. Die Farbe kann je nach Bildschirm anders aussehen.
-              </p>
-            </section>
-
-            <section aria-labelledby="details" style={{ display: "grid", gap: 8 }}>
-              <h2 id="details" style={{ fontSize: "1.25rem" }}>Details</h2>
-              <dl className="shop-details">
-                {p.masse && <div><dt>Maße</dt><dd>ca. {p.masse} mm</dd></div>}
-                <div><dt>Material</dt><dd>{p.material}</dd></div>
-                <div><dt>Pflege / Hitze</dt><dd>{hitzeHinweis(p.material)}</dd></div>
-                <div><dt>Modell</dt><dd>Eigenentwurf</dd></div>
-              </dl>
-            </section>
-            <section className="shop-gpsr" aria-labelledby="gpsr">
-              <h2 id="gpsr">Hersteller und Sicherheit</h2>
-              <p>Herstellerangaben: siehe <Link className="shop-link" style={{ minHeight: 0 }} href="/impressum">Impressum</Link></p>
-              <p>{TEXTE.keinSpielzeug}</p>
-              {p.hinweise.filter((h) => h !== TEXTE.keinSpielzeug).map((h) => <p key={h}>{h}</p>)}
-            </section>
+            <p className="shop-sicher-kurz">Kein Spielzeug, hitzeempfindlich: <a className="shop-link" style={{ minHeight: 0 }} href="#sicherheit">Sicherheitshinweise</a></p>
           </div>
         </div>
         </VorschauProvider>
+        <section className="shop-detailbereich" aria-labelledby="details">
+          <h2 id="details">Details</h2>
+          <div className="shop-detailraster">
+            <article className="shop-dkarte" aria-labelledby="masse-druckbild">
+              <h3 id="masse-druckbild">{p.masse ? "Maße und Druckbild" : "Druckbild"}</h3>
+              <dl className="shop-details">
+                {p.masse && <div><dt>Maße</dt><dd>ca. {p.masse} mm{p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}</dd></div>}
+                <div><dt>Material</dt><dd>{p.material}</dd></div>
+                <div><dt>Modell</dt><dd>Eigenentwurf</dd></div>
+              </dl>
+              {p.masse && !p.toleranzMm && <p className="muted">Maße sind ca.-Angaben, Toleranz im Rahmen des FDM-Verfahrens.</p>}
+              <p>Das Stück wird im FDM-Verfahren Schicht für Schicht gedruckt; feine Schichtlinien sind sichtbar und gehören zu diesem Produkt. Die Farbe kann je nach Bildschirm anders aussehen.</p>
+            </article>
+            <article className="shop-dkarte shop-dkarte--sicher" id="sicherheit" aria-labelledby="gpsr">
+              <h3 id="gpsr">Sicherheit und Hinweise</h3>
+              <ul>
+                <li>{hitzeHinweis(p.material)}</li>
+                <li>{TEXTE.keinSpielzeug}</li>
+                {p.hinweise.filter((h) => h !== TEXTE.keinSpielzeug && h !== hitzeHinweis(p.material)).map((h) => <li key={h}>{h}</li>)}
+              </ul>
+            </article>
+            <article className="shop-dkarte" aria-labelledby="versand-widerruf">
+              <h3 id="versand-widerruf">Versand, Lieferzeit, Widerruf</h3>
+              <ul>
+                <li>{p.nurAnfrage ? "Preis, Versand und Lieferzeit stehen im Angebot per E-Mail" : VERSAND_CENT != null ? `Versand ${formatPreis(VERSAND_CENT)} (nur Deutschland)` : TEXTE.versandHinweis}</li>
+                {!p.nurAnfrage && <li>{LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}</li>}
+                <li>Standardware: 14 Tage Widerruf. Bei individuellem Text besteht kein Widerrufsrecht.</li>
+                <li><Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
+              </ul>
+              <p className="muted">Hersteller: siehe <Link className="shop-link" style={{ minHeight: 0 }} href="/impressum">Impressum</Link> (Kontakt unten).</p>
+            </article>
+          </div>
+        </section>
       </div>
     </ShopShell>
   );

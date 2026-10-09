@@ -15,6 +15,19 @@ function Zeilen({ zeilen, size, x, cy, fill, family, weight = 700 }: { zeilen: s
 // Bildplatzhalter bis echte Fotos da sind: Honig-Fläche, Objekt in der Produktfarbe, Typ-Badge
 // (§ 5 UWG: Muster/Render/Foto muss gekennzeichnet sein). Keine Stockbilder.
 const DUNKEL = "#1f1428";
+
+// WCAG-Kontrast: Textfarbe (dunkel/hell) nach Untergrund wählen, damit >= 4,5:1 erreicht wird.
+function leuchtdichte(hex: string) {
+  const n = parseInt(hex.replace("#", "").padEnd(6, "0").slice(0, 6), 16);
+  const k = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+  return 0.2126 * k[0] + 0.7152 * k[1] + 0.0722 * k[2];
+}
+export function textfarbeFuer(hex: string) {
+  const l = leuchtdichte(hex);
+  const kDunkel = (l + 0.05) / (leuchtdichte(DUNKEL) + 0.05);
+  const kHell = 1.05 / (l + 0.05);
+  return kDunkel >= kHell ? DUNKEL : "#ffffff";
+}
 const LICHT = "#ffe9a8";
 
 function Schild({ c, text, family }: { c: string; text?: string; family?: string }) {
@@ -24,8 +37,8 @@ function Schild({ c, text, family }: { c: string; text?: string; family?: string
   return (
     <g>
       <rect x="10" y="28" width="80" height="46" rx="7" fill={c} stroke="rgba(0,0,0,.25)" strokeWidth="1.5" />
-      <text x="16" y="39" fontSize="5.2" fill="rgba(255,255,255,.8)" style={{ fontFamily: f }}>{klein}</text>
-      <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={58} fill="#fff" family={f} />
+      <text x="16" y="39" fontSize="5.2" fill={textfarbeFuer(c)} fillOpacity=".85" style={{ fontFamily: f }}>{klein}</text>
+      <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={58} fill={textfarbeFuer(c)} family={f} />
       <rect x="22" y="74" width="56" height="5" rx="2" fill="rgba(0,0,0,.25)" />
     </g>
   );
@@ -74,7 +87,7 @@ function Motiv({ form, c, text, family }: { form: Form; c: string; text?: string
           <circle cx="50" cy="50" r="27" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" />
           {text ? (() => {
             const u = umbrechen(text.replace(/\n/g, " "), 46, 11, 6.5, 4, 40);
-            return <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={50} fill="rgba(0,0,0,.65)" family={family ?? "sans-serif"} />;
+            return <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={50} fill={textfarbeFuer(c)} family={family ?? "sans-serif"} />;
           })() : (
             <rect x="30" y="46" width="40" height="8" rx="4" fill="rgba(0,0,0,.22)" />
           )}

@@ -480,7 +480,7 @@
 .fg-radio:has(input:focus-visible) { outline: 3px solid var(--shop-focus); outline-offset: 2px; }
 
 /* ---------- Schriftwahl (jede Schrift in sich selbst) ---------- */
-.shop-schriften { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; border: 0; padding: 0; margin: 0; }
+.shop-schriften-raster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .shop-schriften legend { font: 600 0.9375rem var(--shop-display); color: var(--shop-ink); margin-bottom: 6px; padding: 0; }
 .shop-schrift { position: relative; display: grid; align-content: center; justify-items: center; gap: 2px; min-height: 64px; padding: 6px 8px; text-align: center; background: #fff; border: 1.5px solid var(--shop-control); border-radius: var(--shop-r-m); cursor: pointer; touch-action: manipulation; }
 .shop-schrift input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
@@ -488,4 +488,37 @@
 .shop-schrift-name { font-size: 0.75rem; color: var(--shop-muted); }
 .shop-schrift:has(input:checked) { border-color: var(--shop-ink); box-shadow: 0 0 0 2px var(--shop-ink); background: var(--shop-bon); }
 .shop-schrift:has(input:focus-visible) { outline: 3px solid var(--shop-link); outline-offset: 2px; }
-@media (min-width: 640px) { .shop-schriften { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 640px) { .shop-schriften-raster { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* ---------- Produktseite Desktop-Layout: sticky Vorschau links, nummerierte Schritte rechts, Details volle Breite ---------- */
+.shop-buy { display: grid; gap: 14px; counter-reset: schritt; }
+.shop-step { counter-increment: schritt; padding: 16px 16px 16px; border: 1.5px solid var(--shop-line) !important; border-radius: var(--shop-r-m); background: var(--shop-card); gap: 12px; }
+.shop-step legend { display: flex; align-items: center; gap: 10px; float: left; width: 100%; margin: 0 0 2px; }
+.shop-step legend + * { clear: both; }
+.shop-step legend::before { content: counter(schritt); flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--shop-ink); color: var(--shop-on-ink); display: grid; place-items: center; font: 800 0.875rem var(--shop-display); }
+.shop-kaufzeile { display: grid; gap: 12px; align-items: stretch; }
+.shop-kaufknopf .shop-btn { width: 100%; min-height: 56px; font-size: 1.125rem; }
+.shop-widerruf { margin: 0; padding: 10px 12px; border-left: 4px solid var(--shop-control); border-radius: var(--shop-r-s); background: var(--shop-tint); color: var(--shop-ink); font-size: 0.875rem; line-height: 1.4; }
+.shop-widerruf--warn { border-left-color: var(--shop-ink); background: var(--shop-honey); color: var(--shop-on-honey); font-weight: 600; }
+.shop-sicher-kurz { margin: 0; font-size: 0.875rem; color: var(--shop-muted); }
+.shop-detailbereich { margin-top: 56px; display: grid; gap: 20px; }
+.shop-detailbereich > h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
+.shop-detailraster { display: grid; gap: 16px; align-items: start; }
+.shop-dkarte { display: grid; gap: 8px; padding: 18px 20px 20px; border-top: 3px solid var(--shop-ink); background: var(--shop-card); border-radius: 0 0 var(--shop-r-m) var(--shop-r-m); box-shadow: var(--shop-sh-card); font-size: 0.9375rem; }
+.shop-dkarte h3 { font-size: 1.125rem; margin-bottom: 4px; }
+.shop-dkarte p { margin: 0; }
+.shop-dkarte ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+.shop-dkarte--sicher { border: 2px solid var(--shop-ink); background: var(--shop-honey); color: var(--shop-on-honey); border-radius: var(--shop-r-m); box-shadow: none; }
+.shop-dkarte--sicher h3 { color: var(--shop-on-honey); }
+.shop-dkarte--sicher a { color: var(--shop-on-honey); }
+.shop-dkarte .shop-details div { grid-template-columns: 6.5rem 1fr; }
+@media (min-width: 1024px) {
+  .shop-product { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 64px; }
+  .shop-product .shop-gallery { top: 32px; }
+  .shop-product .shop-gallery .shop-gallery-track { border-radius: var(--shop-r-l); }
+  .shop-product .shop-textvorschau { display: none; }
+  .shop-detailraster { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .shop-detailbereich { margin-top: 80px; }
+  .shop-kaufzeile { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+}
+@media (min-width: 1024px) and (max-width: 1180px) { .shop-kaufzeile { grid-template-columns: 1fr; } }
