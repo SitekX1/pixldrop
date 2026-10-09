@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { istIndividuell, MASSE_PLATZHALTER, type Produkt } from "@/lib/shop/produkte";
 import type { Farbe } from "@/lib/shop/farben";
 import { ladeKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { SHOP_AKTIV, TEXTE, VERSAND_CENT, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
@@ -242,8 +242,9 @@ export default function Bestellablauf({
                         {farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
                         {optText.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
                         {a.text && <div><dt>Text</dt><dd>{a.text.split("\n").join(" / ")}</dd></div>}
-                        <div><dt>Maße</dt><dd>{p.masse ?? "folgen"}</dd></div>
+                        <div><dt>Maße</dt><dd>{p.masse ? `ca. ${p.masse} mm${p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}` : MASSE_PLATZHALTER}</dd></div>
                         <div><dt>Material</dt><dd>{p.material}</dd></div>
+                        <div><dt>Hersteller</dt><dd>siehe <a className="shop-link" style={{ minHeight: 0 }} href="/impressum" target="_blank" rel="noopener">Impressum</a></dd></div>
                         <div><dt>{a.menge} × Einzelpreis</dt><dd>{formatPreis(p.preisCent)}</dd></div>
                         <div><dt>Summe</dt><dd>{p.preisCent != null ? formatPreis(p.preisCent * a.menge) : "folgt"}</dd></div>
                       </dl>

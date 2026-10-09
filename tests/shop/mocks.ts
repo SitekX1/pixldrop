@@ -136,9 +136,9 @@ export class FakeDb implements Db {
         if (!b || b.zahlungsstatus !== "bezahlt" || b.bestaetigt) return { ok: false, grund: "nichts_zu_tun" };
         return {
           ok: true, nummer: b.nummer, gesamt_cent: b.gesamt_cent, summe_waren_cent: b.gesamt_cent - 490, versand_cent: 490,
-          individuell: b.positionen.some((x) => x.text != null), name: b.kunde.name, strasse: b.kunde.strasse, plz: b.kunde.plz,
+          individuell: b.positionen.some((x) => x.individuell === true), name: b.kunde.name, strasse: b.kunde.strasse, plz: b.kunde.plz,
           ort: b.kunde.ort, email: b.kunde.email,
-          positionen: b.positionen.map((x) => ({ name: x.name, menge: x.menge, einzelpreis_cent: x.einzelpreis_cent, farbe: x.farbe_name, text: x.text, schrift: x.schrift, optionen: x.optionen })),
+          positionen: b.positionen.map((x) => ({ name: x.name, menge: x.menge, einzelpreis_cent: x.einzelpreis_cent, farbe: x.farbe_name, text: x.text, schrift: x.schrift, optionen: x.optionen, individuell: x.individuell === true })),
         };
       }
       case "shop_markiere": {

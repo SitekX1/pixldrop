@@ -144,8 +144,10 @@ test("Bestellbestätigung: Annahme, Vertragsschluss, Übersicht, Transaktion, Ko
 
 test("Platzhalter-Guard: Platzhalter-Block blockiert freigegebene Mail, Echttext (Lieferzeit aus config) geht durch", () => {
   assert.throws(() => bestaetigungsMail(bestellung, PFLICHTANGABEN_PLATZHALTER, true));
-  assert.doesNotThrow(() => bestaetigungsMail(bestellung, "Echter Rechtstext", true));
-  assert.doesNotThrow(() => bestaetigungsMail(bestellung, undefined, true, { siteUrl: "https://pixldrop.de" }));
+  const agb = { agbText: "Echte AGB" };
+  assert.doesNotThrow(() => bestaetigungsMail(bestellung, "Echter Rechtstext", true, agb));
+  assert.doesNotThrow(() => bestaetigungsMail(bestellung, undefined, true, { siteUrl: "https://pixldrop.de", ...agb }));
+  assert.throws(() => bestaetigungsMail(bestellung, "Echter Rechtstext", true), "AGB-Entwurf mit [PLATZHALTER blockiert");
 });
 
 test("Rechtsblock: Belehrung und Formular fuer Standard, nur Hinweis bei individuell", () => {

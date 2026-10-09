@@ -33,7 +33,8 @@ export interface Produkt {
   form: Form;
   grundfarbe: string; // nur für den Bildplatzhalter
   preisCent: number | null; // null = "Preis folgt"
-  masse: string | null; // null = "Maße folgen"
+  masse: string | null; // "L × B × H" in mm, z. B. "90 × 90 × 6"; null = "Maße folgen"
+  toleranzMm?: string; // z. B. "0,5"; gehört zur Maßangabe, Pflicht für Live
   material: string;
   optionen: Optionsgruppe[];
   personalisierung: null | Personalisierung;
@@ -164,8 +165,22 @@ export function holeProdukt(slug: string): Produkt | undefined {
   return sichtbareProdukte().find((p) => p.slug === slug);
 }
 
+/** Live-Betrieb (PAYPAL_ENV=live). Nur serverseitig sinnvoll; im Browser immer false. */
+export function istLiveBetrieb(): boolean {
+  return typeof process !== "undefined" && process.env?.PAYPAL_ENV === "live";
+}
+
+/** Platzhalter-Marker für fehlende Maße (Preview). Im Live-Betrieb ist der Artikel dann nicht bestellbar. */
+export const MASSE_PLATZHALTER = "[Maße folgen]";
+
+/** Angaben, die für den Live-Betrieb Pflicht sind: Maße vorhanden, Material nicht mehr "vorläufig". */
+export function hatLivePflichtangaben(p: Produkt): boolean {
+  return !!p.masse && p.masse.trim() !== "" && !!p.toleranzMm && !/vorläufig/i.test(p.material);
+}
+
 export function istBestellbar(p: Produkt): boolean {
   if (p.nurAnfrage) return false;
+  if (istLiveBetrieb() && !hatLivePflichtangaben(p)) return false;
   return p.gruppe !== "halloween" || halloweenModus() === "sale";
 }
 

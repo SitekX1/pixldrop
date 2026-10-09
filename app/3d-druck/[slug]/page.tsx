@@ -6,7 +6,7 @@ import ProductImage from "@/components/shop/ProductImage";
 import Galerie from "@/components/shop/Galerie";
 import { VorschauProvider, LiveProductImage } from "@/components/shop/Vorschau";
 import ProductBuy from "@/components/shop/ProductBuy";
-import { holeProdukt, istBestellbar } from "@/lib/shop/produkte";
+import { holeProdukt, istBestellbar, istLiveBetrieb, MASSE_PLATZHALTER } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
 import { formatPreis, halloweenModus, LIEFERZEIT_TEXT, TEXTE, VERSAND_CENT } from "@/lib/shop/config";
 
@@ -25,6 +25,7 @@ export default async function Produktseite({ params }: Props) {
   if (!p) notFound();
   const farben = await holeFarben();
   const bestellbar = istBestellbar(p);
+  const masseOffen = !p.masse || !p.toleranzMm;
   const halloween = p.gruppe === "halloween";
   const preis = p.nurAnfrage ? TEXTE.preisAnfrage : formatPreis(p.preisCent);
 
@@ -56,10 +57,21 @@ export default async function Produktseite({ params }: Props) {
             </div>
             <ProductBuy produkt={p} farben={farben} bestellbar={bestellbar} preisText={preis} />
 
+            <section aria-labelledby="masse-druckbild" style={{ display: "grid", gap: 8 }} data-platzhalter={masseOffen ? "masse" : undefined}>
+              <h2 id="masse-druckbild" style={{ fontSize: "1.25rem" }}>Maße und Druckbild</h2>
+              <p>
+                <strong>Maße:</strong> ca. {p.masse ?? MASSE_PLATZHALTER} mm, Toleranz ±{p.toleranzMm ?? "[x]"} mm. Die Toleranz gehört zur Maßangabe.
+              </p>
+              {masseOffen && !istLiveBetrieb() && <p className="shop-note shop-note--warn" role="note">Vorschau: Maße und Toleranz fehlen noch. Live ist dieser Artikel dann nicht bestellbar.</p>}
+              <p>
+                <strong>Druckbild:</strong> Das Stück wird im FDM-Verfahren Schicht für Schicht gedruckt; feine Schichtlinien sind sichtbar und gehören zu diesem Produkt. Die Farbe kann je nach Bildschirm anders aussehen.
+              </p>
+            </section>
+
             <section aria-labelledby="details" style={{ display: "grid", gap: 8 }}>
               <h2 id="details" style={{ fontSize: "1.25rem" }}>Details</h2>
               <dl className="shop-details">
-                <div><dt>Maße</dt><dd>{p.masse ?? "folgen"}</dd></div>
+                <div><dt>Maße</dt><dd>{p.masse ? `ca. ${p.masse} mm` : MASSE_PLATZHALTER}</dd></div>
                 <div><dt>Material</dt><dd>{p.material}</dd></div>
                 <div><dt>Gewicht</dt><dd>folgt</dd></div>
                 <div><dt>Pflege / Hitze</dt><dd>folgt nach eigenem Test</dd></div>

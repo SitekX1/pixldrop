@@ -7,6 +7,7 @@ import "server-only";
 // Vorlage: D:\Apps\3D-Druck\shop\recht-texte\bestellbestaetigung-mail.md (Variante B).
 
 import { LIEFERZEIT_TEXT } from "../config";
+import { AGB_TEXT } from "./agb-text";
 
 export const PFLICHTANGABEN_FREIGEGEBEN = false;
 
@@ -118,7 +119,7 @@ export interface MailPosition {
   text?: string | null;
   schrift?: string | null;
   optionen?: Record<string, string> | null;
-  /** true = Position vom Widerruf ausgenommen (geaenderter Wunschtext). Kommt (noch) nicht aus shop_bestellung_mail_daten. */
+  /** true = Position vom Widerruf ausgenommen (geaenderter Wunschtext). Kommt aus shop_positionen.individuell (Migration 08). */
   individuell?: boolean | null;
 }
 
@@ -139,7 +140,8 @@ export interface MailBestellung {
   capture_id?: string | null;
 }
 
-export const PLATZHALTER_MARKER = "[[PLATZHALTER";
+/** Deckt "[[PLATZHALTER" (Code) und "[PLATZHALTER" (AGB-Text) ab. */
+export const PLATZHALTER_MARKER = "[PLATZHALTER";
 
 /** Lieferzeit kommt aus lib/shop/config.ts (LIEFERZEIT_TEXT); null dort -> Platzhalter (blockiert die Freigabe). */
 export const LIEFERZEIT_PLATZHALTER = "[[PLATZHALTER - Lieferzeit, Alex bestätigt]]";
@@ -172,6 +174,8 @@ export interface MailOptionen {
   /** z. B. https://pixldrop.de (fuer den Link zur Widerrufsfunktion) */
   siteUrl?: string;
   lieferzeit?: string | null;
+  /** AGB-Klartext fuer den dauerhaften Datentraeger; Standard: AGB_TEXT aus agb-text.ts */
+  agbText?: string;
 }
 
 /**
@@ -196,6 +200,7 @@ export function bestaetigungsMail(
     ].filter(Boolean);
     return `- ${p.menge} x ${p.name} à ${eur(p.einzelpreis_cent)}${extras.length ? `\n    ${extras.join(", ")}` : ""}`;
   });
+  const agbText = opt.agbText ?? AGB_TEXT;
   const lieferzeit = opt.lieferzeit ?? LIEFERZEIT_TEXT ?? LIEFERZEIT_PLATZHALTER;
   const bestelltAm = b.erstellt_am ? datumKurz(b.erstellt_am) : "";
   const zahlung =
@@ -232,10 +237,19 @@ export function bestaetigungsMail(
     "",
     block,
     "",
+    "----------------------------------------",
+    "",
+    "ALLGEMEINE GESCHÄFTSBEDINGUNGEN",
+    "(in der bei deiner Bestellung gültigen Fassung)",
+    "",
+    agbText,
+    "",
+    "----------------------------------------",
+    "",
     "Viele Grüße",
     "Alex",
   ].join("\n");
-  if (freigegeben && (block.includes(PLATZHALTER_MARKER) || text.includes(PLATZHALTER_MARKER))) {
+  if (freigegeben && (block.includes(PLATZHALTER_MARKER) || agbText.includes(PLATZHALTER_MARKER) || text.includes(PLATZHALTER_MARKER))) {
     throw new Error("Pflichtangaben freigegeben, aber Platzhalter noch im Mailtext");
   }
   return { betreff: `Bestellbestätigung ${b.nummer}: dein Kauf ist abgeschlossen`, text };

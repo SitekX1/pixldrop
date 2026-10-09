@@ -75,9 +75,13 @@ test("Live-Betrieb ohne freigegebene Pflichtangaben wird verweigert", async () =
   assert.equal(a.status, 503);
   assert.equal(a.body.code, "texte_fehlen");
   assert.equal(db.bestellungen.length, 0);
-  const frei = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true, pflichtangabenText: "Echter Rechtstext" });
-  const mitPlatzhalter = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true, pflichtangabenText: "[[PLATZHALTER - Text]]" });
+  const frei = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true, pflichtangabenText: "Echter Rechtstext", agbText: "Echter AGB-Text" });
+  const mitPlatzhalter = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true, pflichtangabenText: "[[PLATZHALTER - Text]]", agbText: "Echter AGB-Text" });
+  const agbMitPlatzhalter = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true, pflichtangabenText: "Echter Rechtstext", agbText: "Ziffer 2 [PLATZHALTER 2] Werktage" });
   assert.equal((await legeBestellungAn(mitPlatzhalter.deps, bestellEingabe(), ctx)).status, 503, "freigegeben, aber Platzhalter noch drin");
+  assert.equal((await legeBestellungAn(agbMitPlatzhalter.deps, bestellEingabe(), ctx)).status, 503, "AGB-Text mit Platzhalter blockiert Live");
+  const live = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: true, pflichtangabenText: "Echter Rechtstext" });
+  assert.equal((await legeBestellungAn(live.deps, bestellEingabe(), ctx)).status, 503, "echter AGB_TEXT enthaelt noch Platzhalter -> Live gesperrt");
   assert.equal((await legeBestellungAn(frei.deps, bestellEingabe(), ctx)).status, 200);
 });
 
@@ -123,6 +127,9 @@ test("Rueckkehr: Capture, bezahlt, genau eine Telegram-Nachricht NUR mit Nummer"
   assert.match(notifier.kundenMails[0].text, /WIDERRUFSBELEHRUNG/);
   assert.match(notifier.kundenMails[0].text, /MUSTER-WIDERRUFSFORMULAR/);
   assert.ok(!notifier.kundenMails[0].text.includes("[[PLATZHALTER"));
+  // AGB-Klartext als Abschnitt (dauerhafter Datentraeger)
+  assert.match(notifier.kundenMails[0].text, /ALLGEMEINE GESCHÄFTSBEDINGUNGEN\r?\n[^\r\n]*\r?\n\r?\nAllgemeine Geschäftsbedingungen für den Online-Shop/);
+  assert.match(notifier.kundenMails[0].text, /1\. Geltungsbereich und Anbieter/);
   assert.match(notifier.kundenMails[0].text, new RegExp(r.nummer!));
 });
 
