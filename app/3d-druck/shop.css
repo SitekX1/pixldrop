@@ -439,3 +439,6 @@
 .shop-alex-text { display: grid; gap: 10px; justify-items: start; }
 .shop-danke > p { max-width: 62ch; }
 .shop-danke > section { width: 100%; }
+
+.shop-foot-kontakt { margin-top: 14px; font-size: 0.95rem; }
+.shop-foot-kontakt a { text-decoration: underline; }

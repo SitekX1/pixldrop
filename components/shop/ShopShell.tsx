@@ -32,6 +32,9 @@ export default function ShopShell({
               <li><Link href="/3d-druck/anfrage">Individueller Druck</Link></li>
             </ul>
           </nav>
+          <p className="shop-foot-kontakt">
+            Kontakt: <a href="mailto:as@sitekx.de">as@sitekx.de</a> · Hersteller und Verkäufer: Anbieterangaben siehe <a href="/impressum">Impressum</a>
+          </p>
         </footer>
       </div>
     </div>
