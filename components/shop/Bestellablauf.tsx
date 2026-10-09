@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { ladeKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { SHOP_AKTIV, TEXTE, VERSAND_CENT, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
@@ -92,7 +93,7 @@ export default function Bestellablauf({
   const pos = zeilen as { a: Korb[number]; p: Produkt }[];
   const zwischen = zwischensummeCent(korb, (s) => produkte.find((x) => x.slug === s)?.preisCent);
   const gesamt = zwischen != null ? zwischen + (VERSAND_CENT ?? 0) : null;
-  const ausgenommen = pos.filter(({ a, p }) => istIndividuell(p, a.text));
+  const ausgenommen = pos.filter(({ a, p }) => istIndividuell(p, a.text, a.optionen));
   const individuell = ausgenommen.length > 0;
   const gehe = (n: number) => (n === 1 ? router.push("/3d-druck/warenkorb") : router.push(`/3d-druck/bestellung?schritt=${n}`));
   const upd = (k: keyof Daten) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -240,7 +241,10 @@ export default function Bestellablauf({
               <ul className="shop-bon-pos">
                 {pos.map(({ a, p }, i) => {
                   const farbe = farben.find((f) => f.id === a.farbeId);
-                  const optText = p.optionen.map((g) => [g.label, g.optionen.find((o) => o.id === a.optionen[g.id])?.label ?? ""] as const);
+                  const optText = [
+                    ...p.optionen.map((g) => [g.label, g.optionen.find((o) => o.id === a.optionen[g.id])?.label ?? ""] as const),
+                    ...formatAnzeigeAusOptionen(p.personalisierung, a.optionen),
+                  ];
                   return (
                     <li key={i}>
                       <dl>

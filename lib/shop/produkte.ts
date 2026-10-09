@@ -186,9 +186,20 @@ export function standardText(p: Produkt): string | null {
   return z ? z.map((x) => x.standard).join("\n") : null;
 }
 
-/** Individuell gefertigt = Text vorhanden und nicht der unveraenderte Standardtext (dann normale Standardware). */
-export function istIndividuell(p: Produkt, text: string | null | undefined): boolean {
+/**
+ * Individuell gefertigt = Text vorhanden und (Text geaendert ODER Format/Groesse gewaehlt).
+ * Der unveraenderte Standardtext im Standardformat bleibt normale Standardware. Eine Formatwahl (Fett, Kursiv,
+ * andere Groesse) beim Standardtext ist eine Vorgabe des Kunden und macht das Stueck individuell (kein Widerruf).
+ */
+export function istIndividuell(p: Produkt, text: string | null | undefined, optionen?: Record<string, unknown> | null): boolean {
   const t = (text ?? "").trim();
   if (t === "" || !p.personalisierung) return false;
+  if (hatFormatwahl(optionen)) return true;
   return t !== standardText(p);
+}
+
+/** Abweichung vom Standardformat in `optionen` (fett_i/kursiv_i = "1" oder groesse != "m"). */
+export function hatFormatwahl(optionen?: Record<string, unknown> | null): boolean {
+  if (!optionen) return false;
+  return Object.entries(optionen).some(([k, v]) => (/^(fett|kursiv)_\d$/.test(k) && v === "1") || (k === "groesse" && v !== "m"));
 }

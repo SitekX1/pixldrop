@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN, unerlaubteZeichen } from "@/lib/shop/schriften";
+import { GROESSEN } from "@/lib/shop/umbruch";
+import {
+  NICHT_VERFUEGBAR, PASST_NICHT, formatZuOptionen, pruefePasst, standardFormat, zeilenAnzahl, type TextFormat,
+} from "@/lib/shop/textformat";
 import ProductImage from "./ProductImage";
 import { useVorschauSetzen } from "./Vorschau";
 import type { Farbe } from "@/lib/shop/farben";
@@ -27,6 +31,7 @@ export default function ProductBuy({
   const pers = produkt.personalisierung;
   const [zeilen, setZeilen] = useState<string[]>(() => (pers?.zeilen ? pers.zeilen.map((z) => z.standard) : pers ? [""] : []));
   const [schriftId, setSchriftId] = useState(pers?.festeSchrift ?? SCHRIFTEN[0].id);
+  const [fmtRoh, setFmtRoh] = useState<TextFormat>(() => standardFormat(pers ? zeilenAnzahl(pers) : 0));
   const [stickyZeigen, setStickyZeigen] = useState(false);
   const aktion = useRef<HTMLDivElement>(null);
   const [hinzu, setHinzu] = useState<{ ok: boolean; menge: number } | null>(null);
@@ -42,25 +47,36 @@ export default function ProductBuy({
   const farbe = farben.find((f) => f.id === farbeId);
   const schrift = SCHRIFTEN.find((s) => s.id === (pers?.festeSchrift ?? schriftId));
   const text = zeilen.map((z) => z.trim()).join("\n");
+  // Wirksames Format: Schalter, die die gewählte Schrift nicht kann, zählen nicht (Schriftwechsel setzt sie zurück).
+  const fmt: TextFormat = {
+    ...fmtRoh,
+    fett: fmtRoh.fett.map((v) => v && schrift?.hatFett === true),
+    kursiv: fmtRoh.kursiv.map((v) => v && schrift?.hatKursiv === true),
+  };
+  const formatOpt = pers ? formatZuOptionen(fmt) : {};
   const textFehler = !pers ? null
     : zeilen.some((z) => z.trim() === "") ? "Bitte fülle alle Textzeilen aus."
     : unerlaubteZeichen(zeilen.join("")).length > 0 ? `Nicht druckbare Zeichen: ${unerlaubteZeichen(zeilen.join("")).join(" ")}`
     : null;
+  const passt = !pers || !schrift || textFehler ? null : pruefePasst(pers, zeilen.map((z) => z.trim()), schrift, fmt);
+  const passtNicht = passt !== null && !passt.passt;
   const filter = pers && !textFehler ? pruefeWunschtext(zeilen) : { ok: true as const };
   const [filterZeigen, setFilterZeigen] = useState(false);
   const filterFehler = filterZeigen && !filter.ok ? filter.meldung : null;
-  const gesperrt = !filter.ok;
+  const gesperrt = !filter.ok || passtNicht;
   const beschreibung = [textFehler ? "t-fehler" : null, filterFehler ? "t-filter" : null].filter(Boolean).join(" ") || undefined;
-  const individuell = istIndividuell(produkt, text);
+  const individuell = istIndividuell(produkt, text, formatOpt);
   const setzeVorschau = useVorschauSetzen();
   const beispielText = (zeilen[0] ?? "").trim().slice(0, 9) || pers?.beispiel || "Abc";
   const vorFarbe = farbe?.hex ?? produkt.grundfarbe;
   const vorFamily = schrift?.family;
   useEffect(() => {
-    setzeVorschau({ farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: farbe?.name });
-  }, [setzeVorschau, vorFarbe, text, vorFamily, pers, schrift?.name, farbe?.name]);
+    setzeVorschau({ farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: farbe?.name, format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setzeVorschau, vorFarbe, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, JSON.stringify(formatOpt)]);
   function weiter() {
     if (textFehler) { document.getElementById("t-fehler")?.scrollIntoView({ block: "center" }); return; }
+    if (passtNicht) { document.getElementById("t-passt")?.scrollIntoView({ block: "center" }); return; }
     if (gesperrt) {
       setFilterZeigen(true);
       requestAnimationFrame(() => document.getElementById("t-filter")?.scrollIntoView({ block: "center" }));
@@ -69,7 +85,7 @@ export default function ProductBuy({
     const r = fuegeHinzu(ladeKorb(), {
       slug: produkt.slug,
       farbeId,
-      optionen: opt,
+      optionen: { ...opt, ...formatOpt },
       text: pers ? text : "",
       schriftId: pers ? (pers.festeSchrift ?? schriftId) : null,
       menge,
@@ -102,6 +118,24 @@ export default function ProductBuy({
   ) : (
     <p className="shop-widerruf" role="note">Standardware mit 14 Tagen Widerruf.</p>
   );
+  function schalte(art: "fett" | "kursiv", i: number) {
+    if (art === "fett" ? !schrift?.hatFett : !schrift?.hatKursiv) return;
+    const neu = fmtRoh[art].slice(); neu[i] = !neu[i];
+    setFmtRoh({ ...fmtRoh, [art]: neu });
+  }
+  const formatSchalter = (i: number, zeilenLabel: string) => (
+    <div className="shop-fmt" role="group" aria-label={`Format: ${zeilenLabel}`}>
+      {(["fett", "kursiv"] as const).map((art) => {
+        const kann = art === "fett" ? schrift?.hatFett === true : schrift?.hatKursiv === true;
+        const name = art === "fett" ? "Fett" : "Kursiv";
+        return (
+          <button key={art} type="button" className={`shop-fmt-btn shop-fmt-btn--${art}`} aria-pressed={kann && fmt[art][i] ? true : false}
+            aria-disabled={kann ? undefined : true} title={kann ? undefined : NICHT_VERFUEGBAR}
+            aria-label={kann ? name : `${name}: ${NICHT_VERFUEGBAR}`} onClick={() => schalte(art, i)}>{name}</button>
+        );
+      })}
+    </div>
+  );
   const aendereZeile = (i: number, v: string) => { setZeilen(zeilen.map((x, k) => (k === i ? v : x))); setFilterZeigen(true); };
 
   return (
@@ -110,14 +144,15 @@ export default function ProductBuy({
         <fieldset className="shop-step">
           <legend>{pers.label}</legend>
           <div className="shop-textvorschau">
-            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} typ="Live-Vorschau" breit />
+            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} format={schrift ? { fmt, breite: schrift.breite } : undefined} typ="Live-Vorschau" breit />
           </div>
           {pers.zeilen ? (
             pers.zeilen.map((z, i) => (
               <div className="shop-field" key={z.label}>
                 <label htmlFor={`t-${i}`}>{z.label}</label>
                 <input id={`t-${i}`} className="shop-input" type="text" maxLength={z.max} value={zeilen[i]} autoComplete="off" spellCheck={false}
-                  aria-invalid={filterFehler ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => aendereZeile(i, e.target.value)} />
+                  aria-invalid={filterFehler || passtNicht ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => aendereZeile(i, e.target.value)} />
+                {formatSchalter(i, z.label)}
               </div>
             ))
           ) : (
@@ -125,8 +160,21 @@ export default function ProductBuy({
               <label htmlFor="t-0">{pers.label}</label>
               <input id="t-0" className="shop-input" type="text" maxLength={pers.maxLaenge} value={zeilen[0]} autoComplete="off" spellCheck={false}
                 placeholder={`z. B. ${pers.beispiel}…`} aria-invalid={filterFehler ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => aendereZeile(0, e.target.value)} />
+              {formatSchalter(0, pers.label)}
             </div>
           )}
+          <fieldset className="shop-groesse">
+            <legend>Schriftgröße{pers.zeilen ? " der großen Zeile" : ""}</legend>
+            <div className="shop-options">
+              {GROESSEN.map((g) => (
+                <label key={g.id} className="shop-option">
+                  <input type="radio" name="t-groesse" value={g.id} checked={fmt.groesse === g.id} onChange={() => setFmtRoh({ ...fmtRoh, groesse: g.id })} />
+                  <span>{g.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          {passtNicht && <p id="t-passt" className="shop-err" role="alert"><span>{PASST_NICHT}</span></p>}
           {textFehler && <p id="t-fehler" className="shop-err" role="alert"><span>{textFehler}</span></p>}
           {filterFehler && (
             <p id="t-filter" className="shop-err" role="alert">
@@ -136,12 +184,12 @@ export default function ProductBuy({
           <div className="shop-hinweis">
             <ul>
               <li>Erlaubt: Buchstaben, Zahlen und . , ! ? &amp; - &apos;</li>
-              <li>Der Text wird automatisch auf unzulässige Inhalte und Marken geprüft.</li>
-              <li>Bei geändertem Text prüfe ich ihn nach der Zahlung noch selbst (innerhalb von 24 Stunden).</li>
+              <li><strong>Eigener Text = individuell gefertigt, kein Widerrufsrecht</strong> (§ 312g Abs. 2 Nr. 1 BGB). Das gilt auch, wenn du nur Format oder Größe änderst.</li>
+              <li>Der Text wird automatisch geprüft. Die Prüfung und Annahme erfolgt innerhalb von 24 Stunden nach Zahlung; lehne ich ihn ab, erstatte ich den vollen Betrag.</li>
             </ul>
             <details>
               <summary>Mehr dazu</summary>
-              <p>Erst danach bekommst du die Bestellbestätigung. Lehne ich den Text ab, erstatte ich den vollen Betrag (AGB Ziffer 9 Abs. 3). Im Zweifel hilft eine individuelle Anfrage.</p>
+              <p>Erst nach meiner Prüfung bekommst du die Bestellbestätigung; vorher nur eine Eingangsbestätigung (AGB Ziffer 9 Abs. 3). Der unveränderte Vorschlagstext im Standardformat bleibt normale Standardware mit 14 Tagen Widerruf. Im Zweifel hilft eine individuelle Anfrage.</p>
             </details>
           </div>
           <p className="muted">Andere Schrift, Logo oder Bild? <Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></p>

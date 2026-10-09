@@ -1,12 +1,17 @@
 import type { Form } from "@/lib/shop/produkte";
-import { umbrechen } from "@/lib/shop/umbruch";
+import { umbrechen, passtInFlaeche, FLAECHE_RUND, FLAECHE_SCHILD } from "@/lib/shop/umbruch";
+import { FETT_FAKTOR } from "@/lib/shop/schriften";
+import type { TextFormat } from "@/lib/shop/textformat";
+
+// Textformat der Vorschau (Fett/Kursiv je Zeile, Größenstufe) und Zeichenbreite der Schrift für den Umbruch.
+export interface VorschauFormat { fmt: TextFormat; breite: number }
 
 // Mehrzeiliger, zentrierter SVG-Text (Mittelpunkt cy), Zeilenabstand 1,15.
-function Zeilen({ zeilen, size, x, cy, fill, family, weight = 700 }: { zeilen: string[]; size: number; x: number; cy: number; fill: string; family: string; weight?: number }) {
+function Zeilen({ zeilen, size, x, cy, fill, family, weight = 700, kursiv = false }: { zeilen: string[]; size: number; x: number; cy: number; fill: string; family: string; weight?: number; kursiv?: boolean }) {
   const lh = size * 1.15;
   const y0 = cy - ((zeilen.length - 1) * lh) / 2 + size * 0.35;
   return (
-    <text textAnchor="middle" fontSize={size} fontWeight={weight} fill={fill} style={{ fontFamily: family }}>
+    <text textAnchor="middle" fontSize={size} fontWeight={weight} fontStyle={kursiv ? "italic" : "normal"} fill={fill} style={{ fontFamily: family }}>
       {zeilen.map((z, i) => <tspan key={i} x={x} y={y0 + i * lh}>{z}</tspan>)}
     </text>
   );
@@ -30,15 +35,17 @@ export function textfarbeFuer(hex: string) {
 }
 const LICHT = "#ffe9a8";
 
-function Schild({ c, text, family }: { c: string; text?: string; family?: string }) {
+function Schild({ c, text, family, format }: { c: string; text?: string; family?: string; format?: VorschauFormat }) {
   const [klein, gross] = (text ?? "Teamleiter\nSabine").split("\n");
   const f = family ?? "sans-serif";
-  const u = umbrechen((gross ?? "").replace(/\n/g, " "), 66, 15, 8, 3, 30);
+  const fm = format?.fmt;
+  const fit = format && fm ? passtInFlaeche({ text: (gross ?? "").replace(/\n/g, " "), flaeche: FLAECHE_SCHILD, groesse: fm.groesse, breite: format.breite, fett: fm.fett[1] === true, fettFaktor: FETT_FAKTOR }) : null;
+  const u = fit?.passt ? fit : umbrechen((gross ?? "").replace(/\n/g, " "), 70, fit ? fit.size : 14, 8, 3, 30);
   return (
     <g>
       <rect x="10" y="28" width="80" height="46" rx="7" fill={c} stroke="rgba(0,0,0,.25)" strokeWidth="1.5" />
-      <text x="16" y="39" fontSize="5.2" fill={textfarbeFuer(c)} fillOpacity=".85" style={{ fontFamily: f }}>{klein}</text>
-      <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={58} fill={textfarbeFuer(c)} family={f} />
+      <text x="16" y="39" fontSize="5.2" fill={textfarbeFuer(c)} fillOpacity=".85" fontWeight={fm?.fett[0] ? 900 : undefined} fontStyle={fm?.kursiv[0] ? "italic" : undefined} style={{ fontFamily: f }}>{klein}</text>
+      <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={58} fill={textfarbeFuer(c)} family={f} weight={fm?.fett[1] ? 900 : 700} kursiv={fm?.kursiv[1] === true} />
       <rect x="22" y="74" width="56" height="5" rx="2" fill="rgba(0,0,0,.25)" />
     </g>
   );
@@ -78,7 +85,7 @@ function Geist({ x, y, s, c }: { x: number; y: number; s: number; c: string }) {
   );
 }
 
-function Motiv({ form, c, text, family }: { form: Form; c: string; text?: string; family?: string }) {
+function Motiv({ form, c, text, family, format }: { form: Form; c: string; text?: string; family?: string; format?: VorschauFormat }) {
   switch (form) {
     case "rund":
       return (
@@ -86,8 +93,11 @@ function Motiv({ form, c, text, family }: { form: Form; c: string; text?: string
           <circle cx="50" cy="50" r="35" fill={c} stroke="rgba(0,0,0,.2)" strokeWidth="1.5" />
           <circle cx="50" cy="50" r="27" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" />
           {text ? (() => {
-            const u = umbrechen(text.replace(/\n/g, " "), 46, 11, 6.5, 4, 40);
-            return <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={50} fill={textfarbeFuer(c)} family={family ?? "sans-serif"} />;
+            const t = text.replace(/\n/g, " ");
+            const fm = format?.fmt;
+            const fit = format && fm ? passtInFlaeche({ text: t, flaeche: FLAECHE_RUND, groesse: fm.groesse, breite: format.breite, fett: fm.fett[0] === true, fettFaktor: FETT_FAKTOR }) : null;
+            const u = fit?.passt ? fit : umbrechen(t, 46, fit ? fit.size : 11, 6.5, 4, 40);
+            return <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={50} fill={textfarbeFuer(c)} family={family ?? "sans-serif"} weight={fm?.fett[0] ? 900 : 700} kursiv={fm?.kursiv[0] === true} />;
           })() : (
             <rect x="30" y="46" width="40" height="8" rx="4" fill="rgba(0,0,0,.22)" />
           )}
@@ -112,7 +122,7 @@ function Motiv({ form, c, text, family }: { form: Form; c: string; text?: string
         </g>
       );
     case "schild":
-      return <Schild c={c} text={text} family={family} />;
+      return <Schild c={c} text={text} family={family} format={format} />;
     case "laterne":
       return <Kuerbis c={c} gesicht />;
     case "geister":
@@ -138,13 +148,13 @@ function Motiv({ form, c, text, family }: { form: Form; c: string; text?: string
 }
 
 export default function ProductImage({
-  form, farbe, typ = "Illustration", breit = false, text, family,
-}: { form: Form; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string }) {
+  form, farbe, typ = "Illustration", breit = false, text, family, format,
+}: { form: Form; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat }) {
   return (
     <div className={`shop-img ${breit ? "shop-img--wide" : ""}`} role="img" aria-label={`Produktillustration: ${typ}`}>
       <svg className="motiv" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <path d="M70 92C86 86 96 70 94 54" fill="none" stroke="rgba(107,68,35,.28)" strokeWidth="5" strokeLinecap="round" />
-        <Motiv form={form} c={farbe} text={text} family={family} />
+        <Motiv form={form} c={farbe} text={text} family={family} format={format} />
       </svg>
       <span className="shop-placeholder-tag">{typ}</span>
     </div>

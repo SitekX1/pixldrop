@@ -685,3 +685,24 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 @media (min-width: 1024px) { .shop-wrap[style*="padding-bottom"] { padding-bottom: 0 !important; } }
 .shop main > .shop-wrap { padding-top: 24px; }
 .shop-progress { margin: 16px 0 24px; }
+
+/* Textformat: Fett/Kursiv-Schalter je Zeile, Größenstufen */
+.shop-fmt { display: flex; gap: 8px; margin-top: 6px; }
+.shop-fmt-btn { min-height: 44px; min-width: 76px; padding: 0 16px; border: 2px solid var(--shop-control); border-radius: var(--shop-r-pill); background: var(--shop-card); color: var(--shop-ink); font: 700 0.9375rem var(--shop-display); cursor: pointer; touch-action: manipulation; }
+.shop-fmt-btn--fett { font-weight: 900; }
+.shop-fmt-btn--kursiv { font-style: italic; }
+.shop-fmt-btn[aria-pressed="true"] { border-color: var(--shop-ink); background: var(--shop-ink); color: var(--shop-on-ink); }
+.shop-fmt-btn[aria-disabled="true"] { opacity: 0.55; border-style: dashed; cursor: not-allowed; }
+.shop-groesse { border: 0; padding: 0; margin: 0; display: grid; gap: 6px; }
+.shop-groesse legend { font: 600 0.9375rem var(--shop-display); color: var(--shop-ink); padding: 0; margin-bottom: 6px; }
+
+/* Mobil-Korrekturen (Tessa): Farbpunkte + "+N" nicht vom Ring überdeckt/angeschnitten; Eddie nicht über der Überschrift */
+.shop-dots { position: relative; z-index: 2; align-items: center; white-space: nowrap; flex: none; }
+.shop-dots .muted { font-size: 0.8125rem; font-weight: 700; padding-right: 2px; }
+.shop-card .shop-ring { right: -4px; top: calc(100cqw - 70px); pointer-events: none; }
+@media (max-width: 767px) {
+  .shop-hero-eddie { transform: translateY(26vw); opacity: 0.35; }
+  .shop-hero--start { padding-bottom: 8px; }
+}
+.shop-step .shop-groesse legend { float: none; width: auto; display: block; margin-bottom: 6px; }
+.shop-step .shop-groesse legend::before { content: none; }

@@ -6,6 +6,9 @@ import "server-only";
 import { istIndividuell, type Produkt } from "../produkte";
 import type { Farbe } from "../farben";
 import { SCHRIFTEN, unerlaubteZeichen } from "../schriften";
+import {
+  formatAnzeige, formatAusOptionen, formatUnerlaubt, istFormatSchluessel, pruefePasst, zeilenAnzahl,
+} from "../textformat";
 
 export const MAX_MENGE = 20;
 export const MAX_POSITIONEN = 5;
@@ -31,6 +34,7 @@ export type FehlerCode =
   | "lager_nicht_lesbar"
   | "text_ungueltig"
   | "text_unzulaessig"
+  | "text_passt_nicht"
   | "option_ungueltig"
   | "zu_teuer";
 
@@ -117,7 +121,13 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
     if (!farbe) return fehler("farbe_ungueltig", "Diese Farbe ist nicht (mehr) vorrätig. Bitte wähle eine andere.");
 
     // Optionen: jede Gruppe des Artikels braucht eine gueltige Auswahl, nichts darueber hinaus
-    const optIn = istObjekt(roh.optionen) ? roh.optionen : {};
+    // Textformat-Schluessel (fett_i, kursiv_i, groesse) gehoeren nicht zu den Optionsgruppen und werden unten geprueft.
+    const optAlle = istObjekt(roh.optionen) ? roh.optionen : {};
+    const optIn: Record<string, unknown> = {};
+    const formatIn: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(optAlle)) {
+      if (istFormatSchluessel(k) && !produkt.optionen.some((g) => g.id === k)) formatIn[k] = v; else optIn[k] = v;
+    }
     if (Object.keys(optIn).some((k) => !produkt.optionen.some((g) => g.id === k))) {
       return fehler("option_ungueltig", "Ungültige Auswahl.");
     }
@@ -134,6 +144,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
     const textRoh = typeof roh.text === "string" ? roh.text.replace(/\r/g, "").trim() : "";
     let text: string | null = null;
     let schriftId: string | null = null;
+    let formatWahl: Record<string, unknown> | null = null;
     if (textRoh !== "") {
       if (!pers) return fehler("text_ungueltig", "Dieser Artikel hat keinen Wunschtext.");
       const zeilen = textRoh.split("\n").map((z) => z.trim());
@@ -157,8 +168,17 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       const wunsch = pers.festeSchrift ?? (typeof roh.schriftId === "string" ? roh.schriftId : "");
       const s = SCHRIFTEN.find((x) => x.id === wunsch);
       if (!s) return fehler("text_ungueltig", "Bitte wähle eine Schrift.");
+      // Textformat: nur gelistete Schalter/Stufen, nur Fähigkeiten der Schrift, Text muss aufs Stück passen
+      const fmt = formatAusOptionen(formatIn, zeilenAnzahl(pers));
+      if (!fmt) return fehler("option_ungueltig", "Ungültige Formatwahl.");
+      if (formatUnerlaubt(fmt, s)) return fehler("option_ungueltig", "Diese Formatwahl ist bei dieser Schrift nicht verfügbar.");
+      if (!pruefePasst(pers, zeilen, s, fmt).passt) return fehler("text_passt_nicht", "Passt nicht aufs Stück – bitte kleiner wählen oder kürzen.");
+      for (const [k, v] of formatAnzeige(pers, fmt)) optionen[k] = v;
+      formatWahl = formatIn;
       text = zeilen.join("\n");
       schriftId = s.id;
+    } else if (Object.keys(formatIn).length > 0) {
+      return fehler("option_ungueltig", "Eine Formatwahl gibt es nur mit Wunschtext.");
     } else if (produkt.nurMitText) {
       return fehler("text_ungueltig", "Für diesen Artikel ist ein Text erforderlich.");
     }
@@ -174,7 +194,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       optionen,
       text,
       schriftId,
-      individuell: istIndividuell(produkt, text),
+      individuell: istIndividuell(produkt, text, formatWahl),
     });
   }
 

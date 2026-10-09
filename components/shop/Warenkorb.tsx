@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { aendereMenge, entferne, ladeKorb, speichereKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { TEXTE, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
@@ -32,7 +33,7 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
   const fehlt = korb.some((a) => !von(a.slug));
   const zwischen = zwischensummeCent(korb, (s) => von(s)?.preisCent);
   const gesamt = zwischen != null ? zwischen + (VERSAND_CENT ?? 0) : null;
-  const ausgenommen = korb.flatMap((a) => { const p = von(a.slug); return p && istIndividuell(p, a.text) ? [p.name] : []; });
+  const ausgenommen = korb.flatMap((a) => { const p = von(a.slug); return p && istIndividuell(p, a.text, a.optionen) ? [p.name] : []; });
 
   return (
     <div className="shop-form">
@@ -51,8 +52,11 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
             );
           }
           const farbe = farben.find((f) => f.id === a.farbeId);
-          const opt = p.optionen.map((g) => `${g.label}: ${g.optionen.find((o) => o.id === a.optionen[g.id])?.label ?? ""}`);
-          const ind = istIndividuell(p, a.text);
+          const opt = [
+            ...p.optionen.map((g) => `${g.label}: ${g.optionen.find((o) => o.id === a.optionen[g.id])?.label ?? ""}`),
+            ...formatAnzeigeAusOptionen(p.personalisierung, a.optionen).map(([k, v]) => `${k}: ${v}`),
+          ];
+          const ind = istIndividuell(p, a.text, a.optionen);
           return (
             <li key={`${a.slug}-${i}`} className="shop-cart-item">
               <div className="shop-cart-img"><ProductImage form={p.form} farbe={farbe?.hex ?? p.grundfarbe} text={a.text || undefined} typ="Muster" /></div>

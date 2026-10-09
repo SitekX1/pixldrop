@@ -19,14 +19,21 @@ const schriftVon = (s: string | null) => {
   return SCHRIFTEN.find((x) => x.id === k || x.name.toLowerCase() === k);
 };
 
+// Format aus den lesbaren optionen (Server: "Format…" = Fett/Kursiv je Zeile, "Schriftgröße")
+function formatStil(p: FreigabePosition, klein: boolean): React.CSSProperties {
+  const e = Object.entries(p.optionen ?? {}).find(([k]) => k.startsWith("Format") && (/kleine/i.test(k) === klein) && (klein || !/kleine/i.test(k)));
+  const v = e?.[1] ?? "";
+  return { fontWeight: /Fett/.test(v) ? 900 : undefined, fontStyle: /Kursiv/.test(v) ? "italic" : undefined };
+}
+
 function Schild({ p }: { p: FreigabePosition }) {
   const zeilen = (p.text ?? "").split(/\r?\n/).map((z) => z.trimEnd());
   const klein = zeilen.length > 1 ? zeilen[0] : "Wunschtext";
   const gross = zeilen.length > 1 ? zeilen.slice(1).join("\n") : zeilen[0];
   return (
     <div className="fg-schild" style={{ fontFamily: schriftVon(p.schrift)?.family }} role="group" aria-label={`Wunschtext: ${(p.text ?? "").replace(/\n/g, ", ")}`}>
-      {klein && <span className="fg-klein" aria-hidden="true">{klein}</span>}
-      <span className="fg-gross" aria-hidden="true">{gross}</span>
+      {klein && <span className="fg-klein" style={formatStil(p, true)} aria-hidden="true">{klein}</span>}
+      <span className="fg-gross" style={formatStil(p, false)} aria-hidden="true">{gross}</span>
     </div>
   );
 }
@@ -47,6 +54,7 @@ function Positionen({ liste }: { liste: FreigabePosition[] }) {
             <>
               <Schild p={p} />
               <p className="fg-schrift">Schrift: {schriftVon(p.schrift)?.name ?? p.schrift ?? "–"}</p>
+              {Object.entries(p.optionen ?? {}).map(([k, v]) => <p key={k} className="fg-schrift">{k}: {v}</p>)}
             </>
           ) : p.individuell ? <p className="fg-schrift">Individuell, ohne Wunschtext.</p> : null}
         </li>

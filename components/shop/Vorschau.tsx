@@ -1,17 +1,17 @@
 "use client";
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import ProductImage from "./ProductImage";
+import ProductImage, { type VorschauFormat } from "./ProductImage";
 import type { Form } from "@/lib/shop/produkte";
 
 // Gemeinsamer Zustand für die Live-Vorschau: Eingaben im Kaufbereich (Text, Farbe, Schrift)
 // erscheinen sofort im großen Galerie-Hauptbild und in der kleinen Vorschau im Kaufbereich.
-export interface VorschauWerte { farbe?: string; text?: string; family?: string; schriftName?: string; farbeName?: string }
+export interface VorschauWerte { farbe?: string; text?: string; family?: string; schriftName?: string; farbeName?: string; format?: VorschauFormat; formatKey?: string }
 
 const Ctx = createContext<{ werte: VorschauWerte; setze: (w: VorschauWerte) => void } | null>(null);
 
 export function VorschauProvider({ children }: { children: React.ReactNode }) {
   const [werte, setWerte] = useState<VorschauWerte>({});
-  const setze = useCallback((w: VorschauWerte) => setWerte((alt) => (alt.farbe === w.farbe && alt.text === w.text && alt.family === w.family && alt.schriftName === w.schriftName && alt.farbeName === w.farbeName ? alt : w)), []);
+  const setze = useCallback((w: VorschauWerte) => setWerte((alt) => (alt.farbe === w.farbe && alt.text === w.text && alt.family === w.family && alt.schriftName === w.schriftName && alt.farbeName === w.farbeName && alt.formatKey === w.formatKey ? alt : w)), []);
   const wert = useMemo(() => ({ werte, setze }), [werte, setze]);
   return <Ctx.Provider value={wert}>{children}</Ctx.Provider>;
 }
@@ -30,6 +30,7 @@ export function LiveProductImage({ form, grundfarbe }: { form: Form; grundfarbe:
       farbe={w.farbe ?? grundfarbe}
       text={w.text}
       family={w.family}
+      format={w.format}
       typ={w.text ? "Live-Vorschau" : undefined}
     />
   );
