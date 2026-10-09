@@ -86,14 +86,14 @@ test("Optionen: alle Gruppen Pflicht, nur gueltige IDs", () => {
 test("Personalisierung: Laenge, Zeichen, Schrift, individuell-Flag", () => {
   const basis = { slug: "spruch-untersetzer", menge: 1, farbeId: "schwarz" };
   assert.ok(!berechneWarenkorb([{ ...basis }], ctx()).ok, "nurMitText: ohne Text nicht moeglich");
-  assert.ok(!berechneWarenkorb([{ ...basis, text: "x".repeat(19), schriftId: "lato" }], ctx()).ok, "zu lang");
-  assert.ok(!berechneWarenkorb([{ ...basis, text: "Hi <b>", schriftId: "lato" }], ctx()).ok, "unerlaubte Zeichen");
+  assert.ok(!berechneWarenkorb([{ ...basis, text: "x".repeat(41), schriftId: "oswald" }], ctx()).ok, "zu lang");
+  assert.ok(!berechneWarenkorb([{ ...basis, text: "Hi <b>", schriftId: "oswald" }], ctx()).ok, "unerlaubte Zeichen");
   assert.ok(!berechneWarenkorb([{ ...basis, text: "Montag", schriftId: "comic-sans" }], ctx()).ok, "Schrift nicht in der Liste");
-  const ok = berechneWarenkorb([{ ...basis, text: "  Montag  ", schriftId: "lato" }], ctx());
+  const ok = berechneWarenkorb([{ ...basis, text: "  Montag  ", schriftId: "oswald" }], ctx());
   assert.ok(ok.ok);
   assert.equal(ok.wert.positionen[0].text, "Montag");
   assert.equal(ok.wert.individuell, true);
-  assert.ok(!berechneWarenkorb([pos({ text: "Hallo", schriftId: "lato" })], ctx()).ok, "Artikel ohne Personalisierung");
+  assert.ok(!berechneWarenkorb([pos({ text: "Hallo", schriftId: "oswald" })], ctx()).ok, "Artikel ohne Personalisierung");
   assert.equal((berechneWarenkorb([pos()], ctx()) as { wert: { individuell: boolean } }).wert.individuell, false);
 });
 

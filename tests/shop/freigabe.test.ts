@@ -16,7 +16,7 @@ const UUID_A = "00000000-0000-4000-8000-000000000001";
 const UUID_B = "00000000-0000-4000-8000-000000000002";
 
 const mitText = {
-  positionen: [{ slug: "spruch-untersetzer", menge: 1, farbeId: "schwarz", text: "Montag", schriftId: "lato" }],
+  positionen: [{ slug: "spruch-untersetzer", menge: 1, farbeId: "schwarz", text: "Montag", schriftId: "oswald" }],
   einwilligungen: { agb: true, verzicht: true },
 };
 
@@ -146,7 +146,7 @@ test("Freigabe-Daten: Wunschtext/Schrift, keine Kundendaten, GET aendert nichts;
   assert.equal(a.body.status, "offen");
   const pos = a.body.positionen as { text: string; schrift: string; individuell: boolean }[];
   assert.equal(pos[0].text, "Montag");
-  assert.equal(pos[0].schrift, "lato");
+  assert.equal(pos[0].schrift, "oswald");
   assert.doesNotMatch(JSON.stringify(a.body), /Erika|Teststraße|erika@|86663|Asbach/);
   assert.equal((a.body.gruende as unknown[]).length, 4);
   assert.equal(db.bestellungen[0].freigabe, "offen");
@@ -348,4 +348,39 @@ test("Freigabe-Daten: zeilen-Array (Einzeltext eine Zeile, Tischschild zwei Zeil
     assert.deepEqual(z[0].zeilen, ["Hallo", "Welt"]);
     assert.equal(z[0].text, "Hallo / Welt");
   }
+});
+
+test("Parallel: zweimal gleichzeitig Ablehnen/Freigeben -> genau eine Absage bzw. eine Bestaetigung", async () => {
+  const a = await bezahlteWunschBestellung();
+  const la = freigabeLinks(a.deps.env, a.id)!;
+  const e = { b: a.id, t: param(la.nein, "t"), aktion: "nein", grund: "marke" };
+  const vorher = a.notifier.kundenMails.length;
+  await Promise.all([entscheideFreigabe(a.deps, e), entscheideFreigabe(a.deps, e)]);
+  assert.equal(a.notifier.kundenMails.length, vorher + 1);
+
+  const b = await bezahlteWunschBestellung();
+  const lb = freigabeLinks(b.deps.env, b.id)!;
+  const eb = { b: b.id, t: param(lb.ok, "t"), aktion: "ok" };
+  const vb = b.notifier.kundenMails.length;
+  await Promise.all([entscheideFreigabe(b.deps, eb), entscheideFreigabe(b.deps, eb)]);
+  assert.equal(b.notifier.kundenMails.length, vb + 1);
+});
+
+test("Parallel: Capture und Webhook gleichzeitig -> genau eine Eingangsmail; Sendefehler gibt den Claim frei", async () => {
+  const t = await wunschBestellung();
+  await Promise.all([
+    schliesseZahlungAb(t.deps, "ORDER1TEST"),
+    verarbeiteWebhook(t.deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ORDER1TEST", "17.80")),
+  ]);
+  assert.equal(t.notifier.kundenMails.length, 1);
+
+  const f = await wunschBestellung();
+  const orig = f.notifier.mailKunde.bind(f.notifier);
+  let aus = true;
+  f.notifier.mailKunde = (async (...x: Parameters<typeof orig>) => (aus ? false : orig(...x))) as typeof orig;
+  await schliesseZahlungAb(f.deps, "ORDER1TEST");
+  assert.equal(f.db.bestellungen[0].eingang, false, "Claim zurueckgenommen");
+  aus = false;
+  await schliesseZahlungAb(f.deps, "ORDER1TEST");
+  assert.equal(f.notifier.kundenMails.length, 1);
 });

@@ -210,6 +210,19 @@ export class FakeDb implements Db {
         if (p.p_art === "absage" && (b.freigabe !== "abgelehnt" || b.absage)) return { ok: false, grund: "nichts_zu_tun" };
         return { ok: true, nummer: b.nummer, gesamt_cent: b.gesamt_cent, name: b.kunde.name, email: b.kunde.email, grund: b.freigabeGrund };
       }
+      case "shop_freigabe_claim": {
+        const b = this.find({ id: p.p_id });
+        if (!b) return { ok: true, neu: false };
+        const k = p.p_art === "eingang" ? "eingang" : p.p_art === "absage" ? "absage" : "bestaetigt";
+        if (b[k]) return { ok: true, neu: false };
+        b[k] = true;
+        return { ok: true, neu: true };
+      }
+      case "shop_freigabe_claim_zurueck": {
+        const b = this.find({ id: p.p_id });
+        if (b) b[p.p_art === "eingang" ? "eingang" : p.p_art === "absage" ? "absage" : "bestaetigt"] = false;
+        return { ok: true };
+      }
       case "shop_freigabe_markiere": {
         const b = this.find({ id: p.p_id });
         if (b && p.p_art === "eingang_gesendet") b.eingang = true;

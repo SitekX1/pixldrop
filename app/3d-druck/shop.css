@@ -91,7 +91,11 @@
 .shop-head { height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .shop-head a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; color: var(--shop-ink); }
 .shop-foot { margin-top: 72px; padding: 28px 0 40px; border-top: 2px solid var(--shop-ink); }
-.shop-foot ul { display: flex; flex-wrap: wrap; gap: 0 18px; }
+.shop-foot ul.shop-foot-links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 22px; }
+.shop-foot-mitte { order: -1; flex: 0 0 100%; display: flex; justify-content: center; margin-bottom: 8px; }
+.shop-foot a.shop-widerruf-btn { min-height: 48px; padding: 0 22px; }
+.shop-foot li a { padding: 0 4px; }
+@media (min-width: 900px) { .shop-foot-mitte { order: 0; flex: 0 0 auto; margin: 0 6px; } }
 .shop-foot li a { display: inline-flex; align-items: center; min-height: 44px; }
 .shop-foot .muted { margin-top: 8px; }
 
@@ -440,8 +444,11 @@
 .shop-danke > p { max-width: 62ch; }
 .shop-danke > section { width: 100%; }
 
-.shop-foot-kontakt { margin-top: 14px; font-size: 0.95rem; }
-.shop-foot-kontakt a { text-decoration: underline; }
+.shop-kontakt { margin: 28px auto 0; max-width: 340px; padding: 18px 20px; text-align: center; font-size: 0.9375rem; line-height: 1.5; background: var(--shop-card); border: 1.5px solid var(--shop-control); border-radius: var(--shop-r-m); color: var(--shop-text); }
+.shop-kontakt h2 { font: 600 0.9375rem var(--shop-display); color: var(--shop-ink); margin: 8px 0 6px; }
+.shop-kontakt p { margin: 0 0 6px; }
+.shop-kontakt a { text-decoration: underline; display: inline-block; padding: 10px 2px; }
+.shop-kontakt-logo { height: 44px; width: auto; display: block; margin: 0 auto; }
 
 /* ---------- Textfreigabe (nur Alex, mobil zuerst) ---------- */
 .fg { display: grid; gap: 14px; padding: 16px 0 28px; }
@@ -455,7 +462,7 @@
 .fg-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--shop-ink); flex: none; }
 .fg-schild { display: grid; align-content: space-between; justify-items: center; min-height: 150px; padding: 12px 14px 18px; background: var(--shop-bon); border: 2px dashed var(--shop-control); border-radius: var(--shop-r-m); color: var(--shop-ink); font-weight: 700; }
 .fg-klein { justify-self: start; font-size: 1rem; line-height: 1.2; overflow-wrap: anywhere; max-width: 100%; }
-.fg-gross { align-self: center; font-size: clamp(2rem, 11vw, 3.25rem); line-height: 1.1; text-align: center; white-space: pre-line; overflow-wrap: anywhere; max-width: 100%; padding-top: 6px; }
+.fg-gross { align-self: center; font-size: clamp(1.5rem, 8vw, 2.5rem); line-height: 1.15; text-align: center; white-space: pre-line; text-wrap: balance; overflow-wrap: break-word; hyphens: manual; max-width: 100%; padding-top: 6px; }
 .fg-schrift { font-size: 0.875rem; color: var(--shop-muted); }
 .fg-aktionen { display: grid; gap: 12px; }
 .fg-btn { min-height: 56px; font-size: 1.125rem; }
@@ -471,3 +478,14 @@
 .fg-radio:has(input:checked) { border-color: var(--shop-ink); background: var(--shop-tint); }
 .fg-radio input { width: 22px; height: 22px; accent-color: var(--shop-ink); flex: none; }
 .fg-radio:has(input:focus-visible) { outline: 3px solid var(--shop-focus); outline-offset: 2px; }
+
+/* ---------- Schriftwahl (jede Schrift in sich selbst) ---------- */
+.shop-schriften { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; border: 0; padding: 0; margin: 0; }
+.shop-schriften legend { font: 600 0.9375rem var(--shop-display); color: var(--shop-ink); margin-bottom: 6px; padding: 0; }
+.shop-schrift { position: relative; display: grid; align-content: center; justify-items: center; gap: 2px; min-height: 64px; padding: 6px 8px; text-align: center; background: #fff; border: 1.5px solid var(--shop-control); border-radius: var(--shop-r-m); cursor: pointer; touch-action: manipulation; }
+.shop-schrift input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.shop-schrift-bsp { font-size: 1.375rem; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--shop-ink); }
+.shop-schrift-name { font-size: 0.75rem; color: var(--shop-muted); }
+.shop-schrift:has(input:checked) { border-color: var(--shop-ink); box-shadow: 0 0 0 2px var(--shop-ink); background: var(--shop-bon); }
+.shop-schrift:has(input:focus-visible) { outline: 3px solid var(--shop-link); outline-offset: 2px; }
+@media (min-width: 640px) { .shop-schriften { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

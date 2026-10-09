@@ -62,7 +62,7 @@ test("Server: berechneWarenkorb lehnt unzulaessigen Wunschtext ab", () => {
   const ctx: Kontext = { produkte: katalog, farben: [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }], versandCent: 490, bestellbar: () => true };
   const basis = { slug: "koffein-pegel", menge: 1, farbeId: "schwarz" };
   const slugMitText = PRODUKTE.find((p) => p.personalisierung && !p.personalisierung.zeilen)!;
-  const b = { slug: slugMitText.slug, menge: 1, farbeId: "schwarz", schriftId: slugMitText.personalisierung!.festeSchrift ?? "lato" };
+  const b = { slug: slugMitText.slug, menge: 1, farbeId: "schwarz", schriftId: slugMitText.personalisierung!.festeSchrift ?? "oswald" };
   void basis;
   const gut = berechneWarenkorb([{ ...b, text: "Kaffee" }], ctx);
   assert.ok(gut.ok, "harmloser Text geht durch");

@@ -49,7 +49,7 @@ test("Pflichtangaben: AGB und Widerrufsausschluss bei Wunschtext", async () => {
   const { db, deps } = neueDeps();
   const ohneAgb = await legeBestellungAn(deps, bestellEingabe({ einwilligungen: {} }), ctx);
   assert.equal(ohneAgb.status, 422);
-  const mitText = { positionen: [{ slug: "spruch-untersetzer", menge: 1, farbeId: "schwarz", text: "Montag", schriftId: "lato" }] };
+  const mitText = { positionen: [{ slug: "spruch-untersetzer", menge: 1, farbeId: "schwarz", text: "Montag", schriftId: "oswald" }] };
   const ohneVerzicht = await legeBestellungAn(deps, bestellEingabe(mitText), ctx);
   assert.equal(ohneVerzicht.status, 422);
   const ok = await legeBestellungAn(deps, bestellEingabe({ ...mitText, idempotenzKey: "key-zweiter-versuch-123", einwilligungen: { agb: true, verzicht: true } }), ctx);

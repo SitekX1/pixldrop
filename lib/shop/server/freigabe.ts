@@ -13,7 +13,7 @@ import type { ShopEnv } from "./env";
 import type { Benachrichtiger } from "./benachrichtigung";
 import { PayPalFehler } from "./paypal";
 import type { Antwort, Deps } from "./bestellung";
-import { ereignis, sendeBestaetigung } from "./bestaetigung";
+import { claimeMail, ereignis, gibMailFrei, sendeBestaetigung } from "./bestaetigung";
 import { telegramPruefen } from "./vorlagen";
 import { PRODUKTE } from "../produkte";
 import {
@@ -123,37 +123,41 @@ export async function benachrichtigeAlexFreigabe(
 
 /** Eingangsbestaetigung (kein Vertragsschluss), nur einmal. */
 export async function sendeEingangsbestaetigung(deps: Pick<Deps, "db" | "env" | "notifier">, id: string): Promise<"gesendet" | "schon" | "fehler"> {
+  let claimed = false;
   try {
     const d = await deps.db.rpc<{ ok: boolean; nummer?: string; name?: string; email?: string; gesamt_cent?: number }>(
       "shop_freigabe_mail_daten", { p_id: id, p_art: "eingang" });
     if (!d.ok || !d.email || !d.nummer || !d.name || typeof d.gesamt_cent !== "number") return "schon";
     const mail = eingangsMail({ nummer: d.nummer, name: d.name, gesamt_cent: d.gesamt_cent }, deps.env.siteUrl);
-    if (await deps.notifier.mailKunde(d.email, mail.betreff, mail.text)) {
-      await deps.db.rpc("shop_freigabe_markiere", { p_id: id, p_art: "eingang_gesendet" }).catch(() => undefined);
-      return "gesendet";
-    }
+    if (!(await claimeMail(deps, id, "eingang"))) return "schon";
+    claimed = true;
+    if (await deps.notifier.mailKunde(d.email, mail.betreff, mail.text)) return "gesendet";
+    await gibMailFrei(deps, id, "eingang");
     await ereignis(deps, id, "benachrichtigung", { ergebnis: "eingangsmail_fehlgeschlagen" });
     return "fehler";
   } catch {
+    if (claimed) await gibMailFrei(deps, id, "eingang");
     await ereignis(deps, id, "benachrichtigung", { ergebnis: "eingangsmail_fehler" });
     return "fehler";
   }
 }
 
 async function sendeAbsage(deps: Pick<Deps, "db" | "env" | "notifier">, id: string): Promise<"gesendet" | "schon" | "fehler"> {
+  let claimed = false;
   try {
     const d = await deps.db.rpc<{ ok: boolean; nummer?: string; name?: string; email?: string; gesamt_cent?: number; grund?: string }>(
       "shop_freigabe_mail_daten", { p_id: id, p_art: "absage" });
     if (!d.ok || !d.email || !d.nummer || !d.name || typeof d.gesamt_cent !== "number") return "schon";
     const grund: FreigabeGrund = istFreigabeGrund(d.grund) ? d.grund : "sonstiges";
     const mail = absageMail({ nummer: d.nummer, name: d.name, gesamt_cent: d.gesamt_cent }, grund, deps.env.siteUrl);
-    if (await deps.notifier.mailKunde(d.email, mail.betreff, mail.text)) {
-      await deps.db.rpc("shop_freigabe_markiere", { p_id: id, p_art: "absage_gesendet" }).catch(() => undefined);
-      return "gesendet";
-    }
+    if (!(await claimeMail(deps, id, "absage"))) return "schon";
+    claimed = true;
+    if (await deps.notifier.mailKunde(d.email, mail.betreff, mail.text)) return "gesendet";
+    await gibMailFrei(deps, id, "absage");
     await ereignis(deps, id, "benachrichtigung", { ergebnis: "absagemail_fehlgeschlagen" });
     return "fehler";
   } catch {
+    if (claimed) await gibMailFrei(deps, id, "absage");
     await ereignis(deps, id, "benachrichtigung", { ergebnis: "absagemail_fehler" });
     return "fehler";
   }

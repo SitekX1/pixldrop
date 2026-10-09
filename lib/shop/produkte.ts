@@ -82,12 +82,12 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "spruch-untersetzer",
     name: "Spruch-Untersetzer mit deinem Text",
-    kurz: "Name oder Spruch frei wählbar, Schrift aus acht Vorschlägen.",
+    kurz: "Name oder Spruch frei wählbar, Schrift aus zwölf Vorschlägen.",
     beschreibung:
-      "Ein Untersetzer mit deinem Namen oder Spruch, in einer von acht Schriften. Jedes Stück wird einzeln für dich gedruckt.",
+      "Ein Untersetzer mit deinem Namen oder Spruch, in einer von zwölf Schriften. Jedes Stück wird einzeln für dich gedruckt.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#f0bb55",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
-    personalisierung: { maxLaenge: 18, label: "Dein Text", beispiel: "Montag" },
+    personalisierung: { maxLaenge: 40, label: "Dein Text", beispiel: "Montag" },
     nurMitText: true, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {

@@ -6,18 +6,25 @@ export interface Schrift {
   id: string;
   name: string;
   lizenz: "OFL" | "Apache 2.0";
+  hinweis?: string;
   family: string; // CSS font-family (Variable aus fonts.ts)
 }
 
+// Kuratierte Auswahl (alle SIL OFL 1.1 laut Google Fonts, kommerzielle Nutzung und Druck erlaubt).
+// "hinweis" = Strichstärke beim Druck (Alex wählt am Ende; Mindeststrich ca. 1,2 mm).
 export const SCHRIFTEN: Schrift[] = [
-  { id: "montserrat", name: "Montserrat", lizenz: "OFL", family: "var(--font-sf-montserrat), sans-serif" },
-  { id: "merriweather", name: "Merriweather", lizenz: "OFL", family: "var(--font-sf-merriweather), serif" },
-  { id: "poppins", name: "Poppins", lizenz: "OFL", family: "var(--font-sf-poppins), sans-serif" },
-  { id: "oswald", name: "Oswald", lizenz: "OFL", family: "var(--font-sf-oswald), sans-serif" },
-  { id: "fredoka", name: "Fredoka", lizenz: "OFL", family: "var(--font-sf-fredoka), sans-serif" },
-  { id: "vt323", name: "VT323", lizenz: "OFL", family: "var(--font-sf-vt323), monospace" },
-  { id: "lato", name: "Lato", lizenz: "OFL", family: "var(--font-sf-lato), sans-serif" },
-  { id: "opensans", name: "Open Sans", lizenz: "Apache 2.0", family: "var(--font-sf-opensans), sans-serif" },
+  { id: "dancing-script", name: "Dancing Script", lizenz: "OFL", family: "var(--font-sf-dancing), cursive", hinweis: "Schreibschrift, Bold ok" },
+  { id: "pacifico", name: "Pacifico", lizenz: "OFL", family: "var(--font-sf-pacifico), cursive", hinweis: "Schreibschrift, sehr kräftig" },
+  { id: "caveat", name: "Caveat", lizenz: "OFL", family: "var(--font-sf-caveat), cursive", hinweis: "Handschrift, Bold, eher schlank" },
+  { id: "satisfy", name: "Satisfy", lizenz: "OFL", family: "var(--font-sf-satisfy), cursive", hinweis: "Schreibschrift, Haarstriche möglich" },
+  { id: "lobster", name: "Lobster", lizenz: "OFL", family: "var(--font-sf-lobster), cursive", hinweis: "Verspielt, kräftig" },
+  { id: "permanent-marker", name: "Permanent Marker", lizenz: "OFL", family: "var(--font-sf-marker), cursive", hinweis: "Filzstift, sehr kräftig" },
+  { id: "bangers", name: "Bangers", lizenz: "OFL", family: "var(--font-sf-bangers), cursive", hinweis: "Comic, sehr kräftig" },
+  { id: "righteous", name: "Righteous", lizenz: "OFL", family: "var(--font-sf-righteous), sans-serif", hinweis: "Rund-geometrisch, kräftig" },
+  { id: "playfair", name: "Playfair Display", lizenz: "OFL", family: "var(--font-sf-playfair), serif", hinweis: "Elegant, Serifen/Haarlinien dünn" },
+  { id: "cinzel", name: "Cinzel", lizenz: "OFL", family: "var(--font-sf-cinzel), serif", hinweis: "Elegant, Versalien, Haarlinien dünn" },
+  { id: "montserrat", name: "Montserrat", lizenz: "OFL", family: "var(--font-sf-montserrat), sans-serif", hinweis: "Schlicht, kräftig" },
+  { id: "oswald", name: "Oswald", lizenz: "OFL", family: "var(--font-sf-oswald), sans-serif", hinweis: "Schmal, kräftig" },
 ];
 
 // Erlaubte Zeichen (Schriftsubset): A-Z, Umlaute, ß, 0-9, . , ! ? & - ' und Leerzeichen

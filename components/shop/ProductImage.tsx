@@ -1,4 +1,16 @@
 import type { Form } from "@/lib/shop/produkte";
+import { umbrechen } from "@/lib/shop/umbruch";
+
+// Mehrzeiliger, zentrierter SVG-Text (Mittelpunkt cy), Zeilenabstand 1,15.
+function Zeilen({ zeilen, size, x, cy, fill, family, weight = 700 }: { zeilen: string[]; size: number; x: number; cy: number; fill: string; family: string; weight?: number }) {
+  const lh = size * 1.15;
+  const y0 = cy - ((zeilen.length - 1) * lh) / 2 + size * 0.35;
+  return (
+    <text textAnchor="middle" fontSize={size} fontWeight={weight} fill={fill} style={{ fontFamily: family }}>
+      {zeilen.map((z, i) => <tspan key={i} x={x} y={y0 + i * lh}>{z}</tspan>)}
+    </text>
+  );
+}
 
 // Bildplatzhalter bis echte Fotos da sind: Honig-Fläche, Objekt in der Produktfarbe, Typ-Badge
 // (§ 5 UWG: Muster/Render/Foto muss gekennzeichnet sein). Keine Stockbilder.
@@ -8,12 +20,12 @@ const LICHT = "#ffe9a8";
 function Schild({ c, text, family }: { c: string; text?: string; family?: string }) {
   const [klein, gross] = (text ?? "Teamleiter\nSabine").split("\n");
   const f = family ?? "sans-serif";
-  const gs = Math.min(15, 70 / Math.max(4, (gross ?? "").length * 0.62));
+  const u = umbrechen((gross ?? "").replace(/\n/g, " "), 66, 15, 8, 3, 30);
   return (
     <g>
       <rect x="10" y="28" width="80" height="46" rx="7" fill={c} stroke="rgba(0,0,0,.25)" strokeWidth="1.5" />
       <text x="16" y="39" fontSize="5.2" fill="rgba(255,255,255,.8)" style={{ fontFamily: f }}>{klein}</text>
-      <text x="50" y="59" fontSize={gs} fontWeight="700" textAnchor="middle" fill="#fff" style={{ fontFamily: f }}>{gross}</text>
+      <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={58} fill="#fff" family={f} />
       <rect x="22" y="74" width="56" height="5" rx="2" fill="rgba(0,0,0,.25)" />
     </g>
   );
@@ -60,9 +72,10 @@ function Motiv({ form, c, text, family }: { form: Form; c: string; text?: string
         <g>
           <circle cx="50" cy="50" r="35" fill={c} stroke="rgba(0,0,0,.2)" strokeWidth="1.5" />
           <circle cx="50" cy="50" r="27" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" />
-          {text ? (
-            <text x="50" y="54" fontSize={Math.min(11, 44 / Math.max(3, text.length * 0.62))} fontWeight="700" textAnchor="middle" fill="rgba(0,0,0,.65)" style={{ fontFamily: family ?? "sans-serif" }}>{text}</text>
-          ) : (
+          {text ? (() => {
+            const u = umbrechen(text.replace(/\n/g, " "), 46, 11, 6.5, 4, 40);
+            return <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={50} fill="rgba(0,0,0,.65)" family={family ?? "sans-serif"} />;
+          })() : (
             <rect x="30" y="46" width="40" height="8" rx="4" fill="rgba(0,0,0,.22)" />
           )}
         </g>

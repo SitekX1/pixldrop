@@ -64,3 +64,6 @@ export function formatPreis(cent: number | null): string {
   if (cent == null) return TEXTE.preisFolgt;
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(cent / 100);
 }
+
+/** Kontakt-Kachel im Footer: true = Anschrift anzeigen, false = "Anschrift siehe Impressum". */
+export const KONTAKT_MIT_ANSCHRIFT = true;

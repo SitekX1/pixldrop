@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import { KONTAKT_MIT_ANSCHRIFT } from "@/lib/shop/config";
 import WarenkorbLink from "./WarenkorbLink";
 
 // Shell: Kopf, Inhalt, Fuß. Theme ("halloween") per data-theme am Wrapper (Token-Austausch).
@@ -22,19 +24,29 @@ export default function ShopShell({
       <div className="shop-wrap">
         <footer className="shop-foot">
           <nav aria-label="Rechtliches und Service">
-            <ul>
+            <ul className="shop-foot-links">
               <li><a href="/impressum">Impressum</a></li>
               <li><a href="/datenschutz">Datenschutz</a></li>
               <li><Link href="/3d-druck/agb">AGB</Link></li>
+              <li className="shop-foot-mitte"><Link className="shop-widerruf-btn" href="/3d-druck/widerruf#widerrufsfunktion">Vertrag widerrufen</Link></li>
               <li><Link href="/3d-druck/widerruf">Widerrufsbelehrung</Link></li>
-              <li><Link className="shop-widerruf-btn" href="/3d-druck/widerruf#widerrufsfunktion">Vertrag widerrufen</Link></li>
               <li><Link href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               <li><Link href="/3d-druck/anfrage">Individueller Druck</Link></li>
             </ul>
           </nav>
-          <p className="shop-foot-kontakt">
-            Hersteller und Verkäufer: Alexander Sitek · <a href="mailto:as@sitekx.de">as@sitekx.de</a> · Anschrift siehe <a href="/impressum">Impressum</a>
-          </p>
+          <section className="shop-kontakt" aria-labelledby="shop-kontakt-h">
+            <Image className="shop-kontakt-logo" src="/shop/sitekx-logo.png" alt="SitekX" width={400} height={156} />
+            <h2 id="shop-kontakt-h">Hersteller und Verkäufer / Kontakt</h2>
+            <p>
+              Alexander Sitek
+              {KONTAKT_MIT_ANSCHRIFT ? (
+                <><br />Richard-Strauss-Straße 4<br />86663 Asbach-Bäumenheim</>
+              ) : (
+                <><br />Anschrift siehe Impressum</>
+              )}
+            </p>
+            <p><a href="mailto:as@sitekx.de">as@sitekx.de</a> · <a href="/impressum">Impressum</a></p>
+          </section>
         </footer>
       </div>
     </div>

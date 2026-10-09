@@ -53,6 +53,7 @@ export default function ProductBuy({
   const beschreibung = [textFehler ? "t-fehler" : null, filterFehler ? "t-filter" : null].filter(Boolean).join(" ") || undefined;
   const individuell = istIndividuell(produkt, text);
   const setzeVorschau = useVorschauSetzen();
+  const beispielText = (zeilen[0] ?? "").trim().slice(0, 9) || pers?.beispiel || "Abc";
   const vorFarbe = farbe?.hex ?? produkt.grundfarbe;
   const vorFamily = schrift?.family;
   useEffect(() => {
@@ -124,12 +125,16 @@ export default function ProductBuy({
             </p>
           )}
           {!pers.festeSchrift && (
-            <div className="shop-field">
-              <label htmlFor="t-schrift">Schrift</label>
-              <select id="t-schrift" className="shop-input" value={schriftId} onChange={(e) => setSchriftId(e.target.value)}>
-                {SCHRIFTEN.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </div>
+            <fieldset className="shop-schriften">
+              <legend>Schrift wählen</legend>
+              {SCHRIFTEN.map((sf) => (
+                <label key={sf.id} className="shop-schrift">
+                  <input type="radio" name="t-schrift" value={sf.id} checked={schriftId === sf.id} onChange={() => setSchriftId(sf.id)} />
+                  <span className="shop-schrift-bsp" style={{ fontFamily: sf.family }} aria-hidden="true">{beispielText}</span>
+                  <span className="shop-schrift-name">{sf.name}</span>
+                </label>
+              ))}
+            </fieldset>
           )}
           <p className="muted">Erlaubt: Buchstaben, Zahlen und . , ! ? &amp; - &apos;. Der Text wird automatisch auf unzulässige Inhalte und Marken geprüft; im Zweifel hilft eine individuelle Anfrage. Bei geändertem Text prüfe ich ihn nach der Zahlung noch selbst, innerhalb von 24 Stunden; erst danach bekommst du die Bestellbestätigung. Lehne ich ihn ab, erstatte ich den vollen Betrag (AGB Ziffer 9 Abs. 3).</p>
           {individuell ? (
