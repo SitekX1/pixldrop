@@ -16,8 +16,10 @@ import type { Benachrichtiger } from "./benachrichtigung";
 import { berechneWarenkorb, type Kontext } from "./preise";
 import { pruefeKunde } from "./validierung";
 import { AGB_TEXT } from "./agb-text";
-import { mailMitAnhaengen, type AnhangErzeuger } from "./pdf";
-import { PFLICHTANGABEN_FREIGEGEBEN, PLATZHALTER_MARKER, alexMail, bestaetigungsMail, telegramBestellung, telegramPruefen, type MailBestellung } from "./vorlagen";
+import type { AnhangErzeuger } from "./pdf";
+import { PFLICHTANGABEN_FREIGEGEBEN, PLATZHALTER_MARKER, alexMail, telegramBestellung, telegramPruefen } from "./vorlagen";
+import { ereignis, sendeBestaetigung } from "./bestaetigung";
+import { benachrichtigeAlexFreigabe, sendeEingangsbestaetigung } from "./freigabe";
 
 export interface Deps {
   db: Db;
@@ -63,6 +65,10 @@ interface Suche {
   paypal_capture_id?: string | null;
   benachrichtigt?: boolean;
   bestaetigt?: boolean;
+  enthaelt_individuell?: boolean;
+  /** Freigabe-Flow (Migration 10): Schluessel fehlt = Migration nicht angewendet; null = kein Freigabe-Flow. */
+  freigabe_status?: "offen" | "freigegeben" | "abgelehnt" | null;
+  eingang_gesendet?: boolean;
 }
 
 async function suche(deps: Deps, q: { id?: string; paypalOrderId?: string; nummer?: string }): Promise<Suche> {
@@ -71,15 +77,6 @@ async function suche(deps: Deps, q: { id?: string; paypalOrderId?: string; numme
     p_paypal_order_id: q.paypalOrderId ?? null,
     p_nummer: q.nummer ?? null,
   });
-}
-
-/** Technisches Ereignis (ohne personenbezogene Daten) protokollieren; Fehler hier sind egal. */
-async function ereignis(deps: Deps, id: string | null, art: string, details: Record<string, unknown>) {
-  try {
-    await deps.db.rpc("shop_ereignis_schreiben", { p_bestellung_id: id, p_art: art, p_details: details });
-  } catch {
-    /* Protokoll ist Zusatz */
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -247,9 +244,24 @@ export type Ziel = "danke" | "abbruch" | "fehler" | "pruefen" | "unbekannt";
 export interface Abschluss {
   ziel: Ziel;
   nummer?: string;
+  /** true = Wunschtext-Bestellung wartet auf Freigabe (Danke-Seite zeigt den Freigabetext). */
+  freigabe?: boolean;
 }
 
 export async function schliesseZahlungAb(deps: Deps, token: unknown): Promise<Abschluss> {
+  const a = await schliesseZahlungAbIntern(deps, token);
+  if (a.ziel !== "danke" || !a.nummer) return a;
+  try {
+    const s = await suche(deps, { nummer: a.nummer });
+    // Schluessel freigabe_status fehlt (Migration 10 nicht da) bei Wunschtext: ebenfalls Freigabe-Hinweis
+    if (s.ok && s.enthaelt_individuell === true && (!("freigabe_status" in s) || s.freigabe_status === "offen")) a.freigabe = true;
+  } catch {
+    /* ohne Hinweis weiter */
+  }
+  return a;
+}
+
+async function schliesseZahlungAbIntern(deps: Deps, token: unknown): Promise<Abschluss> {
   if (typeof token !== "string" || !/^[A-Za-z0-9_-]{5,64}$/.test(token)) return { ziel: "unbekannt" };
 
   let s: Suche;
@@ -341,41 +353,68 @@ async function buche(
   return { ziel: "pruefen", nummer: p.nummer };
 }
 
-/** Benachrichtigung an Alex und Bestaetigung an den Kunden; jeweils nur, wenn noch nicht erfolgt. */
+/**
+ * Nach erfolgter Zahlung (Capture UND Webhook rufen genau diese Funktion): Benachrichtigung an Alex und
+ * Mail an den Kunden; jeweils nur, wenn noch nicht erfolgt (Flags in der DB).
+ * Standardbestellung: Alex-Meldung + Bestellbestaetigung (Vertragsschluss).
+ * Wunschtext-Bestellung (Freigabe-Flow): Alex bekommt die Meldung MIT Freigabe-Links, der Kunde nur die
+ * Eingangsbestaetigung; die Vertragsbestaetigung folgt erst nach der Freigabe (freigabe.ts) - bei einer
+ * Wiederholung hier nur, falls sie nach erteilter Freigabe noch fehlt.
+ */
 async function nachBezahlt(
   deps: Deps,
   id: string,
   nummer: string,
-  schon: { benachrichtigt: boolean; bestaetigt: boolean },
+  vorab: { benachrichtigt: boolean; bestaetigt: boolean },
 ) {
+  // Aktuellen Stand aus der DB lesen (Quelle der Wahrheit); bei Lesefehler mit den uebergebenen Flags weiter.
+  let s: Suche | null = null;
+  try {
+    const x = await suche(deps, { id });
+    if (x.ok) s = x;
+  } catch {
+    /* weiter mit vorab */
+  }
+  const schon = s
+    ? { benachrichtigt: s.benachrichtigt === true, bestaetigt: s.bestaetigt === true }
+    : vorab;
+
+  // Freigabe-Flow nur, wenn die DB ihn kennt. Schluessel fehlt (Migration 10 nicht angewendet) bei Wunschtext:
+  // keine Kundenmail, Alex pruefen lassen (lieber keine falsche Vertragsbestaetigung).
+  if (s && s.enthaelt_individuell === true && !("freigabe_status" in s)) {
+    if (!schon.benachrichtigt) {
+      if (await deps.notifier.telegram(telegramPruefen(nummer, "Wunschtext: Freigabe-Funktion fehlt in der DB"))) {
+        await deps.db.rpc("shop_markiere", { p_art: "bestellung_benachrichtigt", p_id: id }).catch(() => undefined);
+      }
+    }
+    return;
+  }
+  const freigabe = s?.freigabe_status ?? null;
+
   if (!schon.benachrichtigt) {
-    const mail = alexMail("Bestellung", nummer, deps.env.adminUrl);
-    const t = await deps.notifier.telegram(telegramBestellung(nummer));
-    const m = await deps.notifier.mailAlex(mail.betreff, mail.text);
-    if (t || m) {
+    let gesendet: boolean;
+    if (freigabe === "offen") {
+      gesendet = await benachrichtigeAlexFreigabe(deps, id, nummer, "neu");
+    } else {
+      const mail = alexMail("Bestellung", nummer, deps.env.adminUrl);
+      const t = await deps.notifier.telegram(telegramBestellung(nummer));
+      const m = await deps.notifier.mailAlex(mail.betreff, mail.text);
+      gesendet = t || m;
+    }
+    if (gesendet) {
       await deps.db.rpc("shop_markiere", { p_art: "bestellung_benachrichtigt", p_id: id }).catch(() => undefined);
     } else {
       await ereignis(deps, id, "benachrichtigung", { ergebnis: "kein_kanal_erreicht" });
     }
   }
-  if (!schon.bestaetigt) {
-    try {
-      const d = await deps.db.rpc<Record<string, unknown> & { ok: boolean }>("shop_bestellung_mail_daten", { p_id: id });
-      if (d.ok) {
-        const b = d as unknown as MailBestellung & { email: string };
-        const mail = bestaetigungsMail(b, deps.pflichtangabenText, deps.pflichtangabenFreigegeben, { siteUrl: deps.env.siteUrl, agbText: deps.agbText });
-        // Kurzer Mailtext + PDF-Anhaenge; scheitert die PDF-Erzeugung, geht der Volltext im Mailkoerper raus.
-        const { betreff, text, anhaenge } = await mailMitAnhaengen(mail, deps.anhangErzeuger);
-        if (await deps.notifier.mailKunde(b.email, betreff, text, anhaenge)) {
-          await deps.db.rpc("shop_markiere", { p_art: "bestellung_bestaetigt", p_id: id }).catch(() => undefined);
-        } else {
-          await ereignis(deps, id, "benachrichtigung", { ergebnis: "kundenmail_fehlgeschlagen" });
-        }
-      }
-    } catch {
-      await ereignis(deps, id, "benachrichtigung", { ergebnis: "kundenmail_fehler" });
-    }
+
+  if (freigabe === "offen") {
+    if (s && !s.eingang_gesendet) await sendeEingangsbestaetigung(deps, id);
+    return;
   }
+  if (freigabe === "abgelehnt") return;
+  // Standardbestellung oder freigegeben (Nachholen): Vertragsbestaetigung mit PDFs
+  if (!schon.bestaetigt) await sendeBestaetigung(deps, id);
 }
 
 // ---------------------------------------------------------------------------

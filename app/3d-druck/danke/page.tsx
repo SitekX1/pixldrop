@@ -14,6 +14,9 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
   const { nr, hinweis } = await searchParams;
   const echt = bestellnummerOk(nr);
   const nummer = echt ?? "VORSCHAU";
+  // Bestellung mit geändertem Wunschtext: Freigabe-Flow (AGB Ziffer 3 Abs. 4/5). Der Rücksprung von PayPal
+  // muss dafür &hinweis=freigabe anhängen (app/api/shop/zahlung/rueckkehr). "pruefung" hat Vorrang.
+  const freigabe = hinweis === "freigabe";
   return (
     <ShopShell>
       <div className="shop-wrap" style={{ maxWidth: 1040 }}>
@@ -31,13 +34,23 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
             <Ring draw />
             <strong>Nr. <span className="nr">{echt ? nummer : "#VORSCHAU"}</span></strong>
           </div>
-          <p>Deine Zahlung ist eingegangen. Die Bestellbestätigung bekommst du per E-Mail; erst mit dieser E-Mail kommt der Kaufvertrag zustande.</p>
+          {freigabe ? (
+            <p>Deine Zahlung ist eingegangen. Ich prüfe deinen Text innerhalb von 24 Stunden, danach bekommst du die Bestellbestätigung per E-Mail. Erst mit dieser E-Mail kommt der Kaufvertrag zustande.</p>
+          ) : (
+            <p>Deine Zahlung ist eingegangen. Die Bestellbestätigung bekommst du per E-Mail; erst mit dieser E-Mail kommt der Kaufvertrag zustande.</p>
+          )}
           <section aria-labelledby="jetzt" style={{ display: "grid", gap: 10 }}>
             <h2 id="jetzt" style={{ fontSize: "1.25rem" }}>Was jetzt passiert</h2>
             <ol className="shop-steps">
               <li><strong>Zahlung</strong>Du hast per PayPal bezahlt. Den Beleg schickt dir PayPal.</li>
-              <li><strong>Bestätigung per E-Mail</strong>Sobald die Zahlung bestätigt ist, folgt sie mit AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Kommt nichts an, schreib an as@sitekx.de.</li>
-              <li><strong>Wunschtext-Prüfung</strong>Hast du den Text geändert, wurde er vor der Bestellung automatisch vorgeprüft; vor dem Druck kontrolliere ich ihn noch einmal. Ist er trotzdem unzulässig (AGB Ziffer 9 Abs. 3), trete ich vom Vertrag zurück, melde mich unverzüglich bei dir und erstatte dir den vollen Betrag einschließlich Versand.</li>
+              {freigabe ? (
+                <>
+                  <li><strong>Eingangsbestätigung und Textprüfung</strong>Du bekommst jetzt eine E-Mail, dass Zahlung und Bestellung eingegangen sind. Das ist noch keine Annahme. Deinen Wunschtext hast du vorab automatisch prüfen lassen; zusätzlich prüfe ich ihn selbst, innerhalb von 24 Stunden nach deiner Zahlung (AGB Ziffer 9 Abs. 3).</li>
+                  <li><strong>Bestellbestätigung per E-Mail</strong>Gebe ich den Text frei, bekommst du die Bestellbestätigung mit AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Damit kommt der Vertrag zustande. Lehne ich den Text ab, schreibe ich dir den Grund und erstatte dir den vollen Betrag einschließlich Versand über PayPal. Kommt innerhalb von 24 Stunden nichts an, schreib an as@sitekx.de.</li>
+                </>
+              ) : (
+                <li><strong>Bestätigung per E-Mail</strong>Sobald die Zahlung bestätigt ist, folgt sie mit AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Kommt nichts an, schreib an as@sitekx.de.</li>
+              )}
               <li><strong>Druck und Versand</strong>Lieferzeit: {LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}. Ich drucke und verpacke selbst.</li>
             </ol>
           </section>

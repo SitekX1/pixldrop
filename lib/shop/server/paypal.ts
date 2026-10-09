@@ -55,6 +55,11 @@ export interface PayPalClient {
   holeOrder(id: string): Promise<PayPalOrder>;
   capture(id: string, requestId: string): Promise<PayPalOrder>;
   pruefeWebhook(headers: Headers, event: unknown): Promise<boolean>;
+  /**
+   * Volle Erstattung einer Zahlung (POST /v2/payments/captures/{id}/refund). Gleiche requestId = gleiche Erstattung
+   * (PayPal-Request-Id), ein Wiederholen bucht nie doppelt. Wirft PayPalFehler (z. B. 422 CAPTURE_FULLY_REFUNDED).
+   */
+  erstatte(captureId: string, betragCent: number, requestId: string): Promise<{ refundId: string; status: string }>;
   /** Freigabe-URL einer bestehenden Order (zum Wiederverwenden bei erneutem Versuch). */
   approveUrl(orderId: string): string;
 }
@@ -275,6 +280,23 @@ export function erzeugePayPal(cfg: PayPalConfig, fetchImpl: FetchFn = fetch): Pa
           Prefer: "return=representation",
         }),
       );
+    },
+
+    async erstatte(captureId, betragCent, requestId) {
+      if (!/^[A-Za-z0-9_-]{5,64}$/.test(captureId) || !Number.isInteger(betragCent) || betragCent <= 0) {
+        throw new PayPalFehler("erstattung_eingabe");
+      }
+      const antwort = await aufruf("erstattung", "POST", `/v2/payments/captures/${encodeURIComponent(captureId)}/refund`, {
+        amount: { currency_code: "EUR", value: centZuPayPal(betragCent) },
+        note_to_payer: "Erstattung deiner PixlDrop-Bestellung",
+      }, {
+        "PayPal-Request-Id": requestId,
+        Prefer: "return=representation",
+      });
+      if (!istObjekt(antwort) || typeof antwort.id !== "string" || typeof antwort.status !== "string") {
+        throw new PayPalFehler("erstattung_antwort");
+      }
+      return { refundId: antwort.id, status: antwort.status };
     },
 
     async pruefeWebhook(headers, event) {

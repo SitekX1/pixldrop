@@ -442,3 +442,32 @@
 
 .shop-foot-kontakt { margin-top: 14px; font-size: 0.95rem; }
 .shop-foot-kontakt a { text-decoration: underline; }
+
+/* ---------- Textfreigabe (nur Alex, mobil zuerst) ---------- */
+.fg { display: grid; gap: 14px; padding: 16px 0 28px; }
+.fg h1 { font-size: clamp(1.5rem, 6vw, 2rem); overflow-wrap: anywhere; }
+.fg-hint, .fg-laden { color: var(--shop-muted); font-size: 0.9375rem; }
+.fg-liste { list-style: none; display: grid; gap: 14px; padding: 0; margin: 0; }
+.fg-pos { background: var(--shop-card); border: 1px solid var(--shop-line); border-radius: var(--shop-r-l); padding: 14px; display: grid; gap: 10px; box-shadow: var(--shop-sh-card); }
+.fg-kopf { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font: 700 1.0625rem/1.25 var(--shop-display); }
+.fg-kopf strong { min-width: 0; overflow-wrap: anywhere; }
+.fg-farbe { display: flex; align-items: center; gap: 8px; color: var(--shop-text); }
+.fg-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--shop-ink); flex: none; }
+.fg-schild { display: grid; align-content: space-between; justify-items: center; min-height: 150px; padding: 12px 14px 18px; background: var(--shop-bon); border: 2px dashed var(--shop-control); border-radius: var(--shop-r-m); color: var(--shop-ink); font-weight: 700; }
+.fg-klein { justify-self: start; font-size: 1rem; line-height: 1.2; overflow-wrap: anywhere; max-width: 100%; }
+.fg-gross { align-self: center; font-size: clamp(2rem, 11vw, 3.25rem); line-height: 1.1; text-align: center; white-space: pre-line; overflow-wrap: anywhere; max-width: 100%; padding-top: 6px; }
+.fg-schrift { font-size: 0.875rem; color: var(--shop-muted); }
+.fg-aktionen { display: grid; gap: 12px; }
+.fg-btn { min-height: 56px; font-size: 1.125rem; }
+.fg-btn--nein { background: var(--shop-card); }
+.fg-ok, .fg-nok { padding: 12px 14px; border-radius: var(--shop-r-m); border: 2px solid var(--shop-success); background: var(--shop-card); display: grid; gap: 6px; }
+.fg-nok { border-color: var(--shop-error); }
+.fg-dialog { width: min(calc(100vw - 24px), 440px); max-height: calc(100dvh - 24px); overflow: auto; margin: auto; padding: 18px; border: 2px solid var(--shop-ink); border-radius: var(--shop-r-l); background: var(--shop-card); color: var(--shop-text); overscroll-behavior: contain; }
+.fg-dialog::backdrop { background: rgba(46, 28, 15, 0.6); }
+.fg-dialog form { display: grid; gap: 14px; }
+.fg-gruende { border: 0; padding: 0; margin: 0; display: grid; gap: 8px; }
+.fg-gruende legend { font: 700 0.9375rem var(--shop-display); margin-bottom: 6px; }
+.fg-radio { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 14px; border: 2px solid var(--shop-control); border-radius: var(--shop-r-m); cursor: pointer; }
+.fg-radio:has(input:checked) { border-color: var(--shop-ink); background: var(--shop-tint); }
+.fg-radio input { width: 22px; height: 22px; accent-color: var(--shop-ink); flex: none; }
+.fg-radio:has(input:focus-visible) { outline: 3px solid var(--shop-focus); outline-offset: 2px; }

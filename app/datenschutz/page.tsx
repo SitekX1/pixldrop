@@ -170,6 +170,18 @@ export default function Datenschutz() {
         <strong> Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragsabwicklung) und lit. f
         DSGVO (berechtigtes Interesse, keine Rechtsverletzungen zu produzieren).
       </p>
+      <p>
+        <strong>Prüfung und Freigabe des Wunschtextes:</strong> Bestellst du einen geänderten
+        Wunschtext, prüfe ich ihn nach der Zahlung selbst (innerhalb von 24 Stunden) und gebe ihn
+        frei oder lehne ihn ab. Dafür sehe ich den Wunschtext zusammen mit der Bestellnummer, und
+        ich speichere die Entscheidung (Freigabe oder Ablehnung mit Grund, Zeitpunkt) bei der
+        Bestellung. Bei Ablehnung erstatte ich den gezahlten Betrag einschließlich Versand über
+        PayPal (siehe 12.3). Die Entscheidung trifft ein Mensch, keine automatisierte Entscheidung
+        im Sinne von Art. 22 DSGVO.{" "}
+        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragsabwicklung) und lit. f
+        DSGVO (berechtigtes Interesse, keine rechtswidrigen oder rechteverletzenden Inhalte
+        herzustellen). Die Speicherdauer richtet sich nach den Bestelldaten (siehe 12.9).
+      </p>
 
       <h3>12.2 Individuelle Anfragen und Bild-Uploads</h3>
       <p>
@@ -190,8 +202,11 @@ export default function Datenschutz() {
         Du zahlst sofort bei der Bestellung: Nach dem Klick auf &bdquo;Zahlungspflichtig
         bestellen&ldquo; leiten wir dich zu PayPal weiter (PayPal (Europe) S.à r.l. et Cie, S.C.A.,
         22-24 Boulevard Royal, L-2449 Luxemburg). Dabei werden Bestellnummer und Betrag an PayPal
-        übergeben; deine Zahlungsdaten gibst du nur bei PayPal ein. Erst nach bestätigter Zahlung
-        senden wir dir die Bestellbestätigung. Bei Angeboten (individuelle Anfragen) zahlst du
+        übergeben; deine Zahlungsdaten gibst du nur bei PayPal ein. Nach bestätigter Zahlung
+        senden wir dir die Bestellbestätigung, bei geändertem Wunschtext zunächst eine
+        Eingangsbestätigung und die Bestellbestätigung erst nach meiner Textfreigabe. Lehne ich
+        eine bezahlte Bestellung ab, veranlasse ich die vollständige Erstattung (einschließlich
+        Versand) über PayPal; dafür übergebe ich PayPal die Transaktions-ID und den Betrag. Bei Angeboten (individuelle Anfragen) zahlst du
         ebenfalls per PayPal. PayPal ist für die Zahlungsabwicklung{" "}
         <strong>eigenständig verantwortlich</strong>; dort gelten die{" "}
         <a href="https://www.paypal.com/de/legalhub/paypal/privacy-full" target="_blank" rel="noopener noreferrer">
@@ -206,7 +221,10 @@ export default function Datenschutz() {
       <p>
         Bei einer Bestellung oder Anfrage erhalten wir eine E-Mail und eine Telegram-Nachricht,
         die <strong>nur die Bestellnummer</strong> (und die Art, z. B. Bestellung/Anfrage)
-        enthält, keine Namen, Anschriften, Texte oder Bilder. Anbieter: Telegram FZ-LLC (Dubai,
+        enthält, keine Namen, Anschriften, Texte oder Bilder. Bei Bestellungen mit geändertem
+        Wunschtext enthält die Telegram-Nachricht zusätzlich einen <strong>Freigabelink</strong> zu
+        einer nicht öffentlichen Seite dieses Shops, auf der nur ich den Text sehe und
+        freigebe oder ablehne; der Wunschtext selbst wird nicht über Telegram übertragen. Anbieter: Telegram FZ-LLC (Dubai,
         Vereinigte Arabische Emirate), ein Drittland ohne Angemessenheitsbeschluss.{" "}
         <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (zeitnahe Bearbeitung). Da
         keine Daten mit direktem Personenbezug übermittelt werden, ist das Risiko gering. Die
@@ -216,7 +234,8 @@ export default function Datenschutz() {
 
       <h3>12.5 E-Mail-Versand</h3>
       <p>
-        Bestellbestätigung, Eingangsbestätigung bei Anfragen, Versandnachricht und Angebote
+        Bestellbestätigung, Eingangsbestätigung (bei Bestellungen mit geändertem Wunschtext und bei
+        Anfragen), Absage mit Begründung bei abgelehntem Wunschtext, Versandnachricht und Angebote
         versenden wir per E-Mail über den SMTP-Server von <strong>IONOS SE</strong> (Elgendorfer
         Str. 57, 56410 Montabaur), wie beim Kontaktformular (Abschnitt 9).{" "}
         <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO. Mit Dienstleistern werden,

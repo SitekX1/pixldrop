@@ -25,6 +25,14 @@ export interface FakeBestellung {
   hash: string;
   kunde: Row;
   positionen: Row[];
+  /** Freigabe-Flow (Migration 10) */
+  freigabe?: "offen" | "freigegeben" | "abgelehnt" | null;
+  freigabeGrund?: string | null;
+  eingang?: boolean;
+  absage?: boolean;
+  erinnert?: boolean;
+  erstattung?: "erstattet" | "erstattung_offen" | null;
+  angefordertVorH?: number;
 }
 
 export class FakeDb implements Db {
@@ -40,6 +48,8 @@ export class FakeDb implements Db {
   zielAnzahlFest: number | null = null;
   stundeFest: number | null = null;
   zielAnzahlAusfall = false;
+  /** Test: simuliert "Migration 10 nicht angewendet" (suche liefert keinen Schluessel freigabe_status). */
+  ohneFreigabeMigration = false;
   uploadOk = true;
   entfernenOk = true;
   anfrageGrund: string | null = null;
@@ -63,6 +73,10 @@ export class FakeDb implements Db {
     if (!this.entfernenOk) return false;
     this.entfernt.push(pfad);
     return true;
+  }
+
+  individuell(b: FakeBestellung): boolean {
+    return b.positionen.some((x) => x.individuell === true);
   }
 
   private find(q: { id?: unknown; o?: unknown; n?: unknown }) {
@@ -89,6 +103,7 @@ export class FakeDb implements Db {
           key: p.p_idempotenz_key as string, gesamt_cent: gesamt, status: "neu", zahlungsstatus: "offen",
           paypal_order_id: null, paypal_capture_id: null, benachrichtigt: false, bestaetigt: false, hash,
           kunde: { ...(p.p_kunde as Row), __ip: p.p_ip_hash }, positionen: pos,
+          freigabe: null, freigabeGrund: null, eingang: false, absage: false, erinnert: false, erstattung: null, angefordertVorH: 0,
         };
         this.bestellungen.push(b);
         this.ereignisse.push({ art: "angelegt", details: { gesamt_cent: gesamt } });
@@ -107,6 +122,8 @@ export class FakeDb implements Db {
         return {
           ok: true, id: b.id, nummer: b.nummer, gesamt_cent: b.gesamt_cent, status: b.status, zahlungsstatus: b.zahlungsstatus,
           paypal_order_id: b.paypal_order_id, paypal_capture_id: b.paypal_capture_id, benachrichtigt: b.benachrichtigt, bestaetigt: b.bestaetigt,
+          enthaelt_individuell: this.individuell(b),
+          ...(this.ohneFreigabeMigration ? {} : { freigabe_status: b.freigabe ?? null, eingang_gesendet: b.eingang, absage_gesendet: b.absage, erstattung_status: b.erstattung ?? null }),
         };
       }
       case "shop_zahlung_buchen": {
@@ -126,6 +143,7 @@ export class FakeDb implements Db {
           b.zahlungsstatus = "bezahlt";
           b.paypal_capture_id = p.p_capture_id as string;
           b.status = "bezahlt";
+          if (this.individuell(b) && !this.ohneFreigabeMigration) { b.freigabe = "offen"; b.angefordertVorH = 0; }  // Trigger shop_tg_freigabe
           return { ok: true, neu_bezahlt: true, id: b.id, nummer: b.nummer };
         }
         if (p.p_capture_status === "PENDING") {
@@ -138,6 +156,7 @@ export class FakeDb implements Db {
       case "shop_bestellung_mail_daten": {
         const b = this.find({ id: p.p_id });
         if (!b || b.zahlungsstatus !== "bezahlt" || b.bestaetigt) return { ok: false, grund: "nichts_zu_tun" };
+        if ((b.freigabe ?? null) !== null && b.freigabe !== "freigegeben") return { ok: false, grund: "nichts_zu_tun" };  // DB-Sperre
         return {
           ok: true, nummer: b.nummer, gesamt_cent: b.gesamt_cent, summe_waren_cent: b.gesamt_cent - 490, versand_cent: 490,
           individuell: b.positionen.some((x) => x.individuell === true), name: b.kunde.name, strasse: b.kunde.strasse, plz: b.kunde.plz,
@@ -152,6 +171,56 @@ export class FakeDb implements Db {
         const an = this.anfragen.find((x) => x.id === p.p_id);
         if (an && p.p_art === "anfrage_benachrichtigt") an.benachrichtigt = true;
         return { ok: true };
+      }
+      case "shop_freigabe_daten": {
+        const b = this.find({ id: p.p_id });
+        if (!b || (b.freigabe ?? null) === null) return { ok: false, grund: "unbekannt" };
+        return {
+          ok: true, nummer: b.nummer, status: b.freigabe, angefordert_am: "2026-10-09T10:00:00Z", entschieden_am: b.freigabe === "offen" ? null : "2026-10-09T11:00:00Z",
+          grund: b.freigabeGrund,
+          positionen: b.positionen.map((x) => ({ name: x.name, menge: x.menge, farbe: x.farbe_name ?? null, farbe_hex: null, text: x.text ?? null, schrift: x.schrift ?? null, optionen: x.optionen ?? {}, individuell: x.individuell === true })),
+        };
+      }
+      case "shop_freigabe_setzen": {
+        const b = this.find({ id: p.p_id });
+        if (!b || (b.freigabe ?? null) === null) return { ok: false, grund: "nicht_moeglich" };
+        if (p.p_aktion === "nein" && !["marke", "unzulaessig", "unleserlich", "sonstiges"].includes(p.p_grund as string)) return { ok: false, grund: "ungueltige_eingabe" };
+        let neu = false;
+        if (b.freigabe === "offen") {
+          if (b.zahlungsstatus !== "bezahlt") return { ok: false, grund: "nicht_moeglich" };
+          neu = true;
+          if (p.p_aktion === "ok") b.freigabe = "freigegeben";
+          else { b.freigabe = "abgelehnt"; b.freigabeGrund = p.p_grund as string; b.status = "storniert"; }
+        }
+        return { ok: true, neu, id: b.id, nummer: b.nummer, status: b.freigabe, grund: b.freigabeGrund, erstattung_status: b.erstattung ?? null };
+      }
+      case "shop_freigabe_erstattung_setzen": {
+        const b = this.find({ id: p.p_id });
+        if (!b || b.freigabe !== "abgelehnt") return { ok: false, grund: "nicht_moeglich" };
+        if (b.erstattung !== "erstattet") {
+          b.erstattung = p.p_status as "erstattet" | "erstattung_offen";
+          if (b.erstattung === "erstattet") b.zahlungsstatus = "erstattet";
+        }
+        return { ok: true };
+      }
+      case "shop_freigabe_mail_daten": {
+        const b = this.find({ id: p.p_id });
+        if (!b) return { ok: false, grund: "nichts_zu_tun" };
+        if (p.p_art === "eingang" && (b.freigabe !== "offen" || b.eingang)) return { ok: false, grund: "nichts_zu_tun" };
+        if (p.p_art === "absage" && (b.freigabe !== "abgelehnt" || b.absage)) return { ok: false, grund: "nichts_zu_tun" };
+        return { ok: true, nummer: b.nummer, gesamt_cent: b.gesamt_cent, name: b.kunde.name, email: b.kunde.email, grund: b.freigabeGrund };
+      }
+      case "shop_freigabe_markiere": {
+        const b = this.find({ id: p.p_id });
+        if (b && p.p_art === "eingang_gesendet") b.eingang = true;
+        if (b && p.p_art === "absage_gesendet") b.absage = true;
+        if (b && p.p_art === "erinnert") b.erinnert = true;
+        return { ok: true };
+      }
+      case "shop_freigabe_erinnerung_liste": {
+        if (this.ohneFreigabeMigration) throw new Error("function does not exist");
+        const l = this.bestellungen.filter((b) => b.freigabe === "offen" && !b.erinnert && (b.angefordertVorH ?? 0) >= (p.p_stunden as number));
+        return { ok: true, bestellungen: l.map((b) => ({ id: b.id, nummer: b.nummer })) };
       }
       case "shop_ereignis_schreiben":
         this.ereignisse.push({ art: p.p_art as string, details: p.p_details as Row });
@@ -220,6 +289,10 @@ export class FakePayPal implements PayPalClient {
   orders = new Map<string, OrderEingabe>();
   captures = 0;
   erzeugt = 0;
+  /** Erstattungen: captureId/Betrag/Request-Id je Aufruf; Antwort steuerbar. */
+  erstattungen: { captureId: string; betragCent: number; requestId: string }[] = [];
+  erstattungFehler: PayPalFehler | null = null;
+  erstattungStatus = "COMPLETED";
   statusAufHolen = "CREATED";
   private n = 0;
 
@@ -254,6 +327,12 @@ export class FakePayPal implements PayPalClient {
         ? { captureId: `CAP-${id}`, status, betragCent: this.skript.captureBetragCent ?? e.gesamtCent, waehrung: "EUR", customId: e.nummer }
         : null,
     };
+  }
+
+  async erstatte(captureId: string, betragCent: number, requestId: string) {
+    this.erstattungen.push({ captureId, betragCent, requestId });
+    if (this.erstattungFehler) throw this.erstattungFehler;
+    return { refundId: `REFUND-${this.erstattungen.length}`, status: this.erstattungStatus };
   }
 
   async pruefeWebhook() {

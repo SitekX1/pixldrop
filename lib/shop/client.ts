@@ -254,3 +254,80 @@ export function idempotenzKeyFuer(signatur: string): string {
 export function loescheBestellZwischenstand() {
   try { sessionStorage.removeItem(KUNDE_KEY); sessionStorage.removeItem(KEY_KEY); } catch { /* gesperrt */ }
 }
+
+// ---- Textfreigabe durch Alex (Seite /3d-druck/freigabe, Backend: /api/shop/freigabe) ----
+export interface FreigabePosition {
+  name: string; menge: number; farbe: string | null; farbeHex: string | null;
+  text: string | null; schrift: string | null; optionen?: Record<string, string> | null; individuell?: boolean;
+  /** Wunschtext als Zeilen (Tischschild: 2 Zeilen; sonst eine Zeile; leer ohne Text). */
+  zeilen?: string[];
+}
+export interface FreigabeGrund { id: string; label: string }
+export interface FreigabeDaten {
+  aktion: "ok" | "nein" | null; bestellnummer: string; status: "offen" | "freigegeben" | "abgelehnt";
+  angefordertAm: string | null; entschiedenAm: string | null; grund: string | null;
+  positionen: FreigabePosition[]; gruende: FreigabeGrund[];
+}
+export type FreigabeErgebnisDaten =
+  | { status: "freigegeben"; neu: boolean; mail: boolean }
+  | { status: "abgelehnt"; neu: boolean; erstattung: "erstattet" | "erstattung_offen"; mail: boolean };
+export type FreigabeFehlerCode = "ungueltig" | "bereits_entschieden" | "nicht_moeglich" | "zu_oft" | "nicht_erreichbar" | "netz" | "fehler";
+export interface FreigabeFehler { code: FreigabeFehlerCode; meldung: string; status?: "freigegeben" | "abgelehnt" }
+export type FreigabeErgebnis<T> = { ok: true; daten: T } | { ok: false; fehler: FreigabeFehler };
+
+/** API-Fehler (HTTP-Status + Body) auf Anzeige-Codes abbilden. */
+export function freigabeFehler(status: number, b: Record<string, unknown>): FreigabeFehler {
+  const code = typeof b.code === "string" ? b.code : "";
+  if (status === 403 || code === "link_ungueltig" || code === "link_abgelaufen") return { code: "ungueltig", meldung: "Link ungültig oder abgelaufen." };
+  if (status === 409 && code === "bereits_entschieden") {
+    const s = b.status === "freigegeben" || b.status === "abgelehnt" ? b.status : undefined;
+    return { code: "bereits_entschieden", meldung: "Diese Freigabe ist schon entschieden.", status: s };
+  }
+  if (status === 409) return { code: "nicht_moeglich", meldung: "Das geht für diese Bestellung nicht mehr. Bitte im Admin-Panel nachsehen." };
+  if (status === 429) return { code: "zu_oft", meldung: "Zu viele Versuche. Bitte kurz warten und noch einmal versuchen." };
+  if (status === 503) return { code: "nicht_erreichbar", meldung: "Der Shop ist gerade nicht erreichbar. Bitte gleich noch einmal versuchen." };
+  return { code: "fehler", meldung: typeof b.error === "string" && b.error ? b.error : "Das hat nicht geklappt. Bitte noch einmal versuchen." };
+}
+const FREIGABE_NETZ: FreigabeFehler = { code: "netz", meldung: "Keine Verbindung zum Server. Bitte noch einmal versuchen." };
+
+async function freigabeLies(res: Response): Promise<{ b: Record<string, unknown>; fehler: FreigabeFehler | null }> {
+  let b: Record<string, unknown> = {};
+  try { b = (await res.json()) as Record<string, unknown>; } catch { /* kein JSON */ }
+  if (res.ok && b.ok === true) return { b, fehler: null };
+  return { b, fehler: freigabeFehler(res.status, b) };
+}
+
+/** Lädt die Freigabe-Daten (ändert nichts am Server). */
+export async function holeFreigabeDaten(p: { b: string; t: string }, f: FetchFn = fetch): Promise<FreigabeErgebnis<FreigabeDaten>> {
+  try {
+    const r = await f(`/api/shop/freigabe/daten?b=${encodeURIComponent(p.b)}&t=${encodeURIComponent(p.t)}`, { cache: "no-store" });
+    const { b, fehler } = await freigabeLies(r);
+    if (fehler) return { ok: false, fehler };
+    if (typeof b.bestellnummer !== "string" || !Array.isArray(b.positionen) || !["offen", "freigegeben", "abgelehnt"].includes(b.status as string)) {
+      return { ok: false, fehler: freigabeFehler(500, {}) };
+    }
+    return { ok: true, daten: { ...b, aktion: b.aktion === "ok" || b.aktion === "nein" ? b.aktion : null, gruende: Array.isArray(b.gruende) ? b.gruende : [] } as unknown as FreigabeDaten };
+  } catch {
+    return { ok: false, fehler: FREIGABE_NETZ };
+  }
+}
+
+/** Entscheidung senden. Der Grund geht nur bei Ablehnung mit. */
+export async function sendeFreigabe(
+  p: { b: string; t: string; aktion: "ok" | "nein"; grund?: string },
+  f: FetchFn = fetch,
+): Promise<FreigabeErgebnis<FreigabeErgebnisDaten>> {
+  try {
+    const body = { b: p.b, t: p.t, aktion: p.aktion, ...(p.aktion === "nein" && p.grund ? { grund: p.grund } : {}) };
+    const r = await f("/api/shop/freigabe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const { b, fehler } = await freigabeLies(r);
+    if (fehler) return { ok: false, fehler };
+    const neu = b.neu !== false;
+    const mail = b.mail === true;
+    if (b.status === "freigegeben") return { ok: true, daten: { status: "freigegeben", neu, mail } };
+    if (b.status === "abgelehnt") return { ok: true, daten: { status: "abgelehnt", neu, mail, erstattung: b.erstattung === "erstattet" ? "erstattet" : "erstattung_offen" } };
+    return { ok: false, fehler: freigabeFehler(500, {}) };
+  } catch {
+    return { ok: false, fehler: FREIGABE_NETZ };
+  }
+}

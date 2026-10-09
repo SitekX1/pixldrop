@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   }
   try {
     const deps = anfrageDeps(env);
-    const r = await fuehreBereinigungAus(deps.db);
+    const r = await fuehreBereinigungAus(deps.db, { env: deps.env, notifier: deps.notifier });
     return NextResponse.json({ ok: true, ...r }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     console.error("Shop-Bereinigung fehlgeschlagen:", err instanceof Error ? err.message : "unbekannt");

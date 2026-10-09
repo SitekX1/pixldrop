@@ -84,6 +84,9 @@ export async function legeAnfrageAn(
         return fehler(429, "zu_viele", "Zu viele Anfragen in kurzer Zeit. Bitte versuch es später noch einmal.");
       case "ueberlastet":
         return fehler(503, "ueberlastet", "Gerade ist sehr viel los. Bitte versuch es später noch einmal.");
+      case "speicher_voll":
+        // Bild-Speicher ausgeschaltet (Bucket ueber 400 MB, Migration 11): ohne Bilder ist die Anfrage weiter moeglich
+        return fehler(503, "speicher_voll", "Bilder können gerade nicht angenommen werden. Bitte sende die Anfrage ohne Bilder oder versuch es später noch einmal.");
       case "einwilligung_fehlt":
         return fehler(422, "einwilligung_fehlt", "Bitte bestätige die Pflichtangaben.");
       case "ungueltige_eingabe":

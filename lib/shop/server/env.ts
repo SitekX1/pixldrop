@@ -18,6 +18,8 @@ export interface ShopEnv {
   dbSecret?: string;
   /** Salz fuer IP-Hash und Formular-Token. */
   ipSalt?: string;
+  /** Optionaler eigener Schluessel fuer die signierten Freigabe-Links; fehlt er, wird SHOP_API_SECRET verwendet. */
+  freigabeSecret?: string;
   siteUrl: string;
   adminUrl?: string;
   telegramToken?: string;
@@ -47,6 +49,7 @@ export function leseEnv(env: EnvQuelle = process.env): ShopEnv {
     dbAnonKey: nichtLeer(env.SHOP_SUPABASE_ANON_KEY),
     dbSecret: nichtLeer(env.SHOP_API_SECRET),
     ipSalt: nichtLeer(env.SHOP_IP_SALT),
+    freigabeSecret: nichtLeer(env.SHOP_FREIGABE_SECRET),
     siteUrl: (nichtLeer(env.SHOP_SITE_URL) ?? "https://pixldrop.de").replace(/\/+$/, ""),
     adminUrl: nichtLeer(env.SHOP_ADMIN_URL),
     telegramToken: nichtLeer(env.TELEGRAM_BOT_TOKEN),

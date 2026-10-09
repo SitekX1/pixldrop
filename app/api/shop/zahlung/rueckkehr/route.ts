@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   const nr = r.nummer ? encodeURIComponent(r.nummer) : "";
   switch (r.ziel) {
     case "danke":
-      return ziel(`/3d-druck/danke?nr=${nr}`);
+      return ziel(`/3d-druck/danke?nr=${nr}${r.freigabe ? "&hinweis=freigabe" : ""}`);
     case "pruefen":
       return ziel(`/3d-druck/danke?nr=${nr}&hinweis=pruefung`);
     case "abbruch":

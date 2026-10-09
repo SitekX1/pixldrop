@@ -243,7 +243,7 @@ export function bestaetigungsMail(
     `${b.name}, ${b.strasse}, ${b.plz} ${b.ort}`,
     zahlung,
     `Lieferzeit: ${lieferzeit} ab heute`,
-    b.individuell ? "\nHinweis: Dein Stück wird nach deinen Vorgaben (geänderter Wunschtext) gefertigt. Der Text wurde vor der Bestellung automatisch vorgeprüft; vor dem Druck kontrolliere ich ihn noch einmal. Verstößt er trotzdem gegen Ziffer 9 Abs. 3 der AGB (z. B. Rechte Dritter, Beleidigung), trete ich vom Vertrag zurück, teile dir das unverzüglich mit und erstatte dir den gezahlten Betrag einschließlich Versand vollständig." : "",
+    b.individuell ? "\nHinweis: Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB)." : "",
     "",
     `Verkäufer: ${KONTAKT_ALEX}`,
   ];
