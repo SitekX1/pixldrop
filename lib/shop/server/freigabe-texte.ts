@@ -2,6 +2,9 @@ import "server-only";
 // Texte des Freigabe-Flows (Wunschtext-Bestellungen). Entwurf von Ben; die Endformulierung liegt bei Justus.
 // Telegram bekommt NUR Bestellnummer + Art + die zwei Links (keine Namen, Anschriften, Wunschtexte).
 import { KONTAKT_ALEX, eur } from "./vorlagen";
+import { PRODUKTE } from "../produkte";
+import { GROESSEN, istGroesseId, STANDARD_GROESSE } from "../umbruch";
+import { formatAnzeigeAusOptionen } from "../textformat";
 
 /** Feste Grund-Textbausteine fuer die Ablehnung (Schluessel = DB-Check shop_bestellungen_freigabe_grund_chk). */
 export const FREIGABE_GRUENDE = [
@@ -22,8 +25,27 @@ export interface FreigabeLinks {
   nein: string;
 }
 
-export const telegramFreigabe = (nummer: string, links: FreigabeLinks): string =>
-  `Wunschtext prüfen und freigeben: ${nummer} (Frist 24 h nach Zahlung)
+/** Position aus shop_freigabe_daten (nur die Felder, die die Kurzliste braucht; keine Kundendaten). */
+export interface KurzPosition { name: string; menge: number; text: string | null; schrift: string | null; optionen: Record<string, unknown> }
+
+const kuerze = (t: string, max = 60) => (t.length > max ? `${t.slice(0, max - 1).trimEnd()}…` : t);
+
+/** Kurzliste der Wunschtext-Positionen fuer die Mail an Alex: Text (auf 60 Zeichen gekuerzt), Schrift, Format/Groesse. */
+export function wunschtextKurzliste(positionen: KurzPosition[]): string[] {
+  return positionen.filter((p) => p.text).map((p) => {
+    const pers = PRODUKTE.find((pr) => pr.name === p.name)?.personalisierung ?? null;
+    const opt = Object.fromEntries(Object.entries(p.optionen).filter(([, v]) => typeof v === "string")) as Record<string, string>;
+    const format = formatAnzeigeAusOptionen(pers, opt).filter(([k]) => k !== "Schriftgröße").map(([k, v]) => `${k}: ${v}`);
+    const g = istGroesseId(opt.groesse) ? opt.groesse : STANDARD_GROESSE;
+    const groesse = `Größe ${GROESSEN.find((x) => x.id === g)?.label ?? g}`;
+    const teile = [p.schrift ? `Schrift ${p.schrift}` : null, ...format, groesse].filter(Boolean);
+    return `- ${p.menge} × ${p.name}: „${kuerze(p.text as string)}“ (${teile.join(", ")})`;
+  });
+}
+
+/** Telegram: nur Nummer, Anzahl der Wunschtext-Positionen und die Links (Details nur in der Mail). */
+export const telegramFreigabe = (nummer: string, links: FreigabeLinks, anzahl?: number): string =>
+  `Wunschtext prüfen und freigeben: ${nummer}${anzahl ? ` (${anzahl} ${anzahl === 1 ? "Wunschtext" : "Wunschtexte"})` : ""} (Frist 24 h nach Zahlung)
 Freigeben: ${links.ok}
 Ablehnen: ${links.nein}`;
 
@@ -37,12 +59,14 @@ export function alexMailFreigabe(
   nummer: string,
   links: FreigabeLinks,
   art: "neu" | "erinnerung",
+  kurzliste: string[] = [],
 ): { betreff: string; text: string } {
   return {
     betreff: art === "neu" ? `Wunschtext prüfen: Bestellung ${nummer}` : `Erinnerung: Wunschtext prüfen, Bestellung ${nummer}`,
     text: [
       `Bestellung ${nummer} ist bezahlt und enthält einen Wunschtext. Der Kunde hat nur eine Eingangsbestätigung bekommen.`,
       "Die Entscheidung ist innerhalb von 24 Stunden nach Zahlungseingang zugesagt.",
+      ...(kurzliste.length ? ["", "Wunschtexte (gekürzt, Details auf der Freigabe-Seite):", ...kurzliste] : []),
       "",
       `Freigeben (Vertragsschluss, Bestätigung mit PDFs geht an den Kunden): ${links.ok}`,
       `Ablehnen (Absage-Mail, automatische PayPal-Erstattung): ${links.nein}`,

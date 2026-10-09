@@ -6,7 +6,7 @@ import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { aendereMenge, entferne, ladeKorb, speichereKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { TEXTE, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
-import ProductImage from "./ProductImage";
+import PositionsBild from "./PositionsBild";
 
 // Warenkorb: Positionen mit Menge ändern / entfernen, Summe, Hinweis zum Widerruf, "Zur Kasse".
 export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; farben: Farbe[] }) {
@@ -36,7 +36,8 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
   const ausgenommen = korb.flatMap((a) => { const p = von(a.slug); return p && istIndividuell(p, a.text, a.optionen) ? [p.name] : []; });
 
   return (
-    <div className="shop-form">
+    <div className="shop-zwei">
+      <div className="shop-zwei-l">
       <p className="sr-only" role="status" aria-live="polite">{meldung}</p>
       <ul className="shop-cart" aria-label="Positionen im Warenkorb">
         {korb.map((a, i) => {
@@ -59,7 +60,7 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
           const ind = istIndividuell(p, a.text, a.optionen);
           return (
             <li key={`${a.slug}-${i}`} className="shop-cart-item">
-              <div className="shop-cart-img"><ProductImage form={p.form} farbe={farbe?.hex ?? p.grundfarbe} text={a.text || undefined} typ="Muster" /></div>
+              <div className="shop-cart-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} /></div>
               <div className="shop-cart-body">
                 <h2><Link href={`/3d-druck/${p.slug}`}>{p.name}</Link></h2>
                 {farbe && <p className="muted">Farbe: {farbe.name}</p>}
@@ -83,7 +84,9 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
           );
         })}
       </ul>
+      </div>
 
+      <aside className="shop-zwei-r shop-form" aria-label="Zusammenfassung">
       <dl className="shop-cart-sum">
         <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
         <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "auf Anfrage"}</dd></div>
@@ -103,6 +106,7 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
         )}
         <Link className="shop-link" href="/3d-druck#stuecke">Weiter einkaufen</Link>
       </div>
+      </aside>
     </div>
   );
 }

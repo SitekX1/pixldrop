@@ -75,6 +75,15 @@ export function pruefePasst(pers: Personalisierung, zeilen: string[], s: Schrift
   return { passt: erg.every((e) => e.passt), zeilen: erg };
 }
 
+/** Größte Stufe, bei der der Text noch passt (Voreinstellung, solange der Kunde keine Stufe gewählt hat).
+ *  Passt keine Stufe, kommt die kleinste zurück (der Passt-nicht-Hinweis erscheint dann trotzdem). */
+export function groessteDiePasst(pers: Personalisierung, zeilen: string[], s: Schrift, f: TextFormat): GroesseId {
+  for (let i = GROESSEN.length - 1; i >= 0; i--) {
+    if (pruefePasst(pers, zeilen, s, { ...f, groesse: GROESSEN[i].id }).passt) return GROESSEN[i].id;
+  }
+  return GROESSEN[0].id;
+}
+
 /** Lesbare Anzeige fürs Format als [Beschriftung, Wert]-Paare (Warenkorb, Bon, Freigabe, Mails; nur Abweichungen vom Standard). */
 export function formatAnzeige(pers: Personalisierung, f: TextFormat): [string, string][] {
   const out: [string, string][] = [];

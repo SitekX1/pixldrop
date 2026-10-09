@@ -384,3 +384,19 @@ test("Parallel: Capture und Webhook gleichzeitig -> genau eine Eingangsmail; Sen
   await schliesseZahlungAb(f.deps, "ORDER1TEST");
   assert.equal(f.notifier.kundenMails.length, 1);
 });
+
+test("Kurzliste der Wunschtexte: gekuerzt, mit Schrift/Format, ohne Kundendaten; Telegram nur Anzahl", async () => {
+  const { wunschtextKurzliste, telegramFreigabe, alexMailFreigabe } = await import("@/lib/shop/server/freigabe-texte");
+  const lang = "A".repeat(100);
+  const kl = wunschtextKurzliste([
+    { name: "Spruch-Untersetzer mit deinem Text", menge: 2, text: lang, schrift: "Oswald", optionen: { fett_0: "1", groesse: "l" } },
+    { name: "Spruch-Untersetzer mit deinem Text", menge: 1, text: null, schrift: null, optionen: {} },
+  ]);
+  assert.equal(kl.length, 1);
+  assert.ok(kl[0].includes("Oswald") && kl[0].includes("Fett") && kl[0].includes("Größe Groß"), kl[0]);
+  assert.ok(!kl[0].includes("A".repeat(61)));
+  const links = { ok: "https://x/ok", nein: "https://x/nein" };
+  const tg = telegramFreigabe("PD-1", links, 2);
+  assert.ok(tg.includes("2 Wunschtexte") && !tg.includes("AAAA"));
+  assert.ok(alexMailFreigabe("PD-1", links, "neu", kl).text.includes("Wunschtexte (gekürzt"));
+});

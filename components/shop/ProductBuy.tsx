@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN, unerlaubteZeichen } from "@/lib/shop/schriften";
-import { GROESSEN } from "@/lib/shop/umbruch";
+import { GROESSEN, type GroesseId } from "@/lib/shop/umbruch";
 import {
-  NICHT_VERFUEGBAR, PASST_NICHT, formatZuOptionen, pruefePasst, standardFormat, zeilenAnzahl, type TextFormat,
+  NICHT_VERFUEGBAR, PASST_NICHT, formatZuOptionen, groessteDiePasst, pruefePasst, standardFormat, zeilenAnzahl, type TextFormat,
 } from "@/lib/shop/textformat";
 import ProductImage from "./ProductImage";
 import { useVorschauSetzen } from "./Vorschau";
@@ -32,6 +32,8 @@ export default function ProductBuy({
   const [zeilen, setZeilen] = useState<string[]>(() => (pers?.zeilen ? pers.zeilen.map((z) => z.standard) : pers ? [""] : []));
   const [schriftId, setSchriftId] = useState(pers?.festeSchrift ?? SCHRIFTEN[0].id);
   const [fmtRoh, setFmtRoh] = useState<TextFormat>(() => standardFormat(pers ? zeilenAnzahl(pers) : 0));
+  // null = Kunde hat keine Stufe gewählt: dann gilt automatisch die größte, die noch passt.
+  const [groesseWahl, setGroesseWahl] = useState<GroesseId | null>(null);
   const [stickyZeigen, setStickyZeigen] = useState(false);
   const aktion = useRef<HTMLDivElement>(null);
   const [hinzu, setHinzu] = useState<{ ok: boolean; menge: number } | null>(null);
@@ -48,17 +50,20 @@ export default function ProductBuy({
   const schrift = SCHRIFTEN.find((s) => s.id === (pers?.festeSchrift ?? schriftId));
   const text = zeilen.map((z) => z.trim()).join("\n");
   // Wirksames Format: Schalter, die die gewählte Schrift nicht kann, zählen nicht (Schriftwechsel setzt sie zurück).
-  const fmt: TextFormat = {
+  const fmtOhneGroesse: TextFormat = {
     ...fmtRoh,
     fett: fmtRoh.fett.map((v) => v && schrift?.hatFett === true),
     kursiv: fmtRoh.kursiv.map((v) => v && schrift?.hatKursiv === true),
   };
-  const formatOpt = pers ? formatZuOptionen(fmt) : {};
   const textFehler = !pers ? null
     : zeilen.some((z) => z.trim() === "") ? "Bitte fülle alle Textzeilen aus."
     : unerlaubteZeichen(zeilen.join("")).length > 0 ? `Nicht druckbare Zeichen: ${unerlaubteZeichen(zeilen.join("")).join(" ")}`
     : null;
-  const passt = !pers || !schrift || textFehler ? null : pruefePasst(pers, zeilen.map((z) => z.trim()), schrift, fmt);
+  const trimmed = zeilen.map((z) => z.trim());
+  const autoGroesse = pers && schrift && !textFehler ? groessteDiePasst(pers, trimmed, schrift, fmtOhneGroesse) : fmtOhneGroesse.groesse;
+  const fmt: TextFormat = { ...fmtOhneGroesse, groesse: groesseWahl ?? autoGroesse };
+  const formatOpt = pers ? formatZuOptionen(fmt) : {};
+  const passt = !pers || !schrift || textFehler ? null : pruefePasst(pers, trimmed, schrift, fmt);
   const passtNicht = passt !== null && !passt.passt;
   const filter = pers && !textFehler ? pruefeWunschtext(zeilen) : { ok: true as const };
   const [filterZeigen, setFilterZeigen] = useState(false);
@@ -168,7 +173,7 @@ export default function ProductBuy({
             <div className="shop-options">
               {GROESSEN.map((g) => (
                 <label key={g.id} className="shop-option">
-                  <input type="radio" name="t-groesse" value={g.id} checked={fmt.groesse === g.id} onChange={() => setFmtRoh({ ...fmtRoh, groesse: g.id })} />
+                  <input type="radio" name="t-groesse" value={g.id} checked={fmt.groesse === g.id} onChange={() => setGroesseWahl(g.id)} />
                   <span>{g.label}</span>
                 </label>
               ))}

@@ -706,3 +706,26 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 }
 .shop-step .shop-groesse legend { float: none; width: auto; display: block; margin-bottom: 6px; }
 .shop-step .shop-groesse legend::before { content: none; }
+
+/* Warenkorb und Kasse: Handy einspaltig, Desktop (>= 1024 px) zwei Spalten mit sticky Zusammenfassung rechts */
+.shop-zwei { display: grid; gap: 16px; }
+.shop-zwei-l { min-width: 0; display: grid; gap: 14px; align-content: start; }
+.shop-zwei-r { min-width: 0; }
+.shop-zus { display: none; }
+.shop-bon-pos li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: start; }
+.shop-bon-img .shop-img { border-radius: var(--shop-r-s); }
+.shop-bon-img .shop-placeholder-tag { display: none; }
+@media (min-width: 1024px) {
+  .shop-wrap--kasse { max-width: 1180px; }
+  .shop-zwei { grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; align-items: start; }
+  .shop-zwei-r { position: sticky; top: 24px; align-self: start; }
+  .shop-zus { display: grid; gap: 14px; background: var(--shop-card); border: 1px solid var(--shop-line); border-radius: var(--shop-r-card, var(--shop-r-l)); padding: 20px; box-shadow: var(--shop-e1, var(--shop-sh-card)); }
+  .shop-zus h2 { font-size: 1.25rem; }
+  .shop-zus-pos { display: grid; gap: 10px; }
+  .shop-zus-pos li { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+  .shop-zus-img .shop-img { border-radius: var(--shop-r-s); }
+  .shop-zus-img .shop-placeholder-tag { display: none; }
+  .shop-zus-txt { display: grid; min-width: 0; overflow-wrap: anywhere; }
+  .shop-zus-sum { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .shop-zwei-r.shop-form { padding: 20px; align-content: start; }
+}

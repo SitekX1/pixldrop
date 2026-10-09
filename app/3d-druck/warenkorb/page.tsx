@@ -10,7 +10,7 @@ export default async function WarenkorbSeite() {
   const farben = await holeFarben();
   return (
     <ShopShell>
-      <div className="shop-wrap" style={{ maxWidth: 720 }}>
+      <div className="shop-wrap shop-wrap--kasse">
         <h1 style={{ fontSize: "clamp(1.75rem, 7vw, 2.4rem)", marginBottom: 16 }}>Dein Warenkorb</h1>
         <Warenkorb produkte={sichtbareProdukte()} farben={farben} />
       </div>

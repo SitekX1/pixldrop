@@ -12,7 +12,7 @@ export default async function Bestellung({ searchParams }: { searchParams: Promi
   const farben = await holeFarben();
   return (
     <ShopShell>
-      <div className="shop-wrap" style={{ maxWidth: 720 }}>
+      <div className="shop-wrap shop-wrap--kasse">
         <Bestellablauf schritt={s} produkte={sichtbareProdukte()} farben={farben} zahlung={zahlung} />
       </div>
     </ShopShell>

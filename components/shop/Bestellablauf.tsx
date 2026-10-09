@@ -8,7 +8,7 @@ import type { Farbe } from "@/lib/shop/farben";
 import { ladeKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { SHOP_AKTIV, TEXTE, VERSAND_CENT, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
 import { pruefeWunschtext, TEXT_MELDUNG } from "@/lib/shop/textfilter";
-import ProductImage from "./ProductImage";
+import PositionsBild from "./PositionsBild";
 import { baueBestellung, holeFormToken, idempotenzKeyFuer, istPaypalUrl, ladeKunde, sendeBestellung, speichereKunde } from "@/lib/shop/client";
 
 const ZAHLUNG_HINWEIS: Record<string, string> = {
@@ -182,6 +182,36 @@ export default function Bestellablauf({
     </div>
   );
 
+  // Desktop (>= 1024 px): sticky Zusammenfassung rechts; auf dem Handy ausgeblendet (dort gilt der Bon bzw. die Schrittfolge wie bisher).
+  const zusammenfassung = (
+    <aside className="shop-zwei-r shop-zus" aria-labelledby="zus-t">
+      <h2 id="zus-t">Deine Bestellung</h2>
+      <ul className="shop-zus-pos">
+        {pos.map(({ a, p }, i) => (
+          <li key={i}>
+            <div className="shop-zus-img"><PositionsBild p={p} a={a} farbeHex={farben.find((f) => f.id === a.farbeId)?.hex} /></div>
+            <div className="shop-zus-txt">
+              <strong>{p.name}</strong>
+              <span className="muted">{a.menge} × {formatPreis(p.preisCent)}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}</span>
+            </div>
+            <span className="shop-zus-sum">{p.preisCent != null ? formatPreis(p.preisCent * a.menge) : "auf Anfrage"}</span>
+          </li>
+        ))}
+      </ul>
+      <dl className="shop-cart-sum">
+        <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
+        <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "auf Anfrage"}</dd></div>
+        <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div>
+      </dl>
+      <p className="muted">{TEXTE.kleinunternehmer}</p>
+      {individuell ? (
+        <p className="shop-note shop-note--warn" role="note"><strong>Kein Widerrufsrecht bei:</strong> {ausgenommen.map(({ p }) => p.name).join(", ")} (nach deinen Vorgaben gefertigt, § 312g Abs. 2 Nr. 1 BGB).{pos.length > ausgenommen.length && " Alle anderen Positionen: 14 Tage Widerruf."}</p>
+      ) : (
+        <p className="muted">14 Tage Widerruf.</p>
+      )}
+    </aside>
+  );
+
   return (
     <div>
       {!SHOP_AKTIV && (
@@ -199,8 +229,9 @@ export default function Bestellablauf({
         ))}
       </ol>
 
+      <div className="shop-zwei">
       {aktuell === 2 && (
-        <section aria-labelledby="s2">
+        <section aria-labelledby="s2" className="shop-zwei-l">
           <h1 id="s2" tabIndex={-1} ref={kopf} style={{ fontSize: "clamp(1.75rem, 7vw, 2.4rem)", outline: "none" }}>Deine Daten</h1>
           <form className="shop-form" style={{ marginTop: 16 }} noValidate onSubmit={(e) => { e.preventDefault(); zuSchritt3(); }}>
             {FehlerBlock}
@@ -229,7 +260,7 @@ export default function Bestellablauf({
       )}
 
       {aktuell === 3 && (
-        <section aria-labelledby="s3">
+        <section aria-labelledby="s3" className="shop-zwei-l">
           <h1 id="s3" tabIndex={-1} ref={kopf} style={{ fontSize: "clamp(1.75rem, 7vw, 2.4rem)", outline: "none" }}>Prüfen &amp; bestellen</h1>
           <div className="shop-form" style={{ marginTop: 16 }}>
             {FehlerBlock}
@@ -247,6 +278,7 @@ export default function Bestellablauf({
                   ];
                   return (
                     <li key={i}>
+                      <div className="shop-bon-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} /></div>
                       <dl>
                         <div><dt>Ware</dt><dd>{p.name}</dd></div>
                         {farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
@@ -309,6 +341,8 @@ export default function Bestellablauf({
           </div>
         </section>
       )}
+      {zusammenfassung}
+      </div>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { PRODUKTE, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN } from "@/lib/shop/schriften";
 import { berechneWarenkorb, type Kontext } from "@/lib/shop/server/preise";
 import {
-  formatAnzeige, formatAusOptionen, formatZuOptionen, formatUnerlaubt, pruefePasst, standardFormat,
+  formatAnzeige, formatAusOptionen, formatZuOptionen, formatUnerlaubt, groessteDiePasst, pruefePasst, standardFormat,
 } from "@/lib/shop/textformat";
 
 const katalog: Produkt[] = PRODUKTE.map((p) => ({ ...p, preisCent: 1290 }));
@@ -106,4 +106,26 @@ test("individuell: Formatwahl beim Standardtext macht das Stück individuell, Pr
   assert.equal(m.wert.positionen[0].individuell, false);
   assert.equal(istIndividuell(schild, std, { fett_0: "1" }), true);
   assert.equal(istIndividuell(schild, std, {}), false);
+});
+
+test("Automatische Groesse: groesste Stufe, die noch passt", () => {
+  const pers = spruch.personalisierung!;
+  const f = standardFormat(1);
+  // kurzer Text: sehr gross passt
+  assert.equal(groessteDiePasst(pers, ["Mo"], sf("oswald"), f), "xl");
+  // laenger: nicht mehr xl, aber die gewaehlte Stufe passt wirklich und die naechstgroessere nicht
+  const lang = ["Heute ist der beste Tag fuer Kaffee ok"];
+  const g = groessteDiePasst(pers, lang, sf("oswald"), f);
+  assert.ok(pruefePasst(pers, lang, sf("oswald"), { ...f, groesse: g }).passt);
+  assert.notEqual(g, "xl");
+  // passt nirgends: kleinste Stufe
+  assert.equal(groessteDiePasst(pers, ["Donaudampfschifffahrt"], sf("montserrat"), f), "s");
+  // Tischschild: gleiche Logik, Ergebnis passt
+  const sp = schild.personalisierung!;
+  const z = ["Teamleiter", "Sabine"];
+  const gs = groessteDiePasst(sp, z, sf("oswald"), standardFormat(2));
+  assert.ok(pruefePasst(sp, z, sf("oswald"), { ...standardFormat(2), groesse: gs }).passt);
+  // Server prueft die vom Client gesendete Stufe
+  const r = bestell("spruch-untersetzer", "Mo", "oswald", { groesse: "xl" });
+  assert.ok(r.ok, JSON.stringify(r));
 });

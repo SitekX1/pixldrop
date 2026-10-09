@@ -20,6 +20,7 @@ import {
   FREIGABE_GRUENDE,
   absageMail,
   alexMailFreigabe,
+  wunschtextKurzliste,
   eingangsMail,
   istFreigabeGrund,
   telegramErstattungOffen,
@@ -104,7 +105,7 @@ function obj(v: unknown): Record<string, unknown> {
 // ---------------------------------------------------------------------------
 /** Telegram + Mail an Alex mit den zwei Links. true = mindestens ein Kanal erreicht. */
 export async function benachrichtigeAlexFreigabe(
-  deps: { env: ShopEnv; notifier: Benachrichtiger },
+  deps: { env: ShopEnv; notifier: Benachrichtiger; db?: Db },
   id: string,
   nummer: string,
   art: "neu" | "erinnerung",
@@ -114,8 +115,17 @@ export async function benachrichtigeAlexFreigabe(
     await deps.notifier.telegram(telegramPruefen(nummer, "Freigabe-Links nicht möglich, Schlüssel fehlt"));
     return false;
   }
-  const mail = alexMailFreigabe(nummer, links, art);
-  const text = art === "neu" ? telegramFreigabe(nummer, links) : telegramFreigabeErinnerung(nummer, ERINNERUNG_NACH_STUNDEN, links);
+  // Kurzliste der Wunschtexte aus shop_freigabe_daten; schlaegt das fehl, geht die Benachrichtigung trotzdem raus.
+  let pos: ReturnType<typeof mappePositionen> = [];
+  if (deps.db) {
+    try {
+      const d = await deps.db.rpc<{ ok: boolean; positionen?: unknown[] }>("shop_freigabe_daten", { p_id: id });
+      if (d.ok) pos = mappePositionen(d.positionen);
+    } catch { /* ohne Kurzliste weiter */ }
+  }
+  const kurz = wunschtextKurzliste(pos);
+  const mail = alexMailFreigabe(nummer, links, art, kurz);
+  const text = art === "neu" ? telegramFreigabe(nummer, links, kurz.length) : telegramFreigabeErinnerung(nummer, ERINNERUNG_NACH_STUNDEN, links);
   const t = await deps.notifier.telegram(text);
   const m = await deps.notifier.mailAlex(mail.betreff, mail.text);
   return t || m;
@@ -202,6 +212,28 @@ async function erstatte(deps: Deps, id: string, nummer: string): Promise<Erstatt
   return status;
 }
 
+/** Positionen aus shop_freigabe_daten fuer die API und die Kurzliste in der Mail an Alex. */
+export function mappePositionen(roh: unknown) {
+  return (Array.isArray(roh) ? roh : []).map((p) => {
+    const x = obj(p);
+    const name = typeof x.name === "string" ? x.name : "";
+    const text = typeof x.text === "string" ? x.text : null;
+    // personalisierung_text ist mit " / " verbunden; nur bei Produkten mit Zeilen-Personalisierung wieder trennen
+    const mehrzeilig = (PRODUKTE.find((pr) => pr.name === name)?.personalisierung?.zeilen?.length ?? 0) > 1;
+    return {
+      zeilen: text === null ? [] : mehrzeilig ? text.split(" / ") : [text],
+      name,
+      menge: typeof x.menge === "number" ? x.menge : 1,
+      farbe: typeof x.farbe === "string" ? x.farbe : null,
+      farbeHex: typeof x.farbe_hex === "string" ? x.farbe_hex : null,
+      text,
+      schrift: typeof x.schrift === "string" ? x.schrift : null,
+      optionen: obj(x.optionen),
+      individuell: x.individuell === true,
+    };
+  });
+}
+
 // ---------------------------------------------------------------------------
 // API: Daten fuer die Seite (GET, aendert nichts)
 // ---------------------------------------------------------------------------
@@ -232,24 +264,7 @@ export async function holeFreigabeDaten(
   }
   if (!d.ok || !d.nummer || !d.status) return LINK_UNGUELTIG();
 
-  const positionen = (Array.isArray(d.positionen) ? d.positionen : []).map((p) => {
-    const x = obj(p);
-    const name = typeof x.name === "string" ? x.name : "";
-    const text = typeof x.text === "string" ? x.text : null;
-    // personalisierung_text ist mit " / " verbunden; nur bei Produkten mit Zeilen-Personalisierung wieder trennen
-    const mehrzeilig = (PRODUKTE.find((pr) => pr.name === name)?.personalisierung?.zeilen?.length ?? 0) > 1;
-    return {
-      zeilen: text === null ? [] : mehrzeilig ? text.split(" / ") : [text],
-      name,
-      menge: typeof x.menge === "number" ? x.menge : 1,
-      farbe: typeof x.farbe === "string" ? x.farbe : null,
-      farbeHex: typeof x.farbe_hex === "string" ? x.farbe_hex : null,
-      text,
-      schrift: typeof x.schrift === "string" ? x.schrift : null,
-      optionen: obj(x.optionen),
-      individuell: x.individuell === true,
-    };
-  });
+  const positionen = mappePositionen(d.positionen);
   return {
     status: 200,
     body: {
