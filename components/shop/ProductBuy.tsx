@@ -131,7 +131,7 @@ export default function ProductBuy({
               </select>
             </div>
           )}
-          <p className="muted">Erlaubt: Buchstaben, Zahlen und . , ! ? &amp; - &apos;. Ich prüfe den Text vor dem Druck; ist er unzulässig, erstatte ich den Betrag.</p>
+          <p className="muted">Erlaubt: Buchstaben, Zahlen und . , ! ? &amp; - &apos;. Der Text wird automatisch auf unzulässige Inhalte und Marken geprüft; im Zweifel hilft eine individuelle Anfrage. Erkenne ich vor dem Druck noch einen Verstoß, trete ich zurück und erstatte den vollen Betrag (AGB Ziffer 9 Abs. 3).</p>
           {individuell ? (
             <p className="shop-note shop-note--warn" role="note">Mit geändertem Text wird das Stück nach deinen Vorgaben gefertigt. Dafür besteht <strong>kein Widerrufsrecht</strong> (§ 312g Abs. 2 Nr. 1 BGB). Du bestätigst das vor der Bestellung.</p>
           ) : (

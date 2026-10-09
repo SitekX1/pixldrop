@@ -89,6 +89,11 @@ test("Route Kontakt: Honeypot -> 400, Token ungültig -> 400, zu groß -> 413, T
     const t = await tokenRoute.GET(new Request("https://t.example/api/shop/formtoken?f=kontakt"));
     assert.equal(t.status, 200);
     assert.equal((await tokenRoute.GET(new Request("https://t.example/api/shop/formtoken"))).status, 503);
+    // IP-Bremse der Token-Route: 30 je Minute und IP, danach 429
+    const ip = { "x-real-ip": "198.51.100.77" };
+    let letzte = 0;
+    for (let i = 0; i < 31; i++) letzte = (await tokenRoute.GET(new Request("https://t.example/api/shop/formtoken?f=kontakt", { headers: ip }))).status;
+    assert.equal(letzte, 429);
   } finally {
     globalThis.fetch = altFetch;
     for (const n of env) { if (alt[n] === undefined) delete process.env[n]; else process.env[n] = alt[n]; }

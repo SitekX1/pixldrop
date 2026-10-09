@@ -56,3 +56,19 @@ test("Kontakt: Token, Erfolg, Feldfehler 422, 429, 503, Netz", async () => {
   const netz = await sendeKontakt({ token: "t", website: "", daten }, (async () => { throw new Error("x"); }) as unknown as typeof fetch);
   assert.ok(!netz.ok && netz.fehler.code === "netz");
 });
+
+test("Client: bei Fehlercode 'token' wird einmal automatisch ein neues Token geholt und neu gesendet", async () => {
+  const { sendeWiderruf } = await import("../../lib/shop/client");
+  const gesehen: string[] = [];
+  const f = (async (u: string, i?: RequestInit) => {
+    if (String(u).startsWith("/api/shop/formtoken")) return new Response(JSON.stringify({ ok: true, token: "neu" }));
+    const t = JSON.parse(String(i?.body)).token as string;
+    gesehen.push(t);
+    return t === "neu"
+      ? new Response(JSON.stringify({ ok: true, widerrufsnummer: "WR-1", eingangsbestaetigung: true }))
+      : new Response(JSON.stringify({ ok: false, code: "token", error: "Bitte lade die Seite neu." }), { status: 400 });
+  }) as unknown as typeof fetch;
+  const r = await sendeWiderruf({ token: "alt", website: "", daten: { name: "Ab", vertrag: "PD-2026-0001", positionen: "", email: "a@b.de" }, confirm: true }, f);
+  assert.deepEqual(gesehen, ["alt", "neu"]);
+  assert.ok(r.ok);
+});

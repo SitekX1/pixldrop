@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   }
 
   if (!honeypotLeer(form.get("website"))) return antwort(400, { ok: false, code: "ungueltig", error: "Ungültige Anfrage." });
-  if (pruefeFormToken(form.get("token"), env.ipSalt!) !== "ok") {
+  if (pruefeFormToken(form.get("token"), env.ipSalt!, { f: "shop", ip: hash }) !== "ok") {
     return antwort(400, { ok: false, code: "token", error: "Bitte lade die Seite neu und versuch es noch einmal." });
   }
 

@@ -117,7 +117,7 @@ export default function WiderrufForm() {
         {erfolg.eingangsbestaetigung ? (
           <p>Die Eingangsbestätigung mit dem Inhalt deines Widerrufs sowie Datum und Uhrzeit des Eingangs habe ich dir per E-Mail geschickt. Bitte bewahre sie auf.</p>
         ) : (
-          <p className="shop-alert"><strong>Die Bestätigungs-E-Mail konnte nicht gesendet werden.</strong> Dein Widerruf ist trotzdem eingegangen. Bitte notiere dir Widerrufsnummer und Datum oben, am besten als Screenshot. Bei Fragen: as@sitekx.de.</p>
+          <p className="shop-alert"><strong>Die Bestätigungs-E-Mail konnte nicht gesendet werden</strong> (oder wurde für diese Adresse heute schon verschickt). Dein Widerruf ist trotzdem eingegangen. Bitte notiere dir Widerrufsnummer und Datum oben, am besten als Screenshot. Bei Fragen: as@sitekx.de.</p>
         )}
       </div>
     );

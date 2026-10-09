@@ -272,7 +272,7 @@ export default function Bestellablauf({
                   <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/widerruf" target="_blank" rel="noopener">Zur Belehrung</Link>
                 </p>
                 <p>Verkäufer: siehe <a className="shop-link" style={{ minHeight: 0 }} href="/impressum" target="_blank" rel="noopener">Impressum</a></p>
-                {pos.some(({ a }) => a.text) && <p>Dein Text wird vor dem Druck von mir geprüft. Ist er unzulässig, trete ich vom Vertrag zurück und erstatte dir den vollen Betrag.</p>}
+                {pos.some(({ a }) => a.text) && <p>Dein Text wurde automatisch vorgeprüft und wird vor dem Druck noch einmal von mir kontrolliert. Ist er trotzdem unzulässig (AGB Ziffer 9 Abs. 3), trete ich vom Vertrag zurück und erstatte dir den vollen Betrag einschließlich Versand.</p>}
                 <p>{TEXTE.keinSpielzeug}</p>
               </div>
             </section>

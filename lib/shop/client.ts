@@ -23,6 +23,27 @@ async function lies(res: Response): Promise<ApiErgebnis<Record<string, unknown>>
   return { ok: false, fehler: { code, meldung, felder } };
 }
 
+/** Mindestalter eines Tokens laut Server (TOKEN_MIN_MS = 3 s) plus Reserve. */
+export const TOKEN_WARTE_MS = 3_300;
+const schlafen = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+/**
+ * Das Token ist 30 Minuten gueltig und an Formularart + IP gebunden. Lehnt der Server es ab (Code "token":
+ * abgelaufen, Netzwechsel), wird einmal automatisch ein neues geholt, kurz gewartet (Mindestalter) und
+ * dieselbe Anfrage erneut gesendet. Alle betroffenen Sendungen sind wiederholbar (Idempotenz-Key bzw. nichts gespeichert).
+ */
+async function mitTokenNeu<T>(
+  erster: ApiErgebnis<T>,
+  neuHolen: () => Promise<string | null>,
+  nochmal: (token: string) => Promise<ApiErgebnis<T>>,
+): Promise<ApiErgebnis<T>> {
+  if (erster.ok || erster.fehler.code !== "token") return erster;
+  const neu = await neuHolen();
+  if (!neu) return erster;
+  await schlafen(TOKEN_WARTE_MS);
+  return nochmal(neu);
+}
+
 export async function holeFormToken(f: FetchFn = fetch): Promise<string | null> {
   try {
     const r = await f("/api/shop/formtoken", { cache: "no-store" });
@@ -63,9 +84,12 @@ export function baueBestellung(p: { token: string; idempotenzKey: string; auswah
 
 export async function sendeBestellung(body: object, f: FetchFn = fetch): Promise<ApiErgebnis<{ approveUrl: string; bestellnummer?: string }>> {
   try {
-    const r = await lies(await f("/api/shop/bestellung", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
-    if (r.ok && typeof r.approveUrl !== "string") return { ok: false, fehler: { code: "fehler", meldung: "Die Weiterleitung zu PayPal fehlt. Bitte versuch es noch einmal." } };
-    return r as ApiErgebnis<{ approveUrl: string; bestellnummer?: string }>;
+    const einmal = async (b: object) => {
+      const r = await lies(await f("/api/shop/bestellung", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }));
+      if (r.ok && typeof r.approveUrl !== "string") return { ok: false, fehler: { code: "fehler", meldung: "Die Weiterleitung zu PayPal fehlt. Bitte versuch es noch einmal." } } as const;
+      return r as ApiErgebnis<{ approveUrl: string; bestellnummer?: string }>;
+    };
+    return await mitTokenNeu(await einmal(body), () => holeFormToken(f), (t) => einmal({ ...body, token: t }));
   } catch {
     return { ok: false, fehler: NETZ };
   }
@@ -73,7 +97,14 @@ export async function sendeBestellung(body: object, f: FetchFn = fetch): Promise
 
 export async function sendeAnfrage(fd: FormData, f: FetchFn = fetch): Promise<ApiErgebnis<{ anfragenummer?: string; bilderFehlgeschlagen?: boolean }>> {
   try {
-    return (await lies(await f("/api/shop/anfrage", { method: "POST", body: fd }))) as ApiErgebnis<{ anfragenummer?: string; bilderFehlgeschlagen?: boolean }>;
+    type Erfolg = { anfragenummer?: string; bilderFehlgeschlagen?: boolean };
+    const einmal = async (daten: FormData) => (await lies(await f("/api/shop/anfrage", { method: "POST", body: daten }))) as ApiErgebnis<Erfolg>;
+    return await mitTokenNeu(await einmal(fd), () => holeFormToken(f), (t) => {
+      const kopie = new FormData();
+      fd.forEach((v, k) => { if (k !== "token") kopie.append(k, v); });
+      kopie.set("token", t);
+      return einmal(kopie);
+    });
   } catch {
     return { ok: false, fehler: NETZ };
   }
@@ -156,8 +187,9 @@ export async function sendeWiderruf(
       ...(p.daten.positionen.trim() ? { positionen: p.daten.positionen.trim() } : {}),
       ...(p.confirm ? { confirm: true } : {}),
     };
-    const r = await lies(await f("/api/shop/widerruf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
-    return r as ApiErgebnis<WiderrufAntwort>;
+    const einmal = async (b: object) =>
+      (await lies(await f("/api/shop/widerruf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }))) as ApiErgebnis<WiderrufAntwort>;
+    return await mitTokenNeu(await einmal(body), () => holeWiderrufToken(f), (t) => einmal({ ...body, token: t }));
   } catch {
     return { ok: false, fehler: { code: "netz", meldung: "Keine Verbindung zum Server. Deine Eingaben sind noch da. Bitte versuch es gleich noch einmal oder schreibe deinen Widerruf an as@sitekx.de." } };
   }
@@ -183,13 +215,14 @@ export async function sendeKontakt(
   f: FetchFn = fetch,
 ): Promise<ApiErgebnis<object>> {
   try {
-    const res = await f("/api/shop/kontakt", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: p.token, website: p.website, name: p.daten.name.trim(), email: p.daten.email.trim(), nachricht: p.daten.nachricht.trim() }),
-    });
-    const status = res.status;
-    const r = await lies(res);
+    const basis = { website: p.website, name: p.daten.name.trim(), email: p.daten.email.trim(), nachricht: p.daten.nachricht.trim() };
+    let status = 0;
+    const einmal = async (token: string) => {
+      const res = await f("/api/shop/kontakt", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, ...basis }) });
+      status = res.status;
+      return lies(res);
+    };
+    const r = await mitTokenNeu(await einmal(p.token), () => holeKontaktToken(f), einmal);
     if (r.ok) return { ok: true };
     if (status === 503) return { ok: false, fehler: { ...r.fehler, code: r.fehler.code === "fehler" ? "nicht_erreichbar" : r.fehler.code, meldung: KONTAKT_NICHT_ERREICHBAR } };
     if (status === 429 && r.fehler.code === "fehler") return { ok: false, fehler: { code: "zu_oft", meldung: "Du hast gerade schon mehrere Nachrichten geschickt. Bitte warte kurz und versuch es dann noch einmal." } };

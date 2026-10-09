@@ -146,16 +146,29 @@ export default function Datenschutz() {
       <h2>12. Online-Shop &bdquo;3D-Druck&ldquo;</h2>
       <p>
         Die folgenden Angaben gelten für den Shop unter /3d-druck. Verantwortlich ist der oben
-        genannte Verantwortliche; in diesem Abschnitt schreibe ich in der Ich-Form.
+        genannte Verantwortliche.
       </p>
 
       <h3>12.1 Bestellung und Vertragsabwicklung</h3>
       <p>
-        Bei einer Bestellung verarbeite ich Name, Lieferanschrift, E-Mail-Adresse, Bestellinhalt
+        Bei einer Bestellung verarbeiten wir Name, Lieferanschrift, E-Mail-Adresse, Bestellinhalt
         (Artikel, Farbe, ggf. Wunschtext und Schrift) und Hinweise von dir, um den Vertrag zu
         erfüllen: Auftrag prüfen und bestätigen, Zahlung abwickeln, drucken, versenden, Fragen
         beantworten. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO. Ohne diese
-        Angaben kann ich nicht liefern (Bereitstellung vertraglich erforderlich).
+        Angaben können wir nicht liefern (Bereitstellung vertraglich erforderlich).
+      </p>
+      <p>
+        <strong>Automatische Textprüfung:</strong> Wunschtexte werden vor der Bestellung
+        automatisch mit Wortlisten auf unzulässige Inhalte (z. B. Beleidigungen, Hass) und
+        geschützte Marken abgeglichen. Das geschieht in deinem Browser und beim Absenden
+        nochmals auf unserem Server. Beanstandete Texte können nicht bestellt werden; du kannst
+        sie ändern oder eine individuelle Anfrage stellen. Beanstandete Texte werden von uns
+        weder gespeichert noch in eigenen Protokollen festgehalten. Es handelt sich um eine bloße
+        Eingabeprüfung ohne Profilbildung; eine ausschließlich automatisierte Entscheidung mit
+        rechtlicher Wirkung im Sinne von Art. 22 DSGVO findet nicht statt, den Vertrag und
+        eine etwaige Ablehnung nach den AGB entscheiden wir selbst.
+        <strong> Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragsabwicklung) und lit. f
+        DSGVO (berechtigtes Interesse, keine Rechtsverletzungen zu produzieren).
       </p>
 
       <h3>12.2 Individuelle Anfragen und Bild-Uploads</h3>
@@ -164,34 +177,34 @@ export default function Datenschutz() {
         Wunschfarbe, Name, E-Mail und optional bis zu 3 Bilder. Zweck: Angebot erstellen.{" "}
         <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (vorvertragliche
         Maßnahmen). Die Bilder liegen in einem <strong>nicht öffentlichen Speicherbereich</strong>{" "}
-        (Supabase Storage); nur ich habe Zugriff. Lade bitte nur Bilder hoch, an denen du die
+        (Supabase Storage); nur wir haben Zugriff. Lade bitte nur Bilder hoch, an denen du die
         Rechte hast und auf denen keine fremden Personen erkennbar sind, soweit diese nicht
         eingewilligt haben. Bilder können Metadaten (z. B. Aufnahmeort) enthalten. Beim Hochladen
         werden Bilder in deinem Browser verkleinert und neu als JPEG gespeichert; dabei entfallen
-        übliche Metadaten wie der Aufnahmeort. Nach Ablehnung oder Abschluss der Anfrage lösche
-        ich Bilder nach <strong>30 Tagen</strong>.
+        übliche Metadaten wie der Aufnahmeort. Nach Ablehnung oder Abschluss der Anfrage löschen
+        wir Bilder nach <strong>30 Tagen</strong>.
       </p>
 
       <h3>12.3 Zahlung (PayPal)</h3>
       <p>
         Du zahlst sofort bei der Bestellung: Nach dem Klick auf &bdquo;Zahlungspflichtig
-        bestellen&ldquo; leite ich dich zu PayPal weiter (PayPal (Europe) S.à r.l. et Cie, S.C.A.,
+        bestellen&ldquo; leiten wir dich zu PayPal weiter (PayPal (Europe) S.à r.l. et Cie, S.C.A.,
         22-24 Boulevard Royal, L-2449 Luxemburg). Dabei werden Bestellnummer und Betrag an PayPal
         übergeben; deine Zahlungsdaten gibst du nur bei PayPal ein. Erst nach bestätigter Zahlung
-        sende ich dir die Bestellbestätigung. Bei Angeboten (individuelle Anfragen) zahlst du
+        senden wir dir die Bestellbestätigung. Bei Angeboten (individuelle Anfragen) zahlst du
         ebenfalls per PayPal. PayPal ist für die Zahlungsabwicklung{" "}
         <strong>eigenständig verantwortlich</strong>; dort gelten die{" "}
         <a href="https://www.paypal.com/de/legalhub/paypal/privacy-full" target="_blank" rel="noopener noreferrer">
           Datenschutzbestimmungen von PayPal
         </a>
-        . Ich erhalte von PayPal die Zahlungsbestätigung (Betrag, Transaktions-ID, Name, ggf.
+        . Wir erhalten von PayPal die Zahlungsbestätigung (Betrag, Transaktions-ID, Name, ggf.
         E-Mail). <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO. Zahlungsdaten
-        (Karte/Konto) erhalte ich nicht.
+        (Karte/Konto) erhalten wir nicht.
       </p>
 
       <h3>12.4 Benachrichtigung über neue Bestellungen (E-Mail und Telegram)</h3>
       <p>
-        Bei einer Bestellung oder Anfrage erhalte ich eine E-Mail und eine Telegram-Nachricht,
+        Bei einer Bestellung oder Anfrage erhalten wir eine E-Mail und eine Telegram-Nachricht,
         die <strong>nur die Bestellnummer</strong> (und die Art, z. B. Bestellung/Anfrage)
         enthält, keine Namen, Anschriften, Texte oder Bilder. Anbieter: Telegram FZ-LLC (Dubai,
         Vereinigte Arabische Emirate), ein Drittland ohne Angemessenheitsbeschluss.{" "}
@@ -204,15 +217,15 @@ export default function Datenschutz() {
       <h3>12.5 E-Mail-Versand</h3>
       <p>
         Bestellbestätigung, Eingangsbestätigung bei Anfragen, Versandnachricht und Angebote
-        versende ich per E-Mail über den SMTP-Server von <strong>IONOS SE</strong> (Elgendorfer
+        versenden wir per E-Mail über den SMTP-Server von <strong>IONOS SE</strong> (Elgendorfer
         Str. 57, 56410 Montabaur), wie beim Kontaktformular (Abschnitt 9).{" "}
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO. Mit IONOS besteht ein
-        Auftragsverarbeitungsvertrag nach Art. 28 DSGVO.
+        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO. Mit Dienstleistern werden,
+        soweit erforderlich, Auftragsverarbeitungsverträge nach Art. 28 DSGVO geschlossen.
       </p>
 
       <h3>12.6 Versand</h3>
       <p>
-        Für die Zustellung gebe ich Name und Anschrift (bei Bedarf E-Mail für Sendungsverfolgung)
+        Für die Zustellung geben wir Name und Anschrift (bei Bedarf E-Mail für Sendungsverfolgung)
         an <strong>DHL (Deutsche Post AG, Charles-de-Gaulle-Straße 20, 53113 Bonn)</strong>{" "}
         weiter. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO.
       </p>
@@ -222,15 +235,15 @@ export default function Datenschutz() {
         Die Seite läuft bei Vercel Inc. (USA), Funktionsregion Frankfurt; die Datenbank bei
         Supabase (Rechenzentrum EU, Irland; Anbieter Supabase Inc., USA). Vercel verarbeitet
         technisch erforderliche Zugriffsdaten (IP-Adresse, Zeitpunkt, Browser),{" "}
-        <strong>Rechtsgrundlage</strong> Art. 6 Abs. 1 lit. f DSGVO. Mit beiden bestehen
-        Auftragsverarbeitungsverträge. Für die Übermittlung in die USA gelten der{" "}
+        <strong>Rechtsgrundlage</strong> Art. 6 Abs. 1 lit. f DSGVO. Mit Dienstleistern
+        werden, soweit erforderlich, Auftragsverarbeitungsverträge geschlossen. Für die Übermittlung in die USA gelten der{" "}
         <strong>EU-US Data Privacy Framework</strong>-Angemessenheitsbeschluss, soweit der
         Anbieter zertifiziert ist, und ergänzend Standardvertragsklauseln (Art. 45, 46 DSGVO).
       </p>
 
       <h3>12.8 Keine Cookies, kein Tracking</h3>
       <p>
-        Im Shop setze ich keine Tracking- oder Marketing-Cookies ein und binde keine externen
+        Im Shop setzen wir keine Tracking- oder Marketing-Cookies ein und binden keine externen
         Schriften oder Skripte ein (Schriften lokal). Zur Bestellung speichert dein Browser
         vorübergehend den Zwischenstand deines Warenkorbs (<code>sessionStorage</code>); das ist
         technisch erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG) und endet mit dem Schließen des Tabs.
@@ -259,7 +272,7 @@ export default function Datenschutz() {
         </li>
       </ul>
       <p>
-        Nach der Löschung kann ich Reklamationen nur anhand deiner Bestellbestätigung
+        Nach der Löschung können wir Reklamationen nur anhand deiner Bestellbestätigung
         nachvollziehen. Bitte bewahre sie auf.
       </p>
 
@@ -267,11 +280,11 @@ export default function Datenschutz() {
       <p>
         Du hast Rechte auf Auskunft (Art. 15), Berichtigung (16), Löschung (17), Einschränkung
         (18), Datenübertragbarkeit (20) und Widerspruch (21 DSGVO) sowie auf Widerruf erteilter
-        Einwilligungen (Art. 7 Abs. 3). <strong>Widerspruchsrecht:</strong> Soweit ich Daten auf
-        Art. 6 Abs. 1 lit. f stütze, kannst du jederzeit aus Gründen, die sich aus deiner
+        Einwilligungen (Art. 7 Abs. 3). <strong>Widerspruchsrecht:</strong> Soweit wir Daten auf
+        Art. 6 Abs. 1 lit. f stützen, kannst du jederzeit aus Gründen, die sich aus deiner
         besonderen Situation ergeben, widersprechen. Beschwerde: Bayerisches Landesamt für
         Datenschutzaufsicht, Promenade 18, 91522 Ansbach (Art. 77 DSGVO). Es gibt keine
-        automatisierte Entscheidungsfindung oder Profiling.
+        automatisierte Entscheidungsfindung im Sinne von Art. 22 DSGVO und kein Profiling.
       </p>
 
       <LegalFooter />

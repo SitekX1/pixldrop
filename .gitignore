@@ -4,3 +4,7 @@ node_modules
 *.log
 .env*.local
 .env.local
+
+# Umgebungsdateien nie committen (Vorlage ausgenommen)
+.env*
+!.env.example

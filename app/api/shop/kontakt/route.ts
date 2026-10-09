@@ -53,7 +53,7 @@ export async function POST(request: Request) {
   const b = body as Record<string, unknown>;
 
   if (!honeypotLeer(b.website)) return antwort(400, { ok: false, code: "ungueltig", error: "Ungültige Anfrage." });
-  if (pruefeFormToken(b.token, env.ipSalt!) !== "ok") {
+  if (pruefeFormToken(b.token, env.ipSalt!, { f: "kontakt", ip: hash }) !== "ok") {
     return antwort(400, { ok: false, code: "token", error: "Bitte lade die Seite neu und versuch es noch einmal." });
   }
 

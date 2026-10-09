@@ -6,6 +6,12 @@ import "server-only";
 const STEUERZEICHEN = /[\u0000-\u001f\u007f]/;
 const EMAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]{2,}$/;
 
+// Widerruf: Name/Vertrag/Positionen landen in einer Mail an eine FREMDE Adresse (Eingangsbestaetigung).
+// Darum keine Links (http, https, ftp, ://, www., typische Domain-Endungen in Wortform) und kein HTML (< >).
+const LINK = /(?:https?|ftp):|:\/\/|\bwww\.|[a-z0-9-]\.(?:com|de|ru|net|org|info|biz|xyz|top|io|me|co|cc|tk|ly|link|click|shop|site|online|app|dev|su|cn|pw|at|ch|eu|us|uk)\b/i;
+const HTML_ZEICHEN = /[<>]/;
+const linkfrei = (t: string) => !LINK.test(t) && !HTML_ZEICHEN.test(t);
+
 export interface Kunde {
   name: string;
   strasse: string;
@@ -140,9 +146,9 @@ const BESTELLNUMMER = /\bPD-\d{4}-\d{4,}\b/i;
 export function pruefeWiderruf(roh: Record<string, unknown>): Pruefung<WiderrufDaten> {
   const f: FeldFehler = {};
   const name = einzeilig(roh.name, 2, 100);
-  if (!name) f.name = "Bitte gib deinen Namen ein.";
+  if (!name || !linkfrei(name)) f.name = "Bitte gib deinen Namen ein (ohne Links oder Sonderzeichen wie < >).";
   const vertrag = einzeilig(roh.vertrag ?? roh.bestellnummer, 3, 200);
-  if (!vertrag) f.vertrag = "Bitte gib die Bestellnummer (z. B. PD-2026-0001) oder eine Angabe zum Vertrag ein.";
+  if (!vertrag || !linkfrei(vertrag)) f.vertrag = "Bitte gib die Bestellnummer (z. B. PD-2026-0001) oder eine Angabe zum Vertrag ein.";
   const email = einzeilig(roh.email, 5, 200)?.toLowerCase() ?? null;
   if (!email || !EMAIL.test(email)) f.email = "Bitte eine gültige E-Mail-Adresse für die Eingangsbestätigung eingeben.";
 
@@ -150,15 +156,16 @@ export function pruefeWiderruf(roh: Record<string, unknown>): Pruefung<WiderrufD
   const pr = roh.positionen;
   if (Array.isArray(pr)) {
     const teile = pr.map((x) => (typeof x === "string" ? x.trim() : null));
-    if (teile.length > 10 || teile.some((t) => t === null || t.length > 120 || STEUERZEICHEN.test(t))) {
+    if (teile.length > 10 || teile.some((t) => t === null || t.length > 120 || STEUERZEICHEN.test(t) || !linkfrei(t))) {
       f.positionen = "Bitte prüfe die Angabe der betroffenen Positionen.";
     } else {
       positionen = (teile as string[]).filter(Boolean).join("\n") || null;
     }
   } else if (pr != null && text(pr) !== "") {
-    const t = text(pr);
+    // Zeilenumbrueche werden zu " / " zusammengefasst (kein mehrzeiliger Text in der Mail an Dritte)
+    const t = text(pr)?.replace(/\s*[\r\n]+\s*/g, " / ") ?? null;
     // eslint-disable-next-line no-control-regex
-    if (!t || t.length > 500 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(t)) f.positionen = "Bitte prüfe die Angabe der betroffenen Positionen.";
+    if (!t || t.length > 500 || /[\u0000-\u001f\u007f]/.test(t) || !linkfrei(t)) f.positionen = "Bitte prüfe die Angabe der betroffenen Positionen.";
     else positionen = t;
   }
   if (positionen && positionen.length > 500) f.positionen = "Die Angabe der Positionen ist zu lang.";

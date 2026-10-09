@@ -36,6 +36,10 @@ export class FakeDb implements Db {
   aufrufe: string[] = [];
   widerrufe: { id: string; nummer: string; eingegangen_am: string; args: Row; abgleich: string; bestaetigt: boolean; benachrichtigt: boolean }[] = [];
   widerrufGrund: string | null = null;
+  /** Test: Stundenzaehler (global) und Zaehler je Adresse ueberschreiben; null = aus den gespeicherten Widerrufen. */
+  zielAnzahlFest: number | null = null;
+  stundeFest: number | null = null;
+  zielAnzahlAusfall = false;
   uploadOk = true;
   entfernenOk = true;
   anfrageGrund: string | null = null;
@@ -179,6 +183,11 @@ export class FakeDb implements Db {
         };
         this.widerrufe.push(w);
         return { ok: true, wiederholt: false, id: w.id, nummer: w.nummer, eingegangen_am: w.eingegangen_am, bestaetigt: false, abgleich };
+      }
+      case "shop_widerruf_ziel_anzahl": {
+        if (this.zielAnzahlAusfall) throw new Error("db weg");
+        const anzahl = this.zielAnzahlFest ?? this.widerrufe.filter((w) => w.args.p_email === p.p_email && w.bestaetigt).length;
+        return { ok: true, anzahl, stunde: this.stundeFest ?? this.widerrufe.length };
       }
       case "shop_widerruf_markiere": {
         const w = this.widerrufe.find((x) => x.id === p.p_id);

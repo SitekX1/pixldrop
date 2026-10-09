@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { verarbeiteWiderruf } from "@/lib/shop/server/widerruf";
+import { setzeAufkommenWarnungZurueck, verarbeiteWiderruf } from "@/lib/shop/server/widerruf";
 import { pruefeWiderruf } from "@/lib/shop/server/validierung";
 import { ablehnungsMail, bestaetigungsMail, enthaeltStandardware, PFLICHTANGABEN_PLATZHALTER, widerrufEingangsMail, type MailBestellung } from "@/lib/shop/server/vorlagen";
 import { FakeDb, FakeNotifier, testEnv, KUNDE } from "./mocks";
@@ -96,6 +96,58 @@ test("Ungültige Eingaben, Rate-Limit und DB-Ausfall", async () => {
   assert.match(String(x.body.error), /as@sitekx\.de/);
 });
 
+test("Widerruf: 3. Mail an dieselbe Adresse binnen 24 h -> gespeichert, aber keine Mail, Hinweis, Alex benachrichtigt", async () => {
+  const { db, notifier, deps } = aufbau();
+  db.zielAnzahlFest = 2;
+  const a = await verarbeiteWiderruf(deps, eingabe({ confirm: true }), ctx);
+  assert.equal(a.status, 200);
+  assert.equal(db.widerrufe.length, 1);
+  assert.equal(a.body.eingangsbestaetigung, false);
+  assert.match(String(a.body.hinweis), /as@sitekx\.de/);
+  assert.equal(notifier.kundenMails.length, 0);
+  assert.equal(db.widerrufe[0].bestaetigt, false);
+  assert.ok(notifier.telegrams.some((t) => /Limit je Adresse/.test(t)));
+  db.zielAnzahlFest = 1;
+  const b = await verarbeiteWiderruf(deps, eingabe({ confirm: true, vertrag: "PD-2026-0002" }), ctx);
+  assert.equal(b.body.eingangsbestaetigung, true);
+  assert.equal(notifier.kundenMails.length, 1);
+});
+
+test("Widerruf: fällt die Zählung aus, wird trotzdem bestätigt", async () => {
+  const { db, notifier, deps } = aufbau();
+  db.zielAnzahlAusfall = true;
+  const a = await verarbeiteWiderruf(deps, eingabe({ confirm: true }), ctx);
+  assert.equal(a.body.eingangsbestaetigung, true);
+  assert.equal(notifier.kundenMails.length, 1);
+});
+
+test("Widerruf: Telegram-Warnung bei >20 pro Stunde, nur einmal pro Stunde", async () => {
+  setzeAufkommenWarnungZurueck();
+  const { db, notifier, deps } = aufbau();
+  db.stundeFest = 20;
+  await verarbeiteWiderruf(deps, eingabe({ confirm: true }), ctx);
+  assert.equal(notifier.telegrams.filter((t) => /Aufkommen/.test(t)).length, 0);
+  db.stundeFest = 21;
+  await verarbeiteWiderruf(deps, eingabe({ confirm: true, vertrag: "PD-2026-0002" }), ctx);
+  await verarbeiteWiderruf(deps, eingabe({ confirm: true, vertrag: "PD-2026-0003" }), ctx);
+  assert.equal(notifier.telegrams.filter((t) => /Aufkommen/.test(t)).length, 1);
+  setzeAufkommenWarnungZurueck();
+});
+
+test("pruefeWiderruf: keine Links/HTML/Zeilenumbrüche in Name, Vertrag, Positionen", () => {
+  const ok = { name: "Erika Beispiel", vertrag: "PD-2026-0001", email: "a@b.de" };
+  for (const bose of ["http://x.ru", "https://evil", "www.evil", "gewinn ab.com jetzt", "klick evil.de", "a://b", "<b>x</b>", "x > y"]) {
+    assert.equal(pruefeWiderruf({ ...ok, name: bose }).ok, false, "name " + bose);
+    assert.equal(pruefeWiderruf({ ...ok, vertrag: bose }).ok, false, "vertrag " + bose);
+    assert.equal(pruefeWiderruf({ ...ok, positionen: bose }).ok, false, "positionen " + bose);
+    assert.equal(pruefeWiderruf({ ...ok, positionen: [bose] }).ok, false, "liste " + bose);
+  }
+  assert.equal(pruefeWiderruf({ ...ok, vertrag: "Kaufvertrag vom 1.10. z.B. Schild" }).ok, true);
+  assert.equal(pruefeWiderruf({ ...ok, name: "Zoë O'Brien-Müller" }).ok, true);
+  const mehr = pruefeWiderruf({ ...ok, positionen: "1 x Schild\r\n2 x Untersetzer" });
+  assert.ok(mehr.ok && mehr.wert.positionen === "1 x Schild / 2 x Untersetzer");
+});
+
 test("pruefeWiderruf: Positionen als Liste/Text, Bestellnummer wird erkannt, Steuerzeichen abgelehnt", () => {
   const r = pruefeWiderruf({ name: "Ab", vertrag: "Bestellung pd-2026-0042 vom Montag", email: "a@b.de", positionen: ["A", "B"] });
   assert.ok(r.ok && r.wert.bestellnummer === "PD-2026-0042" && r.wert.positionen === "A\nB");
@@ -115,6 +167,16 @@ test("Route Widerruf: Honeypot gefüllt -> 400, kein Token -> 400, falscher Inha
     const post = (b: unknown) => route.POST(new Request("https://t.example/api/shop/widerruf", { method: "POST", body: JSON.stringify(b) }));
     assert.equal((await post({ ...eingabe(), website: "http://spam" })).status, 400);
     assert.equal((await post({ ...eingabe(), token: "kaputt" })).status, 400);
+    assert.equal(fetches, 0);
+    // zu grosser Body: Content-Length vorab UND ohne Content-Length (Stream) -> 413, kein DB-Zugriff
+    const gross = JSON.stringify({ ...eingabe(), positionen: "x".repeat(30_000) });
+    assert.equal((await route.POST(new Request("https://t.example/api/shop/widerruf", { method: "POST", body: gross, headers: { "content-length": String(gross.length) } }))).status, 413);
+    assert.equal((await route.POST(new Request("https://t.example/api/shop/widerruf", { method: "POST", body: gross }))).status, 413);
+    // Token einer anderen Formularart -> 400
+    const { erzeugeFormToken, ipHash } = await import("@/lib/shop/server/spam");
+    const hash = ipHash("unbekannt", "salz-salz-salz")!;
+    const fremd = erzeugeFormToken("salz-salz-salz", { f: "kontakt", ip: hash }, Date.now() - 60_000);
+    assert.equal((await post({ ...eingabe(), token: fremd })).status, 400);
     assert.equal(fetches, 0);
   } finally {
     globalThis.fetch = altFetch;

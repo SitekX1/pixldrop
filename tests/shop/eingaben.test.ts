@@ -1,9 +1,10 @@
+import { createHmac } from "node:crypto";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { pruefeKunde, pruefeAnfrage } from "@/lib/shop/server/validierung";
 import { erkenneBild, pruefeBild } from "@/lib/shop/server/bild";
 import {
-  TOKEN_MAX_MS, TOKEN_MIN_MS, erzeugeBremse, erzeugeFormToken, gleichGeheim, honeypotLeer, ipHash, pruefeFormToken,
+  TOKEN_MAX_MS, TOKEN_MIN_MS, erzeugeBremse, erzeugeFormToken, gleichGeheim, honeypotLeer, ipHash, leseBegrenzt, netzKennung, pruefeFormToken,
 } from "@/lib/shop/server/spam";
 
 const kundeOk = { name: "Max Mustermann", strasse: "Hauptstraße 12", plz: "86663", ort: "Asbach-Bäumenheim", email: "Max@Mail.de" };
@@ -74,18 +75,54 @@ test("Bildpruefung: gemeldeter Typ muss passen, Groesse, leer", () => {
   assert.equal(leer.grund, "leer");
 });
 
-test("Formular-Token: Zeitfenster, Manipulation, fehlendes Token", () => {
+test("Formular-Token: Zeitfenster (30 min), Manipulation, fehlendes Token", () => {
   const salz = "test-salz-nur-fuer-tests";
   const t0 = 1_800_000_000_000;
-  const token = erzeugeFormToken(salz, t0);
-  assert.equal(pruefeFormToken(token, salz, t0 + 1000), "zu_schnell");
-  assert.equal(pruefeFormToken(token, salz, t0 + TOKEN_MIN_MS + 1), "ok");
-  assert.equal(pruefeFormToken(token, salz, t0 + TOKEN_MAX_MS + 1), "abgelaufen");
-  assert.equal(pruefeFormToken(token, "anderes-salz", t0 + 10_000), "ungueltig");
-  assert.equal(pruefeFormToken(token.slice(0, -1) + (token.endsWith("a") ? "b" : "a"), salz, t0 + 10_000), "ungueltig");
-  assert.equal(pruefeFormToken(`${t0 - 100000}.${token.split(".")[1]}`, salz, t0 + 10_000), "ungueltig");
-  assert.equal(pruefeFormToken(undefined, salz), "fehlt");
-  assert.equal(pruefeFormToken("irgendwas", salz), "ungueltig");
+  const bind = { f: "widerruf", ip: "ip-hash-a" };
+  const token = erzeugeFormToken(salz, bind, t0);
+  assert.equal(TOKEN_MAX_MS, 30 * 60 * 1000);
+  assert.equal(pruefeFormToken(token, salz, bind, t0 + 1000), "zu_schnell");
+  assert.equal(pruefeFormToken(token, salz, bind, t0 + TOKEN_MIN_MS + 1), "ok");
+  assert.equal(pruefeFormToken(token, salz, bind, t0 + TOKEN_MAX_MS - 1000), "ok");
+  assert.equal(pruefeFormToken(token, salz, bind, t0 + TOKEN_MAX_MS + 1), "abgelaufen");
+  assert.equal(pruefeFormToken(token, "anderes-salz", bind, t0 + 10_000), "ungueltig");
+  assert.equal(pruefeFormToken(token.slice(0, -1) + (token.endsWith("a") ? "b" : "a"), salz, bind, t0 + 10_000), "ungueltig");
+  assert.equal(pruefeFormToken(`${t0 - 100000}.${token.split(".")[1]}`, salz, bind, t0 + 10_000), "ungueltig");
+  assert.equal(pruefeFormToken(undefined, salz, bind), "fehlt");
+  assert.equal(pruefeFormToken("irgendwas", salz, bind), "ungueltig");
+});
+
+test("Formular-Token: an Formularart und IP-Hash gebunden", () => {
+  const salz = "test-salz-nur-fuer-tests";
+  const t0 = 1_800_000_000_000;
+  const token = erzeugeFormToken(salz, { f: "kontakt", ip: "ip-hash-a" }, t0);
+  const spaeter = t0 + 10_000;
+  assert.equal(pruefeFormToken(token, salz, { f: "kontakt", ip: "ip-hash-a" }, spaeter), "ok");
+  assert.equal(pruefeFormToken(token, salz, { f: "widerruf", ip: "ip-hash-a" }, spaeter), "ungueltig");
+  assert.equal(pruefeFormToken(token, salz, { f: "shop", ip: "ip-hash-a" }, spaeter), "ungueltig");
+  assert.equal(pruefeFormToken(token, salz, { f: "kontakt", ip: "ip-hash-b" }, spaeter), "ungueltig");
+});
+
+test("IPv6 wird fuer den Hash auf /64 gekuerzt, IPv4 bleibt unveraendert", () => {
+  assert.equal(netzKennung("203.0.113.7"), "203.0.113.7");
+  assert.equal(netzKennung("2001:db8:1:2:aaaa:bbbb:cccc:dddd"), "2001:0db8:0001:0002::/64");
+  assert.equal(netzKennung("2001:DB8:1:2::5"), "2001:0db8:0001:0002::/64");
+  assert.equal(netzKennung("2001:db8::1"), "2001:0db8:0000:0000::/64");
+  assert.equal(netzKennung("::ffff:203.0.113.7"), "203.0.113.7");
+  assert.equal(netzKennung("fe80::1%eth0"), "fe80:0000:0000:0000::/64");
+  assert.equal(netzKennung("kein-ip"), "kein-ip");
+  const salz = "salz";
+  assert.equal(ipHash("2001:db8:1:2:aaaa:bbbb:cccc:dddd", salz), ipHash("2001:db8:1:2:1111:2222:3333:4444", salz));
+  assert.notEqual(ipHash("2001:db8:1:2::1", salz), ipHash("2001:db8:1:3::1", salz));
+  assert.equal(ipHash("203.0.113.7", salz), createHmac("sha256", salz).update("ip:203.0.113.7").digest("hex").slice(0, 32));
+});
+
+test("leseBegrenzt: Content-Length und Stream-Grenze", async () => {
+  const mk = (body: string, h: Record<string, string> = {}) => new Request("https://t.example/x", { method: "POST", body, headers: h });
+  assert.equal(await leseBegrenzt(mk("abc"), 10), "abc");
+  assert.equal(await leseBegrenzt(mk("x".repeat(50)), 10), null);
+  assert.equal(await leseBegrenzt(mk("abc", { "content-length": "99999" }), 10), null);
+  assert.equal(await leseBegrenzt(mk("abc", { "content-length": "abc" }), 10), null);
 });
 
 test("Honeypot, IP-Hash, Bremse, Geheimnisvergleich", () => {

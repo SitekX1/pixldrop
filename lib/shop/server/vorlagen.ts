@@ -243,7 +243,7 @@ export function bestaetigungsMail(
     `${b.name}, ${b.strasse}, ${b.plz} ${b.ort}`,
     zahlung,
     `Lieferzeit: ${lieferzeit} ab heute`,
-    b.individuell ? "\nHinweis: Dein Stück wird nach deinen Vorgaben (geänderter Wunschtext) gefertigt. Ich prüfe den Text nach deiner Zahlung vor dem Druck. Verstößt er gegen Ziffer 9 Abs. 3 der AGB (z. B. Rechte Dritter, Beleidigung), trete ich vom Vertrag zurück und erstatte dir den gezahlten Betrag einschließlich Versand vollständig." : "",
+    b.individuell ? "\nHinweis: Dein Stück wird nach deinen Vorgaben (geänderter Wunschtext) gefertigt. Der Text wurde vor der Bestellung automatisch vorgeprüft; vor dem Druck kontrolliere ich ihn noch einmal. Verstößt er trotzdem gegen Ziffer 9 Abs. 3 der AGB (z. B. Rechte Dritter, Beleidigung), trete ich vom Vertrag zurück, teile dir das unverzüglich mit und erstatte dir den gezahlten Betrag einschließlich Versand vollständig." : "",
     "",
     `Verkäufer: ${KONTAKT_ALEX}`,
   ];

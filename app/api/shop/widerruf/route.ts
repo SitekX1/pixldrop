@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { leseEnv } from "@/lib/shop/server/env";
 import { anfrageDeps, NichtEingerichtet } from "@/lib/shop/server/deps";
 import { verarbeiteWiderruf } from "@/lib/shop/server/widerruf";
-import { clientIp, erzeugeBremse, honeypotLeer, ipHash, pruefeFormToken } from "@/lib/shop/server/spam";
+import { clientIp, erzeugeBremse, honeypotLeer, ipHash, leseBegrenzt, pruefeFormToken } from "@/lib/shop/server/spam";
 
 // POST /api/shop/widerruf  (JSON)  - elektronische Widerrufsfunktion, § 356a BGB
 // Request:  { token, website:"" (Honeypot), name, vertrag (Bestellnummer PD-JJJJ-NNNN oder freie Angabe),
@@ -14,6 +14,7 @@ import { clientIp, erzeugeBremse, honeypotLeer, ipHash, pruefeFormToken } from "
 // Token: GET /api/shop/formtoken?f=widerruf
 
 const bremse = erzeugeBremse(60_000, 6);
+const MAX_BYTES = 20_000;
 const NO_STORE = { "Cache-Control": "no-store" };
 const antwort = (status: number, body: Record<string, unknown>) =>
   NextResponse.json(body, { status, headers: NO_STORE });
@@ -33,12 +34,13 @@ export async function POST(request: Request) {
   const hash = ipHash(clientIp(request.headers) ?? "unbekannt", env.ipSalt)!;
   if (bremse(hash)) return antwort(429, { ok: false, code: "zu_viele", error: "Zu viele Anfragen. Bitte warte kurz." });
 
-  const laenge = Number(request.headers.get("content-length") ?? 0);
-  if (laenge > 20_000) return antwort(413, { ok: false, code: "zu_gross", error: "Anfrage zu groß." });
+  // Body-Limit vor dem Lesen (Content-Length) und waehrend des Lesens (Stream-Abbruch)
+  const roh = await leseBegrenzt(request, MAX_BYTES);
+  if (roh === null) return antwort(413, { ok: false, code: "zu_gross", error: "Anfrage zu groß." });
 
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(roh);
   } catch {
     return antwort(400, { ok: false, code: "ungueltig", error: "Ungültige Anfrage." });
   }
@@ -48,7 +50,7 @@ export async function POST(request: Request) {
   const b = body as Record<string, unknown>;
 
   if (!honeypotLeer(b.website)) return antwort(400, { ok: false, code: "ungueltig", error: "Ungültige Anfrage." });
-  if (pruefeFormToken(b.token, env.ipSalt!) !== "ok") {
+  if (pruefeFormToken(b.token, env.ipSalt!, { f: "widerruf", ip: hash }) !== "ok") {
     return antwort(400, { ok: false, code: "token", error: "Bitte lade die Seite neu und versuch es noch einmal." });
   }
 

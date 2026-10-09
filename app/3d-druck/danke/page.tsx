@@ -37,7 +37,7 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
             <ol className="shop-steps">
               <li><strong>Zahlung</strong>Du hast per PayPal bezahlt. Den Beleg schickt dir PayPal.</li>
               <li><strong>Bestätigung per E-Mail</strong>Sobald die Zahlung bestätigt ist, folgt sie mit AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Kommt nichts an, schreib an as@sitekx.de.</li>
-              <li><strong>Wunschtext-Prüfung</strong>Hast du den Text geändert, prüfe ich ihn nach deiner Zahlung vor dem Druck. Ist er unzulässig (AGB Ziffer 9 Abs. 3), trete ich vom Vertrag zurück, melde mich bei dir und erstatte dir den vollen Betrag einschließlich Versand.</li>
+              <li><strong>Wunschtext-Prüfung</strong>Hast du den Text geändert, wurde er vor der Bestellung automatisch vorgeprüft; vor dem Druck kontrolliere ich ihn noch einmal. Ist er trotzdem unzulässig (AGB Ziffer 9 Abs. 3), trete ich vom Vertrag zurück, melde mich unverzüglich bei dir und erstatte dir den vollen Betrag einschließlich Versand.</li>
               <li><strong>Druck und Versand</strong>Lieferzeit: {LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}. Ich drucke und verpacke selbst.</li>
             </ol>
           </section>
