@@ -57,8 +57,8 @@ export default function ProductBuy({
   const vorFarbe = farbe?.hex ?? produkt.grundfarbe;
   const vorFamily = schrift?.family;
   useEffect(() => {
-    setzeVorschau({ farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily });
-  }, [setzeVorschau, vorFarbe, text, vorFamily, pers]);
+    setzeVorschau({ farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: farbe?.name });
+  }, [setzeVorschau, vorFarbe, text, vorFamily, pers, schrift?.name, farbe?.name]);
   function weiter() {
     if (textFehler) { document.getElementById("t-fehler")?.scrollIntoView({ block: "center" }); return; }
     if (gesperrt) {
@@ -127,13 +127,23 @@ export default function ProductBuy({
                 placeholder={`z. B. ${pers.beispiel}…`} aria-invalid={filterFehler ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => aendereZeile(0, e.target.value)} />
             </div>
           )}
-          {textFehler && <p id="t-fehler" className="shop-err" role="alert">{textFehler}</p>}
+          {textFehler && <p id="t-fehler" className="shop-err" role="alert"><span>{textFehler}</span></p>}
           {filterFehler && (
             <p id="t-filter" className="shop-err" role="alert">
               <span>{filterFehler}<br /><Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></span>
             </p>
           )}
-          <p className="muted">Erlaubt: Buchstaben, Zahlen und . , ! ? &amp; - &apos;. Der Text wird automatisch auf unzulässige Inhalte und Marken geprüft; im Zweifel hilft eine individuelle Anfrage. Bei geändertem Text prüfe ich ihn nach der Zahlung noch selbst, innerhalb von 24 Stunden; erst danach bekommst du die Bestellbestätigung. Lehne ich ihn ab, erstatte ich den vollen Betrag (AGB Ziffer 9 Abs. 3).</p>
+          <div className="shop-hinweis">
+            <ul>
+              <li>Erlaubt: Buchstaben, Zahlen und . , ! ? &amp; - &apos;</li>
+              <li>Der Text wird automatisch auf unzulässige Inhalte und Marken geprüft.</li>
+              <li>Bei geändertem Text prüfe ich ihn nach der Zahlung noch selbst (innerhalb von 24 Stunden).</li>
+            </ul>
+            <details>
+              <summary>Mehr dazu</summary>
+              <p>Erst danach bekommst du die Bestellbestätigung. Lehne ich den Text ab, erstatte ich den vollen Betrag (AGB Ziffer 9 Abs. 3). Im Zweifel hilft eine individuelle Anfrage.</p>
+            </details>
+          </div>
           <p className="muted">Andere Schrift, Logo oder Bild? <Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></p>
         </fieldset>
       )}

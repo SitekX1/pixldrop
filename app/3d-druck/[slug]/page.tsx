@@ -34,7 +34,7 @@ export default async function Produktseite({ params }: Props) {
         <Link className="shop-crumb" href={halloween ? "/3d-druck?kategorie=halloween#stuecke" : "/3d-druck#stuecke"}>← Alle Stücke</Link>
         <VorschauProvider>
         <div className="shop-product">
-          <Galerie bild={<LiveProductImage form={p.form} grundfarbe={p.grundfarbe} />} />
+          <Galerie bild={<LiveProductImage form={p.form} grundfarbe={p.grundfarbe} />} preis={preis} chips={[p.material, ...(p.masse ? [`ca. ${p.masse} mm`] : [])]} />
           <div className="shop-info">
             <p className="shop-overline">{halloween ? "Halloween-Kollektion" : "3D-Druck"}</p>
             <h1 style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)", overflowWrap: "anywhere" }}>{p.name}</h1>
@@ -60,7 +60,7 @@ export default async function Produktseite({ params }: Props) {
           <h2 id="details">Details</h2>
           <div className="shop-detailraster">
             <article className="shop-dkarte" aria-labelledby="masse-druckbild">
-              <h3 id="masse-druckbild">{p.masse ? "Maße und Druckbild" : "Druckbild"}</h3>
+              <div className="shop-dkopf"><span className="shop-medaillon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z"/><path d="m3 12 9 4.5 9-4.5"/><path d="m3 16.5 9 4.5 9-4.5"/></svg></span><h3 id="masse-druckbild">{p.masse ? "Maße und Druckbild" : "Druckbild"}</h3></div>
               <dl className="shop-details">
                 {p.masse && <div><dt>Maße</dt><dd>ca. {p.masse} mm{p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}</dd></div>}
                 <div><dt>Material</dt><dd>{p.material}</dd></div>
@@ -70,7 +70,7 @@ export default async function Produktseite({ params }: Props) {
               <p>Das Stück wird im FDM-Verfahren Schicht für Schicht gedruckt; feine Schichtlinien sind sichtbar und gehören zu diesem Produkt. Die Farbe kann je nach Bildschirm anders aussehen.</p>
             </article>
             <article className="shop-dkarte shop-dkarte--sicher" id="sicherheit" aria-labelledby="gpsr">
-              <h3 id="gpsr">Sicherheit und Hinweise</h3>
+              <div className="shop-dkopf"><span className="shop-medaillon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z"/><path d="M12 10v4.5"/><path d="M12 17.2v.1"/></svg></span><h3 id="gpsr">Sicherheit und Hinweise</h3></div>
               <ul>
                 <li>{hitzeHinweis(p.material)}</li>
                 <li>{TEXTE.keinSpielzeug}</li>
@@ -78,7 +78,7 @@ export default async function Produktseite({ params }: Props) {
               </ul>
             </article>
             <article className="shop-dkarte" aria-labelledby="versand-widerruf">
-              <h3 id="versand-widerruf">Versand, Lieferzeit, Widerruf</h3>
+              <div className="shop-dkopf"><span className="shop-medaillon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.8 3.5 7.3v9.4l8.5 4.5 8.5-4.5V7.3L12 2.8Z"/><path d="m3.5 7.3 8.5 4.5 8.5-4.5"/><path d="M12 11.8v9.4"/><path d="m7.8 5 8.4 4.4"/></svg></span><h3 id="versand-widerruf">Versand, Lieferzeit, Widerruf</h3></div>
               <ul>
                 <li>{p.nurAnfrage ? "Preis, Versand und Lieferzeit stehen im Angebot per E-Mail" : VERSAND_CENT != null ? `Versand ${formatPreis(VERSAND_CENT)} (nur Deutschland)` : TEXTE.versandHinweis}</li>
                 {!p.nurAnfrage && <li>{LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}</li>}
