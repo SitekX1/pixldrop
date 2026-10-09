@@ -7,6 +7,7 @@ import ProductImage from "./ProductImage";
 import { useVorschauSetzen } from "./Vorschau";
 import type { Farbe } from "@/lib/shop/farben";
 import { TEXTE } from "@/lib/shop/config";
+import { pruefeWunschtext } from "@/lib/shop/textfilter";
 import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
 
 function hell(hex: string) {
@@ -45,6 +46,11 @@ export default function ProductBuy({
     : zeilen.some((z) => z.trim() === "") ? "Bitte fülle alle Textzeilen aus."
     : unerlaubteZeichen(zeilen.join("")).length > 0 ? `Nicht druckbare Zeichen: ${unerlaubteZeichen(zeilen.join("")).join(" ")}`
     : null;
+  const filter = pers && !textFehler ? pruefeWunschtext(zeilen) : { ok: true as const };
+  const [filterZeigen, setFilterZeigen] = useState(false);
+  const filterFehler = filterZeigen && !filter.ok ? filter.meldung : null;
+  const gesperrt = !filter.ok;
+  const beschreibung = [textFehler ? "t-fehler" : null, filterFehler ? "t-filter" : null].filter(Boolean).join(" ") || undefined;
   const individuell = istIndividuell(produkt, text);
   const setzeVorschau = useVorschauSetzen();
   const vorFarbe = farbe?.hex ?? produkt.grundfarbe;
@@ -54,6 +60,11 @@ export default function ProductBuy({
   }, [setzeVorschau, vorFarbe, text, vorFamily, pers]);
   function weiter() {
     if (textFehler) { document.getElementById("t-fehler")?.scrollIntoView({ block: "center" }); return; }
+    if (gesperrt) {
+      setFilterZeigen(true);
+      requestAnimationFrame(() => document.getElementById("t-filter")?.scrollIntoView({ block: "center" }));
+      return;
+    }
     const r = fuegeHinzu(ladeKorb(), {
       slug: produkt.slug,
       farbeId,
@@ -78,7 +89,7 @@ export default function ProductBuy({
   }
 
   const knopf = bestellbar ? (
-    <button type="button" className="shop-btn" onClick={weiter}>In den Warenkorb</button>
+    <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button>
   ) : (
     <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>
   );
@@ -96,17 +107,22 @@ export default function ProductBuy({
               <div className="shop-field" key={z.label}>
                 <label htmlFor={`t-${i}`}>{z.label}</label>
                 <input id={`t-${i}`} className="shop-input" type="text" maxLength={z.max} value={zeilen[i]} autoComplete="off" spellCheck={false}
-                  aria-describedby={textFehler ? "t-fehler" : undefined} onChange={(e) => setZeilen(zeilen.map((x, k) => (k === i ? e.target.value : x)))} />
+                  aria-invalid={filterFehler ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => setZeilen(zeilen.map((x, k) => (k === i ? e.target.value : x)))} />
               </div>
             ))
           ) : (
             <div className="shop-field">
               <label htmlFor="t-0">{pers.label}</label>
               <input id="t-0" className="shop-input" type="text" maxLength={pers.maxLaenge} value={zeilen[0]} autoComplete="off" spellCheck={false}
-                placeholder={`z. B. ${pers.beispiel}…`} aria-describedby={textFehler ? "t-fehler" : undefined} onChange={(e) => setZeilen([e.target.value])} />
+                placeholder={`z. B. ${pers.beispiel}…`} aria-invalid={filterFehler ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => setZeilen([e.target.value])} />
             </div>
           )}
           {textFehler && <p id="t-fehler" className="shop-err" role="alert">{textFehler}</p>}
+          {filterFehler && (
+            <p id="t-filter" className="shop-err" role="alert">
+              <span>{filterFehler}<br /><Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></span>
+            </p>
+          )}
           {!pers.festeSchrift && (
             <div className="shop-field">
               <label htmlFor="t-schrift">Schrift</label>
@@ -195,7 +211,7 @@ export default function ProductBuy({
 
       <div className="shop-sticky" data-show={stickyZeigen}>
         <span className="shop-price-small">{preisText}</span>
-        {bestellbar ? <button type="button" className="shop-btn" onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
+        {bestellbar ? <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
       </div>
     </>
   );

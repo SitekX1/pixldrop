@@ -1,3 +1,4 @@
+import { pruefeWunschtext } from "@/lib/shop/textfilter";
 import "server-only";
 // Serverseitige Preis- und Warenkorbberechnung. Preise kommen AUSSCHLIESSLICH aus
 // lib/shop/produkte.ts (bzw. dem uebergebenen Katalog); vom Client wird nie ein Betrag
@@ -29,6 +30,7 @@ export type FehlerCode =
   | "farbe_ungueltig"
   | "lager_nicht_lesbar"
   | "text_ungueltig"
+  | "text_unzulaessig"
   | "option_ungueltig"
   | "zu_teuer";
 
@@ -150,6 +152,8 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       if (unerlaubteZeichen(zeilen.join("")).length > 0) {
         return fehler("text_ungueltig", "Der Text enthält Zeichen, die nicht gedruckt werden können.");
       }
+      const pruef = pruefeWunschtext(zeilen);
+      if (!pruef.ok) return fehler("text_unzulaessig", pruef.meldung);
       const wunsch = pers.festeSchrift ?? (typeof roh.schriftId === "string" ? roh.schriftId : "");
       const s = SCHRIFTEN.find((x) => x.id === wunsch);
       if (!s) return fehler("text_ungueltig", "Bitte wähle eine Schrift.");

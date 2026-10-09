@@ -33,7 +33,7 @@ export default function ShopShell({
             </ul>
           </nav>
           <p className="shop-foot-kontakt">
-            Kontakt: <a href="mailto:as@sitekx.de">as@sitekx.de</a> · Hersteller und Verkäufer: Anbieterangaben siehe <a href="/impressum">Impressum</a>
+            Hersteller und Verkäufer: Alexander Sitek · <a href="mailto:as@sitekx.de">as@sitekx.de</a> · Anschrift siehe <a href="/impressum">Impressum</a>
           </p>
         </footer>
       </div>

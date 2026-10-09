@@ -6,6 +6,7 @@ import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import type { Farbe } from "@/lib/shop/farben";
 import { ladeKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { SHOP_AKTIV, TEXTE, VERSAND_CENT, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
+import { pruefeWunschtext, TEXT_MELDUNG } from "@/lib/shop/textfilter";
 import ProductImage from "./ProductImage";
 import { baueBestellung, holeFormToken, idempotenzKeyFuer, istPaypalUrl, ladeKunde, sendeBestellung, speichereKunde } from "@/lib/shop/client";
 
@@ -101,7 +102,11 @@ export default function Bestellablauf({
   const datenOk = Object.keys(pruefeDaten(daten)).length === 0;
   const aktuell = schritt === 3 && !datenOk ? 2 : Math.max(2, schritt);
 
+  const textProblem = korb.find((a) => a.text && !pruefeWunschtext(a.text.split("\n")).ok);
+  const textProblemName = textProblem ? produkte.find((x) => x.slug === textProblem.slug)?.name ?? "Artikel" : null;
+  const textMeldung = textProblemName ? `Wunschtext bei „${textProblemName}“: ${TEXT_MELDUNG} Entferne die Position im Warenkorb und lege sie mit geändertem Text neu hinein.` : null;
   function zuSchritt3() {
+    if (textMeldung) { setServerFehler(textMeldung); requestAnimationFrame(() => alertRef.current?.focus()); return; }
     const f = pruefeDaten(daten);
     setFehler(f);
     if (Object.keys(f).length) {
@@ -112,6 +117,7 @@ export default function Bestellablauf({
   }
   async function bestellen() {
     if (laeuft) return;
+    if (textMeldung) { setServerFehler(textMeldung); requestAnimationFrame(() => alertRef.current?.focus()); return; }
     const f: Fehler = {};
     if (!agb) f.agb = "Bitte bestätige, dass du AGB und Widerrufsbelehrung gelesen hast und einverstanden bist.";
     if (individuell && !verzicht) f.widerruf = "Bitte bestätige, dass für nach deinen Vorgaben gefertigte Ware kein Widerrufsrecht besteht.";
