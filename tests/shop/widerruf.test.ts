@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { verarbeiteWiderruf } from "@/lib/shop/server/widerruf";
 import { pruefeWiderruf } from "@/lib/shop/server/validierung";
-import { ablehnungsMail, bestaetigungsMail, PFLICHTANGABEN_PLATZHALTER, widerrufEingangsMail, type MailBestellung } from "@/lib/shop/server/vorlagen";
+import { ablehnungsMail, bestaetigungsMail, enthaeltStandardware, PFLICHTANGABEN_PLATZHALTER, widerrufEingangsMail, type MailBestellung } from "@/lib/shop/server/vorlagen";
 import { FakeDb, FakeNotifier, testEnv, KUNDE } from "./mocks";
 
 const ctx = { ipHash: "ip-hash-0123456789abcdef" };
@@ -156,6 +156,28 @@ test("Rechtsblock: Belehrung und Formular fuer Standard, nur Hinweis bei individ
   const ind = bestaetigungsMail({ ...bestellung, individuell: true }, undefined, false, { siteUrl: "https://pixldrop.de" }).text;
   assert.match(ind, /kein Widerrufsrecht.*§ 312g Abs\. 2 Nr\. 1 BGB/);
   assert.ok(!ind.includes("MUSTER-WIDERRUFSFORMULAR"));
+});
+
+test("Online-Widerrufssatz steht hinter dem Absatz 'Um Ihr Widerrufsrecht auszuueben' (Gestaltungshinweis 3)", () => {
+  const std = bestaetigungsMail(bestellung, undefined, false, { siteUrl: "https://pixldrop.de" }).text;
+  const a = std.indexOf("Um Ihr Widerrufsrecht auszuüben");
+  const o = std.indexOf("Sie können Ihr Widerrufsrecht auch online");
+  const w = std.indexOf("Zur Wahrung der Widerrufsfrist");
+  assert.ok(a > 0 && o > a && w > o);
+});
+
+test("Individuelle Bestellung: Standard-Belehrung nur, wenn Standardware enthalten ist", () => {
+  const pos = (individuell?: boolean) => ({ name: "X", menge: 1, einzelpreis_cent: 990, individuell });
+  // Flag je Position vorhanden: entscheidet
+  assert.equal(enthaeltStandardware({ individuell: true, positionen: [pos(true), pos(true)] }), false);
+  assert.equal(enthaeltStandardware({ individuell: true, positionen: [pos(true), pos(false)] }), true);
+  // Flag fehlt: vorsichtig nach Anzahl
+  assert.equal(enthaeltStandardware({ individuell: true, positionen: [pos()] }), false);
+  assert.equal(enthaeltStandardware({ individuell: true, positionen: [pos(), pos()] }), true);
+  const nurInd = bestaetigungsMail({ ...bestellung, individuell: true, positionen: [pos(true), pos(true)] }, undefined, false, { siteUrl: "https://pixldrop.de" }).text;
+  assert.ok(!nurInd.includes("MUSTER-WIDERRUFSFORMULAR"));
+  const gemischt = bestaetigungsMail({ ...bestellung, individuell: true, positionen: [pos(true), pos(false)] }, undefined, false, { siteUrl: "https://pixldrop.de" }).text;
+  assert.ok(gemischt.includes("MUSTER-WIDERRUFSFORMULAR"));
 });
 
 test("Ablehnungs- und Widerrufsmail: Inhalt", () => {

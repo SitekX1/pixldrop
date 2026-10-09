@@ -14,33 +14,51 @@ const UNTERNEHMER = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-B�
 const UNTERNEHMER_ANSCHRIFT = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim";
 const STANDARD_SITE = "https://pixldrop.de";
 
-/** Rechtsblock fuer die Mail (Klartext, dauerhafter Datenträger, Art. 246a § 4 Abs. 3 EGBGB). */
-export function pflichtangabenText(individuell: boolean, siteUrl?: string, mehrere = false): string {
+/**
+ * Enthaelt die Bestellung mindestens eine Standardware-Position (also eine ohne Widerrufsausschluss)?
+ * Hat jede Position ein boolesches `individuell`-Flag, entscheidet es. Fehlt das Flag (DB-Funktion
+ * shop_bestellung_mail_daten liefert es noch nicht), gilt vorsichtig: mehr als eine Position = Standardware moeglich.
+ */
+export function enthaeltStandardware(b: Pick<MailBestellung, "individuell" | "positionen">): boolean {
+  if (!b.individuell) return true;
+  const pos = b.positionen;
+  if (pos.length > 0 && pos.every((p) => typeof p.individuell === "boolean")) {
+    return pos.some((p) => !p.individuell);
+  }
+  return pos.length > 1;
+}
+
+/**
+ * Rechtsblock fuer die Mail (Klartext, dauerhafter Datenträger, Art. 246a § 4 Abs. 3 EGBGB).
+ * `individuell` = Bestellung enthaelt individuell gefertigte Ware; `mitStandardware` = enthaelt zusaetzlich
+ * Standardware (dann steht zusaetzlich die volle Standard-Belehrung samt Formular im Block).
+ */
+export function pflichtangabenText(individuell: boolean, siteUrl?: string, mitStandardware = false): string {
   const site = (siteUrl || STANDARD_SITE).replace(/\/+$/, "");
   const agb = `Allgemeine Geschäftsbedingungen (in der bei deiner Bestellung gültigen Fassung): ${site}/3d-druck/agb`;
   const maengel = "Es gelten die gesetzlichen Mängelrechte (Gewährleistung).";
   if (individuell) {
     return [
       "HINWEIS ZUM WIDERRUF",
-      "Für Stücke, die nach deinen Angaben individuell angefertigt werden (z. B. mit Wunschtext), besteht kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB). Deine gesetzlichen Mängelrechte bleiben unberührt.",
+      "Für Stücke, die nach deinen Angaben individuell angefertigt werden (z. B. Tischschild oder Spruch-Untersetzer mit geändertem Wunschtext), besteht kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB). Deine gesetzlichen Mängelrechte bleiben unberührt.",
       "",
-      ...(mehrere
-        ? ["Für alle übrigen Artikel deiner Bestellung (ohne individuellen Wunschtext) gilt die folgende Widerrufsbelehrung:", "", pflichtangabenText(false, siteUrl), ""]
-        : []),
-      agb,
+      ...(mitStandardware
+        ? ["Für alle übrigen Artikel deiner Bestellung (Standardware, ohne geänderten Wunschtext) gilt die folgende Widerrufsbelehrung:", "", pflichtangabenText(false, siteUrl), ""]
+        : [agb]),
     ].join("\n");
   }
   return [
     "WIDERRUFSBELEHRUNG",
     "",
     "Widerrufsrecht",
-    `Sie können Ihr Widerrufsrecht auch online unter ${site}/3d-druck/widerruf ausüben. Wenn Sie diese Online-Funktion nutzen, übermitteln wir Ihnen auf einem dauerhaften Datenträger (z. B. durch eine E-Mail) unverzüglich eine Eingangsbestätigung mit Informationen zum Inhalt der Widerrufserklärung sowie dem Datum und der Uhrzeit ihres Eingangs.`,
-    "",
     "Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.",
     "",
     "Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die Waren in Besitz genommen haben bzw. hat.",
     "",
     `Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (${UNTERNEHMER}) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.`,
+    "",
+    // Online-Widerrufsfunktion: Stelle gemaess Gestaltungshinweis 3 zu Anlage 1 (am Ende des Absatzes "Um Ihr Widerrufsrecht auszuueben ...").
+    `Sie können Ihr Widerrufsrecht auch online unter ${site}/3d-druck/widerruf ausüben. Wenn Sie diese Online-Funktion nutzen, übermitteln wir Ihnen auf einem dauerhaften Datenträger (z. B. durch eine E-Mail) unverzüglich eine Eingangsbestätigung mit Informationen zum Inhalt der Widerrufserklärung sowie dem Datum und der Uhrzeit ihres Eingangs.`,
     "",
     "Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.",
     "",
@@ -100,6 +118,8 @@ export interface MailPosition {
   text?: string | null;
   schrift?: string | null;
   optionen?: Record<string, string> | null;
+  /** true = Position vom Widerruf ausgenommen (geaenderter Wunschtext). Kommt (noch) nicht aus shop_bestellung_mail_daten. */
+  individuell?: boolean | null;
 }
 
 export interface MailBestellung {
@@ -166,7 +186,8 @@ export function bestaetigungsMail(
   freigegeben: boolean = PFLICHTANGABEN_FREIGEGEBEN,
   opt: MailOptionen = {},
 ): { betreff: string; text: string } {
-  const block = blockOverride ?? pflichtangabenText(b.individuell, opt.siteUrl, b.positionen.length > 1);
+  const mitStandardware = b.individuell && enthaeltStandardware(b);
+  const block = blockOverride ?? pflichtangabenText(b.individuell, opt.siteUrl, mitStandardware);
   const zeilen = b.positionen.map((p) => {
     const extras = [
       p.farbe ? `Farbe: ${p.farbe}` : null,
@@ -200,14 +221,14 @@ export function bestaetigungsMail(
     `${b.name}, ${b.strasse}, ${b.plz} ${b.ort}`,
     zahlung,
     `Lieferzeit: ${lieferzeit} ab heute`,
-    b.individuell ? "\nHinweis: Dein Stück wird nach deinen Vorgaben (Wunschtext) gefertigt. Ich prüfe den Text vor dem Druck. Ist er unzulässig, erstatte ich dir den Betrag." : "",
+    b.individuell ? "\nHinweis: Dein Stück wird nach deinen Vorgaben (geänderter Wunschtext) gefertigt. Ich prüfe den Text nach deiner Zahlung vor dem Druck. Verstößt er gegen Ziffer 9 Abs. 3 der AGB (z. B. Rechte Dritter, Beleidigung), trete ich vom Vertrag zurück und erstatte dir den gezahlten Betrag einschließlich Versand vollständig." : "",
     "",
     `Verkäufer: ${KONTAKT_ALEX}`,
     "",
-    b.individuell
+    b.individuell && !mitStandardware
       ? "Diese Bestätigung dient als Beleg für deine Bestellung. Der Hinweis zum Widerruf und der Link zu den AGB stehen unten."
       : "Diese Bestätigung dient als Beleg für deine Bestellung. Widerrufsbelehrung, Muster-Widerrufsformular und der Link zu den AGB stehen unten.",
-    widerrufLink && !b.individuell ? `Du kannst deinen Vertrag auch online widerrufen: ${widerrufLink}` : "",
+    widerrufLink && (!b.individuell || mitStandardware) ? `Du kannst deinen Vertrag auch online widerrufen: ${widerrufLink}` : "",
     "",
     block,
     "",

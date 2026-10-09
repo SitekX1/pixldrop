@@ -73,6 +73,32 @@ function istObjekt(v: unknown): v is Record<string, unknown> {
 }
 
 /** Liest das erste Capture einer Order (aus Capture- oder GET-Antwort). */
+export const WEBHOOK_MAX_ABWEICHUNG_MS = 5 * 60 * 1000;
+const ERLAUBTE_CERT_HOSTS = new Set([
+  "api.paypal.com",
+  "api.sandbox.paypal.com",
+  "api-m.paypal.com",
+  "api-m.sandbox.paypal.com",
+]);
+
+/**
+ * Billige Vorpruefung der PayPal-Webhook-Header OHNE Netzwerkzugriff:
+ *  - paypal-transmission-time parsebar, hoechstens 5 Min alt und hoechstens 5 Min in der Zukunft,
+ *  - paypal-cert-url ist https, ohne Zugangsdaten/Port, Host aus der PayPal-API-Liste.
+ * Schuetzt vor Replay alter Webhooks und vor Zertifikats-URLs auf fremden Hosts.
+ */
+export function webhookKopfPlausibel(headers: Headers, jetzt: number = Date.now()): boolean {
+  const zeit = Date.parse(headers.get("paypal-transmission-time") ?? "");
+  if (!Number.isFinite(zeit) || Math.abs(jetzt - zeit) > WEBHOOK_MAX_ABWEICHUNG_MS) return false;
+  let u: URL;
+  try {
+    u = new URL(headers.get("paypal-cert-url") ?? "");
+  } catch {
+    return false;
+  }
+  return u.protocol === "https:" && !u.username && !u.password && u.port === "" && ERLAUBTE_CERT_HOSTS.has(u.hostname);
+}
+
 export function parseOrder(roh: unknown): PayPalOrder {
   if (!istObjekt(roh) || typeof roh.id !== "string" || typeof roh.status !== "string") {
     throw new PayPalFehler("antwort_ungueltig");
@@ -255,6 +281,8 @@ export function erzeugePayPal(cfg: PayPalConfig, fetchImpl: FetchFn = fetch): Pa
       if (!cfg.webhookId) return false;
       const h = (n: string) => headers.get(n) ?? "";
       if (!h("paypal-transmission-id") || !h("paypal-transmission-sig") || !h("paypal-cert-url")) return false;
+      // Vor jedem PayPal-Aufruf (OAuth + Verify): Zeitstempel und Zertifikats-Host plausibel?
+      if (!webhookKopfPlausibel(headers)) return false;
       try {
         const antwort = await aufruf("webhook_pruefen", "POST", "/v1/notifications/verify-webhook-signature", {
           auth_algo: h("paypal-auth-algo"),

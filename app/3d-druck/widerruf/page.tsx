@@ -7,7 +7,7 @@ export const metadata = { title: "Widerrufsbelehrung (Entwurf)" };
 
 // Wortlaut: Muster-Widerrufsbelehrung (Anlage 1) und Muster-Widerrufsformular (Anlage 2) zu Art. 246a EGBGB,
 // Kaufvertrag über Waren, Lieferung in einer Sendung (Textbaustein b), Rücksendekosten trägt der Verbraucher,
-// keine Abholung angeboten. Widerrufsfunktion § 356a BGB: noch nicht umgesetzt (eigener Schritt).
+// keine Abholung angeboten. Widerrufsfunktion § 356a BGB: Abschnitt D (Online-Satz steht nach Gestaltungshinweis 3 hinter dem Absatz "Um Ihr Widerrufsrecht auszuüben").
 const UNTERNEHMER = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: as@sitekx.de";
 const UNTERNEHMER_ANSCHRIFT = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim";
 
@@ -20,10 +20,11 @@ export default function Widerruf() {
           
           <Abschnitt titel="A. Widerrufsbelehrung (Standardartikel aus dem Shop)">
             <h3>Widerrufsrecht</h3>
-            <p>Sie können Ihr Widerrufsrecht auch online über die Widerrufsfunktion unten auf dieser Seite (Abschnitt D) ausüben. Wenn Sie diese Online-Funktion nutzen, übermitteln wir Ihnen auf einem dauerhaften Datenträger (z. B. durch eine E-Mail) unverzüglich eine Eingangsbestätigung mit Informationen zum Inhalt der Widerrufserklärung sowie dem Datum und der Uhrzeit ihres Eingangs.</p>
             <p>Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.</p>
             <p>Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die Waren in Besitz genommen haben bzw. hat.</p>
             <p>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns ({UNTERNEHMER}) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.</p>
+            {/* Stelle laut Gestaltungshinweis 3 zu Anlage 1: am Ende des Absatzes "Um Ihr Widerrufsrecht auszuüben ..." */}
+            <p>Sie können Ihr Widerrufsrecht auch online über die Widerrufsfunktion unten auf dieser Seite (Abschnitt D) ausüben. Wenn Sie diese Online-Funktion nutzen, übermitteln wir Ihnen auf einem dauerhaften Datenträger (z. B. durch eine E-Mail) unverzüglich eine Eingangsbestätigung mit Informationen zum Inhalt der Widerrufserklärung sowie dem Datum und der Uhrzeit ihres Eingangs.</p>
             <p>Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.</p>
             <h3>Folgen des Widerrufs</h3>
             <p>Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, einschließlich der Lieferkosten (mit Ausnahme der zusätzlichen Kosten, die sich daraus ergeben, dass Sie eine andere Art der Lieferung als die von uns angebotene, günstigste Standardlieferung gewählt haben), unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.</p>
@@ -33,9 +34,9 @@ export default function Widerruf() {
             <p>Sie müssen für einen etwaigen Wertverlust der Waren nur aufkommen, wenn dieser Wertverlust auf einen zur Prüfung der Beschaffenheit, Eigenschaften und Funktionsweise der Waren nicht notwendigen Umgang mit ihnen zurückzuführen ist.</p>
           </Abschnitt>
 
-          <Abschnitt titel="B. Kein Widerrufsrecht bei individuell angefertigten Waren (nur Angebote nach AGB Ziffer 10)">
-            <p><strong>Kein Widerrufsrecht bei individuell angefertigten Waren.</strong> Das Widerrufsrecht besteht nicht bei Waren, die nicht vorgefertigt sind und für deren Herstellung eine individuelle Auswahl oder Bestimmung durch dich maßgeblich ist oder die eindeutig auf deine persönlichen Bedürfnisse zugeschnitten sind (§ 312g Abs. 2 Nr. 1 BGB). Das gilt für Stücke, die ich nach deinem Angebot mit deinem Wunschtext, Namen, Bild oder nach deinen Vorgaben anfertige. Bei allen anderen Artikeln im Shop besteht das Widerrufsrecht wie oben beschrieben.</p>
-            <p>Das betrifft Artikel, bei denen du den Text änderst (z. B. Tischschild mit eigenem Namen, Spruch-Untersetzer) sowie Sonderanfertigungen über „Individueller Druck“. Vor der Bestellung bestätigst du ausdrücklich, dass dir der Ausschluss bekannt ist. Das Tischschild mit unverändertem Standardtext ist normale Standardware mit Widerrufsrecht.</p>
+          <Abschnitt titel="B. Kein Widerrufsrecht bei individuell angefertigten Waren (geänderter Wunschtext im Shop, Angebote nach AGB Ziffer 10)">
+            <p><strong>Kein Widerrufsrecht bei individuell angefertigten Waren.</strong> Das Widerrufsrecht besteht nicht bei Waren, die nicht vorgefertigt sind und für deren Herstellung eine individuelle Auswahl oder Bestimmung durch dich maßgeblich ist oder die eindeutig auf deine persönlichen Bedürfnisse zugeschnitten sind (§ 312g Abs. 2 Nr. 1 BGB). Das gilt für Stücke, die ich nach deinen Vorgaben anfertige. Bei allen anderen Artikeln im Shop besteht das Widerrufsrecht wie oben beschrieben.</p>
+            <p>Das betrifft Tischschild und Spruch-Untersetzer, wenn du den voreingestellten Text änderst, sowie Sonderanfertigungen nach Angebot (z. B. Logo, Bild, andere Schrift). Vor dem Absenden der Bestellung bzw. vor der Annahme des Angebots bestätigst du ausdrücklich, dass dir der Ausschluss bekannt ist. Tischschild und Spruch-Untersetzer mit unverändertem Standardtext sind normale Standardware mit Widerrufsrecht. Enthält eine Bestellung neben einem geänderten Text weitere Standardartikel, besteht das Widerrufsrecht für diese weiter.</p>
           </Abschnitt>
 
           <Abschnitt titel="C. Muster-Widerrufsformular">

@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { leseEnv } from "@/lib/shop/server/env";
 import { bestellDeps, NichtEingerichtet } from "@/lib/shop/server/deps";
 import { verarbeiteWebhook } from "@/lib/shop/server/bestellung";
+import { clientIp, erzeugeBremse } from "@/lib/shop/server/spam";
+
+// 30 Webhooks pro Minute und IP (PayPal sendet wenige; Retries bleiben darunter)
+const bremse = erzeugeBremse(60_000, 30);
 
 // POST /api/shop/zahlung/webhook  (PayPal-Webhook PAYMENT.CAPTURE.COMPLETED)
 // Absicherung zum Capture-Weg: Signatur wird bei PayPal geprueft (verify-webhook-signature),
@@ -15,6 +19,11 @@ export async function POST(request: Request) {
   } catch (err) {
     if (err instanceof NichtEingerichtet) console.error("Webhook: Shop nicht eingerichtet, es fehlen:", err.fehlend.join(", "));
     return NextResponse.json({ ok: false, error: "Nicht eingerichtet" }, { status: 503 });
+  }
+  // Bremse pro IP vor jedem PayPal-Aufruf (Schutz vor Dauerfeuer auf OAuth/Verify)
+  const ip = clientIp(request.headers) ?? "unbekannt";
+  if (bremse(ip)) {
+    return NextResponse.json({ ok: false, error: "Zu viele Anfragen" }, { status: 429, headers: { "Retry-After": "60" } });
   }
   const roh = await request.text();
   if (roh.length > 200_000) return NextResponse.json({ ok: false, error: "Zu groß" }, { status: 413 });

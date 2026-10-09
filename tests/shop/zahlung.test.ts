@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { legeBestellungAn, schliesseZahlungAb, verarbeiteWebhook } from "@/lib/shop/server/bestellung";
-import { PayPalFehler } from "@/lib/shop/server/paypal";
+import { PayPalFehler, erzeugePayPal, webhookKopfPlausibel } from "@/lib/shop/server/paypal";
 import { FakeDb, bestellEingabe, kontext, neueDeps, testEnv, KUNDE } from "./mocks";
 
 const ctx = { ipHash: "ip-hash-0123456789abcdef", kontext: kontext() };
@@ -298,4 +298,45 @@ test("Mehrzeiliger Text wird als einzeiliger Text an die DB gegeben (kein Steuer
   const text = "Teamleiter\nSabine".replace(re, " / ");
   assert.equal(text, "Teamleiter / Sabine");
   assert.ok(/^[^\u0000-\u001f\u007f]{1,40}$/.test(text));
+});
+
+// --- Webhook-Header-Vorpruefung (Replay / fremde Zertifikats-URL), Auflage Security-Review ---
+function whKopf(zeit: number, cert = "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-1") {
+  return new Headers({
+    "paypal-transmission-id": "t1", "paypal-transmission-sig": "sig", "paypal-auth-algo": "SHA256withRSA",
+    "paypal-transmission-time": new Date(zeit).toISOString(), "paypal-cert-url": cert,
+  });
+}
+
+test("Webhook-Kopf: Zeitfenster +-5 Minuten und nur PayPal-API-Hosts mit https", () => {
+  const jetzt = Date.parse("2026-10-09T12:00:00Z");
+  assert.equal(webhookKopfPlausibel(whKopf(jetzt - 60_000), jetzt), true);
+  assert.equal(webhookKopfPlausibel(whKopf(jetzt + 60_000), jetzt), true);
+  assert.equal(webhookKopfPlausibel(whKopf(jetzt - 6 * 60_000), jetzt), false);
+  assert.equal(webhookKopfPlausibel(whKopf(jetzt + 6 * 60_000), jetzt), false);
+  assert.equal(webhookKopfPlausibel(new Headers({ "paypal-cert-url": "https://api.paypal.com/x" }), jetzt), false);
+  for (const ok of ["https://api.paypal.com/v1/c", "https://api-m.paypal.com/v1/c", "https://api-m.sandbox.paypal.com/v1/c"]) {
+    assert.equal(webhookKopfPlausibel(whKopf(jetzt, ok), jetzt), true, ok);
+  }
+  for (const schlecht of [
+    "http://api.paypal.com/v1/c", "https://evil.example/v1/c", "https://api.paypal.com.evil.example/c",
+    "https://api.paypal.com@evil.example/c", "https://api.paypal.com:8443/c", "https://www.paypal.com/c", "", "kein url",
+  ]) {
+    assert.equal(webhookKopfPlausibel(whKopf(jetzt, schlecht), jetzt), false, schlecht);
+  }
+});
+
+test("pruefeWebhook: alter Zeitstempel oder fremder Cert-Host -> false ohne jeden PayPal-Aufruf", async () => {
+  let aufrufe = 0;
+  const client = erzeugePayPal(
+    { env: "sandbox", clientId: "id", clientSecret: "geheim", webhookId: "WH-1" },
+    (async () => { aufrufe++; throw new Error("darf nicht aufgerufen werden"); }) as never,
+  );
+  const jetzt = Date.now();
+  assert.equal(await client.pruefeWebhook(whKopf(jetzt - 10 * 60_000), {}), false);
+  assert.equal(await client.pruefeWebhook(whKopf(jetzt, "https://evil.example/c"), {}), false);
+  assert.equal(aufrufe, 0);
+  // Plausibler Kopf -> es wird versucht, PayPal zu fragen (Fehler wird zu false)
+  assert.equal(await client.pruefeWebhook(whKopf(jetzt), {}), false);
+  assert.ok(aufrufe > 0);
 });

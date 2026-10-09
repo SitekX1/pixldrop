@@ -265,14 +265,14 @@ export default function Bestellablauf({
                   <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/widerruf" target="_blank" rel="noopener">Zur Belehrung</Link>
                 </p>
                 <p>Verkäufer: siehe <a className="shop-link" style={{ minHeight: 0 }} href="/impressum" target="_blank" rel="noopener">Impressum</a></p>
-                {pos.some(({ a }) => a.text) && <p>Dein Text wird vor dem Druck von mir geprüft. Ist er unzulässig, erstatte ich dir den Betrag.</p>}
+                {pos.some(({ a }) => a.text) && <p>Dein Text wird vor dem Druck von mir geprüft. Ist er unzulässig, trete ich vom Vertrag zurück und erstatte dir den vollen Betrag.</p>}
                 <p>{TEXTE.keinSpielzeug}</p>
               </div>
             </section>
             <div className="shop-field">
               <label className="shop-check" htmlFor="f-agb" id="f-agb-l">
                 <input id="f-agb" type="checkbox" checked={agb} onChange={(e) => { setAgb(e.target.checked); setFehler({ ...fehler, agb: undefined }); }} aria-invalid={!!fehler.agb} />
-                <span>Ich habe die <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/agb" target="_blank" rel="noopener">AGB</Link> und die <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/widerruf" target="_blank" rel="noopener">Widerrufsbelehrung</Link> gelesen und bin damit einverstanden. <span className="opt">(Pflicht)</span></span>
+                <span>Ich habe die <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/agb" target="_blank" rel="noopener">AGB</Link> und die <Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/widerruf" target="_blank" rel="noopener">Widerrufsbelehrung</Link> zur Kenntnis genommen und akzeptiere die AGB. <span className="opt">(Pflicht)</span></span>
               </label>
             </div>
 
