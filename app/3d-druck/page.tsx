@@ -11,6 +11,7 @@ import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
 import { KATEGORIEN, sichtbareProdukte, type Kategorie } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
+import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
 // Halloween-Status hängt vom Datum ab: pro Anfrage auswerten, nicht beim Build einfrieren.
 export const dynamic = "force-dynamic";
@@ -19,6 +20,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const { kategorie } = await searchParams;
   const modus = halloweenModus();
   const farben = await holeFarben();
+  const { wunschtextPausiert } = await holeEinstellungen();
   const alle = sichtbareProdukte();
   const gueltig = KATEGORIEN.filter((k) => k.id !== "halloween" || modus !== "off");
   const aktiv = gueltig.find((k) => k.id === kategorie)?.id ?? "alle";
@@ -67,7 +69,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
         {liste.length > 0 ? (
           <ul className="shop-grid" aria-label="Produkte">
             {liste.map((p, i) => (
-              <ProductCard key={p.slug} p={p} farben={farben} vorschau={modus === "preview"} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
+              <ProductCard key={p.slug} p={p} farben={farben} gesperrt={wunschtextPausiert && !!p.personalisierung} vorschau={modus === "preview"} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
             ))}
           </ul>
         ) : (

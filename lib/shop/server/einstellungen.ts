@@ -18,7 +18,7 @@ export interface ShopEinstellungen {
 export const STANDARD_PAUSE_TEXT =
   "Aufgrund der aktuell sehr hohen Auftragslage kann ich derzeit keine weiteren Bestellungen aufnehmen.";
 export const STANDARD_WUNSCHTEXT_PAUSE_TEXT =
-  "Aufgrund der aktuell sehr hohen Auftragslage nehme ich derzeit keine Bestellungen mit geändertem Wunschtext an.";
+  "Aufgrund der aktuell sehr hohen Auftragslage sind Artikel mit Wunschtext aktuell pausiert. Alle anderen Artikel bleiben bestellbar.";
 
 export const FALLBACK: ShopEinstellungen = {
   lieferzeit: LIEFERZEIT_TEXT,

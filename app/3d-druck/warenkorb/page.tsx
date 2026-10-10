@@ -3,17 +3,19 @@ import PauseBanner from "@/components/shop/PauseBanner";
 import Warenkorb from "@/components/shop/Warenkorb";
 import { sichtbareProdukte } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
+import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Warenkorb" };
 
 export default async function WarenkorbSeite() {
   const farben = await holeFarben();
+  const { wunschtextPausiert } = await holeEinstellungen();
   return (
     <ShopShell banner={<PauseBanner />}>
       <div className="shop-wrap shop-wrap--kasse">
         <h1 style={{ fontSize: "clamp(1.75rem, 7vw, 2.4rem)", marginBottom: 16 }}>Dein Warenkorb</h1>
-        <Warenkorb produkte={sichtbareProdukte()} farben={farben} />
+        <Warenkorb produkte={sichtbareProdukte()} farben={farben} wunschtextPausiert={wunschtextPausiert} />
       </div>
     </ShopShell>
   );

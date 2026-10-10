@@ -767,7 +767,20 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 
 /* Pausen-Hinweis (Bestellannahme / Wunschtext pausiert) */
 .shop-pause { display: flex; gap: 14px; align-items: flex-start; margin: 12px 0 4px; padding: 14px 16px; border: 2px solid var(--shop-ink); border-radius: var(--shop-r-m); background: var(--shop-tint); color: var(--shop-text); box-shadow: 0 3px 0 var(--shop-ink); }
-.shop-pause[data-voll="true"] { background: var(--shop-honey); color: #2e1c0f; border-color: #2e1c0f; box-shadow: 0 3px 0 #2e1c0f; }
+/* Nur Wunschtext pausiert: dezenter Warnton */
+.shop-pause:not([data-voll="true"]) { background: #ffe3c2; color: #4a2300; border-color: #b45309; box-shadow: 0 3px 0 #b45309; }
+.shop[data-theme="halloween"] .shop-pause:not([data-voll="true"]) { background: #3a2750; color: #ffe9cf; border-color: #ff8a1f; box-shadow: 0 3px 0 #ff8a1f; }
+/* Volle Pause: Alarm-Rot, in beiden Themes gleich kräftig */
+.shop-pause[data-voll="true"] { background: #b3150f; color: #fff; border-color: #5c0804; border-width: 3px; box-shadow: 0 4px 0 #5c0804, 0 0 0 4px rgba(179, 21, 15, 0.28); }
+.shop-pause[data-voll="true"] .shop-pause-icon { background: #fff; color: #b3150f; border-color: #fff; font: 900 1.25rem/1 var(--shop-display); }
+.shop-pause[data-voll="true"] strong { font-size: 1.1875rem; }
+.shop-pause[data-voll="true"] a { color: #fff; }
+.shop-pause-hinweis { margin: 8px 0 0; padding: 8px 12px; border: 2px solid #b3150f; border-radius: var(--shop-r-m); background: #fde7e5; color: #5c0804; font-weight: 700; }
+.shop[data-theme="halloween"] .shop-pause-hinweis { background: #5c0804; color: #fff; border-color: #ff9d96; }
+.shop-card--gesperrt { opacity: 0.55; filter: grayscale(0.85); }
+.shop-card--gesperrt .shop-state { background: #b3150f; color: #fff; border-color: #5c0804; }
+.shop-cart-gesperrt { padding: 10px 12px; border: 2px solid #b3150f; border-radius: var(--shop-r-m); background: #fde7e5; color: #5c0804; font-weight: 700; }
+.shop[data-theme="halloween"] .shop-cart-gesperrt { background: #5c0804; color: #fff; border-color: #ff9d96; }
 .shop-pause-icon { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; border: 2px solid currentColor; font-size: 1rem; line-height: 1; }
 .shop-pause strong { display: block; font-family: var(--shop-display); font-size: 1.0625rem; }
 .shop-pause p { margin: 4px 0 0; overflow-wrap: anywhere; }

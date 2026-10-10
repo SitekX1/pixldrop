@@ -39,3 +39,24 @@ test("AGB-Klartext übernimmt die Lieferzeit aus den Einstellungen", () => {
   assert.ok(agbKlartext("9 Werktage").includes("9 Werktage"));
   assert.ok(!agbKlartext("9 Werktage").includes("3-5 Werktage"));
 });
+
+test("Wunschtext-Pause: jeder Artikel mit Personalisierung gesperrt (auch Standardtext), andere bleiben bestellbar", async () => {
+  const { legeBestellungAn } = await import("@/lib/shop/server/bestellung");
+  const { PRODUKTE } = await import("@/lib/shop/produkte");
+  const { bestellEingabe, kontext, neueDeps } = await import("./mocks");
+  const ctx = { ipHash: "ip-hash-0123456789abcdef", kontext: kontext(), wunschtextPausiert: true };
+  const pers = PRODUKTE.filter((p) => p.personalisierung);
+  assert.ok(pers.length >= 2, "mind. Spruch-Untersetzer und Tischschild");
+  for (const p of pers) {
+    const { deps } = neueDeps();
+    const pe = p.personalisierung!;
+    const standard = pe.zeilen ? pe.zeilen.map((z) => z.standard).join("\n") : pe.beispiel;
+    const pos = { slug: p.slug, menge: 1, farbeId: "schwarz", text: standard, schriftId: pe.festeSchrift ?? "oswald" };
+    const r = await legeBestellungAn(deps, bestellEingabe({ positionen: [pos], idempotenzKey: `key-pause-${p.slug}-123456789` }), ctx);
+    assert.equal(r.status, 503, `${p.slug} Standardtext`);
+    assert.equal(r.body.code, "wunschtext_pausiert");
+  }
+  const { deps } = neueDeps();
+  const ok = await legeBestellungAn(deps, bestellEingabe(), ctx);
+  assert.notEqual(ok.body.code, "wunschtext_pausiert", "Standardartikel bleibt bestellbar");
+});

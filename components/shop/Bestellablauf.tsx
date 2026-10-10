@@ -96,6 +96,8 @@ export default function Bestellablauf({
   const gesamt = zwischen != null ? zwischen + (VERSAND_CENT ?? 0) : null;
   const ausgenommen = pos.filter(({ a, p }) => istIndividuell(p, a.text, a.optionen));
   const individuell = ausgenommen.length > 0;
+  const wunschGesperrt = wunschtextPausiert && pos.some(({ p }) => !!p.personalisierung);
+  const wunschNamen = wunschtextPausiert ? pos.filter(({ p }) => !!p.personalisierung).map(({ p }) => p.name) : [];
   const gehe = (n: number) => (n === 1 ? router.push("/3d-druck/warenkorb") : router.push(`/3d-druck/bestellung?schritt=${n}`));
   const upd = (k: keyof Daten) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setDaten({ ...daten, [k]: e.target.value });
@@ -118,7 +120,7 @@ export default function Bestellablauf({
     gehe(3);
   }
   async function bestellen() {
-    if (laeuft || pausiert || (wunschtextPausiert && individuell)) return;
+    if (laeuft || pausiert || wunschGesperrt) return;
     if (textMeldung) { setServerFehler(textMeldung); requestAnimationFrame(() => alertRef.current?.focus()); return; }
     const f: Fehler = {};
     if (!agb) f.agb = "Bitte bestätige, dass du AGB und Widerrufsbelehrung gelesen hast und einverstanden bist.";
@@ -162,12 +164,12 @@ export default function Bestellablauf({
     requestAnimationFrame(() => alertRef.current?.focus());
   }
 
-  const sperre = pausiert || (wunschtextPausiert && individuell) || !!pauseServer;
-  const sperreText = pauseServer?.meldung ?? (pausiert ? pauseText : wunschtextPausiert && individuell ? "Bestellungen mit geändertem Wunschtext sind derzeit pausiert. Entferne die Wunschtext-Position oder bestelle später." : null);
+  const sperre = pausiert || wunschGesperrt || !!pauseServer;
+  const sperreText = pauseServer?.meldung ?? (pausiert ? pauseText : wunschGesperrt ? `Vorübergehend nicht bestellbar: ${wunschNamen.join(", ")} (Artikel mit Wunschtext sind aktuell pausiert). Entferne diese Artikel im Warenkorb, um die Bestellung abzuschließen.` : null);
   const PauseBlock = sperre && sperreText && (
     <div className="shop-pause" data-voll="true" role={pauseServer ? "alert" : "status"} tabIndex={-1} ref={pauseServer ? alertRef : undefined}>
-      <span className="shop-pause-icon" aria-hidden="true">⏸</span>
-      <div><strong>{pauseServer?.code === "wunschtext_pausiert" || (!pausiert && !pauseServer) ? "Wunschtexte sind gerade pausiert" : "Bestellungen sind gerade pausiert"}</strong><p>{sperreText} Es wurde nichts abgebucht.</p></div>
+      <span className="shop-pause-icon" aria-hidden="true">!</span>
+      <div><strong>{pauseServer?.code === "wunschtext_pausiert" || (!pausiert && !pauseServer) ? "Artikel mit Wunschtext sind gerade pausiert" : "Bestellungen sind gerade pausiert"}</strong><p>{sperreText} Es wurde nichts abgebucht.</p></div>
     </div>
   );
 

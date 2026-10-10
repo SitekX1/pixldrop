@@ -9,7 +9,7 @@ import { TEXTE, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
 import PositionsBild from "./PositionsBild";
 
 // Warenkorb: Positionen mit Menge ändern / entfernen, Summe, Hinweis zum Widerruf, "Zur Kasse".
-export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; farben: Farbe[] }) {
+export default function Warenkorb({ produkte, farben, wunschtextPausiert = false }: { produkte: Produkt[]; farben: Farbe[]; wunschtextPausiert?: boolean }) {
   const [korb, setKorb] = useState<Korb>([]);
   const [geladen, setGeladen] = useState(false);
   const [meldung, setMeldung] = useState("");
@@ -30,7 +30,9 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
   }
 
   const von = (slug: string) => produkte.find((p) => p.slug === slug);
-  const fehlt = korb.some((a) => !von(a.slug));
+  const gesperrtPos = (slug: string) => wunschtextPausiert && !!von(slug)?.personalisierung;
+  const gesperrtNamen = korb.flatMap((a) => (gesperrtPos(a.slug) ? [von(a.slug)!.name] : []));
+  const fehlt = korb.some((a) => !von(a.slug)) || gesperrtNamen.length > 0;
   const zwischen = zwischensummeCent(korb, (s) => von(s)?.preisCent);
   const gesamt = zwischen != null ? zwischen + (VERSAND_CENT ?? 0) : null;
   const ausgenommen = korb.flatMap((a) => { const p = von(a.slug); return p && istIndividuell(p, a.text, a.optionen) ? [p.name] : []; });
@@ -66,6 +68,7 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
                 {farbe && <p className="muted">Farbe: {farbe.name}</p>}
                 {opt.map((t) => <p key={t} className="muted">{t}</p>)}
                 {a.text && <p className="muted">Wunschtext: „{a.text.split("\n").join(" / ")}“</p>}
+                {gesperrtPos(a.slug) && <p className="shop-cart-gesperrt" role="alert">Vorübergehend nicht bestellbar: Artikel mit Wunschtext sind aktuell pausiert. Bitte entferne diesen Artikel, um zur Kasse zu gehen.</p>}
                 {ind && <p className="shop-cart-flag">Vom Widerruf ausgenommen (nach deinen Vorgaben gefertigt)</p>}
                 <div className="shop-cart-row">
                   <div className="shop-stepper">
@@ -98,6 +101,7 @@ export default function Warenkorb({ produkte, farben }: { produkte: Produkt[]; f
           <strong>Kein Widerrufsrecht bei:</strong> {ausgenommen.join(", ")} (mit deinem Wunschtext, nach deinen Vorgaben gefertigt, § 312g Abs. 2 Nr. 1 BGB). Das bestätigst du an der Kasse. Alle anderen Positionen: 14 Tage Widerruf.
         </p>
       )}
+      {gesperrtNamen.length > 0 && <p className="shop-cart-gesperrt" role="note">Zur Kasse geht es erst, wenn du entfernt hast: {gesperrtNamen.join(", ")}.</p>}
       <div className="shop-actions" style={{ marginTop: 0 }}>
         {fehlt ? (
           <button type="button" className="shop-btn" aria-disabled="true">Zur Kasse</button>

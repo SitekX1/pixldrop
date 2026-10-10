@@ -26,7 +26,7 @@ export default async function Produktseite({ params }: Props) {
   const p = holeProdukt(slug);
   if (!p) notFound();
   const farben = await holeFarben();
-  const { lieferzeit: LIEFERZEIT_TEXT } = await holeEinstellungen();
+  const { lieferzeit: LIEFERZEIT_TEXT, wunschtextPausiert } = await holeEinstellungen();
   const bestellbar = istBestellbar(p);
   const halloween = p.gruppe === "halloween";
   const preis = p.nurAnfrage ? TEXTE.preisAnfrage : formatPreis(p.preisCent);
@@ -54,7 +54,7 @@ export default async function Produktseite({ params }: Props) {
                 <li><Link className="shop-link" href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               </ul>
             </div>
-            <ProductBuy produkt={p} farben={farben} bestellbar={bestellbar} preisText={preis} />
+            <ProductBuy produkt={p} farben={farben} bestellbar={bestellbar} preisText={preis} wunschPause={wunschtextPausiert && !!p.personalisierung} />
             <p className="shop-sicher-kurz">Kein Spielzeug, hitzeempfindlich: <a className="shop-link" style={{ minHeight: 0 }} href="#sicherheit">Sicherheitshinweise</a></p>
           </div>
         </div>

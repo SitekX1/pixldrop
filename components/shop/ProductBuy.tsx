@@ -21,8 +21,8 @@ function hell(hex: string) {
 }
 
 export default function ProductBuy({
-  produkt, farben, bestellbar, preisText,
-}: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string }) {
+  produkt, farben, bestellbar, preisText, wunschPause = false,
+}: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string; wunschPause?: boolean }) {
   const [farbeId, setFarbeId] = useState<string | null>(farben[0]?.id ?? null);
   const [opt, setOpt] = useState<Record<string, string>>(() =>
     Object.fromEntries(produkt.optionen.map((g) => [g.id, g.optionen[0].id])),
@@ -80,6 +80,7 @@ export default function ProductBuy({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setzeVorschau, vorFarbe, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, JSON.stringify(formatOpt)]);
   function weiter() {
+    if (wunschPause) return;
     if (textFehler) { document.getElementById("t-fehler")?.scrollIntoView({ block: "center" }); return; }
     if (passtNicht) { document.getElementById("t-passt")?.scrollIntoView({ block: "center" }); return; }
     if (gesperrt) {
@@ -110,7 +111,9 @@ export default function ProductBuy({
     );
   }
 
-  const knopf = bestellbar ? (
+  const knopf = wunschPause ? (
+    <button type="button" className="shop-btn" aria-disabled="true" aria-describedby="wunsch-pause">Vorübergehend nicht bestellbar</button>
+  ) : bestellbar ? (
     <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button>
   ) : (
     <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>
@@ -268,7 +271,7 @@ export default function ProductBuy({
       </fieldset>
       <div className="shop-kaufzeile">
         <div ref={aktion} className="shop-kaufknopf">{knopf}</div>
-        {widerruf}
+        {wunschPause ? <p id="wunsch-pause" className="shop-pause-hinweis" role="note">Artikel mit Wunschtext sind aktuell pausiert und lassen sich nicht in den Warenkorb legen. Alle anderen Artikel bleiben bestellbar.</p> : widerruf}
       </div>
       <div id="hinzu" role="status" aria-live="polite">
         {hinzu && (
@@ -289,7 +292,7 @@ export default function ProductBuy({
 
       <div className="shop-sticky" data-show={stickyZeigen}>
         <span className="shop-price-small">{preisText}</span>
-        {bestellbar ? <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
+        {wunschPause ? <button type="button" className="shop-btn" aria-disabled="true">Nicht bestellbar</button> : bestellbar ? <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
       </div>
     </div>
   );

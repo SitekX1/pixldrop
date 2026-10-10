@@ -15,6 +15,7 @@ import { PayPalFehler } from "./paypal";
 import type { Benachrichtiger } from "./benachrichtigung";
 import { berechneWarenkorb, type Kontext } from "./preise";
 import { pruefeKunde } from "./validierung";
+import { PRODUKTE } from "../produkte";
 import { AGB_TEXT } from "./agb-text";
 import type { AnhangErzeuger } from "./pdf";
 import { PFLICHTANGABEN_FREIGEGEBEN, PLATZHALTER_MARKER, alexMail, telegramBestellung, telegramPruefen } from "./vorlagen";
@@ -106,9 +107,9 @@ export async function legeBestellungAn(
     const status = korb.fehler.code === "lager_nicht_lesbar" ? 503 : 422;
     return fehler(status, korb.fehler.code, korb.fehler.meldung);
   }
-  // Wunschtext-Pause: Bestellungen mit geändertem Text sperren, Standardware bleibt bestellbar.
-  if (ctx.wunschtextPausiert && korb.wert.individuell) {
-    return fehler(503, "wunschtext_pausiert", ctx.wunschtextPauseText ?? "Bestellungen mit geändertem Wunschtext sind derzeit pausiert.");
+  // Wunschtext-Pause: JEDE Position eines Artikels mit Personalisierung sperren (auch mit Standardtext).
+  if (ctx.wunschtextPausiert && korb.wert.positionen.some((pos) => PRODUKTE.find((pr) => pr.slug === pos.slug)?.personalisierung)) {
+    return fehler(503, "wunschtext_pausiert", ctx.wunschtextPauseText ?? "Artikel mit Wunschtext sind aktuell pausiert.");
   }
   const k = pruefeKunde(e.kunde);
   if (!k.ok) return fehler(422, "kunde_ungueltig", "Bitte prüfe deine Angaben.", { felder: k.felder });
