@@ -8,13 +8,16 @@ import "server-only";
 // Texte, Bilder). Die Mail an Alex enthaelt nur Nummer + Link ins Admin Panel.
 import type { ShopEnv } from "./env";
 import type { FetchFn } from "./db";
-import { einfacheMailHtml } from "./mail-layout";
+import { einfacheMailHtml, logoAnhaengeFuer } from "./mail-layout";
 
 /** Mail-Anhang (nodemailer-kompatibel). */
 export interface MailAnhang {
   filename: string;
   content: Buffer;
   contentType: string;
+  /** Inline-Bild (multipart/related): Content-ID, im HTML als cid:<id> */
+  cid?: string;
+  contentDisposition?: "inline" | "attachment";
 }
 
 export interface Benachrichtiger {
@@ -100,7 +103,9 @@ export function erzeugeBenachrichtiger(
       // Kundenmails immer multipart (Text + HTML im Shop-Rahmen); ohne eigenes HTML wird der Text umgesetzt.
       let h = html;
       if (!h) { try { h = einfacheMailHtml(betreff, text, env.siteUrl); } catch { h = undefined; } }
-      return senden(an, betreff, text, env.alexMail, anhaenge, h);
+      // Logos als eingebettete CID-Bilder (Outlook blockt externe Bilder) -> multipart/related
+      const alle = [...(h ? logoAnhaengeFuer(h) : []), ...(anhaenge ?? [])];
+      return senden(an, betreff, text, env.alexMail, alle, h);
     },
   };
 }

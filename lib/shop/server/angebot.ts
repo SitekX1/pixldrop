@@ -64,9 +64,24 @@ export interface AngebotMailDaten {
   gueltigBis: string;
 }
 
+/**
+ * Entfernt eine fuehrende reine Anrede-Zeile ("Hallo Erika,", "Hi!", "Liebe Erika,") aus dem Begleittext, weil die
+ * Mail selbst schon mit "Hallo <Name>," beginnt. Konservativ: nur die erste Zeile, nur wenn sie kurz ist, nur aus
+ * Anrede + Name besteht (kein weiteres Satzzeichen) und mit Komma/Ausrufezeichen endet.
+ */
+export function begleittextOhneAnrede(text: string | null): string | null {
+  if (!text) return text;
+  const t = text.replace(/\r/g, "").replace(/^\s+/, "");
+  const m = /^(?:hallo|hi|hey|moin|liebe[rn]?|guten (?:tag|morgen|abend))(?:[ \t]+[^\n,!.?:;]{1,35})?[ \t]*[,!][ \t]*(?:\n|$)/i.exec(t);
+  if (!m || m[0].replace(/\n$/, "").length > 50) return text;
+  const rest = t.slice(m[0].length).replace(/^\s+/, "");
+  return rest === "" ? null : rest;
+}
+
 /** Angebots-Mail im Look der Bestellbestaetigung. Rechtstexte stehen in lib/shop/angebot-texte.ts (Platzhalter, Justus). */
 export function angebotsMail(d: AngebotMailDaten, link: string, siteUrl?: string): { betreff: string; text: string; html: string } {
   const gesamt = d.preisCent + d.versandCent;
+  const begleit = begleittextOhneAnrede(d.text);
   const bis = datumKurz(d.gueltigBis);
   const betreff = `Dein Angebot ${d.nummer} – PixlDrop 3D-Druck`;
   const hinweis = ANGEBOT_TEXTE.mailHinweis;
@@ -83,7 +98,7 @@ export function angebotsMail(d: AngebotMailDaten, link: string, siteUrl?: string
     `Hallo ${d.name},`,
     "",
     "vielen Dank für deine Anfrage. Hier ist mein Angebot für dich:",
-    ...(d.text ? ["", d.text] : []),
+    ...(begleit ? ["", begleit] : []),
     "",
     "DEINE ANFRAGE",
     d.beschreibung,
@@ -132,7 +147,7 @@ export function angebotsMail(d: AngebotMailDaten, link: string, siteUrl?: string
   const inhalt = [
     absatz(`Hallo ${esc(d.name)},`),
     absatz("vielen Dank für deine Anfrage. Hier ist mein Angebot für dich:"),
-    d.text ? absatz(inline(d.text)) : "",
+    begleit ? absatz(inline(begleit)) : "",
     ueberschrift("Deine Anfrage"),
     anfrageBox,
     ueberschrift("Angebot"),

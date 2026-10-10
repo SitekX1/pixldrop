@@ -126,7 +126,7 @@ export default function AngebotAnnahme({
       {angebot.text && <p style={{ whiteSpace: "pre-line", overflowWrap: "anywhere", marginBottom: 16 }}>{angebot.text}</p>}
 
       {entwurf && (
-        <p className="shop-demo" role="note"><strong>Entwurf:</strong> Die rechtlichen Texte auf dieser Seite sind Platzhalter und noch nicht freigegeben.</p>
+        <p className="shop-entwurf-hinweis" role="note"><strong>Entwurf:</strong> Rechtstexte noch nicht freigegeben.</p>
       )}
       {abgebrochen && !sperre && <p className="shop-demo" role="status" style={{ marginBottom: 16 }}>{HINWEIS_ABBRUCH}</p>}
       {angebot.zahlungOffen && !abgebrochen && (

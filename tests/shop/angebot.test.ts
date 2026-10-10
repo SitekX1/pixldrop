@@ -1,10 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  angebotLink, angebotsMail, erzeugeAngebotToken, hashAngebotToken, liesAngebot, nimmAngebotAn, sendeAngebot, ANGEBOT_TOKEN,
+  angebotLink, angebotsMail, begleittextOhneAnrede, erzeugeAngebotToken, hashAngebotToken, liesAngebot, nimmAngebotAn, sendeAngebot, ANGEBOT_TOKEN,
 } from "@/lib/shop/server/angebot";
 import { sendeBestaetigung } from "@/lib/shop/server/bestaetigung";
 import type { Db } from "@/lib/shop/server/db";
+import { erzeugeBenachrichtiger } from "@/lib/shop/server/benachrichtigung";
 import { FakeNotifier, FakePayPal, testEnv } from "./mocks";
 import type { Deps } from "@/lib/shop/server/bestellung";
 
@@ -138,6 +139,33 @@ test("Mail: Kundeneingaben werden escaped", () => {
   }, "https://t.example/3d-druck/angebot/abc", "https://t.example");
   assert.ok(!m.html.includes("<script>") && !m.html.includes("<b>X</b>"));
   assert.ok(m.text.includes("Versand: kostenlos"));
+});
+
+test("Angebotsmail: Anrede im Begleittext wird nicht doppelt ausgegeben", () => {
+  const basis = { nummer: "PA-1", name: "Erika", beschreibung: "B", farbe: null, preisCent: 1000, versandCent: 0, lieferzeit: null, gueltigBis: "2026-10-25T10:00:00Z" };
+  const mail = (text: string) => angebotsMail({ ...basis, text }, "https://t.example/a", "https://t.example");
+  const a = mail("Hallo Erika,\n\nDas mache ich gern!");
+  assert.equal((a.text.match(/Hallo/g) ?? []).length, 1);
+  assert.ok(a.text.includes("Das mache ich gern!") && (a.html.match(/Hallo/g) ?? []).length === 1);
+  assert.equal(begleittextOhneAnrede("Liebe Erika,\nDanke dir"), "Danke dir");
+  assert.equal(begleittextOhneAnrede("Hi!\nKlar"), "Klar");
+  assert.equal(begleittextOhneAnrede("Hallo Erika, das mache ich gern!"), "Hallo Erika, das mache ich gern!");
+  assert.equal(begleittextOhneAnrede("Das mache ich gern!\nHallo Erika,"), "Das mache ich gern!\nHallo Erika,");
+  assert.equal(begleittextOhneAnrede("Hallo Erika,"), null);
+});
+
+test("Kundenmail: Logos als CID-Anhaenge (inline), HTML verweist per cid:", async () => {
+  const m = angebotsMail({ ...{ nummer: "PA-1", name: "E", beschreibung: "B", farbe: null, preisCent: 1000, versandCent: 0, lieferzeit: null, gueltigBis: "2026-10-25T10:00:00Z" }, text: null }, "https://t.example/a", "https://t.example");
+  assert.ok(m.html.includes("cid:pixldrop-logo") && m.html.includes("cid:sitekx-logo") && !m.html.includes("/shop/mail-logo-"));
+  const gesendet: { attachments?: { cid?: string; contentDisposition?: string; content: Buffer }[] }[] = [];
+  const n = erzeugeBenachrichtiger(testEnv({ SMTP_HOST: "smtp.test", SMTP_USER: "u@test.de", SMTP_PASS: "x" }), fetch, async () => ({ sendMail: async (o) => { gesendet.push(o as never); return {}; } }));
+  assert.equal(await n.mailKunde("k@example.de", "Betreff", "Text", undefined, m.html), true);
+  const cids = (gesendet[0].attachments ?? []).map((a) => a.cid).sort();
+  assert.deepEqual(cids, ["pixldrop-logo", "sitekx-logo"]);
+  assert.ok(gesendet[0].attachments!.every((a) => a.contentDisposition === "inline" && a.content.subarray(1, 4).toString() === "PNG"));
+  // ohne eigenes HTML: Standardrahmen enthaelt ebenfalls die CID-Logos
+  await n.mailKunde("k@example.de", "B", "Text");
+  assert.equal(gesendet[1].attachments?.length, 2);
 });
 
 test("Lesen: Format wird vor der DB geprueft; Antworten und Fehlercodes", async () => {

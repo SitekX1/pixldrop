@@ -1,8 +1,31 @@
 // Gemeinsamer HTML-Rahmen fuer alle Kundenmails des Shops (tabellenbasiert, Inline-CSS, ca. 600 px,
 // Outlook/Gmail/GMX-tauglich, Dark-Mode-tolerant). Inhalte bleiben unveraendert: der Rahmen setzt nur Typografie
 // und Optik um. Kundeneingaben werden IMMER escaped (esc), nie als HTML eingefuegt.
-// Bilder: absolute URLs (public/shop/mail-logo-*.png), keine data-URIs. Eddie-Hintergrundbild bewusst weggelassen
+// Bilder: eingebettete CID-Anhaenge (cid:pixldrop-logo / cid:sitekx-logo, Daten in mail-logos.ts; Anhaenge siehe
+// logoAnhaengeFuer), weil Outlook externe Bilder blockt und die Vorschau-Domain geschuetzt sein kann. Keine data-URIs. Eddie-Hintergrundbild bewusst weggelassen
 // (Hintergrundbilder werden von Outlook/Gmail unzuverlaessig gerendert); Eddie steckt im Logo.
+
+import { PIXLDROP_MAIL_LOGO_BASE64, SITEKX_MAIL_LOGO_BASE64 } from "./mail-logos";
+
+export const CID_PIXLDROP = "pixldrop-logo";
+export const CID_SITEKX = "sitekx-logo";
+
+export interface InlineAnhang { filename: string; content: Buffer; contentType: string; cid: string; contentDisposition: "inline" }
+
+/** Inline-Anhaenge (CID) fuer alle Logos, auf die das HTML per cid: verweist. */
+export function logoAnhaengeFuer(html: string): InlineAnhang[] {
+  const out: InlineAnhang[] = [];
+  if (html.includes(`cid:${CID_PIXLDROP}`)) out.push({ filename: "pixldrop-logo.png", content: Buffer.from(PIXLDROP_MAIL_LOGO_BASE64, "base64"), contentType: "image/png", cid: CID_PIXLDROP, contentDisposition: "inline" });
+  if (html.includes(`cid:${CID_SITEKX}`)) out.push({ filename: "sitekx-logo.png", content: Buffer.from(SITEKX_MAIL_LOGO_BASE64, "base64"), contentType: "image/png", cid: CID_SITEKX, contentDisposition: "inline" });
+  return out;
+}
+
+/** Nur fuer Browser-Vorschau: cid:-Verweise durch data-URIs ersetzen. */
+export function cidZuDataUri(html: string): string {
+  return html
+    .replace(`cid:${CID_PIXLDROP}`, `data:image/png;base64,${PIXLDROP_MAIL_LOGO_BASE64}`)
+    .replace(`cid:${CID_SITEKX}`, `data:image/png;base64,${SITEKX_MAIL_LOGO_BASE64}`);
+}
 
 const STANDARD_SITE = "https://pixldrop.de";
 
@@ -72,7 +95,7 @@ export interface KontaktKachelOpt { siteUrl?: string }
 export function kontaktKachel(opt: KontaktKachelOpt = {}): string {
   const site = (opt.siteUrl || STANDARD_SITE).replace(/\/+$/, "");
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="kachel" style="margin:28px 0 0 0;background:${FARBE.karte};border:1px solid ${FARBE.linie};border-radius:14px;"><tr><td style="padding:18px 20px;">` +
-    `<img src="${site}/shop/mail-logo-sitekx.png" width="96" height="37" alt="SitekX" style="display:block;border:0;margin:0 0 10px 0;height:auto;">` +
+    `<img src="cid:${CID_SITEKX}" width="96" height="37" alt="SitekX" style="display:block;border:0;margin:0 0 10px 0;height:auto;">` +
     `<div class="kopf" style="font-family:${SCHRIFT_KOPF};font-size:13px;line-height:18px;font-weight:bold;color:${FARBE.tinte};margin:0 0 6px 0;">Hersteller und Verkäufer / Kontakt</div>` +
     `<div class="gedimmt" style="font-family:${SCHRIFT_TEXT};font-size:13px;line-height:20px;color:${FARBE.gedimmt};">Alexander Sitek<br>Richard-Strauss-Straße 4<br>86663 Asbach-Bäumenheim</div>` +
     `<div class="gedimmt" style="font-family:${SCHRIFT_TEXT};font-size:13px;line-height:20px;color:${FARBE.gedimmt};margin-top:6px;">` +
@@ -115,7 +138,7 @@ ${o.vorschau ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;
 <tr><td class="karte pad" style="background:${FARBE.karte};padding:22px 32px 30px 32px;border-radius:0 0 14px 14px;border:1px solid ${FARBE.linie};border-top:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td valign="middle" class="linie" style="padding:0 0 14px 0;border-bottom:1px solid ${FARBE.linie};"><div class="kopf" style="font-family:${SCHRIFT_KOPF};font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:${FARBE.link};font-weight:bold;margin:0 0 4px 0;">PixlDrop 3D-Druck</div><div class="titel kopf" style="font-family:${SCHRIFT_KOPF};font-size:24px;line-height:29px;font-weight:bold;color:${FARBE.tinte};">${esc(o.titel)}</div></td>
-<td valign="middle" align="right" width="110" class="linie" style="padding:0 0 14px 12px;border-bottom:1px solid ${FARBE.linie};"><a href="${site}"><img class="logo" src="${site}/shop/mail-logo-pixldrop.png" width="104" height="95" alt="PixlDrop – Eddie’s Welt" style="display:block;border:0;height:auto;"></a></td>
+<td valign="middle" align="right" width="110" class="linie" style="padding:0 0 14px 12px;border-bottom:1px solid ${FARBE.linie};"><a href="${site}"><img class="logo" src="cid:${CID_PIXLDROP}" width="104" height="95" alt="PixlDrop – Eddie’s Welt" style="display:block;border:0;height:auto;"></a></td>
 </tr></table>
 <div style="height:20px;line-height:20px;font-size:0;">&nbsp;</div>
 ${o.inhalt}
