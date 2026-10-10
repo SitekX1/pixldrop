@@ -38,8 +38,8 @@ const FELDNAMEN: Record<string, string> = {
 };
 
 export default function Bestellablauf({
-  schritt, produkte, farben, zahlung,
-}: { schritt: 1 | 2 | 3; produkte: Produkt[]; farben: Farbe[]; zahlung?: string }) {
+  schritt, produkte, farben, zahlung, lieferzeit = LIEFERZEIT_TEXT, pausiert = false, pauseText, wunschtextPausiert = false,
+}: { schritt: 1 | 2 | 3; produkte: Produkt[]; farben: Farbe[]; zahlung?: string; lieferzeit?: string | null; pausiert?: boolean; pauseText?: string; wunschtextPausiert?: boolean }) {
   const router = useRouter();
   const [korb, setKorb] = useState<Korb>([]);
   const [geladen, setGeladen] = useState(false);
@@ -53,6 +53,7 @@ export default function Bestellablauf({
   const [token, setToken] = useState<string | null>(null);
   const [tokenFehler, setTokenFehler] = useState(false);
   const [website, setWebsite] = useState("");
+  const [pauseServer, setPauseServer] = useState<{ code: string; meldung: string } | null>(null);
   const kopf = useRef<HTMLHeadingElement>(null);
   const alertRef = useRef<HTMLDivElement>(null);
   const erster = useRef(true);
@@ -117,7 +118,7 @@ export default function Bestellablauf({
     gehe(3);
   }
   async function bestellen() {
-    if (laeuft) return;
+    if (laeuft || pausiert || (wunschtextPausiert && individuell)) return;
     if (textMeldung) { setServerFehler(textMeldung); requestAnimationFrame(() => alertRef.current?.focus()); return; }
     const f: Fehler = {};
     if (!agb) f.agb = "Bitte bestätige, dass du AGB und Widerrufsbelehrung gelesen hast und einverstanden bist.";
@@ -150,6 +151,7 @@ export default function Bestellablauf({
     if (r.ok) { setServerFehler("Die Weiterleitung zu PayPal ist ungültig. Es wurde nichts abgebucht. Bitte versuch es noch einmal."); }
     else {
       const fe = r.fehler;
+      if (fe.code === "pausiert" || fe.code === "wunschtext_pausiert") { setPauseServer({ code: fe.code, meldung: fe.meldung }); requestAnimationFrame(() => alertRef.current?.focus()); return; }
       if (fe.code === "token") holeFormToken().then(setToken);
       if (fe.felder && Object.keys(fe.felder).length) {
         gehe(2);
@@ -159,6 +161,15 @@ export default function Bestellablauf({
     }
     requestAnimationFrame(() => alertRef.current?.focus());
   }
+
+  const sperre = pausiert || (wunschtextPausiert && individuell) || !!pauseServer;
+  const sperreText = pauseServer?.meldung ?? (pausiert ? pauseText : wunschtextPausiert && individuell ? "Bestellungen mit geändertem Wunschtext sind derzeit pausiert. Entferne die Wunschtext-Position oder bestelle später." : null);
+  const PauseBlock = sperre && sperreText && (
+    <div className="shop-pause" data-voll="true" role={pauseServer ? "alert" : "status"} tabIndex={-1} ref={pauseServer ? alertRef : undefined}>
+      <span className="shop-pause-icon" aria-hidden="true">⏸</span>
+      <div><strong>{pauseServer?.code === "wunschtext_pausiert" || (!pausiert && !pauseServer) ? "Wunschtexte sind gerade pausiert" : "Bestellungen sind gerade pausiert"}</strong><p>{sperreText} Es wurde nichts abgebucht.</p></div>
+    </div>
+  );
 
   const fehlerListe = Object.entries(fehler).filter(([, v]) => v) as [string, string][];
   const FehlerBlock = (fehlerListe.length > 0 || serverFehler) && (
@@ -264,6 +275,7 @@ export default function Bestellablauf({
           <h1 id="s3" tabIndex={-1} ref={kopf} style={{ fontSize: "clamp(1.75rem, 7vw, 2.4rem)", outline: "none" }}>Prüfen &amp; bestellen</h1>
           <div className="shop-form" style={{ marginTop: 16 }}>
             {FehlerBlock}
+            {PauseBlock}
             <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
               <label>Bitte leer lassen<input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
             </div>
@@ -301,7 +313,7 @@ export default function Bestellablauf({
               <dl><div className="gesamt"><dt>Gesamtpreis</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div></dl>
               <div className="kleinteil">
                 <p>{TEXTE.kleinunternehmer}</p>
-                <p>Lieferzeit: {LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}. Lieferung nur innerhalb Deutschlands.</p>
+                <p>Lieferzeit: {lieferzeit ?? TEXTE.lieferzeitHinweis}. Lieferung nur innerhalb Deutschlands.</p>
                 <p>Zahlung: sofort per PayPal. {TEXTE.vertragsschluss}</p>
                 <p>
                   Widerruf: {individuell ? <><strong>vom Widerruf ausgenommen: {ausgenommen.map(({ p }) => p.name).join(", ")} mit deinem Text (nach deinen Vorgaben gefertigt, § 312g Abs. 2 Nr. 1 BGB).</strong>{pos.length > ausgenommen.length && " Alle anderen Positionen: 14 Tage Widerruf."}</> : "14 Tage Widerruf."}{" "}
@@ -328,9 +340,9 @@ export default function Bestellablauf({
               </div>
             )}
 
-            <button type="button" className="shop-btn shop-btn--block" aria-disabled={!SHOP_AKTIV || laeuft} aria-busy={laeuft} onClick={bestellen}>
-              {laeuft ? "Einen Moment, weiter zu PayPal…" : SHOP_AKTIV ? TEXTE.bestellButton : TEXTE.bestellInaktiv}
-              {!SHOP_AKTIV && !laeuft && <small>Im Echtbetrieb: „{TEXTE.bestellButton}“</small>}
+            <button type="button" className="shop-btn shop-btn--block" aria-disabled={!SHOP_AKTIV || laeuft || sperre} aria-busy={laeuft} onClick={bestellen}>
+              {sperre ? "Bestellannahme pausiert" : laeuft ? "Einen Moment, weiter zu PayPal…" : SHOP_AKTIV ? TEXTE.bestellButton : TEXTE.bestellInaktiv}
+              {!SHOP_AKTIV && !laeuft && !sperre && <small>Im Echtbetrieb: „{TEXTE.bestellButton}“</small>}
             </button>
             <p className="muted">{TEXTE.datenschutzHinweis} <a href="/datenschutz" target="_blank" rel="noopener" style={{ textDecoration: "underline" }}>Datenschutzerklärung</a>.</p>
             {status && <p className="shop-demo" role="status">{status}</p>}

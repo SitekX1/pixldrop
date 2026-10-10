@@ -2,7 +2,8 @@ import Link from "next/link";
 import ShopShell from "@/components/shop/ShopShell";
 import EddieSchnitt from "@/components/shop/EddieSchnitt";
 import Ring from "@/components/shop/Ring";
-import { LIEFERZEIT_TEXT, TEXTE } from "@/lib/shop/config";
+import { TEXTE } from "@/lib/shop/config";
+import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 import { bestellnummerOk } from "@/lib/shop/client";
 import BestellungAbschluss from "@/components/shop/BestellungAbschluss";
 
@@ -12,6 +13,7 @@ export const metadata = { title: "Danke für deine Bestellung" };
 // Ohne Animation (Reduced Motion) steht er sofort. Anschrift wird nie angezeigt.
 export default async function Danke({ searchParams }: { searchParams: Promise<{ nr?: string; hinweis?: string }> }) {
   const { nr, hinweis } = await searchParams;
+  const { lieferzeit } = await holeEinstellungen();
   const echt = bestellnummerOk(nr);
   const nummer = echt ?? "VORSCHAU";
   // Bestellung mit geändertem Wunschtext: Freigabe-Flow (AGB Ziffer 3 Abs. 4/5). Der Rücksprung von PayPal
@@ -51,7 +53,7 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
               ) : (
                 <li><strong>Bestätigung per E-Mail</strong>Sobald die Zahlung bestätigt ist, folgt sie mit AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Kommt nichts an, schreib an as@sitekx.de.</li>
               )}
-              <li><strong>Druck und Versand</strong>Lieferzeit: {LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}. Ich drucke und verpacke selbst.</li>
+              <li><strong>Druck und Versand</strong>Lieferzeit: {lieferzeit ?? TEXTE.lieferzeitHinweis}. Ich drucke und verpacke selbst.</li>
             </ol>
           </section>
           <EddieSchnitt className="shop-eddie-mini" />

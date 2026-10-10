@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { leseEnv } from "@/lib/shop/server/env";
 import { anfrageDeps, NichtEingerichtet } from "@/lib/shop/server/deps";
 import { legeAnfrageAn, type HochgeladenesBild } from "@/lib/shop/server/anfrage";
+import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 import { MAX_BILDER } from "@/lib/shop/server/bild";
 import { clientIp, erzeugeBremse, honeypotLeer, ipHash, pruefeFormToken } from "@/lib/shop/server/spam";
 import { holeLagerFarben } from "@/lib/shop/farben";
@@ -30,6 +31,12 @@ export async function POST(request: Request) {
 
   const hash = ipHash(clientIp(request.headers) ?? "unbekannt", env.ipSalt)!;
   if (bremse(hash)) return antwort(429, { ok: false, code: "zu_viele", error: "Zu viele Anfragen. Bitte warte kurz." });
+
+  // Bestellpause (Panel-Reiter "Einstellungen"): auch neue Anfragen annehmen wir dann nicht.
+  const einst = await holeEinstellungen(env);
+  if (einst.bestellungPausiert) {
+    return antwort(503, { ok: false, code: "pausiert", error: einst.pauseText, pauseBis: einst.pauseBis });
+  }
 
   const laenge = Number(request.headers.get("content-length") ?? 0);
   if (laenge > 4_500_000) {

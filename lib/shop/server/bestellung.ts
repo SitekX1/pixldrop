@@ -85,7 +85,7 @@ async function suche(deps: Deps, q: { id?: string; paypalOrderId?: string; numme
 export async function legeBestellungAn(
   deps: Deps,
   eingabe: unknown,
-  ctx: { ipHash: string; kontext: Kontext },
+  ctx: { ipHash: string; kontext: Kontext; wunschtextPausiert?: boolean; wunschtextPauseText?: string },
 ): Promise<Antwort> {
   const { env } = deps;
   const frei = deps.pflichtangabenFreigegeben ?? PFLICHTANGABEN_FREIGEGEBEN;
@@ -105,6 +105,10 @@ export async function legeBestellungAn(
   if (!korb.ok) {
     const status = korb.fehler.code === "lager_nicht_lesbar" ? 503 : 422;
     return fehler(status, korb.fehler.code, korb.fehler.meldung);
+  }
+  // Wunschtext-Pause: Bestellungen mit geändertem Text sperren, Standardware bleibt bestellbar.
+  if (ctx.wunschtextPausiert && korb.wert.individuell) {
+    return fehler(503, "wunschtext_pausiert", ctx.wunschtextPauseText ?? "Bestellungen mit geändertem Wunschtext sind derzeit pausiert.");
   }
   const k = pruefeKunde(e.kunde);
   if (!k.ok) return fehler(422, "kunde_ungueltig", "Bitte prüfe deine Angaben.", { felder: k.felder });

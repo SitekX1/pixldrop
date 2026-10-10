@@ -3,17 +3,17 @@ import Image from "next/image";
 import { KONTAKT_MIT_ANSCHRIFT } from "@/lib/shop/config";
 import WarenkorbLink from "./WarenkorbLink";
 
-// Shell: Kopf, Inhalt, Fuß. Theme ("halloween") per data-theme am Wrapper (Token-Austausch).
+// Shell: Kopf (Zurück-Link: Shop-Startseite → PixlDrop, alle anderen Seiten → Shop), Inhalt, Fuß. Theme ("halloween") per data-theme am Wrapper (Token-Austausch).
 export default function ShopShell({
-  children, theme, banner,
-}: { children: React.ReactNode; theme?: "halloween"; banner?: React.ReactNode }) {
+  children, theme, banner, zurueck = "shop",
+}: { children: React.ReactNode; theme?: "halloween"; banner?: React.ReactNode; zurueck?: "shop" | "pixldrop" }) {
   return (
     <div className="shop" data-theme={theme}>
       <a className="shop-skip" href="#inhalt">Zum Inhalt springen</a>
       {banner}
       <div className="shop-wrap">
         <header className="shop-head">
-          <a href="/">← PixlDrop</a>
+          {zurueck === "pixldrop" ? <a href="/">← PixlDrop</a> : <Link href="/3d-druck#stuecke">← 3D-Druck-Shop</Link>}
           <span className="shop-head-r">
             <Link className="shop-widerruf-btn" href="/3d-druck/widerruf#widerrufsfunktion">Vertrag widerrufen</Link>
             <WarenkorbLink />

@@ -1,12 +1,15 @@
 import ShopShell from "@/components/shop/ShopShell";
 import EntwurfBanner from "@/components/shop/EntwurfBanner";
 import { Abschnitt } from "@/components/shop/RechtText";
-import { ENTWURF_MODUS, entwurfTitel, LIEFERZEIT_TEXT, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
+import { ENTWURF_MODUS, entwurfTitel, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
+import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
+export const dynamic = "force-dynamic"; // Lieferzeit kommt aus den Shop-Einstellungen
 export const metadata = { title: entwurfTitel("Versand & Zahlung") };
 
 // recht-texte/versand-und-zahlung.md, Variante B, Stand 2026-10-09. Kosten und Lieferzeit kommen aus lib/shop/config.ts.
-export default function Versand() {
+export default async function Versand() {
+  const { lieferzeit: LIEFERZEIT_TEXT } = await holeEinstellungen();
   const versand = VERSAND_CENT != null ? `**${formatPreis(VERSAND_CENT)}** je Bestellung` : "wie auf der Übersichtsseite angezeigt";
   const lieferzeit = LIEFERZEIT_TEXT ? `**${LIEFERZEIT_TEXT}** ab Vertragsschluss (Bestellbestätigung).` : "Die Lieferzeit steht bei jedem Artikel und auf der Übersichtsseite; sie läuft ab Vertragsschluss (Bestellbestätigung).";
   return (

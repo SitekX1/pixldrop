@@ -5,10 +5,12 @@ import ShopShell from "@/components/shop/ShopShell";
 import ProductImage from "@/components/shop/ProductImage";
 import Galerie from "@/components/shop/Galerie";
 import { VorschauProvider, LiveProductImage } from "@/components/shop/Vorschau";
+import PauseBanner from "@/components/shop/PauseBanner";
 import ProductBuy from "@/components/shop/ProductBuy";
 import { holeProdukt, istBestellbar, hitzeHinweis } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
-import { formatPreis, halloweenModus, LIEFERZEIT_TEXT, TEXTE, VERSAND_CENT } from "@/lib/shop/config";
+import { formatPreis, halloweenModus, TEXTE, VERSAND_CENT } from "@/lib/shop/config";
+import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
 export const dynamic = "force-dynamic";
 
@@ -24,12 +26,13 @@ export default async function Produktseite({ params }: Props) {
   const p = holeProdukt(slug);
   if (!p) notFound();
   const farben = await holeFarben();
+  const { lieferzeit: LIEFERZEIT_TEXT } = await holeEinstellungen();
   const bestellbar = istBestellbar(p);
   const halloween = p.gruppe === "halloween";
   const preis = p.nurAnfrage ? TEXTE.preisAnfrage : formatPreis(p.preisCent);
 
   return (
-    <ShopShell theme={halloween ? "halloween" : undefined}>
+    <ShopShell theme={halloween ? "halloween" : undefined} banner={<PauseBanner />}>
       <div className="shop-wrap" style={{ paddingBottom: 96 }}>
         <Link className="shop-crumb" href={halloween ? "/3d-druck?kategorie=halloween#stuecke" : "/3d-druck#stuecke"}>← Alle Stücke</Link>
         <VorschauProvider>

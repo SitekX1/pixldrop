@@ -1,7 +1,9 @@
 import Link from "next/link";
 import ShopShell from "@/components/shop/ShopShell";
 import ProductCard from "@/components/shop/ProductCard";
+import PauseBanner from "@/components/shop/PauseBanner";
 import HalloweenBanner from "@/components/shop/HalloweenBanner";
+import IndividuellBanner from "@/components/shop/IndividuellBanner";
 import KontaktDialog from "@/components/shop/KontaktDialog";
 import EddieSchnitt from "@/components/shop/EddieSchnitt";
 import HeroEddie from "@/components/shop/HeroEddie";
@@ -20,11 +22,14 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const alle = sichtbareProdukte();
   const gueltig = KATEGORIEN.filter((k) => k.id !== "halloween" || modus !== "off");
   const aktiv = gueltig.find((k) => k.id === kategorie)?.id ?? "alle";
-  const liste = aktiv === "alle" ? alle : alle.filter((p) => p.kategorien.includes(aktiv as Kategorie));
+  // "Alle": Standardartikel zuerst, saisonale Halloween-Artikel unten (stabile Sortierung).
+  const liste = aktiv === "alle"
+    ? [...alle].sort((a, b) => Number(a.gruppe === "halloween") - Number(b.gruppe === "halloween"))
+    : alle.filter((p) => p.kategorien.includes(aktiv as Kategorie));
   const halloween = aktiv === "halloween";
 
   return (
-    <ShopShell theme={halloween ? "halloween" : undefined}>
+    <ShopShell theme={halloween ? "halloween" : undefined} banner={<PauseBanner />} zurueck={aktiv === "alle" ? "pixldrop" : "shop"}>
       <div className="shop-wrap">
         {halloween ? (
           <section className="shop-hero" style={{ minHeight: 0, paddingTop: 12 }} aria-labelledby="titel">
@@ -55,23 +60,10 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
         {!halloween && <HalloweenBanner modus={modus} />}
 
-        <nav className="shop-chips" aria-label="Kategorien" id="stuecke">
-          <ul>
-            {gueltig.map((k) => (
-              <li key={k.id}>
-                <Link
-                  className={`shop-chip ${k.id === "halloween" ? "shop-chip--halloween" : ""}`}
-                  href={k.id === "alle" ? "/3d-druck#stuecke" : `/3d-druck?kategorie=${k.id}#stuecke`}
-                  aria-current={aktiv === k.id ? "page" : undefined}
-                >
-                  {k.label}
-                </Link>
-              </li>
-            ))}
-            <li><Link className="shop-chip shop-chip--anfrage" href="/3d-druck/anfrage">Individueller Druck</Link></li>
-          </ul>
-        </nav>
+        {!halloween && <IndividuellBanner />}
 
+        <div id="stuecke" className="shop-stuecke">
+        {halloween && <p className="shop-alle-link"><Link href="/3d-druck#stuecke">&larr; Alle Stücke</Link></p>}
         {liste.length > 0 ? (
           <ul className="shop-grid" aria-label="Produkte">
             {liste.map((p, i) => (
@@ -85,14 +77,13 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
             <Link className="shop-btn" href="/3d-druck#stuecke">Alle Stücke ansehen</Link>
           </div>
         )}
+        </div>
 
-        <section className="shop-individuell" aria-labelledby="indiv">
-          <div style={{ display: "grid", gap: 8 }}>
-            <h2 id="indiv">Individueller Druck – Preis nach Anfrage</h2>
-            <p>Du hast eine Idee, ein Maß oder ein Bild? Beschreib es mir, lade ein Foto hoch und du bekommst ein unverbindliches Angebot per E-Mail.</p>
-          </div>
-          <Link className="shop-btn" href="/3d-druck/anfrage">Individuell anfragen</Link>
-        </section>
+        {halloween && (
+          <p className="shop-individuell-teaser">
+            Etwas Eigenes? <Link href="/3d-druck/anfrage">Individuell anfragen</Link> (Preis nach Anfrage)
+          </p>
+        )}
 
         <section className="shop-section" aria-labelledby="ablauf">
           <h2 id="ablauf">So läuft&rsquo;s</h2>

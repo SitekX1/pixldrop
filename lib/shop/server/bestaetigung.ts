@@ -4,6 +4,8 @@ import "server-only";
 import type { Deps } from "./bestellung";
 import { bestaetigungsMail, type MailBestellung } from "./vorlagen";
 import { mailMitAnhaengen } from "./pdf";
+import { holeEinstellungen } from "./einstellungen";
+import { agbKlartext } from "../agb-daten";
 
 /** Technisches Ereignis (ohne personenbezogene Daten) protokollieren; Fehler hier sind egal. */
 export async function ereignis(deps: Pick<Deps, "db">, id: string | null, art: string, details: Record<string, unknown>) {
@@ -49,7 +51,13 @@ export async function sendeBestaetigung(deps: Deps, id: string): Promise<"gesend
     const d = await deps.db.rpc<Record<string, unknown> & { ok: boolean }>("shop_bestellung_mail_daten", { p_id: id });
     if (!d.ok) return "schon";
     const b = d as unknown as MailBestellung & { email: string };
-    const mail = bestaetigungsMail(b, deps.pflichtangabenText, deps.pflichtangabenFreigegeben, { siteUrl: deps.env.siteUrl, agbText: deps.agbText });
+    // Lieferzeit aus den Shop-Einstellungen (Fallback config.ts); AGB-Anhang mit derselben Lieferzeit wie die Seite.
+    const lz = (await holeEinstellungen(deps.env)).lieferzeit;
+    const mail = bestaetigungsMail(b, deps.pflichtangabenText, deps.pflichtangabenFreigegeben, {
+      siteUrl: deps.env.siteUrl,
+      lieferzeit: lz,
+      agbText: deps.agbText ?? agbKlartext(lz),
+    });
     // Kurzer Mailtext + PDF-Anhaenge; scheitert die PDF-Erzeugung, geht der Volltext im Mailkoerper raus.
     const { betreff, text, anhaenge } = await mailMitAnhaengen(mail, deps.anhangErzeuger);
     if (!(await claimeMail(deps, id, "bestaetigung"))) return "schon";

@@ -13,11 +13,13 @@ export interface AgbAbschnitt { titel: string; a: string[] }
 const versandText = VERSAND_CENT != null
   ? `**${formatPreis(VERSAND_CENT)}** je Bestellung`
   : "in der auf der Übersichtsseite angezeigten Höhe";
-const lieferzeitText = LIEFERZEIT_TEXT
-  ? `**${LIEFERZEIT_TEXT}** ab Vertragsschluss (Bestellbestätigung)`
+/** Lieferzeit kommt zur Laufzeit aus den Shop-Einstellungen (Panel); Standard: Konstante aus config.ts. */
+export function agbAbschnitte(lieferzeit: string | null = LIEFERZEIT_TEXT): AgbAbschnitt[] {
+const lieferzeitText = lieferzeit
+  ? `**${lieferzeit}** ab Vertragsschluss (Bestellbestätigung)`
   : "bei jedem Artikel und auf der Übersichtsseite vor Abgabe der Bestellung angegeben, gerechnet ab Vertragsschluss (Bestellbestätigung)";
 
-export const AGB_ABSCHNITTE: AgbAbschnitt[] = [
+return [
   { titel: "1. Geltungsbereich und Anbieter", a: [
     "(1) Diese Bedingungen gelten für alle Verträge über den Kauf und die Anfertigung von 3D-gedruckten Gegenständen, die du über den Shop unter pixldrop.de/3d-druck oder über eine individuelle Anfrage mit **Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: as@sitekx.de** (nachfolgend „ich“) schließt.",
     "(2) Der Shop richtet sich ausschließlich an Verbraucherinnen und Verbraucher (§ 13 BGB). Bestellungen zu gewerblichen oder selbstständigen beruflichen Zwecken sind im Shop nicht vorgesehen; bitte stelle sie als individuelle Anfrage (Ziffer 10), hierfür gilt ein gesondertes Angebot.",
@@ -107,13 +109,17 @@ export const AGB_ABSCHNITTE: AgbAbschnitt[] = [
     AGB_STAND,
   ] },
 ];
+}
+
+export const AGB_ABSCHNITTE: AgbAbschnitt[] = agbAbschnitte();
 
 /** Klartext fuer die Bestaetigungsmail (dauerhafter Datentraeger): gleiche Absaetze, ohne **fett**-Markierung. */
-export function agbKlartext(): string {
+export function agbKlartext(lieferzeit: string | null = LIEFERZEIT_TEXT): string {
   const ohneFett = (s: string) => s.replace(/\*\*/g, "");
-  const teile = AGB_ABSCHNITTE.map((s, i) => {
+  const abschnitte = agbAbschnitte(lieferzeit);
+  const teile = abschnitte.map((s, i) => {
     const body = s.a.map(ohneFett);
-    const letzter = i === AGB_ABSCHNITTE.length - 1;
+    const letzter = i === abschnitte.length - 1;
     // Der Stand-Satz steht im Klartext als eigener Block am Ende.
     return letzter
       ? `${s.titel}\n${body.slice(0, -1).join("\n")}\n\n${body[body.length - 1]}`
