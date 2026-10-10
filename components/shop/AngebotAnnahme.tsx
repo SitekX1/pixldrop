@@ -195,6 +195,22 @@ export default function AngebotAnnahme({
           </label>
         </div>
 
+        <section aria-labelledby="zsf-t" style={{ borderTop: "2px solid currentColor", borderBottom: "1px solid currentColor", padding: "12px 0", margin: "8px 0 4px" }}>
+          <h3 id="zsf-t" className="shop-label" style={{ margin: "0 0 6px" }}>Das nimmst du jetzt an</h3>
+          <dl style={{ margin: 0, display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: "4px 14px", fontSize: "0.95rem" }}>
+            <dt>Ware</dt>
+            <dd style={{ margin: 0, overflowWrap: "anywhere" }}>
+              Individuelle Anfertigung, Anfrage {angebot.anfragenummer}
+              <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", opacity: 0.8 }}>{angebot.beschreibung}</span>
+            </dd>
+            <dt>Gesamtpreis</dt>
+            <dd style={{ margin: 0 }}><strong>{formatPreis(angebot.gesamtCent)}</strong> inkl. Versand{angebot.versandCent === 0 ? " (kostenlos)" : ""}, ohne&nbsp;USt. (§&nbsp;19&nbsp;UStG)</dd>
+            <dt>Lieferzeit</dt>
+            <dd style={{ margin: 0 }}>{angebot.lieferzeit ? `${angebot.lieferzeit} nach Zahlung` : "nach Absprache"}</dd>
+            <dt>Gültig bis</dt>
+            <dd style={{ margin: 0 }}>{angebot.gueltigBis}</dd>
+          </dl>
+        </section>
         <button type="submit" className="shop-btn shop-btn--block" aria-disabled={laeuft || sperre} aria-busy={laeuft}>
           {sperre ? "Bestellannahme pausiert" : laeuft ? "Einen Moment, weiter zu PayPal…" : ANGEBOT_TEXTE.buttonLabel}
         </button>

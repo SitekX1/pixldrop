@@ -164,6 +164,11 @@ export class FakeDb implements Db {
           positionen: b.positionen.map((x) => ({ name: x.name, menge: x.menge, einzelpreis_cent: x.einzelpreis_cent, farbe: x.farbe_name, text: x.text, schrift: x.schrift, optionen: x.optionen, individuell: x.individuell === true })),
         };
       }
+      case "shop_bestellung_anfrage_id": {
+        const b = this.find({ id: p.p_id });
+        if (!b) return { ok: false, grund: "unbekannt" };
+        return { ok: true, anfrage_id: (b as { anfrageId?: string }).anfrageId ?? null };
+      }
       case "shop_markiere": {
         const b = this.find({ id: p.p_id });
         if (b && p.p_art === "bestellung_benachrichtigt") b.benachrichtigt = true;

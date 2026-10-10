@@ -51,6 +51,13 @@ export async function sendeBestaetigung(deps: Deps, id: string): Promise<"gesend
     const d = await deps.db.rpc<Record<string, unknown> & { ok: boolean }>("shop_bestellung_mail_daten", { p_id: id });
     if (!d.ok) return "schon";
     const b = d as unknown as MailBestellung & { email: string };
+    // Angebots-Bestellung? (Migration 17). Nur bei individuellen Bestellungen relevant (steuert den Freigabe-Satz).
+    // Fehler hier = kein Versand (fail-closed), damit nie der falsche Wunschtext-Satz rausgeht; Retry bleibt moeglich.
+    if (b.individuell && b.anfrage_id === undefined) {
+      const a = await deps.db.rpc<{ ok: boolean; anfrage_id?: string | null }>("shop_bestellung_anfrage_id", { p_id: id });
+      if (!a.ok) throw new Error("anfrage_id nicht lesbar");
+      b.anfrage_id = a.anfrage_id ?? null;
+    }
     // Lieferzeit aus den Shop-Einstellungen (Fallback config.ts); AGB-Anhang mit derselben Lieferzeit wie die Seite.
     const lz = (await holeEinstellungen(deps.env)).lieferzeit;
     const mail = bestaetigungsMail(b, deps.pflichtangabenText, deps.pflichtangabenFreigegeben, {

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   angebotLink, angebotsMail, erzeugeAngebotToken, hashAngebotToken, liesAngebot, nimmAngebotAn, sendeAngebot, ANGEBOT_TOKEN,
 } from "@/lib/shop/server/angebot";
+import { sendeBestaetigung } from "@/lib/shop/server/bestaetigung";
 import type { Db } from "@/lib/shop/server/db";
 import { FakeNotifier, FakePayPal, testEnv } from "./mocks";
 import type { Deps } from "@/lib/shop/server/bestellung";
@@ -94,6 +95,40 @@ test("Senden ohne Anforderung durch das Panel (DB: nicht_moeglich): 409, keine M
   const a = await sendeAngebot(deps, { id: ID }, opt);
   assert.equal(a.status, 409);
   assert.equal(notifier.kundenMails.length, 0);
+});
+
+function bestaetigungsAufbau(anfrageId: string | null, rpcOk = true) {
+  const db = new SkriptDb({
+    shop_bestellung_mail_daten: () => ({
+      ok: true, nummer: "PA-2026-0008", gesamt_cent: 2990, summe_waren_cent: 2500, versand_cent: 490, individuell: true,
+      bezahlt_am: "2026-10-10T10:00:00Z", erstellt_am: "2026-10-10T09:00:00Z", name: "Erika Beispiel", strasse: "Weg 1", plz: "86663", ort: "Asbach-Bäumenheim",
+      email: "erika@example.org", positionen: [{ name: "Individuelle Anfertigung", menge: 1, einzelpreis_cent: 2500, farbe: null, text: null, schrift: null, optionen: null, individuell: true }],
+    }),
+    shop_bestellung_anfrage_id: () => (rpcOk ? { ok: true, anfrage_id: anfrageId } : { ok: false, grund: "unbekannt" }),
+    shop_freigabe_claim: () => ({ ok: true, neu: true }),
+    shop_markiere: () => ({ ok: true }),
+    shop_freigabe_claim_zurueck: () => ({ ok: true }),
+    shop_ereignis_schreiben: () => ({ ok: true }),
+  });
+  const notifier = new FakeNotifier();
+  const deps = { db, notifier, env: testEnv(), anhangErzeuger: async () => { throw new Error("kein PDF im Test"); } } as unknown as Deps;
+  return { notifier, deps };
+}
+
+test("Bestaetigung: Angebots-Bestellung (anfrage_id) enthaelt nie den Wunschtext-Freigabe-Satz; ohne anfrage_id schon", async () => {
+  const mit = bestaetigungsAufbau(ID);
+  assert.equal(await sendeBestaetigung(mit.deps, ID), "gesendet");
+  assert.ok(!mit.notifier.kundenMails[0].text.includes("Wunschtext wurde von mir geprüft und freigegeben"));
+  assert.ok(!(mit.notifier.kundenMails[0].html ?? "").includes("Wunschtext wurde von mir geprüft und freigegeben"));
+  const ohne = bestaetigungsAufbau(null);
+  assert.equal(await sendeBestaetigung(ohne.deps, ID), "gesendet");
+  assert.ok(ohne.notifier.kundenMails[0].text.includes("Wunschtext wurde von mir geprüft und freigegeben"));
+});
+
+test("Bestaetigung: anfrage_id nicht lesbar -> kein Versand (fail-closed)", async () => {
+  const x = bestaetigungsAufbau(ID, false);
+  assert.equal(await sendeBestaetigung(x.deps, ID), "fehler");
+  assert.equal(x.notifier.kundenMails.length, 0);
 });
 
 test("Mail: Kundeneingaben werden escaped", () => {
