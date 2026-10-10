@@ -48,7 +48,11 @@ export function erzeugeDb(cfg: DbConfig, fetchImpl: FetchFn = fetch): Db {
       } catch {
         throw new DbFehler(`rpc_${name}_netz`);
       }
-      if (!res.ok) throw new DbFehler(`rpc_${name}`, res.status);
+      if (!res.ok) {
+        // Diagnose: bei 404 (PostgREST findet Funktion nur mit exakt passenden Parameternamen) die gesendeten Schluessel nennen, nie Werte.
+        const sent = res.status === 404 ? ` keys=${Object.keys(JSON.parse(JSON.stringify({ p_secret: 1, ...args }))).join(",")}` : "";
+        throw new DbFehler(`rpc_${name}${sent}`, res.status);
+      }
       try {
         return (await res.json()) as T;
       } catch {
