@@ -361,12 +361,13 @@ export class FakePayPal implements PayPalClient {
 export class FakeNotifier implements Benachrichtiger {
   telegrams: string[] = [];
   alexMails: { betreff: string; text: string }[] = [];
-  kundenMails: { an: string; betreff: string; text: string; anhaenge?: { filename: string; content: Buffer; contentType: string }[] }[] = [];
+  kundenMails: { an: string; betreff: string; text: string; html?: string; anhaenge?: { filename: string; content: Buffer; contentType: string }[] }[] = [];
+  kundenMailOk = true;
   telegramOk = true;
   alexMailOk = true;
   async telegram(text: string) { if (this.telegramOk) this.telegrams.push(text); return this.telegramOk; }
   async mailAlex(betreff: string, text: string) { if (this.alexMailOk) this.alexMails.push({ betreff, text }); return this.alexMailOk; }
-  async mailKunde(an: string, betreff: string, text: string, anhaenge?: { filename: string; content: Buffer; contentType: string }[]) { this.kundenMails.push({ an, betreff, text, anhaenge }); return true; }
+  async mailKunde(an: string, betreff: string, text: string, anhaenge?: { filename: string; content: Buffer; contentType: string }[], html?: string) { if (!this.kundenMailOk) return false; this.kundenMails.push({ an, betreff, text, html, anhaenge }); return true; }
 }
 
 export const testEnv = (extra: Record<string, string> = {}): ShopEnv =>

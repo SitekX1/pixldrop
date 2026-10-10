@@ -6,6 +6,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { bestaetigungsMail, ablehnungsMail, widerrufEingangsMail, type MailBestellung } from "../lib/shop/server/vorlagen.ts";
 import { einfacheMailHtml } from "../lib/shop/server/mail-layout.ts";
 import { erzeugeAnhaenge } from "../lib/shop/server/pdf.ts";
+import { angebotsMail } from "../lib/shop/server/angebot.ts";
 import { agbKlartext } from "../lib/shop/agb-daten.ts";
 
 const OUT = "D:/Apps/.playwright-mcp";
@@ -42,4 +43,9 @@ const ab = ablehnungsMail({ nummer: "PD-2026-0042", name: "Erika Mustermann", ge
 writeFileSync(`${OUT}/mail-vorschau-absage.html`, einfacheMailHtml(ab.betreff, ab.text, opt.siteUrl), "utf8");
 const w = widerrufEingangsMail({ nummer: "WD-2026-0003", name: "Erika Mustermann", vertragAngabe: "Bestellung PD-2026-0042", positionen: null, email: "erika@example.de", eingegangenAm: new Date() });
 writeFileSync(`${OUT}/mail-vorschau-widerruf.html`, einfacheMailHtml(w.betreff, w.text, opt.siteUrl), "utf8");
+const an = angebotsMail(
+  { nummer: "PA-2026-0007", name: "Erika Mustermann", beschreibung: "Ein Halter für meine Kopfhörer, passend zur Tischkante (ca. 3 cm dick), gern mit Eddie-Gesicht vorne. Maximal 12 cm hoch.", farbe: "Honiggelb", preisCent: 1890, versandCent: 490, lieferzeit: "3 bis 5 Werktage", text: "Hallo Erika, das mache ich gern! Ich habe die Tischkante mit 3 cm eingeplant und das Eddie-Gesicht als Relief vorgesehen.", gueltigBis: "2026-10-24T20:00:00Z" },
+  `${opt.siteUrl}/3d-druck/angebot/AbCdEfGhIjKlMnOpQrStUvWxYz0123456789_-abcde`, opt.siteUrl);
+writeFileSync(`${OUT}/mail-vorschau-angebot.html`, an.html, "utf8");
+writeFileSync(`${OUT}/mail-vorschau-angebot.txt`, an.text, "utf8");
 console.log("fertig:", OUT);

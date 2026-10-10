@@ -167,13 +167,43 @@ export async function legeBestellungAn(
     }
   }
 
-  const id = res.id;
-  const nummer = res.nummer;
+  return starteZahlung(deps, {
+    id: res.id,
+    nummer: res.nummer,
+    wiederholt: res.wiederholt === true,
+    gesamtCent: w.gesamtCent,
+    summeWarenCent: w.summeWarenCent,
+    versandCent: w.versandCent,
+    positionen: w.positionen.map((p) => ({ name: p.name, menge: p.menge, einzelpreisCent: p.einzelpreisCent })),
+    empfaenger: { name: k.wert.name, strasse: k.wert.strasse, plz: k.wert.plz, ort: k.wert.ort },
+  });
+}
+
+export interface ZahlungsStart {
+  id: string;
+  nummer: string;
+  wiederholt: boolean;
+  gesamtCent: number;
+  summeWarenCent: number;
+  versandCent: number;
+  positionen: { name: string; menge: number; einzelpreisCent: number }[];
+  empfaenger: { name: string; strasse: string; plz: string; ort: string };
+  /** Standard: Bestellseite Schritt 3 */
+  cancelUrl?: string;
+}
+
+/**
+ * Zweiter Teil der Bestellung (auch fuer Angebote): bei Wiederholung bestehende PayPal-Order pruefen/ersetzen,
+ * sonst neue Order anlegen und an die Bestellung haengen. Betraege kommen aus der DB-Bestellung, nie vom Client.
+ */
+export async function starteZahlung(deps: Deps, p: ZahlungsStart): Promise<Antwort> {
+  const { env } = deps;
+  const { id, nummer } = p;
 
   // Wiederholter Versuch (gleicher Key): schon bezahlt? Dann keine zweite Zahlung anbieten.
   // Eine vorhandene PayPal-Order wird nur ersetzt, wenn PayPal sie als unbrauchbar bestaetigt hat.
   let ersetzeAlt = false;
-  if (res.wiederholt) {
+  if (p.wiederholt) {
     let s: Suche;
     try {
       s = await suche(deps, { id });
@@ -202,14 +232,14 @@ export async function legeBestellungAn(
   try {
     const order = await deps.paypal.erzeugeOrder({
       nummer,
-      gesamtCent: w.gesamtCent,
-      summeWarenCent: w.summeWarenCent,
-      versandCent: w.versandCent,
-      positionen: w.positionen.map((p) => ({ name: p.name, menge: p.menge, einzelpreisCent: p.einzelpreisCent })),
-      empfaenger: { name: k.wert.name, strasse: k.wert.strasse, plz: k.wert.plz, ort: k.wert.ort },
+      gesamtCent: p.gesamtCent,
+      summeWarenCent: p.summeWarenCent,
+      versandCent: p.versandCent,
+      positionen: p.positionen,
+      empfaenger: p.empfaenger,
       returnUrl: `${env.siteUrl}/api/shop/zahlung/rueckkehr?b=${encodeURIComponent(nummer)}`,
-      cancelUrl: `${env.siteUrl}/3d-druck/bestellung?schritt=3&zahlung=abgebrochen`,
-      requestId: res.wiederholt ? `${nummer}-${(deps.zufall ?? zufallKurz)()}` : nummer,
+      cancelUrl: p.cancelUrl ?? `${env.siteUrl}/3d-druck/bestellung?schritt=3&zahlung=abgebrochen`,
+      requestId: p.wiederholt ? `${nummer}-${(deps.zufall ?? zufallKurz)()}` : nummer,
     });
     const gesetzt = await deps.db.rpc<{ ok: boolean }>("shop_bestellung_paypal_setzen", {
       p_id: id,

@@ -8,6 +8,7 @@ import "server-only";
 
 import { LIEFERZEIT_TEXT } from "../config";
 import { AGB_TEXT } from "./agb-text";
+import { ANGEBOT_TEXTE } from "../angebot-texte";
 import type { RechtsDokument } from "./pdf";
 import { FARBE, absatz, esc, hinweisBox, inline, mailRahmen, textZuHtml, ueberschrift } from "./mail-layout";
 
@@ -140,6 +141,8 @@ export interface MailBestellung {
   erstellt_am?: string | null;
   bezahlt_am?: string | null;
   capture_id?: string | null;
+  /** gesetzt = Bestellung stammt aus einem Angebot (Angebots-Flow); dann kein Wunschtext-Freigabe-Satz. Muss aus mail_daten kommen. */
+  anfrage_id?: string | null;
 }
 
 /** Deckt "[[PLATZHALTER" (Code) und "[PLATZHALTER" (AGB-Text) ab. */
@@ -230,7 +233,7 @@ export function bestaetigungsMail(
   const kopf = [
     `Hallo ${b.name},`,
     "",
-    `danke für deine Bestellung ${b.nummer}${bestelltAm ? ` vom ${bestelltAm}` : ""}. Ich habe deine Zahlung erhalten und nehme deine Bestellung hiermit an. Damit ist der Kaufvertrag zustande gekommen.`,
+    `danke für deine Bestellung ${b.nummer}${bestelltAm ? ` vom ${bestelltAm}` : ""}. ${b.anfrage_id ? ANGEBOT_TEXTE.bestaetigungEinleitung : "Ich habe deine Zahlung erhalten und nehme deine Bestellung hiermit an. Damit ist der Kaufvertrag zustande gekommen."}`,
     "",
     "Deine Bestellung:",
     ...zeilen,
@@ -244,7 +247,7 @@ export function bestaetigungsMail(
     `${b.name}, ${b.strasse}, ${b.plz} ${b.ort}`,
     zahlung,
     `Lieferzeit: ${lieferzeit} ab heute`,
-    b.individuell ? "\nHinweis: Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB)." : "",
+    b.individuell ? `\n${b.anfrage_id ? ANGEBOT_TEXTE.bestaetigungAbsatz : "Hinweis: Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB)."}` : "",
     "",
     `Verkäufer: ${KONTAKT_ALEX}`,
   ];
@@ -345,7 +348,7 @@ function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
   const zahlungLieferzeit = absatz(`${inline(t.zahlung)}<br>Lieferzeit: ${esc(t.lieferzeit)} ab heute`, "margin:0;");
   const info = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;"><tr>${feld("Lieferanschrift", anschrift)}${feld("Zahlung und Lieferung", zahlungLieferzeit)}</tr></table>`;
   const hinweise: string[] = [];
-  if (b.individuell) hinweise.push(hinweisBox(esc("Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB).")));
+  if (b.individuell) hinweise.push(hinweisBox(esc(b.anfrage_id ? ANGEBOT_TEXTE.bestaetigungAbsatz.replace(/^Hinweis: /, "") : "Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB).")));
   if (t.hinweisWiderruf && !t.hinweisWiderruf.startsWith("Hinweis zum Widerruf")) hinweise.push(textZuHtml(t.hinweisWiderruf));
   else if (t.hinweisWiderruf) hinweise.push(hinweisBox(esc(t.hinweisWiderruf)));
   const anhang = `${ueberschrift("Im Anhang (zum Aufbewahren)")}<ul style="margin:0 0 12px 0;padding:0 0 0 20px;${TD}">${t.anhangListe.map((a) => `<li class="txt" style="margin:0 0 3px 0;">${esc(a)} (PDF)</li>`).join("")}</ul>` +
@@ -353,7 +356,7 @@ function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
       (t.widerrufLink ? `<br>Du kannst deinen Vertrag auch online widerrufen: ${inline(t.widerrufLink)}` : ""), "font-size:14px;");
   const inhalt = [
     absatz(`Hallo ${esc(b.name)},`),
-    absatz(`danke für deine Bestellung <strong>${esc(b.nummer)}</strong>${t.bestelltAm ? ` vom ${esc(t.bestelltAm)}` : ""}. Ich habe deine Zahlung erhalten und nehme deine Bestellung hiermit an. Damit ist der Kaufvertrag zustande gekommen.`),
+    absatz(`danke für deine Bestellung <strong>${esc(b.nummer)}</strong>${t.bestelltAm ? ` vom ${esc(t.bestelltAm)}` : ""}. ${esc(b.anfrage_id ? ANGEBOT_TEXTE.bestaetigungEinleitung : "Ich habe deine Zahlung erhalten und nehme deine Bestellung hiermit an. Damit ist der Kaufvertrag zustande gekommen.")}`),
     ueberschrift("Deine Bestellung"), tabelle, info, ...hinweise, anhang,
     absatz("Viele Grüße<br>Alex", "margin-top:18px;"),
   ].join("\n");
