@@ -30,7 +30,7 @@ declare
   v_neu1 constant text := '  if v_anzahl >= 10 then';
   v_alt2 constant text := '  v_nummer := public.shop_naechste_nummer(''anfrage'');';
   v_neu2 constant text :=
-    '  if p_bild_anzahl > 0 and (select pg_catalog.coalesce(pg_catalog.sum((o.metadata->>''size'')::bigint), 0)'
+    '  if p_bild_anzahl > 0 and (select coalesce(pg_catalog.sum((o.metadata->>''size'')::bigint), 0)'
     || pg_catalog.chr(10) ||
     '        from storage.objects o where o.bucket_id = ''shop-anfragen'') > 400000000 then'
     || pg_catalog.chr(10) ||
