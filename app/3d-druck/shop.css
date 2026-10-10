@@ -772,3 +772,56 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-pause strong { display: block; font-family: var(--shop-display); font-size: 1.0625rem; }
 .shop-pause p { margin: 4px 0 0; overflow-wrap: anywhere; }
 .shop-pause-fehler { border-color: var(--shop-error); }
+
+/* Halloween-Hintergrund (HalloweenHintergrund.tsx): fixed, dekorativ, hinter bzw. zart ueber dem Inhalt */
+.shop[data-theme="halloween"] { isolation: isolate; }
+.hwb { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+.hwb--back { z-index: -1; }
+.hwb--front { z-index: 1; }
+.hwb svg { position: absolute; display: block; }
+.hwb-web { width: 110px; height: 110px; opacity: 0.4; }
+.hwb-web--tl { left: 0; top: 0; }
+.hwb-web--tr { right: 0; top: 0; transform: scaleX(-1); }
+.hwb-web--bl { left: 0; bottom: 0; transform: scaleY(-1); opacity: 0.28; }
+.hwb-web--br { right: 0; bottom: 0; transform: scale(-1, -1); opacity: 0.28; }
+.hwb-ghost { width: 46px; height: auto; opacity: 0.16; filter: drop-shadow(0 0 14px rgba(244, 236, 255, 0.5)); }
+.hwb-ghost--1 { left: 4%; top: 22%; }
+.hwb-ghost--2 { right: 5%; top: 52%; width: 58px; }
+.hwb-ghost--3 { left: 46%; bottom: 8%; width: 40px; opacity: 0.12; }
+.hwb-bat { width: 38px; height: auto; opacity: 0.35; }
+.hwb-bat--1 { left: 18%; top: 11%; }
+.hwb-bat--2 { right: 16%; top: 30%; width: 30px; }
+.hwb-bat--3 { left: 8%; top: 66%; width: 32px; }
+.hwb-glimmer { width: 26px; height: 26px; opacity: 0.1; filter: blur(5px); }
+.hwb-glimmer--1 { left: 10%; bottom: 14%; width: 70px; height: 70px; }
+.hwb-glimmer--2 { right: 8%; top: 12%; }
+.hwb-glimmer--3 { right: 30%; bottom: 20%; width: 50px; height: 50px; }
+.hwb-threads { inset: 0; width: 100%; height: 100%; opacity: 0.16; }
+.hwb-spider { width: 24px; height: auto; opacity: 0.55; top: 0; }
+.hwb-spider--1 { left: 14%; transform-origin: top center; }
+.hwb-spider--2 { right: 11%; transform-origin: top center; height: 110px; width: auto; opacity: 0.4; }
+@media (min-width: 900px) {
+  .hwb-web { width: 190px; height: 190px; }
+  .hwb-ghost { width: 70px; }
+  .hwb-ghost--2 { width: 86px; }
+  .hwb-bat { width: 52px; }
+  .hwb-spider--1 { left: 9%; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hwb-ghost--1 { animation: hwb-schweb 7s ease-in-out infinite; }
+  .hwb-ghost--2 { animation: hwb-schweb 8.5s ease-in-out -3s infinite; }
+  .hwb-ghost--3 { animation: hwb-schweb 6.5s ease-in-out -1.5s infinite; }
+  .hwb-bat--1 { animation: hwb-schweb 4.4s ease-in-out infinite; }
+  .hwb-bat--2 { animation: hwb-schweb 5.2s ease-in-out -2s infinite; }
+  .hwb-bat--3 { animation: hwb-schweb 4.8s ease-in-out -1s infinite; }
+  .hwb-wings { transform-box: fill-box; transform-origin: center; animation: hwb-flatter 0.7s ease-in-out infinite alternate; }
+  .hwb-glimmer { animation: hwb-glimm 5s ease-in-out infinite; }
+  .hwb-glimmer--2 { animation-delay: -2s; }
+  .hwb-glimmer--3 { animation-delay: -3.4s; }
+  .hwb-spider { animation: hwb-abseilen 7s ease-in-out infinite; }
+  .hwb-spider--2 { animation-delay: -3s; }
+}
+@keyframes hwb-schweb { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes hwb-flatter { from { transform: scaleY(1); } to { transform: scaleY(0.6); } }
+@keyframes hwb-glimm { 0%, 100% { opacity: 0.06; } 50% { opacity: 0.16; } }
+@keyframes hwb-abseilen { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(14px); } }
