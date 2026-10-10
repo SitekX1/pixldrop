@@ -20,7 +20,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const { kategorie } = await searchParams;
   const modus = halloweenModus();
   const farben = await holeFarben();
-  const { wunschtextPausiert } = await holeEinstellungen();
+  const { wunschtextPausiert, bestellungPausiert } = await holeEinstellungen();
   const alle = sichtbareProdukte();
   const gueltig = KATEGORIEN.filter((k) => k.id !== "halloween" || modus !== "off");
   const aktiv = gueltig.find((k) => k.id === kategorie)?.id ?? "alle";
@@ -62,7 +62,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
         {!halloween && <HalloweenBanner modus={modus} />}
 
-        {!halloween && <IndividuellBanner />}
+        {!halloween && <IndividuellBanner pausiert={bestellungPausiert} />}
 
         <div id="stuecke" className="shop-stuecke">
         {halloween && <p className="shop-alle-link"><Link href="/3d-druck#stuecke">&larr; Alle Stücke</Link></p>}
@@ -83,7 +83,11 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
         {halloween && (
           <p className="shop-individuell-teaser">
-            Etwas Eigenes? <Link href="/3d-druck/anfrage">Individuell anfragen</Link> (Preis nach Anfrage)
+            {bestellungPausiert ? (
+              <>Etwas Eigenes? <span className="shop-btn--aus" aria-disabled="true">Individuell anfragen</span> <span className="shop-aus-hinweis">Vorübergehend pausiert</span></>
+            ) : (
+              <>Etwas Eigenes? <Link href="/3d-druck/anfrage">Individuell anfragen</Link> (Preis nach Anfrage)</>
+            )}
           </p>
         )}
 

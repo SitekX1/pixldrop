@@ -60,3 +60,12 @@ test("Wunschtext-Pause: jeder Artikel mit Personalisierung gesperrt (auch Standa
   const ok = await legeBestellungAn(deps, bestellEingabe(), ctx);
   assert.notEqual(ok.body.code, "wunschtext_pausiert", "Standardartikel bleibt bestellbar");
 });
+
+test("Volle Bestellpause: Anfrage-Route lehnt serverseitig mit 503 'pausiert' ab, vor dem Parsen", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const src = await readFile("app/api/shop/anfrage/route.ts", "utf8");
+  const i = src.indexOf("einst.bestellungPausiert");
+  assert.ok(i > 0, "Pausecheck vorhanden");
+  assert.match(src.slice(i, i + 200), /antwort\(503, \{ ok: false, code: "pausiert"/);
+  assert.ok(i < src.indexOf("request.formData()"), "Check vor formData()");
+});

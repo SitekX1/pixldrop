@@ -26,7 +26,7 @@ function Deko() {
   );
 }
 
-export default function IndividuellBanner() {
+export default function IndividuellBanner({ pausiert = false }: { pausiert?: boolean }) {
   return (
     <section className="shop-indbanner" aria-labelledby="ind-titel">
       <div className="ind-text">
@@ -34,7 +34,14 @@ export default function IndividuellBanner() {
         <p>Beschreib deine Idee, lade ein Foto hoch, du bekommst ein unverbindliches Angebot.</p>
       </div>
       <Deko />
-      <Link className="shop-btn" href="/3d-druck/anfrage">Individuell anfragen</Link>
+      {pausiert ? (
+        <div>
+          <span className="shop-btn shop-btn--aus" role="link" aria-disabled="true">Individuell anfragen</span>
+          <p className="shop-aus-hinweis">Vorübergehend pausiert</p>
+        </div>
+      ) : (
+        <Link className="shop-btn" href="/3d-druck/anfrage">Individuell anfragen</Link>
+      )}
     </section>
   );
 }
