@@ -22,7 +22,7 @@ export default async function Versand() {
             "Ich liefere **nur innerhalb Deutschlands** an die Adresse, die du bei der Bestellung angibst. Eine Lieferung an Packstationen, Postfächer und Paketshops ist nicht möglich; bitte gib eine Straßenanschrift an, an der du das Paket annehmen kannst. Deutsche Inseln werden ohne Aufpreis beliefert.",
           ]} />
           <Abschnitt titel="Versandarten und Kosten" absaetze={[
-            `Versandart: Paket oder Päckchen mit DHL, **mit Sendungsverfolgung** · Kosten: ${versand} (Deutschland). Sobald die Sendung übergeben ist, schicke ich dir die Sendungsnummer per E-Mail.`,
+            `Versandart: Paket oder Päckchen mit DHL, **mit Sendungsverfolgung** · Kosten: ${versand} (Deutschland; Versandstufen nach Größe und Gewicht können folgen, maßgeblich ist der vor der Bestellung angezeigte Betrag). Sobald die Sendung übergeben ist, schicke ich dir die Sendungsnummer per E-Mail.`,
             "Die Versandkosten werden vor dem Bestellbutton auf der Übersichtsseite angezeigt. Eine versandkostenfreie Lieferung gibt es nicht.",
           ]} />
           <Abschnitt titel="Lieferzeit" absaetze={[
@@ -31,7 +31,7 @@ export default async function Versand() {
           <Abschnitt titel="Zahlung" absaetze={[
             "**PayPal, sofort bei Bestellung** (Vorkasse). Nach „Zahlungspflichtig bestellen“ wirst du direkt zu PayPal weitergeleitet. Der Kaufvertrag kommt mit meiner **Bestellbestätigung per E-Mail** nach erfolgter Zahlung zustande. PayPal bietet je nach Verfügbarkeit weitere Optionen (z. B. Lastschrift, Karte) an; es gelten PayPals Bedingungen.",
             "Wird die Zahlung bei PayPal nicht abgeschlossen, kommt kein Vertrag zustande. Ist ein Artikel trotz Zahlung nicht lieferbar (z. B. Farbe nicht mehr vorrätig), lehne ich die Bestellung ab und erstatte den Betrag unverzüglich über PayPal.",
-            "**Logo, Bild, Sonderanfertigung: Preis nach Anfrage.** Wunschtext beim Tischschild und beim Spruch-Untersetzer ist direkt bestellbar. Bei Preis nach Anfrage schickst du eine unverbindliche Anfrage, ich sende ein Angebot per E-Mail. Nach Annahme zahlst du per PayPal (Zahlungslink) den vollen Preis **innerhalb von 7 Tagen**; gedruckt wird nach Zahlungseingang.",
+            "**Logo, Bild, Sonderanfertigung: Preis nach Anfrage.** Wunschtext beim Tischschild und beim Spruch-Untersetzer ist direkt bestellbar. Bei Preis nach Anfrage schickst du eine unverbindliche Anfrage, ich sende ein Angebot per E-Mail. Das Angebot nimmst du über den Link in der Mail an (14 Tage gültig) und zahlst dann **sofort** per PayPal den vollen Preis; der Vertrag kommt mit erfolgreicher Zahlung und meiner Bestätigungsmail zustande. Brichst du bei PayPal ab, kannst du über denselben Link innerhalb der Gültigkeit erneut zahlen. Gedruckt wird nach Zahlungseingang.",
             "Es entstehen für dich keine Zusatzgebühren für die Zahlung.",
             "Preise: Endpreise, **ohne Umsatzsteuerausweis gemäß § 19 UStG** (Kleinunternehmer).",
             "Rückerstattungen (z. B. nach Widerruf) laufen über dasselbe Zahlungsmittel.",

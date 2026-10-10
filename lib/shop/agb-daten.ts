@@ -6,7 +6,7 @@
 import { LIEFERZEIT_TEXT, VERSAND_CENT, formatPreis } from "./config";
 
 export const AGB_TITEL = "Allgemeine Geschäftsbedingungen für den Online-Shop „3D-Druck“";
-export const AGB_STAND = "Stand: 9. Oktober 2026";
+export const AGB_STAND = "Stand: 10. Oktober 2026";
 
 export interface AgbAbschnitt { titel: string; a: string[] }
 
@@ -40,6 +40,7 @@ return [
     "(5) Bei Standardtext nehme ich dein Angebot innerhalb von **2 Werktagen** nach erfolgter Zahlung an oder lehne es ab. **Werktage** sind Montag bis Freitag, ausgenommen gesetzliche Feiertage in Bayern. Bei geändertem Wunschtext entscheide ich **innerhalb von 24 Stunden nach erfolgter Zahlung**, ob ich es annehme (Bestellbestätigung) oder ablehne (Absage per E-Mail mit Angabe des Grundes). **Entscheide ich nicht innerhalb dieser 24 Stunden, gilt dein Angebot als automatisch abgelehnt; es kommt dann kein Vertrag zustande.** Eine Annahme nach Fristablauf ist ausgeschlossen. Bei jeder Ablehnung, auch der automatischen, **erstatte ich dir den gezahlten Betrag einschließlich der Versandkosten vollständig und unverzüglich** über PayPal und informiere dich per E-Mail. Nach Ablauf der Frist bist du nicht mehr an dein Angebot gebunden.",
     "(6) Ich kann eine Bestellung ablehnen, z. B. wenn die gewählte Farbe nicht mehr vorrätig ist. Dann ist kein Vertrag zustande gekommen; **bereits geleistete Zahlungen erstatte ich unverzüglich** über PayPal.",
     "(7) **Vertragssprache** ist Deutsch. **Speicherung des Vertragstextes:** Deine Bestelldaten erhältst du mit der Bestellbestätigung per E-Mail; die AGB, die Widerrufsbelehrung und das Muster-Widerrufsformular sind dieser E-Mail als PDF-Anhang beigefügt. Ich speichere die Bestelldaten nur für die in der Datenschutzerklärung genannten Fristen; später ist der Vertragstext für dich nur über deine E-Mails abrufbar. Bitte bewahre sie auf. Die AGB kannst du jederzeit unter pixldrop.de/3d-druck/agb abrufen und speichern.",
+    "(8) Für individuelle Anfertigungen nach Angebot gilt abweichend von den Absätzen 2 bis 6 allein Ziffer 10: Der Vertrag kommt dort nicht durch die Bestellbestätigung nach Absatz 4 im Shop-Ablauf, sondern nach Ziffer 10 Abs. 3 zustande.",
   ] },
   { titel: "4. Preise und Versandkosten", a: [
     "(1) Alle Preise sind Endpreise in Euro. Aufgrund der Kleinunternehmerregelung nach § 19 UStG wird **keine Umsatzsteuer erhoben und nicht ausgewiesen**.",
@@ -50,7 +51,7 @@ return [
     "(1) Die Zahlung erfolgt **sofort bei Bestellung per PayPal** (Vorkasse). Nach „Zahlungspflichtig bestellen“ wirst du zu PayPal weitergeleitet. PayPal bietet dort je nach Verfügbarkeit weitere Zahlungsoptionen an (z. B. Lastschrift, Karte); es gelten die Bedingungen von PayPal.",
     "(2) Ich beginne mit dem Druck erst nach bestätigter Zahlung und Bestellbestätigung (Ziffer 3 Abs. 4); bei geändertem Wunschtext also erst nach meiner Freigabe des Textes (Ziffer 9 Abs. 3).",
     "(3) Rückerstattungen (z. B. nach Widerruf oder Ablehnung der Bestellung) erfolgen über dasselbe Zahlungsmittel.",
-    "(4) Für Verträge nach Ziffer 10 (Angebot) gilt: Der volle Preis ist **innerhalb von 7 Tagen** nach Vertragsschluss per PayPal zu zahlen (Zahlungslink im Angebot bzw. in der Annahmebestätigung). Zahlst du nicht rechtzeitig, kann ich dir eine angemessene Nachfrist setzen und danach vom Vertrag zurücktreten.",
+    "(4) Für Angebote nach Ziffer 10 gilt: Der volle Preis ist **sofort** per PayPal zu zahlen; du wirst direkt nach der Annahme-Schaltfläche zu PayPal weitergeleitet. Schließt du die Zahlung dort nicht ab, kommt noch kein Vertrag zustande (Ziffer 10 Abs. 3); du kannst das Angebot innerhalb seiner Gültigkeit (14 Tage) über denselben Link erneut annehmen und die Zahlung nachholen. Eine weitere Zahlungsfrist gibt es nicht. Nach Ablauf der Gültigkeit kann ich eine nicht bezahlte Annahme als erledigt behandeln; du schuldest dann nichts. Ich beginne mit dem Druck erst nach bestätigter Zahlung.",
   ] },
   { titel: "6. Lieferung und Lieferzeit", a: [
     "(1) Ich liefere an die von dir angegebene Lieferadresse in Deutschland; Versandart und Dienstleister: siehe „Versand & Zahlung“.",
@@ -75,8 +76,8 @@ return [
   ] },
   { titel: "10. Individuelle Anfragen und Angebote (Preis nach Anfrage)", a: [
     "(1) Individuelles, das über den im Shop änderbaren Wunschtext bei Tischschild und Spruch-Untersetzer hinausgeht (z. B. Logo, Bild, andere Schrift, Sonderfarben/-maße, Anfertigung nach Vorlage), bestellst du **nicht** im Warenkorb, sondern über das Formular „Individueller Druck“. Die Anfrage ist **unverbindlich und kostenlos**, kein Vertragsangebot und enthält keinen Preis. **Preis nach Anfrage.**",
-    "(2) Mein Angebot sende ich dir per E-Mail. Es enthält Beschreibung, Material, Maße, Gesamtpreis (inkl. Versand), Lieferzeit und den Hinweis zum Widerruf (Ziffer 8 Abs. 2). Ich halte mich **14 Tage** daran gebunden.",
-    "(3) Der Vertrag kommt zustande, wenn du das Angebot innerhalb dieser Frist annimmst, entweder durch Antwort per E-Mail mit eindeutiger Annahmeerklärung oder über den im Angebot genannten Annahme-Link (Schaltfläche „Angebot zahlungspflichtig annehmen“). Die Zahlung erfolgt danach per PayPal nach Ziffer 5 Abs. 4.",
+    "(2) Mein Angebot sende ich dir per E-Mail. Es enthält Beschreibung, Material, Maße, Gesamtpreis (inkl. Versand), Lieferzeit und den Hinweis zum Widerruf (Ziffer 8 Abs. 2). Ich halte mich **14 Tage** daran gebunden. Das Angebot erlischt mit Ablauf der Frist und kann danach nicht mehr angenommen werden.",
+    "(3) Du nimmst das Angebot innerhalb dieser Frist über den im Angebot genannten Annahme-Link an (Schaltfläche „Angebot zahlungspflichtig annehmen“) und wirst direkt zu PayPal weitergeleitet. Vor der Annahme bestätigst du ausdrücklich, dass für das individuell gefertigte Stück kein Widerrufsrecht besteht. **Der Vertrag kommt zustande, sobald deine Zahlung bei PayPal erfolgreich abgeschlossen ist und ich dir die Bestätigung per E-Mail sende.** Bis dahin ist die Bestellung nur vorgemerkt (offen); schließt du die Zahlung nicht ab, bleibt sie offen und du kannst über denselben Link innerhalb der Frist erneut zahlen (Ziffer 5 Abs. 4). Eine Annahme per E-Mail-Antwort ist nicht vorgesehen.",
     "(4) Individuelle Anfertigungen werden nach deinen Vorgaben hergestellt; ein Widerrufsrecht besteht nach Ziffer 8 Abs. 2 nicht. Darauf weise ich im Angebot vor der Annahme hin.",
     "(5) **Vorkasse:** Bei individuellen Anfertigungen zahlst du den vollen Preis vor Beginn (Ziffer 5 Abs. 4). Ich beginne mit Konstruktion und Druck nach Zahlungseingang.",
     "(6) **Abbruch durch dich:** Bis zum Beginn von Konstruktion und Druck kannst du den Vertrag ohne Kosten beenden; bereits gezahlte Beträge erstatte ich dann vollständig. Danach kannst du ihn nur beenden, wenn du mir die bereits erbrachten Leistungen (Konstruktion, Druckzeit, verbrauchtes Material) nach tatsächlichem Aufwand vergütest. Eine Pauschale verlange ich nicht; ich weise den Aufwand auf Nachfrage nach, und dir bleibt der Nachweis eines geringeren Aufwands unbenommen. Gesetzliche Rechte bleiben unberührt.",

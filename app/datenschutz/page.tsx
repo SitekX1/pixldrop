@@ -198,6 +198,20 @@ export default function Datenschutz() {
         übliche Metadaten wie der Aufnahmeort. Nach Ablehnung oder Abschluss der Anfrage löschen
         wir Bilder nach <strong>30 Tagen</strong>.
       </p>
+      <p>
+        <strong>Angebots-Link:</strong> Zu jedem Angebot erzeuge ich einen zufälligen Link (Token)
+        und sende ihn dir per E-Mail (Versand über IONOS-SMTP, siehe Abschnitt zum E-Mail-Versand).
+        In der Datenbank (Supabase) speichere ich nur einen <strong>Hash des Tokens</strong>, nicht
+        den Link selbst, sowie Angebotspreis, Gültigkeitsdatum, Zeitpunkt der Annahme und deine
+        Bestätigung des Widerrufsausschlusses. Mit der Annahme wird eine Bestellung (zunächst
+        offen) angelegt und du wirst zu PayPal weitergeleitet (siehe 12.3). Zweck:
+        Abwicklung deines Angebots und Nachweis der Annahme und der Information über den
+        Widerrufsausschluss. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO
+        (vorvertragliche Maßnahmen/Vertrag) und lit. f DSGVO (berechtigtes Interesse am Nachweis).
+        Die Angebotsdaten werden mit der Anfrage nach den genannten Fristen gelöscht; Nachweise
+        zum Vertrag (Annahmezeitpunkt, Bestätigung) bewahre ich zusammen mit den Bestelldaten
+        auf (§ 257 HGB, § 147 AO, siehe 12.9).
+      </p>
 
       <h3>12.3 Zahlung (PayPal)</h3>
       <p>

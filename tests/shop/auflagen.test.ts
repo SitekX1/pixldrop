@@ -186,7 +186,7 @@ test("Bestaetigungsmail: bei freigegebenen Pflichtangaben nie mit Platzhalter", 
   assert.ok(echt.includes("Echter Rechtstext") && !echt.includes("PLATZHALTER"));
   assert.ok(echt.includes("ALLGEMEINE GESCHÄFTSBEDINGUNGEN") && echt.includes("Echte AGB"));
   assert.ok(!/PLATZHALTER/i.test(AGB_TEXT), "AGB-Text ist platzhalterfrei");
-  assert.ok(AGB_TEXT.includes("Stand: 9. Oktober 2026") && !AGB_TEXT.includes("**"), "Stand gesetzt, Klartext ohne Fett-Markierung");
+  assert.ok(AGB_TEXT.includes("Stand: 10. Oktober 2026") && !AGB_TEXT.includes("**"), "Stand gesetzt, Klartext ohne Fett-Markierung");
   assert.ok(AGB_TEXT.includes(LIEFERZEIT_TEXT ?? "\0") && AGB_TEXT.includes(VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "\0"), "Lieferzeit und Versandkosten kommen aus config.ts");
 });
 
