@@ -434,7 +434,9 @@ export function alexMail(art: "Bestellung" | "Anfrage", nummer: string, adminUrl
     text: [
       `Neue ${art === "Bestellung" ? "bezahlte Bestellung" : "Anfrage"}: ${nummer}`,
       "",
-      adminUrl ? `Details im Admin Panel: ${adminUrl}` : "Details im Admin Panel (Reiter Shop).",
+      adminUrl
+        ? `Details im Admin Panel: ${adminUrl}`
+        : `Details im Admin Panel: 3D-Druck → ${art === "Bestellung" ? "Bestellungen" : "Anfragen"}.`,
       "",
       "Aus Datenschutzgründen stehen hier keine Kundendaten.",
     ].join("\n"),
@@ -458,7 +460,7 @@ export function alexMailWiderruf(
         ? "Eingangsbestätigung an den Verbraucher: versendet."
         : "ACHTUNG: Eingangsbestätigung konnte NICHT versendet werden. Bitte umgehend von Hand an den Verbraucher senden (§ 356a Abs. 4 BGB).",
       "",
-      adminUrl ? `Details im Admin Panel: ${adminUrl}` : "Details im Admin Panel (Reiter Shop).",
+      adminUrl ? `Details im Admin Panel: ${adminUrl}` : "Details im Admin Panel: 3D-Druck → Bestellungen.",
       "",
       "Aus Datenschutzgründen stehen hier keine Kundendaten.",
     ].join("\n"),

@@ -18,7 +18,9 @@ export default function Widerruf() {
       <div className="shop-wrap" style={{ maxWidth: 720 }}>
         <article className="shop-legal">
           <h1 style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)" }}>Widerrufsbelehrung</h1>
-          
+          <p className="shop-legal-sprung"><a href="#widerrufsfunktion">Direkt zum Widerrufsformular ↓</a></p>
+
+          <div id="widerrufsbelehrung">
           <Abschnitt titel="A. Widerrufsbelehrung (Standardartikel aus dem Shop)">
             <h3>Widerrufsrecht</h3>
             <p>Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.</p>
@@ -33,12 +35,12 @@ export default function Widerruf() {
             <p>Sie haben die Waren unverzüglich und in jedem Fall spätestens binnen vierzehn Tagen ab dem Tag, an dem Sie uns über den Widerruf dieses Vertrags unterrichten, an {UNTERNEHMER_ANSCHRIFT} zurückzusenden oder zu übergeben. Die Frist ist gewahrt, wenn Sie die Waren vor Ablauf der Frist von vierzehn Tagen absenden.</p>
             <p>Sie tragen die unmittelbaren Kosten der Rücksendung der Waren.</p>
             <p>Sie müssen für einen etwaigen Wertverlust der Waren nur aufkommen, wenn dieser Wertverlust auf einen zur Prüfung der Beschaffenheit, Eigenschaften und Funktionsweise der Waren nicht notwendigen Umgang mit ihnen zurückzuführen ist.</p>
-          </Abschnitt>
+          </Abschnitt></div>
 
-          <Abschnitt titel="B. Kein Widerrufsrecht bei individuell angefertigten Waren (geänderter Wunschtext im Shop, Angebote nach AGB Ziffer 10)">
+          <div id="widerrufsbelehrung-b"><Abschnitt titel="B. Kein Widerrufsrecht bei individuell angefertigten Waren (geänderter Wunschtext im Shop, Angebote nach AGB Ziffer 10)">
             <p><strong>Kein Widerrufsrecht bei individuell angefertigten Waren.</strong> Das Widerrufsrecht besteht nicht bei Waren, die nicht vorgefertigt sind und für deren Herstellung eine individuelle Auswahl oder Bestimmung durch dich maßgeblich ist oder die eindeutig auf deine persönlichen Bedürfnisse zugeschnitten sind (§ 312g Abs. 2 Nr. 1 BGB). Das gilt für Stücke, die ich nach deinen Vorgaben anfertige. Bei allen anderen Artikeln im Shop besteht das Widerrufsrecht wie oben beschrieben.</p>
             <p>Das betrifft Tischschild und Spruch-Untersetzer, wenn du den voreingestellten Text änderst, sowie Sonderanfertigungen nach Angebot (z. B. Logo, Bild, andere Schrift). Vor dem Absenden der Bestellung bzw. vor der Annahme des Angebots bestätigst du ausdrücklich, dass dir der Ausschluss bekannt ist. Tischschild und Spruch-Untersetzer mit unverändertem Standardtext sind normale Standardware mit Widerrufsrecht; das gilt auch, wenn du dabei nur Fett, Kursiv oder eine Größenstufe aus den vorgegebenen Möglichkeiten wählst (Variantenwahl). Der Ausschluss gilt nur, wenn du den Text selbst änderst oder eigenen Text eingibst. Enthält eine Bestellung neben einem geänderten Text weitere Standardartikel, besteht das Widerrufsrecht für diese weiter. Bei geändertem Text kommt der Vertrag erst mit meiner Bestellbestätigung zustande, nachdem ich den Text innerhalb von 24 Stunden nach deiner Zahlung geprüft habe (AGB Ziffer 3 und 9). Lehne ich ihn ab oder entscheide ich nicht rechtzeitig (automatische Ablehnung), kommt kein Vertrag zustande und du bekommst alles einschließlich Versand erstattet.</p>
-          </Abschnitt>
+          </Abschnitt></div>
 
           <Abschnitt titel="C. Muster-Widerrufsformular">
             <div className="shop-form-muster">
@@ -59,7 +61,14 @@ export default function Widerruf() {
 
           <Abschnitt titel="D. Widerrufsfunktion (§ 356a BGB)">
             <p>Du kannst deinen Vertrag hier online widerrufen. Nach dem Absenden übermitteln wir dir unverzüglich eine Eingangsbestätigung per E-Mail mit Inhalt, Datum und Uhrzeit des Eingangs (§ 356a Abs. 4 BGB). Dein Widerruf ist mit dem Absenden wirksam eingegangen. Aus Gründen des Missbrauchsschutzes versenden wir je E-Mail-Adresse höchstens 5 Bestätigungsmails innerhalb von 24 Stunden; weitere Widerrufe werden trotzdem gespeichert und bearbeitet, Widerrufsnummer, Datum und Uhrzeit siehst du dann nur auf dem Bildschirm (bitte notieren oder Screenshot machen). Alternativ geht der Widerruf weiterhin per E-Mail an as@sitekx.de.</p>
-            <div id="widerrufsfunktion" style={{ scrollMarginTop: 16 }}><WiderrufForm /></div>
+            <div id="widerrufsfunktion" className="shop-widerruf-ziel">
+              <aside className="shop-belehrung-hinweis" aria-label="Hinweis zur Widerrufsbelehrung">
+                <p>Du hast 14 Tage Widerrufsrecht, in der Regel ab dem Tag, an dem du die Ware erhalten hast. Maßgeblich ist die Widerrufsbelehrung weiter oben (<a href="#widerrufsbelehrung">Abschnitt A</a>).</p>
+                <p>Nicht widerrufen kannst du Waren, die nach deinen Vorgaben angefertigt wurden (z. B. geänderter Wunschtext oder Sonderanfertigung), siehe <a href="#widerrufsbelehrung-b">Abschnitt B</a>. Für Standardartikel in derselben Bestellung bleibt dein Widerrufsrecht bestehen.</p>
+                <a href="#widerrufsbelehrung">Widerrufsbelehrung lesen ↑</a>
+              </aside>
+              <WiderrufForm />
+            </div>
           </Abschnitt>
         </article>
       </div>

@@ -867,3 +867,22 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-swatch[data-gesperrt] input { cursor: not-allowed; }
 .shop-swatch[data-gesperrt] .dot { opacity: 0.35; position: relative; }
 .shop-swatch[data-gesperrt] .dot::after { content: ""; position: absolute; left: 12%; right: 12%; top: 50%; border-top: 2px solid var(--shop-ink); transform: rotate(-45deg); }
+
+/* Widerruf: Hinweis zur Belehrung direkt über der Widerrufsfunktion, Sprunglink oben */
+.shop-legal-sprung { margin: 4px 0 16px; font-size: 0.9375rem; }
+.shop-belehrung-hinweis { display: grid; gap: 8px; justify-items: start; margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--shop-line); border-radius: var(--shop-r-s); background: transparent; color: var(--shop-muted); font-size: 0.9rem; line-height: 1.45; }
+.shop-belehrung-hinweis p { margin: 0; overflow-wrap: anywhere; }
+.shop-belehrung-hinweis a { color: var(--shop-text); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Anfrage: Wunschfarbe als Radiogruppe mit Farbkreisen */
+.shop-farbwahl { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.shop-farbopt { position: relative; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 12px 4px 8px; border: 2px solid var(--shop-control); border-radius: var(--shop-r-m); background: var(--shop-card); cursor: pointer; min-width: 0; }
+.shop-farbopt input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.shop-farbopt .dot { flex: none; width: 32px; height: 32px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(46, 28, 15, 0.28); display: grid; place-items: center; }
+.shop-farbopt .dot--egal { background: conic-gradient(#f0bb55, #4fb894, #6b4423, #ff8a1f, #f0bb55); }
+.shop-farbopt .name { font-weight: 600; overflow-wrap: anywhere; line-height: 1.15; }
+.shop-farbopt:has(input:checked) { border-color: var(--shop-ink); box-shadow: 0 2px 0 var(--shop-ink); background: var(--shop-tint); }
+.shop-farbopt:has(input:focus-visible) { outline: 3px solid var(--shop-focus); outline-offset: 2px; }
+.shop-farbopt .dot svg { display: none; width: 18px; height: 18px; }
+.shop-farbopt input:checked + .dot svg { display: block; }
+.shop-widerruf-ziel { scroll-margin-top: 64px; }

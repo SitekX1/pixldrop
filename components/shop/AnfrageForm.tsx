@@ -12,6 +12,11 @@ interface Vorschau { file: File; url: string }
 type Fehler = Partial<Record<"beschreibung" | "name" | "email" | "bilder" | "datenschutz" | "rechte", string>>;
 
 // Sendet multipart an /api/shop/anfrage (nur bei SHOP_AKTIV). Bilder werden vorher auf zusammen <= ca. 4 MB verkleinert.
+function hellFarbe(hex: string) {
+  const n = parseInt(hex.slice(1), 16);
+  return 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255) > 150;
+}
+
 export default function AnfrageForm({ farben }: { farben: Farbe[] }) {
   const [v, setV] = useState({ beschreibung: "", breite: "", tiefe: "", hoehe: "", farbe: "egal", name: "", email: "" });
   const [dateien, setDateien] = useState<Vorschau[]>([]);
@@ -142,13 +147,25 @@ export default function AnfrageForm({ farben }: { farben: Farbe[] }) {
           ))}
         </div>
       </fieldset>
-      <div className="shop-field">
-        <label htmlFor="a-farbe">Wunschfarbe <span className="opt">(optional)</span></label>
-        <select id="a-farbe" className="shop-input" value={v.farbe} onChange={set("farbe")}>
-          <option value="egal">egal</option>
-          {farben.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
-        </select>
-      </div>
+      <fieldset className="shop-field" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+        <legend className="shop-label" style={{ padding: 0 }}>Wunschfarbe <span className="opt">(optional)</span></legend>
+        <div className="shop-farbwahl" role="radiogroup" aria-label="Wunschfarbe">
+          <label className="shop-farbopt">
+            <input type="radio" name="a-farbe" value="egal" checked={v.farbe === "egal"} onChange={set("farbe")} />
+            <span className="dot dot--egal" aria-hidden="true" />
+            <span className="name">Keine Präferenz</span>
+          </label>
+          {farben.map((f) => (
+            <label key={f.id} className="shop-farbopt">
+              <input type="radio" name="a-farbe" value={f.id} checked={v.farbe === f.id} onChange={set("farbe")} />
+              <span className="dot" style={{ background: f.hex }} aria-hidden="true">
+                <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5l3.5 3.5 7.5-8" fill="none" stroke={hellFarbe(f.hex) ? "#2e1c0f" : "#fff"} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </span>
+              <span className="name">{f.name}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <div className="shop-field">
         <span className="shop-label" id="a-bilder-l">Bilder <span className="opt">(optional, bis {MAX_DATEIEN} Dateien, JPG/PNG/WebP, je max. {MAX_MB} MB)</span></span>
         <label className="shop-drop" htmlFor="a-bilder">
