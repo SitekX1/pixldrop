@@ -203,7 +203,9 @@ export default function Datenschutz() {
         und sende ihn dir per E-Mail (Versand über IONOS-SMTP, siehe Abschnitt zum E-Mail-Versand).
         In der Datenbank (Supabase) speichere ich nur einen <strong>Hash des Tokens</strong>, nicht
         den Link selbst, sowie Angebotspreis, Gültigkeitsdatum, Zeitpunkt der Annahme und deine
-        Bestätigung des Widerrufsausschlusses. Mit der Annahme wird eine Bestellung (zunächst
+        Bestätigung des Widerrufsausschlusses. Bei der Annahme speichere ich zusätzlich nur einen
+        <strong> gehashten Wert deiner IP-Adresse</strong> (keine Klartext-IP) als Missbrauchsschutz
+        (Art. 6 Abs. 1 lit. f DSGVO). Mit der Annahme wird eine Bestellung (zunächst
         offen) angelegt und du wirst zu PayPal weitergeleitet (siehe 12.3). Zweck:
         Abwicklung deines Angebots und Nachweis der Annahme und der Information über den
         Widerrufsausschluss. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO

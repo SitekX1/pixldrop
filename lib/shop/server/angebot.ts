@@ -184,6 +184,10 @@ export async function sendeAngebot(deps: SendeDeps, eingabe: unknown, opt: Sende
   if (opt.versandCent === null || !Number.isInteger(opt.versandCent) || opt.versandCent < 0) {
     return fehler(503, "versand_fehlt", "Die Versandkosten sind im Shop noch nicht gesetzt.");
   }
+  const lz = (opt.lieferzeit ?? "").trim();
+  if (lz === "" || /absprache/i.test(lz)) {
+    return fehler(422, "lieferzeit_fehlt", "Bitte trage eine konkrete Lieferzeit (z. B. 3-5 Werktage) in den Shop-Einstellungen ein.");
+  }
   const t = erzeugeAngebotToken(opt.zufall);
 
   let r: {

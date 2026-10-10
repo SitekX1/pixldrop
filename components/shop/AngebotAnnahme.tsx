@@ -144,7 +144,7 @@ export default function AngebotAnnahme({
         <dl>
           <div><dt>Anfrage</dt><dd>{angebot.anfragenummer}</dd></div>
           {angebot.farbe && <div><dt>Wunschfarbe</dt><dd>{angebot.farbe}</dd></div>}
-          <div><dt>Lieferzeit</dt><dd>{angebot.lieferzeit ? `${angebot.lieferzeit} nach Zahlung` : "nach Absprache"}</dd></div>
+          {angebot.lieferzeit && <div><dt>Lieferzeit</dt><dd>{`${angebot.lieferzeit} nach Zahlung`}</dd></div>}
           <div><dt>Gültig bis</dt><dd>{angebot.gueltigBis}</dd></div>
         </dl>
         <div>
@@ -201,12 +201,12 @@ export default function AngebotAnnahme({
             <dt>Ware</dt>
             <dd style={{ margin: 0, overflowWrap: "anywhere" }}>
               Individuelle Anfertigung, Anfrage {angebot.anfragenummer}
-              <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", opacity: 0.8 }}>{angebot.beschreibung}</span>
+              {angebot.text && <span style={{ display: "block", whiteSpace: "pre-line", overflowWrap: "anywhere" }}>{angebot.text}</span>}
             </dd>
             <dt>Gesamtpreis</dt>
             <dd style={{ margin: 0 }}><strong>{formatPreis(angebot.gesamtCent)}</strong> inkl. Versand{angebot.versandCent === 0 ? " (kostenlos)" : ""}, ohne&nbsp;USt. (§&nbsp;19&nbsp;UStG)</dd>
-            <dt>Lieferzeit</dt>
-            <dd style={{ margin: 0 }}>{angebot.lieferzeit ? `${angebot.lieferzeit} nach Zahlung` : "nach Absprache"}</dd>
+            {angebot.lieferzeit && (<><dt>Lieferzeit</dt>
+            <dd style={{ margin: 0 }}>{`${angebot.lieferzeit} nach Zahlung`}</dd></>)}
             <dt>Gültig bis</dt>
             <dd style={{ margin: 0 }}>{angebot.gueltigBis}</dd>
           </dl>

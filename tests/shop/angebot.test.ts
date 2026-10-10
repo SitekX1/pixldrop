@@ -80,6 +80,11 @@ test("Senden: Mailfehler entwertet den Link und meldet 502; ungueltige Eingaben 
   const g = sendeAufbau();
   assert.equal((await sendeAngebot(g.deps, { id: "../x" }, opt)).status, 400);
   assert.equal((await sendeAngebot(g.deps, { id: ID }, { ...opt, versandCent: null })).status, 503);
+  for (const lz of [null, "", "  ", "nach Absprache"]) {
+    const l = await sendeAngebot(g.deps, { id: ID }, { ...opt, lieferzeit: lz });
+    assert.equal(l.status, 422);
+    assert.match(String(l.body.error), /konkrete Lieferzeit/);
+  }
   assert.equal(g.db.aufrufe.length, 0);
 });
 
