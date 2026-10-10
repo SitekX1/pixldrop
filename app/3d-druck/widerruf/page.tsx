@@ -65,7 +65,7 @@ export default function Widerruf() {
               <aside className="shop-belehrung-hinweis" aria-label="Hinweis zur Widerrufsbelehrung">
                 <p>Du hast 14 Tage Widerrufsrecht, in der Regel ab dem Tag, an dem du die Ware erhalten hast. Maßgeblich ist die Widerrufsbelehrung weiter oben (<a href="#widerrufsbelehrung">Abschnitt A</a>).</p>
                 <p>Nicht widerrufen kannst du Waren, die nach deinen Vorgaben angefertigt wurden (z. B. geänderter Wunschtext oder Sonderanfertigung), siehe <a href="#widerrufsbelehrung-b">Abschnitt B</a>. Für Standardartikel in derselben Bestellung bleibt dein Widerrufsrecht bestehen.</p>
-                <a href="#widerrufsbelehrung">Widerrufsbelehrung lesen ↑</a>
+                <a href="#">Widerrufsbelehrung lesen ↑</a>
               </aside>
               <WiderrufForm />
             </div>
