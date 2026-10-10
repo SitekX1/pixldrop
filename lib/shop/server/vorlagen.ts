@@ -9,6 +9,7 @@ import "server-only";
 import { LIEFERZEIT_TEXT } from "../config";
 import { AGB_TEXT } from "./agb-text";
 import type { RechtsDokument } from "./pdf";
+import { FARBE, absatz, esc, hinweisBox, inline, mailRahmen, textZuHtml, ueberschrift } from "./mail-layout";
 
 export const PFLICHTANGABEN_FREIGEGEBEN = false;
 
@@ -206,7 +207,7 @@ export function bestaetigungsMail(
   blockOverride?: string,
   freigegeben: boolean = PFLICHTANGABEN_FREIGEGEBEN,
   opt: MailOptionen = {},
-): { betreff: string; text: string; volltext: string; anhaenge: RechtsDokument[] } {
+): { betreff: string; text: string; volltext: string; html: string; anhaenge: RechtsDokument[] } {
   const mitStandardware = b.individuell && enthaeltStandardware(b);
   const block = blockOverride ?? pflichtangabenText(b.individuell, opt.siteUrl, mitStandardware);
   const zeilen = b.positionen.map((p) => {
@@ -306,7 +307,57 @@ export function bestaetigungsMail(
   ) {
     throw new Error("Pflichtangaben freigegeben, aber Platzhalter noch im Mailtext");
   }
-  return { betreff: `Bestellbestätigung ${b.nummer}: dein Kauf ist abgeschlossen`, text: kurz, volltext, anhaenge };
+  const html = bestaetigungsHtml(b, {
+    bestelltAm, zahlung, lieferzeit, widerrufLink: widerrufLink && (!b.individuell || mitStandardware) ? widerrufLink : null,
+    agbLink: `${(opt.siteUrl || STANDARD_SITE).replace(/\/+$/, "")}/3d-druck/agb`, hinweisWiderruf, anhangListe: anhaenge.map((d) => d.titel), siteUrl: opt.siteUrl,
+  });
+  return { betreff: `Bestellbestätigung ${b.nummer}: dein Kauf ist abgeschlossen`, text: kurz, volltext, html, anhaenge };
+}
+
+interface HtmlTeile {
+  bestelltAm: string; zahlung: string; lieferzeit: string; widerrufLink: string | null; agbLink: string;
+  hinweisWiderruf: string; anhangListe: string[]; siteUrl?: string;
+}
+
+const TD = `font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:15px;line-height:22px;color:${FARBE.text};`;
+
+/** HTML-Fassung der Bestellbestaetigung (gleiche Inhalte wie der Text, nur Layout). Optionen generisch aus der Position. */
+function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
+  const zeilen = b.positionen.map((p) => {
+    const extras = [
+      p.farbe ? `Farbe: ${p.farbe}` : null,
+      ...Object.entries(p.optionen ?? {}).map(([k, v]) => `${k}: ${v}`),
+      p.text ? `Wunschtext: „${p.text.replace(/\n/g, " / ")}“${p.schrift ? ` (${p.schrift})` : ""}` : null,
+    ].filter((x): x is string => Boolean(x));
+    const sub = extras.map((e) => `<div class="gedimmt" style="font-size:13px;line-height:19px;color:${FARBE.gedimmt};padding-left:14px;">${esc(e)}</div>`).join("");
+    const einzel = p.menge > 1 ? `<div class="gedimmt" style="font-size:12px;line-height:18px;color:${FARBE.gedimmt};">${p.menge} × ${esc(eur(p.einzelpreis_cent))}</div>` : "";
+    return `<tr><td class="txt linie" valign="top" style="${TD}padding:10px 8px 10px 0;border-bottom:1px solid ${FARBE.linie};"><strong>${p.menge > 1 ? `${p.menge} × ` : ""}${esc(p.name)}</strong>${sub}</td>` +
+      `<td class="txt linie" valign="top" align="right" style="${TD}padding:10px 0;border-bottom:1px solid ${FARBE.linie};white-space:nowrap;">${esc(eur(p.menge * p.einzelpreis_cent))}${einzel}</td></tr>`;
+  }).join("");
+  const summe = (label: string, wert: string, fett = false) =>
+    `<tr><td class="txt" style="${TD}padding:3px 8px 3px 0;${fett ? "font-weight:bold;font-size:17px;padding-top:8px;" : ""}" align="right">${label}</td><td class="txt" align="right" style="${TD}padding:3px 0;white-space:nowrap;${fett ? "font-weight:bold;font-size:17px;padding-top:8px;" : ""}" width="110">${esc(wert)}</td></tr>`;
+  const tabelle = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${zeilen}</table>` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;">${summe("Zwischensumme", eur(b.summe_waren_cent))}${summe("Versand (Deutschland)", eur(b.versand_cent))}${summe("Gesamtpreis", eur(b.gesamt_cent), true)}</table>` +
+    absatz("Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer.", `font-size:12px;line-height:18px;color:${FARBE.gedimmt};margin:8px 0 0 0;text-align:right;`);
+  const feld = (kopf: string, inhalt: string) =>
+    `<td valign="top" width="50%" class="txt" style="padding:0 12px 0 0;"><div class="kopf" style="font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:${FARBE.link};font-weight:bold;margin:0 0 6px 0;">${kopf}</div>${inhalt}</td>`;
+  const anschrift = absatz(`${esc(b.name)}<br>${esc(b.strasse)}<br>${esc(b.plz)} ${esc(b.ort)}`, "margin:0;");
+  const zahlungLieferzeit = absatz(`${inline(t.zahlung)}<br>Lieferzeit: ${esc(t.lieferzeit)} ab heute`, "margin:0;");
+  const info = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;"><tr>${feld("Lieferanschrift", anschrift)}${feld("Zahlung und Lieferung", zahlungLieferzeit)}</tr></table>`;
+  const hinweise: string[] = [];
+  if (b.individuell) hinweise.push(hinweisBox(esc("Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB).")));
+  if (t.hinweisWiderruf && !t.hinweisWiderruf.startsWith("Hinweis zum Widerruf")) hinweise.push(textZuHtml(t.hinweisWiderruf));
+  else if (t.hinweisWiderruf) hinweise.push(hinweisBox(esc(t.hinweisWiderruf)));
+  const anhang = `${ueberschrift("Im Anhang (zum Aufbewahren)")}<ul style="margin:0 0 12px 0;padding:0 0 0 20px;${TD}">${t.anhangListe.map((a) => `<li class="txt" style="margin:0 0 3px 0;">${esc(a)} (PDF)</li>`).join("")}</ul>` +
+    absatz(`Diese Bestätigung dient als Beleg für deine Bestellung. Die AGB kannst du auch online abrufen: ${inline(t.agbLink)}` +
+      (t.widerrufLink ? `<br>Du kannst deinen Vertrag auch online widerrufen: ${inline(t.widerrufLink)}` : ""), "font-size:14px;");
+  const inhalt = [
+    absatz(`Hallo ${esc(b.name)},`),
+    absatz(`danke für deine Bestellung <strong>${esc(b.nummer)}</strong>${t.bestelltAm ? ` vom ${esc(t.bestelltAm)}` : ""}. Ich habe deine Zahlung erhalten und nehme deine Bestellung hiermit an. Damit ist der Kaufvertrag zustande gekommen.`),
+    ueberschrift("Deine Bestellung"), tabelle, info, ...hinweise, anhang,
+    absatz("Viele Grüße<br>Alex", "margin-top:18px;"),
+  ].join("\n");
+  return mailRahmen({ titel: "Bestellbestätigung", vorschau: `Bestellung ${b.nummer}: Zahlung erhalten, Kaufvertrag zustande gekommen.`, siteUrl: t.siteUrl, inhalt });
 }
 
 /** Mail 1b: Ablehnung mit Erstattung (nur wenn eine bezahlte Bestellung nicht lieferbar ist). Keine Werbung. */

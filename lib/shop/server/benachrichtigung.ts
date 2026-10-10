@@ -8,6 +8,7 @@ import "server-only";
 // Texte, Bilder). Die Mail an Alex enthaelt nur Nummer + Link ins Admin Panel.
 import type { ShopEnv } from "./env";
 import type { FetchFn } from "./db";
+import { einfacheMailHtml } from "./mail-layout";
 
 /** Mail-Anhang (nodemailer-kompatibel). */
 export interface MailAnhang {
@@ -22,11 +23,11 @@ export interface Benachrichtiger {
   /** Mail an Alex (nur Nummer + Link). true = zugestellt. */
   mailAlex(betreff: string, text: string, replyTo?: string): Promise<boolean>;
   /** Mail an den Kunden (Bestellbestaetigung). true = zugestellt. */
-  mailKunde(an: string, betreff: string, text: string, anhaenge?: MailAnhang[]): Promise<boolean>;
+  mailKunde(an: string, betreff: string, text: string, anhaenge?: MailAnhang[], html?: string): Promise<boolean>;
 }
 
 export interface MailTransport {
-  sendMail(opts: { from: string; to: string; subject: string; text: string; replyTo?: string; attachments?: MailAnhang[] }): Promise<unknown>;
+  sendMail(opts: { from: string; to: string; subject: string; text: string; replyTo?: string; attachments?: MailAnhang[]; html?: string }): Promise<unknown>;
 }
 
 export type TransportFactory = (smtp: ShopEnv["smtp"]) => Promise<MailTransport>;
@@ -54,7 +55,7 @@ export function erzeugeBenachrichtiger(
 ): Benachrichtiger {
   const mailBereit = Boolean(env.smtp.host && env.smtp.user && env.smtp.pass);
 
-  async function senden(an: string, betreff: string, text: string, replyTo?: string, anhaenge?: MailAnhang[]): Promise<boolean> {
+  async function senden(an: string, betreff: string, text: string, replyTo?: string, anhaenge?: MailAnhang[], html?: string): Promise<boolean> {
     if (!mailBereit) return false;
     try {
       const t = await transportFactory(env.smtp);
@@ -63,6 +64,7 @@ export function erzeugeBenachrichtiger(
         to: an,
         subject: einzeilig(betreff),
         text,
+        ...(html ? { html } : {}),
         ...(replyTo ? { replyTo } : {}),
         ...(anhaenge && anhaenge.length ? { attachments: anhaenge } : {}),
       });
@@ -94,8 +96,11 @@ export function erzeugeBenachrichtiger(
       if (!env.alexMail) return false;
       return senden(env.alexMail, betreff, text, replyTo);
     },
-    async mailKunde(an, betreff, text, anhaenge) {
-      return senden(an, betreff, text, env.alexMail, anhaenge);
+    async mailKunde(an, betreff, text, anhaenge, html) {
+      // Kundenmails immer multipart (Text + HTML im Shop-Rahmen); ohne eigenes HTML wird der Text umgesetzt.
+      let h = html;
+      if (!h) { try { h = einfacheMailHtml(betreff, text, env.siteUrl); } catch { h = undefined; } }
+      return senden(an, betreff, text, env.alexMail, anhaenge, h);
     },
   };
 }

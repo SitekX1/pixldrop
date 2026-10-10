@@ -150,3 +150,36 @@ test("Tischschild: Standardtext = Standardware, geaenderter Text = individuell, 
   assert.ok(!berechneWarenkorb([{ ...basis, text: "Chef\n<b>" }], ctx()).ok, "unerlaubte Zeichen");
   assert.ok(berechneWarenkorb([{ ...basis }], ctx()).ok, "ohne Text bestellbar (Standard)");
 });
+
+test("Schriftfarbe: nur Lagerfarben, nicht gleich/aehnlich wie Grundfarbe, ohne Preis- und Widerrufswirkung", () => {
+  const basis = { slug: "tischschild-erster-kaffee", menge: 1, farbeId: "schwarz", text: "Teamleiter\nSabine" };
+  const ok = berechneWarenkorb([{ ...basis, optionen: { textfarbe: "honiggold" } }], ctx());
+  assert.ok(ok.ok);
+  assert.equal(ok.wert.positionen[0].optionen["Schriftfarbe"], "Honiggold");
+  assert.equal(ok.wert.individuell, false, "Schriftfarbe ist Variantenwahl: Standardtext bleibt widerruflich");
+  assert.equal(ok.wert.gesamtCent, 1290 + 490, "kein Preisaufschlag");
+  const gleich = berechneWarenkorb([{ ...basis, optionen: { textfarbe: "schwarz" } }], ctx());
+  assert.ok(!gleich.ok && gleich.fehler.code === "textfarbe_ungueltig", "gleiche Farbe wie Grundfarbe");
+  const fremd = berechneWarenkorb([{ ...basis, optionen: { textfarbe: "neon-pink" } }], ctx());
+  assert.ok(!fremd.ok && fremd.fehler.code === "textfarbe_ungueltig", "nicht im Lager");
+  const ohne = berechneWarenkorb([{ ...basis }], ctx());
+  assert.ok(ohne.ok, "ohne Schriftfarbe (alter Warenkorb) weiter moeglich");
+  const ohneText = berechneWarenkorb([{ slug: "tischschild-erster-kaffee", menge: 1, farbeId: "schwarz", optionen: { textfarbe: "honiggold" } }], ctx());
+  assert.ok(!ohneText.ok, "Schriftfarbe nur mit Wunschtext");
+  const kaum = berechneWarenkorb([{ ...basis, farbeId: "honiggold", optionen: { textfarbe: "honiggold" } }], ctx());
+  assert.ok(!kaum.ok);
+  const mitAndererText = berechneWarenkorb([{ ...basis, text: "Chef\nPetra", optionen: { textfarbe: "honiggold", fett_1: "1" } }], ctx());
+  assert.ok(mitAndererText.ok && mitAndererText.wert.individuell, "geaenderter Text bleibt individuell");
+});
+
+test("Schriftfarbe: Kontrastregel und automatische Voreinstellung", async () => {
+  const { textfarbeErlaubt, automatischeTextfarbe } = await import("@/lib/shop/textfarbe");
+  const weiss = { id: "weiss", name: "Weiß", hex: "#f4f1ea" };
+  const alle = [...farben, weiss];
+  assert.equal(textfarbeErlaubt(farben[0], farben[0]), false, "gleiche Farbe gesperrt");
+  assert.equal(textfarbeErlaubt(farben[0], weiss), false, "Honig auf Weiss zu schwach");
+  assert.equal(textfarbeErlaubt(farben[1], weiss), true);
+  assert.equal(automatischeTextfarbe(farben[1], alle)?.id, "weiss", "dunkle Grundfarbe -> helle Schrift");
+  assert.equal(automatischeTextfarbe(farben[0], alle)?.id, "schwarz", "helle Grundfarbe -> dunkle Schrift");
+  assert.equal(automatischeTextfarbe(farben[1], [farben[1]]), null, "keine erlaubte Farbe");
+});

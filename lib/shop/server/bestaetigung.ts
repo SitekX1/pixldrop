@@ -59,10 +59,10 @@ export async function sendeBestaetigung(deps: Deps, id: string): Promise<"gesend
       agbText: deps.agbText ?? agbKlartext(lz),
     });
     // Kurzer Mailtext + PDF-Anhaenge; scheitert die PDF-Erzeugung, geht der Volltext im Mailkoerper raus.
-    const { betreff, text, anhaenge } = await mailMitAnhaengen(mail, deps.anhangErzeuger);
+    const { betreff, text, anhaenge, fallback } = await mailMitAnhaengen(mail, deps.anhangErzeuger);
     if (!(await claimeMail(deps, id, "bestaetigung"))) return "schon";
     claimed = true;
-    if (await deps.notifier.mailKunde(b.email, betreff, text, anhaenge)) {
+    if (await deps.notifier.mailKunde(b.email, betreff, text, anhaenge, fallback ? undefined : mail.html)) {
       await deps.db.rpc("shop_markiere", { p_art: "bestellung_bestaetigt", p_id: id }).catch(() => undefined);
       return "gesendet";
     }

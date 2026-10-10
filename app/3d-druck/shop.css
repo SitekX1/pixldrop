@@ -861,3 +861,9 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-btn--aus { opacity: 0.55; filter: grayscale(1); cursor: not-allowed; pointer-events: none; }
 .shop-aus-hinweis { font-size: 0.875rem; font-weight: 700; color: #b3150f; }
 .shop[data-theme="halloween"] .shop-aus-hinweis { color: #ff9d96; }
+
+/* Schriftfarbe: nicht wählbare Farben (zu ähnlich wie die Grundfarbe) ausgegraut */
+.shop-swatch[data-gesperrt] { cursor: not-allowed; }
+.shop-swatch[data-gesperrt] input { cursor: not-allowed; }
+.shop-swatch[data-gesperrt] .dot { opacity: 0.35; position: relative; }
+.shop-swatch[data-gesperrt] .dot::after { content: ""; position: absolute; left: 12%; right: 12%; top: 50%; border-top: 2px solid var(--shop-ink); transform: rotate(-45deg); }

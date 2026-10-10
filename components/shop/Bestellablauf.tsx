@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { ladeKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
@@ -202,7 +203,7 @@ export default function Bestellablauf({
       <ul className="shop-zus-pos">
         {pos.map(({ a, p }, i) => (
           <li key={i}>
-            <div className="shop-zus-img"><PositionsBild p={p} a={a} farbeHex={farben.find((f) => f.id === a.farbeId)?.hex} /></div>
+            <div className="shop-zus-img"><PositionsBild p={p} a={a} farbeHex={farben.find((f) => f.id === a.farbeId)?.hex} textfarbeHex={a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY])?.hex : undefined} /></div>
             <div className="shop-zus-txt">
               <strong>{p.name}</strong>
               <span className="muted">{a.menge} × {formatPreis(p.preisCent)}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}</span>
@@ -286,13 +287,15 @@ export default function Bestellablauf({
               <ul className="shop-bon-pos">
                 {pos.map(({ a, p }, i) => {
                   const farbe = farben.find((f) => f.id === a.farbeId);
+                  const tfarbe = p.personalisierung && a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY]) : undefined;
                   const optText = [
                     ...p.optionen.map((g) => [g.label, g.optionen.find((o) => o.id === a.optionen[g.id])?.label ?? ""] as const),
+                    ...(tfarbe ? [["Schriftfarbe", tfarbe.name] as const] : []),
                     ...formatAnzeigeAusOptionen(p.personalisierung, a.optionen),
                   ];
                   return (
                     <li key={i}>
-                      <div className="shop-bon-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} /></div>
+                      <div className="shop-bon-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} textfarbeHex={tfarbe?.hex} /></div>
                       <dl>
                         <div><dt>Ware</dt><dd>{p.name}</dd></div>
                         {farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}

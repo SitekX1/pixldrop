@@ -6,6 +6,7 @@ import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { aendereMenge, entferne, ladeKorb, speichereKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { TEXTE, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
+import { TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import PositionsBild from "./PositionsBild";
 
 // Warenkorb: Positionen mit Menge ändern / entfernen, Summe, Hinweis zum Widerruf, "Zur Kasse".
@@ -55,14 +56,16 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
             );
           }
           const farbe = farben.find((f) => f.id === a.farbeId);
+          const tfarbe = p.personalisierung && a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY]) : undefined;
           const opt = [
             ...p.optionen.map((g) => `${g.label}: ${g.optionen.find((o) => o.id === a.optionen[g.id])?.label ?? ""}`),
+            ...(tfarbe ? [`Schriftfarbe: ${tfarbe.name}`] : []),
             ...formatAnzeigeAusOptionen(p.personalisierung, a.optionen).map(([k, v]) => `${k}: ${v}`),
           ];
           const ind = istIndividuell(p, a.text, a.optionen);
           return (
             <li key={`${a.slug}-${i}`} className="shop-cart-item">
-              <div className="shop-cart-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} /></div>
+              <div className="shop-cart-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} textfarbeHex={tfarbe?.hex} /></div>
               <div className="shop-cart-body">
                 <h2><Link href={`/3d-druck/${p.slug}`}>{p.name}</Link></h2>
                 {farbe && <p className="muted">Farbe: {farbe.name}</p>}

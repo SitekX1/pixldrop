@@ -5,7 +5,7 @@ import { formatAusOptionen, istFormatSchluessel, standardFormat, zeilenAnzahl } 
 import ProductImage from "./ProductImage";
 
 /** Vorschau einer Warenkorb-/Bon-Position: Farbe, Text, Schrift, Fett/Kursiv und Größe wie die Live-Vorschau im Kaufbereich. */
-export default function PositionsBild({ p, a, farbeHex, typ = "Muster" }: { p: Produkt; a: Auswahl; farbeHex?: string; typ?: string }) {
+export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Muster" }: { p: Produkt; a: Auswahl; farbeHex?: string; textfarbeHex?: string; typ?: string }) {
   const pers = p.personalisierung;
   const schrift = pers ? SCHRIFTEN.find((s) => s.id === (pers.festeSchrift ?? a.schriftId)) : undefined;
   let format;
@@ -13,5 +13,5 @@ export default function PositionsBild({ p, a, farbeHex, typ = "Muster" }: { p: P
     const nur = Object.fromEntries(Object.entries(a.optionen).filter(([k]) => istFormatSchluessel(k)));
     format = { fmt: formatAusOptionen(nur, zeilenAnzahl(pers)) ?? standardFormat(zeilenAnzahl(pers)), breite: schrift.breite };
   }
-  return <ProductImage form={p.form} farbe={farbeHex ?? p.grundfarbe} text={a.text || undefined} family={schrift?.family} format={format} typ={typ} />;
+  return <ProductImage form={p.form} farbe={farbeHex ?? p.grundfarbe} text={a.text || undefined} family={schrift?.family} format={format} textfarbe={textfarbeHex} typ={typ} />;
 }

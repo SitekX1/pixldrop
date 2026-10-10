@@ -12,6 +12,7 @@ import { useVorschauSetzen } from "./Vorschau";
 import type { Farbe } from "@/lib/shop/farben";
 import { TEXTE } from "@/lib/shop/config";
 import { pruefeWunschtext } from "@/lib/shop/textfilter";
+import { TEXTFARBE_HINWEIS, TEXTFARBE_KEY, automatischeTextfarbe, textfarbeErlaubt } from "@/lib/shop/textfarbe";
 import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
 
 function hell(hex: string) {
@@ -47,6 +48,11 @@ export default function ProductBuy({
   }, []);
 
   const farbe = farben.find((f) => f.id === farbeId);
+  // Schriftfarbe: Kundenwahl gilt, solange sie zur Grundfarbe passt; sonst automatisch die kontrastreichste Lagerfarbe.
+  const [textWahl, setTextWahl] = useState<string | null>(null);
+  const textGewaehlt = farben.find((f) => f.id === textWahl);
+  const textAuto = pers ? automatischeTextfarbe(farbe, farben) : null;
+  const textfarbe = textGewaehlt && textfarbeErlaubt(farbe, textGewaehlt) ? textGewaehlt : textAuto;
   const schrift = SCHRIFTEN.find((s) => s.id === (pers?.festeSchrift ?? schriftId));
   const text = zeilen.map((z) => z.trim()).join("\n");
   // Wirksames Format: Schalter, die die gewählte Schrift nicht kann, zählen nicht (Schriftwechsel setzt sie zurück).
@@ -74,11 +80,12 @@ export default function ProductBuy({
   const setzeVorschau = useVorschauSetzen();
   const beispielText = (zeilen[0] ?? "").trim().slice(0, 9) || pers?.beispiel || "Abc";
   const vorFarbe = farbe?.hex ?? produkt.grundfarbe;
+  const vorTextfarbe = pers ? textfarbe?.hex : undefined;
   const vorFamily = schrift?.family;
   useEffect(() => {
-    setzeVorschau({ farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: farbe?.name, format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
+    setzeVorschau({ farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: farbe?.name, format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setzeVorschau, vorFarbe, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, JSON.stringify(formatOpt)]);
+  }, [setzeVorschau, vorFarbe, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, vorTextfarbe, textfarbe?.name, JSON.stringify(formatOpt)]);
   function weiter() {
     if (wunschPause) return;
     if (textFehler) { document.getElementById("t-fehler")?.scrollIntoView({ block: "center" }); return; }
@@ -91,7 +98,7 @@ export default function ProductBuy({
     const r = fuegeHinzu(ladeKorb(), {
       slug: produkt.slug,
       farbeId,
-      optionen: { ...opt, ...formatOpt },
+      optionen: { ...opt, ...formatOpt, ...(pers && textfarbe ? { [TEXTFARBE_KEY]: textfarbe.id } : {}) },
       text: pers ? text : "",
       schriftId: pers ? (pers.festeSchrift ?? schriftId) : null,
       menge,
@@ -152,7 +159,7 @@ export default function ProductBuy({
         <fieldset className="shop-step">
           <legend>{pers.label}</legend>
           <div className="shop-textvorschau">
-            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} format={schrift ? { fmt, breite: schrift.breite } : undefined} typ="Live-Vorschau" breit />
+            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} format={schrift ? { fmt, breite: schrift.breite } : undefined} textfarbe={vorTextfarbe} typ="Live-Vorschau" breit />
           </div>
           {pers.zeilen ? (
             pers.zeilen.map((z, i) => (
@@ -243,6 +250,31 @@ export default function ProductBuy({
           <strong>Gerade keine Farbe auf Lager.</strong>
           <p><Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></p>
         </div>
+      )}
+
+      {/* Schriftfarbe (nur Wunschtext-Artikel): Lagerfarben, nie gleich/zu ähnlich wie die Grundfarbe */}
+      {pers && farben.length > 0 && (
+        <fieldset className="shop-step shop-textfarbe">
+          <legend>Schriftfarbe</legend>
+          <div className="shop-swatches">
+            {farben.map((f) => {
+              const erlaubt = textfarbeErlaubt(farbe, f);
+              return (
+                <label key={f.id} className="shop-swatch" data-gesperrt={erlaubt ? undefined : true}>
+                  <input type="radio" name="textfarbe" value={f.id} checked={textfarbe?.id === f.id} disabled={!erlaubt}
+                    onChange={() => setTextWahl(f.id)} aria-label={erlaubt ? f.name : `${f.name} (nicht wählbar: ${TEXTFARBE_HINWEIS})`} />
+                  <span className="dot" style={{ background: f.hex }}>
+                    <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5l3.5 3.5 7.5-8" fill="none" stroke={hell(f.hex) ? "#2e1c0f" : "#fff"} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+          <p aria-live="polite" style={{ marginTop: 6 }}>
+            <strong>Schriftfarbe: {textfarbe?.name ?? "keine passende Farbe"}</strong>{textfarbe ? " · auf Lager" : ""}
+          </p>
+          <p className="muted">{TEXTFARBE_HINWEIS}: ausgegraute Farben passen nicht zur gewählten Grundfarbe. Die Schriftfarbe ändert weder Preis noch Widerrufsrecht.</p>
+        </fieldset>
       )}
 
       {produkt.optionen.map((g) => (

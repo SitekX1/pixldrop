@@ -35,7 +35,8 @@ export function textfarbeFuer(hex: string) {
 }
 const LICHT = "#ffe9a8";
 
-function Schild({ c, text, family, format }: { c: string; text?: string; family?: string; format?: VorschauFormat }) {
+function Schild({ c, text, family, format, tc: tcWahl }: { c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string }) {
+  const tc = tcWahl ?? textfarbeFuer(c);
   const [klein, gross] = (text ?? "Teamleiter\nSabine").split("\n");
   const f = family ?? "sans-serif";
   const fm = format?.fmt;
@@ -44,8 +45,8 @@ function Schild({ c, text, family, format }: { c: string; text?: string; family?
   return (
     <g>
       <rect x="10" y="28" width="80" height="46" rx="7" fill={c} stroke="rgba(0,0,0,.25)" strokeWidth="1.5" />
-      <text x="16" y="39" fontSize="5.2" fill={textfarbeFuer(c)} fillOpacity=".85" fontWeight={fm?.fett[0] ? 900 : undefined} fontStyle={fm?.kursiv[0] ? "italic" : undefined} style={{ fontFamily: f }}>{klein}</text>
-      <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={58} fill={textfarbeFuer(c)} family={f} weight={fm?.fett[1] ? 900 : 700} kursiv={fm?.kursiv[1] === true} />
+      <text x="16" y="39" fontSize="5.2" fill={tc} fillOpacity=".85" fontWeight={fm?.fett[0] ? 900 : undefined} fontStyle={fm?.kursiv[0] ? "italic" : undefined} style={{ fontFamily: f }}>{klein}</text>
+      <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={58} fill={tc} family={f} weight={fm?.fett[1] ? 900 : 700} kursiv={fm?.kursiv[1] === true} />
       <rect x="22" y="74" width="56" height="5" rx="2" fill="rgba(0,0,0,.25)" />
     </g>
   );
@@ -85,7 +86,8 @@ function Geist({ x, y, s, c }: { x: number; y: number; s: number; c: string }) {
   );
 }
 
-function Motiv({ form, c, text, family, format }: { form: Form; c: string; text?: string; family?: string; format?: VorschauFormat }) {
+function Motiv({ form, c, text, family, format, tc: tcWahl }: { form: Form; c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string }) {
+  const tc = tcWahl ?? textfarbeFuer(c);
   switch (form) {
     case "rund":
       return (
@@ -97,7 +99,7 @@ function Motiv({ form, c, text, family, format }: { form: Form; c: string; text?
             const fm = format?.fmt;
             const fit = format && fm ? passtInFlaeche({ text: t, flaeche: FLAECHE_RUND, groesse: fm.groesse, breite: format.breite, fett: fm.fett[0] === true, fettFaktor: FETT_FAKTOR }) : null;
             const u = fit?.passt ? fit : umbrechen(t, 46, fit ? fit.size : 11, 6.5, 4, 40);
-            return <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={50} fill={textfarbeFuer(c)} family={family ?? "sans-serif"} weight={fm?.fett[0] ? 900 : 700} kursiv={fm?.kursiv[0] === true} />;
+            return <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={50} fill={tc} family={family ?? "sans-serif"} weight={fm?.fett[0] ? 900 : 700} kursiv={fm?.kursiv[0] === true} />;
           })() : (
             <rect x="30" y="46" width="40" height="8" rx="4" fill="rgba(0,0,0,.22)" />
           )}
@@ -122,7 +124,7 @@ function Motiv({ form, c, text, family, format }: { form: Form; c: string; text?
         </g>
       );
     case "schild":
-      return <Schild c={c} text={text} family={family} format={format} />;
+      return <Schild c={c} text={text} family={family} format={format} tc={tc} />;
     case "laterne":
       return <Kuerbis c={c} gesicht />;
     case "geister":
@@ -148,13 +150,13 @@ function Motiv({ form, c, text, family, format }: { form: Form; c: string; text?
 }
 
 export default function ProductImage({
-  form, farbe, typ = "Illustration", breit = false, text, family, format,
-}: { form: Form; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat }) {
+  form, farbe, typ = "Illustration", breit = false, text, family, format, textfarbe,
+}: { form: Form; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat; /** gewählte Schriftfarbe (Hex); ohne Angabe automatisch kontrastreich */ textfarbe?: string }) {
   return (
     <div className={`shop-img ${breit ? "shop-img--wide" : ""}`} role="img" aria-label={`Produktillustration: ${typ}`}>
       <svg className="motiv" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <path d="M70 92C86 86 96 70 94 54" fill="none" stroke="rgba(107,68,35,.28)" strokeWidth="5" strokeLinecap="round" />
-        <Motiv form={form} c={farbe} text={text} family={family} format={format} />
+        <Motiv form={form} c={farbe} text={text} family={family} format={format} tc={textfarbe} />
       </svg>
       <span className="shop-placeholder-tag">{typ}</span>
     </div>

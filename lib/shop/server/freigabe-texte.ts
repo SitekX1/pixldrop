@@ -47,7 +47,8 @@ export function wunschtextKurzliste(positionen: KurzPosition[]): string[] {
     const format = formatAnzeigeAusOptionen(pers, opt).filter(([k]) => k !== "Schriftgröße").map(([k, v]) => `${k}: ${v}`);
     const g = istGroesseId(opt.groesse) ? opt.groesse : STANDARD_GROESSE;
     const groesse = `Größe ${GROESSEN.find((x) => x.id === g)?.label ?? g}`;
-    const teile = [p.schrift ? `Schrift ${p.schrift}` : null, ...format, groesse].filter(Boolean);
+    const sf = typeof p.optionen.Schriftfarbe === "string" ? `Schriftfarbe ${p.optionen.Schriftfarbe}` : null;
+    const teile = [p.schrift ? `Schrift ${p.schrift}` : null, sf, ...format, groesse].filter(Boolean);
     return `- ${p.menge} × ${p.name}: „${kuerze(p.text as string)}“ (${teile.join(", ")})`;
   });
 }

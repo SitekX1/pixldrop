@@ -9,6 +9,7 @@ import { SCHRIFTEN, unerlaubteZeichen } from "../schriften";
 import {
   formatAnzeige, formatAusOptionen, formatUnerlaubt, istFormatSchluessel, pruefePasst, zeilenAnzahl,
 } from "../textformat";
+import { TEXTFARBE_HINWEIS, TEXTFARBE_KEY, textfarbeErlaubt } from "../textfarbe";
 
 export const MAX_MENGE = 20;
 export const MAX_POSITIONEN = 5;
@@ -31,6 +32,7 @@ export type FehlerCode =
   | "preis_folgt"
   | "versand_folgt"
   | "farbe_ungueltig"
+  | "textfarbe_ungueltig"
   | "lager_nicht_lesbar"
   | "text_ungueltig"
   | "text_unzulaessig"
@@ -122,7 +124,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
 
     // Optionen: jede Gruppe des Artikels braucht eine gueltige Auswahl, nichts darueber hinaus
     // Textformat-Schluessel (fett_i, kursiv_i, groesse) gehoeren nicht zu den Optionsgruppen und werden unten geprueft.
-    const optAlle = istObjekt(roh.optionen) ? roh.optionen : {};
+    const { [TEXTFARBE_KEY]: textfarbeRoh, ...optAlle } = istObjekt(roh.optionen) ? roh.optionen : ({} as Record<string, unknown>);
     const optIn: Record<string, unknown> = {};
     const formatIn: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(optAlle)) {
@@ -177,6 +179,15 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       formatWahl = formatIn;
       text = zeilen.join("\n");
       schriftId = s.id;
+      // Schriftfarbe (optional, Variantenwahl ohne Preis-/Widerrufswirkung): nur vorrätige Lagerfarbe, die sich von der Grundfarbe abhebt
+      if (textfarbeRoh !== undefined) {
+        const tf = typeof textfarbeRoh === "string" ? ctx.farben.find((f) => f.id === textfarbeRoh) : undefined;
+        if (!tf) return fehler("textfarbe_ungueltig", "Diese Schriftfarbe ist nicht (mehr) vorrätig. Bitte wähle eine andere.");
+        if (!textfarbeErlaubt(farbe, tf)) return fehler("textfarbe_ungueltig", `${TEXTFARBE_HINWEIS}. Bitte wähle eine andere Schriftfarbe.`);
+        optionen["Schriftfarbe"] = tf.name;
+      }
+    } else if (textfarbeRoh !== undefined) {
+      return fehler("option_ungueltig", "Eine Schriftfarbe gibt es nur mit Wunschtext.");
     } else if (Object.keys(formatIn).length > 0) {
       return fehler("option_ungueltig", "Eine Formatwahl gibt es nur mit Wunschtext.");
     } else if (produkt.nurMitText) {
