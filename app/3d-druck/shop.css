@@ -777,7 +777,8 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-pause[data-voll="true"] a { color: #fff; }
 .shop-pause-hinweis { margin: 8px 0 0; padding: 8px 12px; border: 2px solid #b3150f; border-radius: var(--shop-r-m); background: #fde7e5; color: #5c0804; font-weight: 700; }
 .shop[data-theme="halloween"] .shop-pause-hinweis { background: #5c0804; color: #fff; border-color: #ff9d96; }
-.shop-card--gesperrt { opacity: 0.55; filter: grayscale(0.85); }
+.shop-card--gesperrt > :not(.shop-card-body) { opacity: 0.55; filter: grayscale(0.85); }
+.shop-card--gesperrt .shop-card-body { opacity: 1; filter: none; }
 .shop-card--gesperrt .shop-state { background: #b3150f; color: #fff; border-color: #5c0804; }
 .shop-cart-gesperrt { padding: 10px 12px; border: 2px solid #b3150f; border-radius: var(--shop-r-m); background: #fde7e5; color: #5c0804; font-weight: 700; }
 .shop[data-theme="halloween"] .shop-cart-gesperrt { background: #5c0804; color: #fff; border-color: #ff9d96; }

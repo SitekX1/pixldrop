@@ -292,7 +292,7 @@ export default function ProductBuy({
 
       <div className="shop-sticky" data-show={stickyZeigen}>
         <span className="shop-price-small">{preisText}</span>
-        {wunschPause ? <button type="button" className="shop-btn" aria-disabled="true">Nicht bestellbar</button> : bestellbar ? <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
+        {wunschPause ? <button type="button" className="shop-btn" aria-disabled="true" aria-describedby="wunsch-pause">Nicht bestellbar</button> : bestellbar ? <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
       </div>
     </div>
   );

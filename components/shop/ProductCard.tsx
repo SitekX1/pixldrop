@@ -15,7 +15,7 @@ export default function ProductCard({
   const meta = [KAT_LABEL[p.kategorien[0]], p.nurAnfrage ? "Nur auf Anfrage" : p.material.split(" ")[0]].join(" · ");
   return (
     <li className={erste ? "shop-first" : undefined}>
-      <article className={gesperrt ? "shop-card shop-card--gesperrt" : "shop-card"} aria-disabled={gesperrt || undefined}>
+      <article className={gesperrt ? "shop-card shop-card--gesperrt" : "shop-card"}>
         <ProductImage form={p.form} farbe={p.grundfarbe} breit={erste} />
         <Ring />
         <div className="shop-card-body">
