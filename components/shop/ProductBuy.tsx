@@ -9,7 +9,7 @@ import {
   NICHT_VERFUEGBAR, PASST_NICHT, formatZuOptionen, groessteDiePasst, pruefePasst, standardFormat, zeilenAnzahl, type TextFormat,
 } from "@/lib/shop/textformat";
 import ProductImage from "./ProductImage";
-import { useVorschauSetzen } from "./Vorschau";
+import { useKaufRegistrieren, useVorschauSetzen } from "./Vorschau";
 import type { Farbe } from "@/lib/shop/farben";
 import { TEXTE } from "@/lib/shop/config";
 import { pruefeWunschtext } from "@/lib/shop/textfilter";
@@ -36,17 +36,11 @@ export default function ProductBuy({
   const [fmtRoh, setFmtRoh] = useState<TextFormat>(() => standardFormat(pers ? zeilenAnzahl(pers) : 0));
   // null = Kunde hat keine Stufe gewählt: dann gilt automatisch die größte, die noch passt.
   const [groesseWahl, setGroesseWahl] = useState<GroesseId | null>(null);
-  const [stickyZeigen, setStickyZeigen] = useState(false);
-  const aktion = useRef<HTMLDivElement>(null);
   const [hinzu, setHinzu] = useState<{ ok: boolean; menge: number } | null>(null);
 
-  useEffect(() => {
-    const el = aktion.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setStickyZeigen(!e.isIntersecting && e.boundingClientRect.bottom < 0));
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+  const [bestaetigt, setBestaetigt] = useState(false);
+  const bestaetigtTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (bestaetigtTimer.current) clearTimeout(bestaetigtTimer.current); }, []);
 
   const farbe = farben.find((f) => f.id === farbeId);
   // Schriftfarbe: Kundenwahl gilt, solange sie zur Grundfarbe passt; sonst automatisch die kontrastreichste Lagerfarbe.
@@ -86,9 +80,13 @@ export default function ProductBuy({
   const vorTextfarbe = pers ? textfarbe?.hex : undefined;
   const vorFamily = schrift?.family;
   useEffect(() => {
-    setzeVorschau({ farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: farbe?.name, format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
+    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: farbe?.name, format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setzeVorschau, vorFarbe, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, vorTextfarbe, textfarbe?.name, JSON.stringify(formatOpt)]);
+  }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, vorTextfarbe, textfarbe?.name, JSON.stringify(formatOpt)]);
+  const kaufReg = useKaufRegistrieren();
+  const kaufArt = wunschPause ? "pause" : bestellbar ? "ja" : "nein";
+  useEffect(() => { kaufReg?.setzeKauf({ art: kaufArt, gesperrt, bestaetigt }); }, [kaufReg?.setzeKauf, kaufArt, gesperrt, bestaetigt]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (kaufReg) kaufReg.aktion.current = weiter; });
   function weiter() {
     if (wunschPause) return;
     if (textFehler) { document.getElementById("t-fehler")?.scrollIntoView({ block: "center" }); return; }
@@ -106,7 +104,12 @@ export default function ProductBuy({
       schriftId: pers ? (pers.festeSchrift ?? schriftId) : null,
       menge,
     });
-    if (r.ok) speichereKorb(r.korb);
+    if (r.ok) {
+      speichereKorb(r.korb);
+      setBestaetigt(true);
+      if (bestaetigtTimer.current) clearTimeout(bestaetigtTimer.current);
+      bestaetigtTimer.current = setTimeout(() => setBestaetigt(false), 2000);
+    }
     setHinzu({ ok: r.ok, menge });
     requestAnimationFrame(() => document.getElementById("hinzu")?.scrollIntoView({ block: "center", behavior: "smooth" }));
   }
@@ -306,7 +309,7 @@ export default function ProductBuy({
         </div>
       </fieldset>
       <div className="shop-kaufzeile">
-        <div ref={aktion} className="shop-kaufknopf">{knopf}</div>
+        <div className="shop-kaufknopf">{knopf}</div>
         {wunschPause ? <p id="wunsch-pause" className="shop-pause-hinweis" role="note">Artikel mit Wunschtext sind aktuell pausiert und lassen sich nicht in den Warenkorb legen. Alle anderen Artikel bleiben bestellbar.</p> : widerruf}
       </div>
       <div id="hinzu" role="status" aria-live="polite">
@@ -325,11 +328,6 @@ export default function ProductBuy({
         )}
       </div>
       {!bestellbar && <p className="muted">Dieser Artikel ist noch nicht bestellbar. Du kannst ihn dir schon ansehen.</p>}
-
-      <div className="shop-sticky" data-show={stickyZeigen}>
-        <span className="shop-price-small">{livePreis}</span>
-        {wunschPause ? <button type="button" className="shop-btn" aria-disabled="true" aria-describedby="wunsch-pause">Nicht bestellbar</button> : bestellbar ? <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
-      </div>
     </div>
   );
 }

@@ -1,19 +1,20 @@
 "use client";
 import { useState } from "react";
-import { VorschauZusammenfassung } from "./Vorschau";
+import { MiniKaufKnopf, VorschauZusammenfassung } from "./Vorschau";
 
 // Live-Untersetzer: Desktop sticky links (Karte mit Preis und Chips), Handy sticky Mini-Vorschau (einklappbar).
 export default function Galerie({ bild, preis, chips = [] }: { bild: React.ReactNode; preis?: string; chips?: string[] }) {
-  const [zu, setZu] = useState(false);
+  const [gross, setGross] = useState(false);
   return (
-    <div className="shop-gallery" role="region" aria-label="Produktbild und Live-Vorschau" data-zu={zu}>
+    <div className="shop-gallery" role="region" aria-label="Produktbild und Live-Vorschau" data-gross={gross}>
       <div className="shop-gallery-track" id="shop-vorschau-bild">
         <div>{bild}</div>
       </div>
       <div className="shop-mini">
         <VorschauZusammenfassung />
-        <button type="button" className="shop-mini-btn" aria-expanded={!zu} aria-controls="shop-vorschau-bild" aria-label={zu ? "Vorschau ausklappen" : "Vorschau einklappen"} onClick={() => setZu(!zu)}>
-          {zu ? "Ausklappen" : "Einklappen"}
+        <MiniKaufKnopf />
+        <button type="button" className="shop-mini-btn" aria-expanded={gross} aria-controls="shop-vorschau-bild" aria-label={gross ? "Große Vorschau einklappen" : "Große Vorschau ausklappen"} onClick={() => setGross(!gross)}>
+          <span aria-hidden="true">{gross ? "▴" : "▾"}</span>
         </button>
       </div>
       {(preis || chips.length > 0) && (
