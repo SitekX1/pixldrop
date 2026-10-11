@@ -99,9 +99,9 @@ function KombiUntersetzer({ x, y, r, kf, label, size }: { x: number; y: number; 
   );
 }
 
-function Motiv({ form, c, text, family, format, tc: tcWahl, kf }: { form: Form; c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string; kf?: string[] }) {
+function Motiv({ form, c, text, family, format, tc: tcWahl, kf, tag }: { form: Form; tag?: string; c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string; kf?: string[] }) {
   const tc = tcWahl ?? textfarbeFuer(c);
-  if (kf && kf.length >= 3 && form === "rund") return <KombiUntersetzer x={50} y={50} r={35} kf={kf} label="Mo" size={20} />;
+  if (kf && kf.length >= 3 && form === "rund") return <KombiUntersetzer x={50} y={50} r={35} kf={kf} label={tag ?? "Mo"} size={20} />;
   if (kf && kf.length >= 3 && form === "set") {
     return (
       <g>
@@ -171,13 +171,13 @@ function Motiv({ form, c, text, family, format, tc: tcWahl, kf }: { form: Form; 
 }
 
 export default function ProductImage({
-  form, farbe, typ = "Illustration", breit = false, text, family, format, textfarbe, farben,
-}: { form: Form; /** Farbkombination (Grund, Akzent, Schrift) fuer Wochentags-Untersetzer */ farben?: string[]; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat; /** gewählte Schriftfarbe (Hex); ohne Angabe automatisch kontrastreich */ textfarbe?: string }) {
+  form, farbe, typ = "Illustration", breit = false, text, family, format, textfarbe, farben, tag,
+}: { form: Form; tag?: string; /** Farbkombination (Grund, Akzent, Schrift) fuer Wochentags-Untersetzer */ farben?: string[]; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat; /** gewählte Schriftfarbe (Hex); ohne Angabe automatisch kontrastreich */ textfarbe?: string }) {
   return (
     <div className={`shop-img ${breit ? "shop-img--wide" : ""}`} role="img" aria-label={`Produktillustration: ${typ}`}>
       <svg className="motiv" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <path d="M70 92C86 86 96 70 94 54" fill="none" stroke="rgba(107,68,35,.28)" strokeWidth="5" strokeLinecap="round" />
-        <Motiv form={form} c={farbe} text={text} family={family} format={format} tc={textfarbe} kf={farben} />
+        <Motiv form={form} c={farbe} text={text} family={family} format={format} tc={textfarbe} kf={farben} tag={tag} />
       </svg>
       <span className="shop-placeholder-tag">{typ}</span>
     </div>

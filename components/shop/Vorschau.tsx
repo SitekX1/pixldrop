@@ -5,7 +5,7 @@ import type { Form } from "@/lib/shop/produkte";
 
 // Gemeinsamer Zustand für die Live-Vorschau: Eingaben im Kaufbereich (Text, Farbe, Schrift)
 // erscheinen sofort im großen Galerie-Hauptbild und in der kleinen Vorschau im Kaufbereich.
-export interface VorschauWerte { farbe?: string; text?: string; family?: string; schriftName?: string; farbeName?: string; format?: VorschauFormat; formatKey?: string; textfarbe?: string; textfarbeName?: string; preisText?: string; farben?: string[] }
+export interface VorschauWerte { farbe?: string; text?: string; family?: string; schriftName?: string; farbeName?: string; format?: VorschauFormat; formatKey?: string; textfarbe?: string; textfarbeName?: string; preisText?: string; farben?: string[]; tag?: string }
 
 // Zustand des Warenkorb-Knopfs in der Handy-Leiste; die Aktion selbst liegt in einer Ref (keine Render-Schleifen).
 export interface KaufZustand { art: "pause" | "ja" | "nein"; gesperrt: boolean; bestaetigt: boolean }
@@ -15,7 +15,7 @@ const Ctx = createContext<CtxWert | null>(null);
 
 export function VorschauProvider({ children }: { children: React.ReactNode }) {
   const [werte, setWerte] = useState<VorschauWerte>({});
-  const setze = useCallback((w: VorschauWerte) => setWerte((alt) => (alt.farbe === w.farbe && alt.text === w.text && alt.family === w.family && alt.schriftName === w.schriftName && alt.farbeName === w.farbeName && alt.formatKey === w.formatKey && alt.textfarbe === w.textfarbe && alt.textfarbeName === w.textfarbeName && alt.preisText === w.preisText && (alt.farben ?? []).join() === (w.farben ?? []).join() ? alt : w)), []);
+  const setze = useCallback((w: VorschauWerte) => setWerte((alt) => (alt.farbe === w.farbe && alt.text === w.text && alt.family === w.family && alt.schriftName === w.schriftName && alt.farbeName === w.farbeName && alt.formatKey === w.formatKey && alt.textfarbe === w.textfarbe && alt.textfarbeName === w.textfarbeName && alt.preisText === w.preisText && alt.tag === w.tag && (alt.farben ?? []).join() === (w.farben ?? []).join() ? alt : w)), []);
   const [kauf, setKauf] = useState<KaufZustand | null>(null);
   const setzeKauf = useCallback((k: KaufZustand) => setKauf((alt) => (alt && alt.art === k.art && alt.gesperrt === k.gesperrt && alt.bestaetigt === k.bestaetigt ? alt : k)), []);
   const aktion = useRef<(() => void) | null>(null);
@@ -60,6 +60,7 @@ export function LiveProductImage({ form, grundfarbe }: { form: Form; grundfarbe:
       format={w.format}
       textfarbe={w.textfarbe}
       farben={w.farben}
+      tag={w.tag}
       typ={w.text ? "Live-Vorschau" : undefined}
     />
   );
