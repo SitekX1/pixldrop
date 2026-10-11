@@ -123,13 +123,23 @@ export const PRODUKTE: Produkt[] = [
   },
   {
     slug: "geister-set",
-    name: "Geister-Set (3 kleine Geister)",
-    kurz: "Drei Geister für LED-Mini-Teelichter. Verschluss unten.",
+    name: "Geister-Set groß (3 Geister)",
+    kurz: "Drei Geister, groß genug für LED-Teelichter. Verschluss unten.",
     beschreibung:
-      "Drei kleine Geister, die mit einem LED-Mini-Teelicht von innen leuchten. Der Verschluss sitzt unten.",
+      "Drei Geister, die mit einem LED-Teelicht von innen leuchten. Der Verschluss sitzt unten.",
     gruppe: "halloween", kategorien: ["halloween"], form: "geister", grundfarbe: "#f4f1ea",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
+  },
+  {
+    slug: "geister-set-klein",
+    name: "Geister-Set klein (3 Geister)",
+    kurz: "Drei kleine Geister als Deko, ohne Teelicht.",
+    beschreibung:
+      "Drei kleine Geister zum Hinstellen, dieselben wie im großen Set, nur kleiner. Es passt kein Teelicht hinein.",
+    gruppe: "halloween", kategorien: ["halloween"], form: "geister", grundfarbe: "#f4f1ea",
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
     slug: "kuerbis-teelichthalter",
