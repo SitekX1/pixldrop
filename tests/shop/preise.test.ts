@@ -221,3 +221,27 @@ test("Wochentags-Einzelartikel: Tag Pflicht, Box und Kork als Aufpreis", () => {
   assert.ok(!berechneWarenkorb([{ ...e, optionen: { box: "ohne" } }], ctx()).ok);
   assert.ok(!berechneWarenkorb([{ ...e, optionen: { tag: "sa", box: "ohne" } }], ctx()).ok);
 });
+
+test("Unbekannte Optionsschluessel werden abgelehnt (kork/box bei Artikeln ohne diese Gruppe)", () => {
+  const ohneKork = { slug: "stiftebecher-tasse", menge: 1, farbeId: "schwarz" };
+  const r1 = berechneWarenkorb([{ ...ohneKork, optionen: { kork: "mit" } }], ctx());
+  assert.ok(!r1.ok);
+  assert.equal(r1.fehler.code, "option_ungueltig");
+  const r2 = berechneWarenkorb([{ slug: "spruch-untersetzer", menge: 1, farbeId: "schwarz", text: "Montag", schriftId: "oswald", optionen: { box: "mit" } }], ctx());
+  assert.ok(!r2.ok);
+  assert.equal(r2.fehler.code, "option_ungueltig");
+});
+
+test("Alte Warenkorb-Slugs (entfernte Artikel) liefern 'unbekannt'", () => {
+  for (const slug of ["koffein-pegel", "halloween-untersetzer"]) {
+    const r = berechneWarenkorb([{ slug, menge: 1, farbeId: "schwarz" }], ctx());
+    assert.ok(!r.ok);
+    assert.equal(r.fehler.code, "unbekannt");
+  }
+});
+
+// Livegang-Wächter: nur mit SHOP_LIVEGANG_CHECK=1 aktiv (vor dem Merge nach main laufen lassen).
+test("Livegang: keine Testpreise mehr im Katalog", { skip: process.env.SHOP_LIVEGANG_CHECK !== "1" }, () => {
+  const test = PRODUKTE.filter((p) => !p.nurAnfrage && p.preisCent === 990).map((p) => p.slug);
+  assert.deepEqual(test, [], `Noch Testpreis (9,90 EUR): ${test.join(", ")}`);
+});
