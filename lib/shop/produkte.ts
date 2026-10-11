@@ -76,7 +76,7 @@ export const PRODUKTE: Produkt[] = [
     name: "Wochentags-Untersetzer-Set Mo–Fr",
     kurz: "Fünf Untersetzer für Montag bis Freitag, auf Wunsch mit Box.",
     beschreibung:
-      "Fünf Untersetzer für Montag bis Freitag, damit der Tisch sauber bleibt, auch wenn der Kaffee es nicht ist. Auf Wunsch mit passender Box, in die du die Untersetzer hineinstellst. Auf der Box sitzt ein QR-Code zu meinen Songs auf Spotify.",
+      "Fünf Untersetzer für Montag bis Freitag, damit der Tisch sauber bleibt, auch wenn der Kaffee es nicht ist. Auf Wunsch mit passender Box, in die du die Untersetzer hineinstellst. Auf der Unterseite der Box sitzt ein QR-Code zu meinen Songs auf Spotify.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "set", grundfarbe: "#4fb894",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
     // TESTWERT: Aufpreis Box (4,00 EUR), Alex legt den echten Preis fest.
