@@ -8,6 +8,8 @@ export type Form = "rund" | "set" | "pegel" | "schild" | "laterne" | "geister" |
 export interface Optionsgruppe {
   id: string;
   label: string;
+  /** optional: fehlt die Wahl, gilt die erste Option (ohne Aufpreis). */
+  optional?: boolean;
   /** aufpreisCent: Aufpreis in Cent je Stueck, wenn diese Option gewaehlt ist (Standard 0). */
   optionen: { id: string; label: string; aufpreisCent?: number }[];
 }
@@ -59,6 +61,14 @@ const HITZE = hitzeHinweis(MATERIAL);
 // Alex ersetzt ihn je Artikel durch den echten Preis.
 const TESTPREIS_CENT = 990;
 const TESTAUFPREIS_BOX_CENT = 400;
+// Kork-Unterseite (selbstklebend, 90 mm; Einkauf 24,90 EUR / 100 Stk = 0,25 EUR je Stueck).
+// KORK_LIEFERBAR auf false setzen, solange der Kork nicht geliefert ist: dann verschwindet die Option.
+const KORK_LIEFERBAR = true;
+// TESTWERTE Aufpreis: Alex legt die echten Preise fest.
+const korbGruppe = (aufpreisCent: number): Optionsgruppe[] => KORK_LIEFERBAR ? [{
+  id: "kork", label: "Unterseite", optional: true,
+  optionen: [{ id: "ohne", label: "Ohne Kork" }, { id: "mit", label: "Mit selbstklebendem Kork", aufpreisCent }],
+}] : [];
 
 export const PRODUKTE: Produkt[] = [
   {
@@ -72,6 +82,7 @@ export const PRODUKTE: Produkt[] = [
     // TESTWERT: Aufpreis Box (4,00 EUR), Alex legt den echten Preis fest.
     optionen: [
       { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: TESTAUFPREIS_BOX_CENT }] },
+      ...korbGruppe(200),
     ],
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG], bestseller: true,
   },
@@ -92,7 +103,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Untersetzer mit deinem Namen oder Spruch, in einer von zwölf Schriften. Jedes Stück wird einzeln für dich gedruckt.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#f0bb55",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: korbGruppe(100),
     personalisierung: { maxLaenge: 40, label: "Dein Text", beispiel: "Montag" },
     nurMitText: true, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
@@ -164,7 +175,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Untersetzer mit Halloween-Motiv für die Tasse.",
     gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: korbGruppe(150),
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
 ];

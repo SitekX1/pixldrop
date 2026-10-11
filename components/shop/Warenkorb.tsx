@@ -58,7 +58,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
           const farbe = farben.find((f) => f.id === a.farbeId);
           const tfarbe = p.personalisierung && a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY]) : undefined;
           const opt = [
-            ...p.optionen.map((g) => `${g.label}: ${g.optionen.find((o) => o.id === a.optionen[g.id])?.label ?? ""}`),
+            ...p.optionen.map((g) => `${g.label}: ${g.optionen.find((o) => o.id === (a.optionen[g.id] ?? (g.optional ? g.optionen[0].id : undefined)))?.label ?? ""}`),
             ...(tfarbe ? [`Schriftfarbe: ${tfarbe.name}`] : []),
             ...formatAnzeigeAusOptionen(p.personalisierung, a.optionen).map(([k, v]) => `${k}: ${v}`),
           ];

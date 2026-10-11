@@ -68,7 +68,7 @@ test("optionen: kanonisch, strenge Pruefung, <= 500 Byte", () => {
 test("Server: Format wird übernommen und lesbar gespeichert", () => {
   const r = bestell("spruch-untersetzer", "Montag", "montserrat", { fett_0: "1", kursiv_0: "1", groesse: "m" });
   assert.ok(r.ok, JSON.stringify(r));
-  assert.deepEqual(r.wert.positionen[0].optionen, { Format: "Fett, Kursiv" });
+  assert.deepEqual(r.wert.positionen[0].optionen, { Unterseite: "Ohne Kork", Format: "Fett, Kursiv" });
   assert.ok(Buffer.byteLength(JSON.stringify(r.wert.positionen[0].optionen)) <= 500);
 });
 

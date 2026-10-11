@@ -289,7 +289,7 @@ export default function Bestellablauf({
                   const farbe = farben.find((f) => f.id === a.farbeId);
                   const tfarbe = p.personalisierung && a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY]) : undefined;
                   const optText = [
-                    ...p.optionen.map((g) => [g.label, g.optionen.find((o) => o.id === a.optionen[g.id])?.label ?? ""] as const),
+                    ...p.optionen.map((g) => [g.label, g.optionen.find((o) => o.id === (a.optionen[g.id] ?? (g.optional ? g.optionen[0].id : undefined)))?.label ?? ""] as const),
                     ...(tfarbe ? [["Schriftfarbe", tfarbe.name] as const] : []),
                     ...formatAnzeigeAusOptionen(p.personalisierung, a.optionen),
                   ];

@@ -135,7 +135,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
     }
     const optionen: Record<string, string> = {};
     for (const g of produkt.optionen) {
-      const gewaehlt = optIn[g.id];
+      const gewaehlt = optIn[g.id] ?? (g.optional ? g.optionen[0].id : undefined);
       const o = typeof gewaehlt === "string" ? g.optionen.find((x) => x.id === gewaehlt) : undefined;
       if (!o) return fehler("option_ungueltig", `Bitte wähle bei „${g.label}“ eine Option.`);
       optionen[g.label] = o.label;

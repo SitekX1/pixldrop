@@ -200,3 +200,14 @@ test("Wochentags-Set: ungueltige oder fehlende Box-Wahl wird abgelehnt", () => {
   assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "gratis" } }], ctx()).ok);
   assert.ok(!berechneWarenkorb([set], ctx()).ok);
 });
+
+test("Kork-Option: Aufpreis kommt vom Server, Box und Kork addieren sich", () => {
+  const set = { slug: "wochentags-untersetzer-set", menge: 1, farbeId: "schwarz" };
+  const r = berechneWarenkorb([{ ...set, optionen: { box: "mit", kork: "mit" } }], ctx());
+  assert.ok(r.ok);
+  assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 400 + 200);
+  assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "ohne", kork: "gratis" } }], ctx()).ok);
+  const hw = berechneWarenkorb([{ slug: "halloween-untersetzer", menge: 2, farbeId: "schwarz", optionen: { kork: "mit" } }], ctx());
+  assert.ok(hw.ok);
+  assert.equal(hw.wert.summeWarenCent, 2 * (1290 + 150));
+});
