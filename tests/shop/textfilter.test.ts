@@ -60,7 +60,7 @@ test("Listen sind umfangreich genug", () => {
 test("Server: berechneWarenkorb lehnt unzulaessigen Wunschtext ab", () => {
   const katalog = PRODUKTE.map((p) => ({ ...p, preisCent: 1290 }));
   const ctx: Kontext = { produkte: katalog, farben: [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }], versandCent: 490, bestellbar: () => true };
-  const basis = { slug: "koffein-pegel", menge: 1, farbeId: "schwarz" };
+  const basis = { slug: "stiftebecher-tasse", menge: 1, farbeId: "schwarz" };
   const slugMitText = PRODUKTE.find((p) => p.personalisierung && !p.personalisierung.zeilen)!;
   const b = { slug: slugMitText.slug, menge: 1, farbeId: "schwarz", schriftId: slugMitText.personalisierung!.festeSchrift ?? "oswald" };
   void basis;

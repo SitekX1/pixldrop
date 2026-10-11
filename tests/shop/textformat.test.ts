@@ -86,7 +86,7 @@ test("Server lehnt ab: zu groß, ungültig, Schrift ohne Schnitt, Format ohne Te
   assert.equal(ohneFett.fehler.code, "option_ungueltig");
   const ohneKursiv = bestell("spruch-untersetzer", "Montag", "oswald", { kursiv_0: "1" });
   assert.ok(!ohneKursiv.ok);
-  const ohneText = berechneWarenkorb([{ slug: "koffein-pegel", menge: 1, farbeId: "schwarz", optionen: { fett_0: "1" } }], ctx());
+  const ohneText = berechneWarenkorb([{ slug: "stiftebecher-tasse", menge: 1, farbeId: "schwarz", optionen: { fett_0: "1" } }], ctx());
   assert.ok(!ohneText.ok);
 });
 

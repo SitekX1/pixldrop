@@ -76,12 +76,12 @@ export const PRODUKTE: Produkt[] = [
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG], bestseller: true,
   },
   {
-    slug: "koffein-pegel",
-    name: "Koffein-Pegel zum Aufstellen",
-    kurz: "Tischaufsteller mit Schieber. Zeigt in fünf Stufen, wie es dir geht.",
+    slug: "stiftebecher-tasse",
+    name: "Stiftebecher in Tassenform",
+    kurz: "Der Stiftebecher fürs Büro, mit Lamellen und Kaffeetassen-Look.",
     beschreibung:
-      "Ein kleiner Aufsteller mit Schieber in fünf Stufen. Du stellst ein, wie viel Kaffee schon durch ist, die Kollegen wissen Bescheid.",
-    gruppe: "allgemein", kategorien: ["sonstiges"], form: "pegel", grundfarbe: "#6b4423",
+      "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee.",
+    gruppe: "allgemein", kategorien: ["sonstiges"], form: "rund", grundfarbe: "#6b4423",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },

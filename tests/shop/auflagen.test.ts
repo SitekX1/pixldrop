@@ -91,7 +91,7 @@ test("Parallele Requests mit gleichem Key: eine Bestellung, gleiche Nummer", asy
 test("Gleicher Key, anderer Warenkorb mit GLEICHER Summe oder anderen Kundendaten: key_konflikt", async () => {
   const { db, deps } = neueDeps();
   await legeBestellungAn(deps, bestellEingabe(), ctxZweiFarben);
-  const andereFarbe = await legeBestellungAn(deps, bestellEingabe({ positionen: [{ slug: "koffein-pegel", menge: 2, farbeId: "weiss" }] }), ctxZweiFarben);
+  const andereFarbe = await legeBestellungAn(deps, bestellEingabe({ positionen: [{ slug: "stiftebecher-tasse", menge: 2, farbeId: "weiss" }] }), ctxZweiFarben);
   assert.equal(andereFarbe.status, 409);
   const andereAdresse = await legeBestellungAn(deps, bestellEingabe({ kunde: { ...KUNDE, strasse: "Andere Str. 9" } }), ctxZweiFarben);
   assert.equal(andereAdresse.status, 409);

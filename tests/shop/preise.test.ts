@@ -12,7 +12,7 @@ const farben = [
 const ctx = (extra: Partial<Kontext> = {}): Kontext => ({
   produkte: katalog, farben, versandCent: 490, bestellbar: () => true, ...extra,
 });
-const pos = (extra: Record<string, unknown> = {}) => ({ slug: "koffein-pegel", menge: 2, farbeId: "schwarz", ...extra });
+const pos = (extra: Record<string, unknown> = {}) => ({ slug: "stiftebecher-tasse", menge: 2, farbeId: "schwarz", ...extra });
 
 test("Preis wird serverseitig berechnet: 2 x 12,90 + 4,90 Versand", () => {
   const r = berechneWarenkorb([pos()], ctx());
@@ -67,7 +67,7 @@ test("Farbe muss im Lager sein", () => {
   const r = berechneWarenkorb([pos({ farbeId: "neon-pink" })], ctx());
   assert.ok(!r.ok);
   assert.equal(r.fehler.code, "farbe_ungueltig");
-  assert.ok(!berechneWarenkorb([{ slug: "koffein-pegel", menge: 1 }], ctx()).ok);
+  assert.ok(!berechneWarenkorb([{ slug: "stiftebecher-tasse", menge: 1 }], ctx()).ok);
 });
 
 test("Optionen: alle Gruppen Pflicht, nur gueltige IDs", () => {

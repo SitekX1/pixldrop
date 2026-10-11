@@ -41,7 +41,7 @@ test("Doppelklick/Wiederholung mit gleichem Key: genau eine Bestellung", async (
   assert.equal(a1.body.bestellnummer, a2.body.bestellnummer);
   assert.equal(paypal.erzeugt, 1, "offene PayPal-Order wird wiederverwendet");
   // anderer Warenkorb mit gleichem Key -> Konflikt
-  const a3 = await legeBestellungAn(deps, bestellEingabe({ positionen: [{ slug: "koffein-pegel", menge: 3, farbeId: "schwarz" }] }), ctx);
+  const a3 = await legeBestellungAn(deps, bestellEingabe({ positionen: [{ slug: "stiftebecher-tasse", menge: 3, farbeId: "schwarz" }] }), ctx);
   assert.equal(a3.status, 409);
 });
 

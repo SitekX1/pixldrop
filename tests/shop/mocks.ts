@@ -399,7 +399,7 @@ export const KUNDE = { name: "Erika Beispiel", strasse: "Teststraße 1", plz: "8
 
 export const bestellEingabe = (extra: Record<string, unknown> = {}) => ({
   idempotenzKey: "key-0123456789abcdef",
-  positionen: [{ slug: "koffein-pegel", menge: 2, farbeId: "schwarz" }],
+  positionen: [{ slug: "stiftebecher-tasse", menge: 2, farbeId: "schwarz" }],
   kunde: KUNDE,
   einwilligungen: { agb: true },
   ...extra,
