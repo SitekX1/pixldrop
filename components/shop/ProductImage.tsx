@@ -105,7 +105,7 @@ function Motiv({ form, c, text, family, format, tc: tcWahl, kf }: { form: Form; 
   if (kf && kf.length >= 3 && form === "set") {
     return (
       <g>
-        {TAGE.map((t, i) => <KombiUntersetzer key={t} x={17 + i * 16.5} y={50} r={16} kf={kf} label={t} size={9} />)}
+        {TAGE.map((t, i) => <KombiUntersetzer key={t} x={10 + i * 20} y={50} r={9.5} kf={kf} label={t} size={6.5} />)}
       </g>
     );
   }
