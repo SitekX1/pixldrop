@@ -207,7 +207,17 @@ test("Kork-Option: Aufpreis kommt vom Server, Box und Kork addieren sich", () =>
   assert.ok(r.ok);
   assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 400 + 200);
   assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "ohne", kork: "gratis" } }], ctx()).ok);
-  const hw = berechneWarenkorb([{ slug: "halloween-untersetzer-einzeln", menge: 2, farbeId: "schwarz", optionen: { motiv: "b", kork: "mit" } }], ctx());
+  const hw = berechneWarenkorb([{ slug: "halloween-untersetzer-einzeln", menge: 2, farbeId: "schwarz", optionen: { motiv: "geister", kork: "mit" } }], ctx());
   assert.ok(hw.ok);
   assert.equal(hw.wert.summeWarenCent, 2 * (1290 + 50));
+});
+
+test("Wochentags-Einzelartikel: Tag Pflicht, Box und Kork als Aufpreis", () => {
+  const e = { slug: "wochentags-untersetzer-einzeln", menge: 1, farbeId: "schwarz" };
+  const r = berechneWarenkorb([{ ...e, optionen: { tag: "fr", box: "mit", kork: "mit" } }], ctx());
+  assert.ok(r.ok);
+  assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 400 + 50);
+  assert.equal(r.wert.positionen[0].optionen["Wochentag"], "Freitag");
+  assert.ok(!berechneWarenkorb([{ ...e, optionen: { box: "ohne" } }], ctx()).ok);
+  assert.ok(!berechneWarenkorb([{ ...e, optionen: { tag: "sa", box: "ohne" } }], ctx()).ok);
 });

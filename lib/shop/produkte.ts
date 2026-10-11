@@ -87,6 +87,21 @@ export const PRODUKTE: Produkt[] = [
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG], bestseller: true,
   },
   {
+    slug: "wochentags-untersetzer-einzeln",
+    name: "Wochentags-Untersetzer einzeln",
+    kurz: "Ein Untersetzer für deinen Wochentag, auf Wunsch mit Box.",
+    beschreibung:
+      "Ein einzelner Untersetzer mit deinem Wochentag, 90 mm Durchmesser. Wähle den Tag. Du möchtest alle fünf? Dann gibt es das Set Montag bis Freitag. Auf Wunsch mit passender Box, auf der ein QR-Code zu meinen Songs auf Spotify sitzt.",
+    gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#4fb894",
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
+    optionen: [
+      { id: "tag", label: "Wochentag", optionen: [{ id: "mo", label: "Montag" }, { id: "di", label: "Dienstag" }, { id: "mi", label: "Mittwoch" }, { id: "do", label: "Donnerstag" }, { id: "fr", label: "Freitag" }] },
+      { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: TESTAUFPREIS_BOX_CENT }] },
+      ...korbGruppe(50),
+    ],
+    personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
+  },
+  {
     slug: "stiftebecher-tasse",
     name: "Stiftebecher in Tassenform",
     kurz: "Der Stiftebecher fürs Büro, mit Lamellen und Kaffeetassen-Look.",
@@ -179,7 +194,6 @@ export const PRODUKTE: Produkt[] = [
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {
-    // PLATZHALTER: Motivnamen von Alex ersetzen "Motiv A/B/C".
     slug: "halloween-untersetzer-einzeln",
     name: "Halloween-Untersetzer einzeln",
     kurz: "Ein Untersetzer mit Halloween-Motiv, Motiv frei wählbar.",
@@ -188,7 +202,7 @@ export const PRODUKTE: Produkt[] = [
     gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
     optionen: [
-      { id: "motiv", label: "Motiv", optionen: [{ id: "a", label: "Motiv A" }, { id: "b", label: "Motiv B" }, { id: "c", label: "Motiv C" }] },
+      { id: "motiv", label: "Motiv", optionen: [{ id: "kuerbis", label: "Kürbis" }, { id: "geister", label: "Geister" }, { id: "spukhaus", label: "Spukhaus" }] },
       ...korbGruppe(50),
     ],
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
