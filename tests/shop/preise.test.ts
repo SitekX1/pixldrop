@@ -207,7 +207,7 @@ test("Kork-Option: Aufpreis kommt vom Server, Box und Kork addieren sich", () =>
   assert.ok(r.ok);
   assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 400 + 200);
   assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "ohne", kork: "gratis" } }], ctx()).ok);
-  const hw = berechneWarenkorb([{ slug: "halloween-untersetzer", menge: 2, farbeId: "schwarz", optionen: { kork: "mit" } }], ctx());
+  const hw = berechneWarenkorb([{ slug: "halloween-untersetzer-einzeln", menge: 2, farbeId: "schwarz", optionen: { motiv: "b", kork: "mit" } }], ctx());
   assert.ok(hw.ok);
-  assert.equal(hw.wert.summeWarenCent, 2 * (1290 + 150));
+  assert.equal(hw.wert.summeWarenCent, 2 * (1290 + 50));
 });

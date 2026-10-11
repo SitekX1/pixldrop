@@ -76,7 +76,7 @@ export const PRODUKTE: Produkt[] = [
     name: "Wochentags-Untersetzer-Set Mo–Fr",
     kurz: "Fünf Untersetzer für Montag bis Freitag, auf Wunsch mit Box.",
     beschreibung:
-      "Fünf Untersetzer für Montag bis Freitag, damit der Tisch sauber bleibt, auch wenn der Kaffee es nicht ist. Auf Wunsch mit passender Box, in die du die Untersetzer hineinstellst. Auf Wunsch später mit QR-Code zum Song des Tages auf der Rückseite.",
+      "Fünf Untersetzer für Montag bis Freitag, damit der Tisch sauber bleibt, auch wenn der Kaffee es nicht ist. Auf Wunsch mit passender Box, in die du die Untersetzer hineinstellst. Auf der Box sitzt ein QR-Code zu meinen Songs auf Spotify.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "set", grundfarbe: "#4fb894",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
     // TESTWERT: Aufpreis Box (4,00 EUR), Alex legt den echten Preis fest.
@@ -169,13 +169,28 @@ export const PRODUKTE: Produkt[] = [
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
-    slug: "halloween-untersetzer",
-    name: "Halloween-Untersetzer",
-    kurz: "Der Untersetzer für die Tasse im Herbst, mit Halloween-Motiv.",
+    slug: "halloween-untersetzer-set",
+    name: "Halloween-Untersetzer-Set (3 Stück)",
+    kurz: "Drei Untersetzer für die Tasse im Herbst, mit Halloween-Motiv.",
     beschreibung:
-      "Ein Untersetzer mit Halloween-Motiv für die Tasse.",
+      "Drei Untersetzer mit Halloween-Motiv für die Tasse, 90 mm Durchmesser. Auch einzeln erhältlich.",
     gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: korbGruppe(150),
+    personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
+  },
+  {
+    // PLATZHALTER: Motivnamen von Alex ersetzen "Motiv A/B/C".
+    slug: "halloween-untersetzer-einzeln",
+    name: "Halloween-Untersetzer einzeln",
+    kurz: "Ein Untersetzer mit Halloween-Motiv, Motiv frei wählbar.",
+    beschreibung:
+      "Ein einzelner Untersetzer mit Halloween-Motiv, 90 mm Durchmesser. Wähle das Motiv. Du möchtest mehrere vom selben Motiv? Dann erhöhe die Menge.",
+    gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
+    optionen: [
+      { id: "motiv", label: "Motiv", optionen: [{ id: "a", label: "Motiv A" }, { id: "b", label: "Motiv B" }, { id: "c", label: "Motiv C" }] },
+      ...korbGruppe(50),
+    ],
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
 ];
