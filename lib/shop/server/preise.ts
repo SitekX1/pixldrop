@@ -3,7 +3,7 @@ import "server-only";
 // Serverseitige Preis- und Warenkorbberechnung. Preise kommen AUSSCHLIESSLICH aus
 // lib/shop/produkte.ts (bzw. dem uebergebenen Katalog); vom Client wird nie ein Betrag
 // uebernommen, nur Artikel-Slug, Menge und Auswahl.
-import { einzelpreisCent, istIndividuell, type Produkt } from "../produkte";
+import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "../produkte";
 import type { Farbe } from "../farben";
 import { SCHRIFTEN, unerlaubteZeichen } from "../schriften";
 import {
@@ -117,14 +117,23 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       return fehler("ungueltig", `Die Menge muss zwischen 1 und ${MAX_MENGE} liegen.`);
     }
 
-    // Farbe: muss aktuell im Lager sein
+    // Farbe: Artikel mit fertigen Kombinationen brauchen eine bekannte Kombination (kein Lager); sonst muss die Farbe aktuell im Lager sein
     const fid = typeof roh.farbeId === "string" ? roh.farbeId : "";
-    const farbe = ctx.farben.find((f) => f.id === fid);
-    if (!farbe) return fehler("farbe_ungueltig", "Diese Farbe ist nicht (mehr) vorrätig. Bitte wähle eine andere.");
+    let farbe: Farbe | undefined;
+    let kombi: NonNullable<Produkt["kombinationen"]>[number] | undefined;
+    if (produkt.kombinationen) {
+      const kid = istObjekt(roh.optionen) ? roh.optionen[KOMBI_KEY] : undefined;
+      kombi = typeof kid === "string" ? produkt.kombinationen.find((k) => k.id === kid) : undefined;
+      if (!kombi) return fehler("farbe_ungueltig", "Bitte wähle eine Farbkombination.");
+    } else {
+      farbe = ctx.farben.find((f) => f.id === fid);
+      if (!farbe) return fehler("farbe_ungueltig", "Diese Farbe ist nicht (mehr) vorrätig. Bitte wähle eine andere.");
+    }
 
     // Optionen: jede Gruppe des Artikels braucht eine gueltige Auswahl, nichts darueber hinaus
     // Textformat-Schluessel (fett_i, kursiv_i, groesse) gehoeren nicht zu den Optionsgruppen und werden unten geprueft.
-    const { [TEXTFARBE_KEY]: textfarbeRoh, ...optAlle } = istObjekt(roh.optionen) ? roh.optionen : ({} as Record<string, unknown>);
+    const { [TEXTFARBE_KEY]: textfarbeRoh, [KOMBI_KEY]: _kombiRoh, ...optAlle } = istObjekt(roh.optionen) ? roh.optionen : ({} as Record<string, unknown>);
+    if (!produkt.kombinationen && istObjekt(roh.optionen) && KOMBI_KEY in roh.optionen) return fehler("option_ungueltig", "Ungültige Auswahl.");
     const optIn: Record<string, unknown> = {};
     const formatIn: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(optAlle)) {
@@ -140,6 +149,8 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       if (!o) return fehler("option_ungueltig", `Bitte wähle bei „${g.label}“ eine Option.`);
       optionen[g.label] = o.label;
     }
+
+    if (kombi) optionen["Farbkombination"] = kombi.label;
 
     // Personalisierung (Text einzeilig oder mehrzeilig "zeile1\nzeile2", Schrift fest oder aus der Liste)
     const pers = produkt.personalisierung;
@@ -183,7 +194,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       if (textfarbeRoh !== undefined) {
         const tf = typeof textfarbeRoh === "string" ? ctx.farben.find((f) => f.id === textfarbeRoh) : undefined;
         if (!tf) return fehler("textfarbe_ungueltig", "Diese Schriftfarbe ist nicht (mehr) vorrätig. Bitte wähle eine andere.");
-        if (!textfarbeErlaubt(farbe, tf)) return fehler("textfarbe_ungueltig", `${TEXTFARBE_HINWEIS}. Bitte wähle eine andere Schriftfarbe.`);
+        if (farbe && !textfarbeErlaubt(farbe, tf)) return fehler("textfarbe_ungueltig", `${TEXTFARBE_HINWEIS}. Bitte wähle eine andere Schriftfarbe.`);
         optionen["Schriftfarbe"] = tf.name;
       }
     } else if (textfarbeRoh !== undefined) {
@@ -201,8 +212,8 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       name: produkt.name,
       menge,
       einzelpreisCent: einzel,
-      farbeName: farbe.name,
-      farbeHex: farbe.hex,
+      farbeName: kombi ? kombi.label : farbe!.name,
+      farbeHex: kombi ? kombi.farben[0].hex : farbe!.hex,
       optionen,
       text,
       schriftId,

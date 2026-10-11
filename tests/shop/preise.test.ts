@@ -12,6 +12,7 @@ const farben = [
 const ctx = (extra: Partial<Kontext> = {}): Kontext => ({
   produkte: katalog, farben, versandCent: 490, bestellbar: () => true, ...extra,
 });
+const K = "schwarz-tuerkis-weiss";
 const pos = (extra: Record<string, unknown> = {}) => ({ slug: "stiftebecher-tasse", menge: 2, farbeId: "schwarz", ...extra });
 
 test("Preis wird serverseitig berechnet: 2 x 12,90 + 4,90 Versand", () => {
@@ -186,8 +187,8 @@ test("Schriftfarbe: Kontrastregel und automatische Voreinstellung", async () => 
 
 test("Wochentags-Set: Box-Aufpreis wird serverseitig addiert", () => {
   const set = { slug: "wochentags-untersetzer-set", menge: 2, farbeId: "schwarz" };
-  const ohne = berechneWarenkorb([{ ...set, optionen: { box: "ohne" } }], ctx());
-  const mit = berechneWarenkorb([{ ...set, optionen: { box: "mit" } }], ctx());
+  const ohne = berechneWarenkorb([{ ...set, optionen: { box: "ohne", farbkombi: K } }], ctx());
+  const mit = berechneWarenkorb([{ ...set, optionen: { box: "mit", farbkombi: K } }], ctx());
   assert.ok(ohne.ok && mit.ok);
   assert.equal(ohne.wert.positionen[0].einzelpreisCent, 1290);
   assert.equal(mit.wert.positionen[0].einzelpreisCent, 1690);
@@ -196,17 +197,17 @@ test("Wochentags-Set: Box-Aufpreis wird serverseitig addiert", () => {
 });
 
 test("Wochentags-Set: ungueltige oder fehlende Box-Wahl wird abgelehnt", () => {
-  const set = { slug: "wochentags-untersetzer-set", menge: 1, farbeId: "schwarz" };
-  assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "gratis" } }], ctx()).ok);
+  const set = { slug: "wochentags-untersetzer-set", menge: 1, optionen: { farbkombi: K } };
+  assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "gratis", farbkombi: K } }], ctx()).ok);
   assert.ok(!berechneWarenkorb([set], ctx()).ok);
 });
 
 test("Kork-Option: Aufpreis kommt vom Server, Box und Kork addieren sich", () => {
   const set = { slug: "wochentags-untersetzer-set", menge: 1, farbeId: "schwarz" };
-  const r = berechneWarenkorb([{ ...set, optionen: { box: "mit", kork: "mit" } }], ctx());
+  const r = berechneWarenkorb([{ ...set, optionen: { box: "mit", kork: "mit", farbkombi: K } }], ctx());
   assert.ok(r.ok);
   assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 400 + 200);
-  assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "ohne", kork: "gratis" } }], ctx()).ok);
+  assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "ohne", kork: "gratis", farbkombi: K } }], ctx()).ok);
   const hw = berechneWarenkorb([{ slug: "halloween-untersetzer-einzeln", menge: 2, farbeId: "schwarz", optionen: { motiv: "geister", kork: "mit" } }], ctx());
   assert.ok(hw.ok);
   assert.equal(hw.wert.summeWarenCent, 2 * (1290 + 50));
@@ -214,12 +215,45 @@ test("Kork-Option: Aufpreis kommt vom Server, Box und Kork addieren sich", () =>
 
 test("Wochentags-Einzelartikel: Tag Pflicht, Box und Kork als Aufpreis", () => {
   const e = { slug: "wochentags-untersetzer-einzeln", menge: 1, farbeId: "schwarz" };
-  const r = berechneWarenkorb([{ ...e, optionen: { tag: "fr", box: "mit", kork: "mit" } }], ctx());
+  const r = berechneWarenkorb([{ ...e, optionen: { tag: "fr", box: "mit", kork: "mit", farbkombi: K } }], ctx());
   assert.ok(r.ok);
   assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 400 + 50);
   assert.equal(r.wert.positionen[0].optionen["Wochentag"], "Freitag");
-  assert.ok(!berechneWarenkorb([{ ...e, optionen: { box: "ohne" } }], ctx()).ok);
-  assert.ok(!berechneWarenkorb([{ ...e, optionen: { tag: "sa", box: "ohne" } }], ctx()).ok);
+  assert.ok(!berechneWarenkorb([{ ...e, optionen: { box: "ohne", farbkombi: K } }], ctx()).ok);
+  assert.ok(!berechneWarenkorb([{ ...e, optionen: { tag: "sa", box: "ohne", farbkombi: K } }], ctx()).ok);
+});
+
+
+test("Farbkombination: gueltig (ohne farbeId), Preis unveraendert/mit Box, farbeName = Label", () => {
+  const set = { slug: "wochentags-untersetzer-set", menge: 1 };
+  const r = berechneWarenkorb([{ ...set, farbeId: null, optionen: { box: "ohne", farbkombi: "schwarz-orange-weiss" } }], ctx());
+  assert.ok(r.ok);
+  const p = r.wert.positionen[0];
+  assert.equal(p.einzelpreisCent, 1290);
+  assert.equal(p.farbeName, "Schwarz / Orange / Weiß");
+  assert.equal(p.farbeHex, "#1c1c1c");
+  assert.equal(p.optionen["Farbkombination"], "Schwarz / Orange / Weiß");
+  const mit = berechneWarenkorb([{ ...set, optionen: { box: "mit", farbkombi: "schwarz-violett-tuerkis" } }], ctx());
+  assert.ok(mit.ok);
+  assert.equal(mit.wert.positionen[0].einzelpreisCent, 1690);
+  // Lager wird fuer Kombinationen nicht gebraucht
+  assert.ok(berechneWarenkorb([{ ...set, optionen: { box: "ohne", farbkombi: K } }], ctx({ farben: [] })).ok);
+});
+
+test("Farbkombination: fehlend oder unbekannt -> farbe_ungueltig", () => {
+  const set = { slug: "wochentags-untersetzer-set", menge: 1, farbeId: "schwarz" };
+  for (const optionen of [{ box: "ohne" }, { box: "ohne", farbkombi: "rot-gelb" }, { box: "ohne", farbkombi: 5 }]) {
+    const r = berechneWarenkorb([{ ...set, optionen }], ctx());
+    assert.ok(!r.ok);
+    assert.equal(r.fehler.code, "farbe_ungueltig");
+    assert.equal(r.fehler.meldung, "Bitte wähle eine Farbkombination.");
+  }
+});
+
+test("farbkombi bei Artikel ohne Kombinationen -> option_ungueltig", () => {
+  const r = berechneWarenkorb([pos({ optionen: { farbkombi: K } })], ctx());
+  assert.ok(!r.ok);
+  assert.equal(r.fehler.code, "option_ungueltig");
 });
 
 test("Unbekannte Optionsschluessel werden abgelehnt (kork/box bei Artikeln ohne diese Gruppe)", () => {

@@ -7,7 +7,7 @@ import type { Farbe } from "@/lib/shop/farben";
 import { aendereMenge, entferne, ladeKorb, speichereKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { TEXTE, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
 import { TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
-import PositionsBild from "./PositionsBild";
+import PositionsBild, { kombiVon } from "./PositionsBild";
 
 // Warenkorb: Positionen mit Menge ändern / entfernen, Summe, Hinweis zum Widerruf, "Zur Kasse".
 export default function Warenkorb({ produkte, farben, wunschtextPausiert = false }: { produkte: Produkt[]; farben: Farbe[]; wunschtextPausiert?: boolean }) {
@@ -68,7 +68,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
               <div className="shop-cart-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} textfarbeHex={tfarbe?.hex} /></div>
               <div className="shop-cart-body">
                 <h2><Link href={`/3d-druck/${p.slug}`}>{p.name}</Link></h2>
-                {farbe && <p className="muted">Farbe: {farbe.name}</p>}
+                {kombiVon(p, a) ? <p className="muted">Farbkombination: {kombiVon(p, a)!.label}</p> : farbe && <p className="muted">Farbe: {farbe.name}</p>}
                 {opt.map((t) => <p key={t} className="muted">{t}</p>)}
                 {a.text && <p className="muted">Wunschtext: „{a.text.split("\n").join(" / ")}“</p>}
                 {gesperrtPos(a.slug) && <p className="shop-cart-gesperrt" role="note">Vorübergehend nicht bestellbar: Artikel mit Wunschtext sind aktuell pausiert. Bitte entferne diesen Artikel, um zur Kasse zu gehen.</p>}

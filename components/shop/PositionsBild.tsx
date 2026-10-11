@@ -1,8 +1,12 @@
-import type { Produkt } from "@/lib/shop/produkte";
+import { KOMBI_KEY, type Produkt } from "@/lib/shop/produkte";
 import type { Auswahl } from "@/lib/shop/auswahl";
 import { SCHRIFTEN } from "@/lib/shop/schriften";
 import { formatAusOptionen, istFormatSchluessel, standardFormat, zeilenAnzahl } from "@/lib/shop/textformat";
 import ProductImage from "./ProductImage";
+
+export function kombiVon(p: Produkt, a: Auswahl) {
+  return p.kombinationen?.find((k) => k.id === a.optionen[KOMBI_KEY]);
+}
 
 /** Vorschau einer Warenkorb-/Bon-Position: Farbe, Text, Schrift, Fett/Kursiv und Größe wie die Live-Vorschau im Kaufbereich. */
 export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Muster" }: { p: Produkt; a: Auswahl; farbeHex?: string; textfarbeHex?: string; typ?: string }) {
@@ -13,5 +17,5 @@ export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Mus
     const nur = Object.fromEntries(Object.entries(a.optionen).filter(([k]) => istFormatSchluessel(k)));
     format = { fmt: formatAusOptionen(nur, zeilenAnzahl(pers)) ?? standardFormat(zeilenAnzahl(pers)), breite: schrift.breite };
   }
-  return <ProductImage form={p.form} farbe={farbeHex ?? p.grundfarbe} text={a.text || undefined} family={schrift?.family} format={format} textfarbe={textfarbeHex} typ={typ} />;
+  return <ProductImage form={p.form} farbe={farbeHex ?? p.grundfarbe} text={a.text || undefined} family={schrift?.family} format={format} textfarbe={textfarbeHex} typ={typ} farben={kombiVon(p, a)?.farben.map((f) => f.hex)} />;
 }

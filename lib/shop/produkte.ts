@@ -26,6 +26,10 @@ zeile2". */
   festeSchrift?: string;
 }
 
+/** Fertige Farbkombination (statt Lagerfarb-Wahl). Erweiterbar: einfach einen Eintrag in KOMBI_WOCHENTAG ergaenzen. */
+export interface Farbkombination { id: string; label: string; farben: { name: string; hex: string }[] }
+export const KOMBI_KEY = "farbkombi";
+
 export interface Produkt {
   slug: string;
   name: string;
@@ -40,6 +44,8 @@ export interface Produkt {
   toleranzMm?: string; // z. B. "0,5"; gehört zur Maßangabe; fehlt sie, gilt der allgemeine FDM-Hinweis
   material: string;
   optionen: Optionsgruppe[];
+  /** Fertige Farbkombinationen; gesetzt = keine Lagerfarb-Wahl, Auswahl als optionen.farbkombi (erste = Standard). */
+  kombinationen?: Farbkombination[];
   personalisierung: null | Personalisierung;
   nurMitText?: boolean;
   /** Nur über „Individueller Druck“ (Preis nach Anfrage), nie im Warenkorb (Variante B). */
@@ -70,6 +76,17 @@ const korbGruppe = (aufpreisCent: number): Optionsgruppe[] => KORK_LIEFERBAR ? [
   optionen: [{ id: "ohne", label: "Ohne Kork" }, { id: "mit", label: "Mit selbstklebendem Kork", aufpreisCent }],
 }] : [];
 
+const SCHWARZ = { name: "Schwarz", hex: "#1c1c1c" };
+const WEISS = { name: "Weiß", hex: "#f4f1ea" };
+const TUERKIS = { name: "Türkis", hex: "#2bb8a8" };
+const ORANGE = { name: "Orange", hex: "#ff6a13" };
+const VIOLETT = { name: "Violett", hex: "#7a3fb0" };
+const KOMBI_WOCHENTAG: Farbkombination[] = [
+  { id: "schwarz-tuerkis-weiss", label: "Schwarz / Türkis / Weiß", farben: [SCHWARZ, TUERKIS, WEISS] },
+  { id: "schwarz-orange-weiss", label: "Schwarz / Orange / Weiß", farben: [SCHWARZ, ORANGE, WEISS] },
+  { id: "schwarz-violett-tuerkis", label: "Schwarz / Violett / Türkis", farben: [SCHWARZ, VIOLETT, TUERKIS] },
+];
+
 export const PRODUKTE: Produkt[] = [
   {
     slug: "wochentags-untersetzer-set",
@@ -84,6 +101,7 @@ export const PRODUKTE: Produkt[] = [
       { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: TESTAUFPREIS_BOX_CENT }] },
       ...korbGruppe(200),
     ],
+    kombinationen: KOMBI_WOCHENTAG,
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG], bestseller: true,
   },
   {
@@ -99,6 +117,7 @@ export const PRODUKTE: Produkt[] = [
       { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: TESTAUFPREIS_BOX_CENT }] },
       ...korbGruppe(50),
     ],
+    kombinationen: KOMBI_WOCHENTAG,
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {

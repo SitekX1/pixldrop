@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { formatPreis } from "@/lib/shop/config";
-import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN, unerlaubteZeichen } from "@/lib/shop/schriften";
 import { GROESSEN, type GroesseId } from "@/lib/shop/umbruch";
 import {
@@ -25,7 +25,10 @@ function hell(hex: string) {
 export default function ProductBuy({
   produkt, farben, bestellbar, preisText, wunschPause = false,
 }: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string; wunschPause?: boolean }) {
-  const [farbeId, setFarbeId] = useState<string | null>(farben[0]?.id ?? null);
+  const kombis = produkt.kombinationen;
+  const [farbeId, setFarbeId] = useState<string | null>(kombis ? null : farben[0]?.id ?? null);
+  const [kombiId, setKombiId] = useState<string | null>(kombis?.[0].id ?? null);
+  const kombi = kombis?.find((k) => k.id === kombiId);
   const [opt, setOpt] = useState<Record<string, string>>(() =>
     Object.fromEntries(produkt.optionen.map((g) => [g.id, g.optionen[0].id])),
   );
@@ -80,9 +83,9 @@ export default function ProductBuy({
   const vorTextfarbe = pers ? textfarbe?.hex : undefined;
   const vorFamily = schrift?.family;
   useEffect(() => {
-    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: farbe?.name, format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
+    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: kombi?.label ?? farbe?.name, farben: kombi?.farben.map((f) => f.hex), format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, vorTextfarbe, textfarbe?.name, JSON.stringify(formatOpt)]);
+  }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, kombi?.label, vorTextfarbe, textfarbe?.name, JSON.stringify(formatOpt)]);
   const kaufReg = useKaufRegistrieren();
   const kaufArt = wunschPause ? "pause" : bestellbar ? "ja" : "nein";
   useEffect(() => { kaufReg?.setzeKauf({ art: kaufArt, gesperrt, bestaetigt }); }, [kaufReg?.setzeKauf, kaufArt, gesperrt, bestaetigt]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -99,7 +102,7 @@ export default function ProductBuy({
     const r = fuegeHinzu(ladeKorb(), {
       slug: produkt.slug,
       farbeId,
-      optionen: { ...opt, ...formatOpt, ...(pers && textfarbe ? { [TEXTFARBE_KEY]: textfarbe.id } : {}) },
+      optionen: { ...opt, ...(kombi ? { [KOMBI_KEY]: kombi.id } : {}), ...formatOpt, ...(pers && textfarbe ? { [TEXTFARBE_KEY]: textfarbe.id } : {}) },
       text: pers ? text : "",
       schriftId: pers ? (pers.festeSchrift ?? schriftId) : null,
       menge,
@@ -233,7 +236,23 @@ export default function ProductBuy({
       )}
 
       {/* Farbwahl */}
-      {farben.length > 0 ? (
+      {kombis ? (
+        <fieldset className="shop-step">
+          <legend>Farbkombination</legend>
+          <div className="shop-kombis">
+            {kombis.map((k) => (
+              <label key={k.id} className="shop-kombi">
+                <input type="radio" name="farbkombi" value={k.id} checked={kombiId === k.id} onChange={() => setKombiId(k.id)} />
+                <span className="shop-kombi-karte">
+                  <span className="shop-kombi-punkte" aria-hidden="true">{k.farben.map((f) => <i key={f.name} style={{ background: f.hex }} />)}</span>
+                  <span className="shop-kombi-label">{k.label}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+          <p className="muted">Fertige Kombination aus drei Farben. Bildschirmfarben können leicht abweichen.</p>
+        </fieldset>
+      ) : farben.length > 0 ? (
         <fieldset className="shop-step">
           <legend>Farbe</legend>
           <div className="shop-swatches">

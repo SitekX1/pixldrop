@@ -86,8 +86,29 @@ function Geist({ x, y, s, c }: { x: number; y: number; s: number; c: string }) {
   );
 }
 
-function Motiv({ form, c, text, family, format, tc: tcWahl }: { form: Form; c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string }) {
+const TAGE = ["Mo", "Di", "Mi", "Do", "Fr"];
+
+// Wochentags-Untersetzer mit fertiger Farbkombination: [Grund, Akzent (Ring), Schrift].
+function KombiUntersetzer({ x, y, r, kf, label, size }: { x: number; y: number; r: number; kf: string[]; label: string; size: number }) {
+  return (
+    <g>
+      <circle cx={x} cy={y} r={r} fill={kf[0]} stroke="rgba(0,0,0,.25)" strokeWidth="1" />
+      <circle cx={x} cy={y} r={r * 0.78} fill="none" stroke={kf[1]} strokeWidth={r * 0.1} />
+      <text x={x} y={y + size * 0.35} textAnchor="middle" fontSize={size} fontWeight={800} fill={kf[2]} style={{ fontFamily: "system-ui, sans-serif" }}>{label}</text>
+    </g>
+  );
+}
+
+function Motiv({ form, c, text, family, format, tc: tcWahl, kf }: { form: Form; c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string; kf?: string[] }) {
   const tc = tcWahl ?? textfarbeFuer(c);
+  if (kf && kf.length >= 3 && form === "rund") return <KombiUntersetzer x={50} y={50} r={35} kf={kf} label="Mo" size={20} />;
+  if (kf && kf.length >= 3 && form === "set") {
+    return (
+      <g>
+        {TAGE.map((t, i) => <KombiUntersetzer key={t} x={17 + i * 16.5} y={50} r={16} kf={kf} label={t} size={9} />)}
+      </g>
+    );
+  }
   switch (form) {
     case "rund":
       return (
@@ -150,13 +171,13 @@ function Motiv({ form, c, text, family, format, tc: tcWahl }: { form: Form; c: s
 }
 
 export default function ProductImage({
-  form, farbe, typ = "Illustration", breit = false, text, family, format, textfarbe,
-}: { form: Form; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat; /** gewählte Schriftfarbe (Hex); ohne Angabe automatisch kontrastreich */ textfarbe?: string }) {
+  form, farbe, typ = "Illustration", breit = false, text, family, format, textfarbe, farben,
+}: { form: Form; /** Farbkombination (Grund, Akzent, Schrift) fuer Wochentags-Untersetzer */ farben?: string[]; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat; /** gewählte Schriftfarbe (Hex); ohne Angabe automatisch kontrastreich */ textfarbe?: string }) {
   return (
     <div className={`shop-img ${breit ? "shop-img--wide" : ""}`} role="img" aria-label={`Produktillustration: ${typ}`}>
       <svg className="motiv" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <path d="M70 92C86 86 96 70 94 54" fill="none" stroke="rgba(107,68,35,.28)" strokeWidth="5" strokeLinecap="round" />
-        <Motiv form={form} c={farbe} text={text} family={family} format={format} tc={textfarbe} />
+        <Motiv form={form} c={farbe} text={text} family={family} format={format} tc={textfarbe} kf={farben} />
       </svg>
       <span className="shop-placeholder-tag">{typ}</span>
     </div>

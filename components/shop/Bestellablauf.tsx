@@ -9,7 +9,7 @@ import type { Farbe } from "@/lib/shop/farben";
 import { ladeKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { SHOP_AKTIV, TEXTE, VERSAND_CENT, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
 import { pruefeWunschtext, TEXT_MELDUNG } from "@/lib/shop/textfilter";
-import PositionsBild from "./PositionsBild";
+import PositionsBild, { kombiVon } from "./PositionsBild";
 import { baueBestellung, holeFormToken, idempotenzKeyFuer, istPaypalUrl, ladeKunde, sendeBestellung, speichereKunde } from "@/lib/shop/client";
 
 const ZAHLUNG_HINWEIS: Record<string, string> = {
@@ -298,7 +298,7 @@ export default function Bestellablauf({
                       <div className="shop-bon-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} textfarbeHex={tfarbe?.hex} /></div>
                       <dl>
                         <div><dt>Ware</dt><dd>{p.name}</dd></div>
-                        {farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
+                        {kombiVon(p, a) ? <div><dt>Farbkombination</dt><dd>{kombiVon(p, a)!.label}</dd></div> : farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
                         {optText.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
                         {a.text && <div><dt>Text</dt><dd>{a.text.split("\n").join(" / ")}</dd></div>}
                         {p.masse && <div><dt>Maße</dt><dd>{`ca. ${p.masse} mm${p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}`}</dd></div>}
