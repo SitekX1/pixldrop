@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { aendereMenge, entferne, ladeKorb, speichereKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
@@ -34,7 +34,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
   const gesperrtPos = (slug: string) => wunschtextPausiert && !!von(slug)?.personalisierung;
   const gesperrtNamen = [...new Set(korb.flatMap((a) => (gesperrtPos(a.slug) ? [von(a.slug)!.name] : [])))];
   const fehlt = korb.some((a) => !von(a.slug)) || gesperrtNamen.length > 0;
-  const zwischen = zwischensummeCent(korb, (s) => von(s)?.preisCent);
+  const zwischen = zwischensummeCent(korb, (s, a) => { const x = von(s); return x ? einzelpreisCent(x, a.optionen) : undefined; });
   const gesamt = zwischen != null ? zwischen + (VERSAND_CENT ?? 0) : null;
   const ausgenommen = korb.flatMap((a) => { const p = von(a.slug); return p && istIndividuell(p, a.text, a.optionen) ? [p.name] : []; });
 
@@ -80,7 +80,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
                       onChange={(e) => setze(aendereMenge(korb, i, Number(e.target.value) || 1))} />
                     <button type="button" aria-label={`Menge von ${p.name} erhöhen`} onClick={() => setze(aendereMenge(korb, i, a.menge + 1))}>+</button>
                   </div>
-                  <span className="shop-price-small">{p.preisCent != null ? formatPreis(p.preisCent * a.menge) : TEXTE.preisFolgt}</span>
+                  <span className="shop-price-small">{einzelpreisCent(p, a.optionen) != null ? formatPreis(einzelpreisCent(p, a.optionen)! * a.menge) : TEXTE.preisFolgt}</span>
                 </div>
                 <button type="button" className="shop-link shop-cart-remove" onClick={() => { setze(entferne(korb, i)); setMeldung(`${p.name} wurde entfernt.`); }}>
                   Entfernen<span className="sr-only">: {p.name}</span>

@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { formatPreis } from "@/lib/shop/config";
+import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN, unerlaubteZeichen } from "@/lib/shop/schriften";
 import { GROESSEN, type GroesseId } from "@/lib/shop/umbruch";
 import {
@@ -77,6 +78,8 @@ export default function ProductBuy({
   const gesperrt = !filter.ok || passtNicht;
   const beschreibung = [textFehler ? "t-fehler" : null, filterFehler ? "t-filter" : null].filter(Boolean).join(" ") || undefined;
   const individuell = istIndividuell(produkt, text, formatOpt);
+  const hatAufpreis = produkt.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0));
+  const livePreis = hatAufpreis ? formatPreis(einzelpreisCent(produkt, opt)) : preisText;
   const setzeVorschau = useVorschauSetzen();
   const beispielText = (zeilen[0] ?? "").trim().slice(0, 9) || pers?.beispiel || "Abc";
   const vorFarbe = farbe?.hex ?? produkt.grundfarbe;
@@ -284,10 +287,11 @@ export default function ProductBuy({
             {g.optionen.map((o) => (
               <label key={o.id} className="shop-option">
                 <input type="radio" name={`opt-${g.id}`} value={o.id} checked={opt[g.id] === o.id} onChange={() => setOpt({ ...opt, [g.id]: o.id })} />
-                <span>{o.label}</span>
+                <span>{o.label}{(o.aufpreisCent ?? 0) > 0 ? ` (+ ${formatPreis(o.aufpreisCent!)})` : ""}</span>
               </label>
             ))}
           </div>
+          {hatAufpreis && <p aria-live="polite" style={{ marginTop: 6 }}><strong>Preis: {livePreis}</strong> pro Set</p>}
         </fieldset>
       ))}
 
@@ -323,7 +327,7 @@ export default function ProductBuy({
       {!bestellbar && <p className="muted">Dieser Artikel ist noch nicht bestellbar. Du kannst ihn dir schon ansehen.</p>}
 
       <div className="shop-sticky" data-show={stickyZeigen}>
-        <span className="shop-price-small">{preisText}</span>
+        <span className="shop-price-small">{livePreis}</span>
         {wunschPause ? <button type="button" className="shop-btn" aria-disabled="true" aria-describedby="wunsch-pause">Nicht bestellbar</button> : bestellbar ? <button type="button" className="shop-btn" aria-disabled={gesperrt || undefined} onClick={weiter}>In den Warenkorb</button> : <button type="button" className="shop-btn" aria-disabled="true">Kommt zum Verkauf</button>}
       </div>
     </div>

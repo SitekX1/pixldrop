@@ -3,7 +3,7 @@ import "server-only";
 // Serverseitige Preis- und Warenkorbberechnung. Preise kommen AUSSCHLIESSLICH aus
 // lib/shop/produkte.ts (bzw. dem uebergebenen Katalog); vom Client wird nie ein Betrag
 // uebernommen, nur Artikel-Slug, Menge und Auswahl.
-import { istIndividuell, type Produkt } from "../produkte";
+import { einzelpreisCent, istIndividuell, type Produkt } from "../produkte";
 import type { Farbe } from "../farben";
 import { SCHRIFTEN, unerlaubteZeichen } from "../schriften";
 import {
@@ -194,12 +194,13 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext): Ergebnis<Ware
       return fehler("text_ungueltig", "Für diesen Artikel ist ein Text erforderlich.");
     }
 
-    summe += produkt.preisCent * menge;
+    const einzel = einzelpreisCent(produkt, optIn) ?? produkt.preisCent;
+    summe += einzel * menge;
     positionen.push({
       slug: produkt.slug,
       name: produkt.name,
       menge,
-      einzelpreisCent: produkt.preisCent,
+      einzelpreisCent: einzel,
       farbeName: farbe.name,
       farbeHex: farbe.hex,
       optionen,

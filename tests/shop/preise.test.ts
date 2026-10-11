@@ -183,3 +183,20 @@ test("Schriftfarbe: Kontrastregel und automatische Voreinstellung", async () => 
   assert.equal(automatischeTextfarbe(farben[0], alle)?.id, "schwarz", "helle Grundfarbe -> dunkle Schrift");
   assert.equal(automatischeTextfarbe(farben[1], [farben[1]]), null, "keine erlaubte Farbe");
 });
+
+test("Wochentags-Set: Box-Aufpreis wird serverseitig addiert", () => {
+  const set = { slug: "wochentags-untersetzer-set", menge: 2, farbeId: "schwarz" };
+  const ohne = berechneWarenkorb([{ ...set, optionen: { box: "ohne" } }], ctx());
+  const mit = berechneWarenkorb([{ ...set, optionen: { box: "mit" } }], ctx());
+  assert.ok(ohne.ok && mit.ok);
+  assert.equal(ohne.wert.positionen[0].einzelpreisCent, 1290);
+  assert.equal(mit.wert.positionen[0].einzelpreisCent, 1690);
+  assert.equal(mit.wert.summeWarenCent, 3380);
+  assert.equal(mit.wert.positionen[0].optionen["Box"], "Mit Box zum Hineinstellen");
+});
+
+test("Wochentags-Set: ungueltige oder fehlende Box-Wahl wird abgelehnt", () => {
+  const set = { slug: "wochentags-untersetzer-set", menge: 1, farbeId: "schwarz" };
+  assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "gratis" } }], ctx()).ok);
+  assert.ok(!berechneWarenkorb([set], ctx()).ok);
+});

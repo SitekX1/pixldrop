@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
@@ -93,7 +93,7 @@ export default function Bestellablauf({
   }
 
   const pos = zeilen as { a: Korb[number]; p: Produkt }[];
-  const zwischen = zwischensummeCent(korb, (s) => produkte.find((x) => x.slug === s)?.preisCent);
+  const zwischen = zwischensummeCent(korb, (s, a) => { const x = produkte.find((q) => q.slug === s); return x ? einzelpreisCent(x, a.optionen) : undefined; });
   const gesamt = zwischen != null ? zwischen + (VERSAND_CENT ?? 0) : null;
   const ausgenommen = pos.filter(({ a, p }) => istIndividuell(p, a.text, a.optionen));
   const individuell = ausgenommen.length > 0;
@@ -206,9 +206,9 @@ export default function Bestellablauf({
             <div className="shop-zus-img"><PositionsBild p={p} a={a} farbeHex={farben.find((f) => f.id === a.farbeId)?.hex} textfarbeHex={a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY])?.hex : undefined} /></div>
             <div className="shop-zus-txt">
               <strong>{p.name}</strong>
-              <span className="muted">{a.menge} × {formatPreis(p.preisCent)}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}</span>
+              <span className="muted">{a.menge} × {formatPreis(einzelpreisCent(p, a.optionen))}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}</span>
             </div>
-            <span className="shop-zus-sum">{p.preisCent != null ? formatPreis(p.preisCent * a.menge) : "auf Anfrage"}</span>
+            <span className="shop-zus-sum">{einzelpreisCent(p, a.optionen) != null ? formatPreis(einzelpreisCent(p, a.optionen)! * a.menge) : "auf Anfrage"}</span>
           </li>
         ))}
       </ul>
@@ -304,8 +304,8 @@ export default function Bestellablauf({
                         {p.masse && <div><dt>Maße</dt><dd>{`ca. ${p.masse} mm${p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}`}</dd></div>}
                         <div><dt>Material</dt><dd>{p.material}</dd></div>
                         <div><dt>Hersteller</dt><dd>siehe <a className="shop-link" style={{ minHeight: 0 }} href="/impressum" target="_blank" rel="noopener">Impressum</a></dd></div>
-                        <div><dt>{a.menge} × Einzelpreis</dt><dd>{formatPreis(p.preisCent)}</dd></div>
-                        <div><dt>Summe</dt><dd>{p.preisCent != null ? formatPreis(p.preisCent * a.menge) : "auf Anfrage"}</dd></div>
+                        <div><dt>{a.menge} × Einzelpreis</dt><dd>{formatPreis(einzelpreisCent(p, a.optionen))}</dd></div>
+                        <div><dt>Summe</dt><dd>{einzelpreisCent(p, a.optionen) != null ? formatPreis(einzelpreisCent(p, a.optionen)! * a.menge) : "auf Anfrage"}</dd></div>
                       </dl>
                     </li>
                   );

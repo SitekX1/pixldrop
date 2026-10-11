@@ -8,7 +8,8 @@ export type Form = "rund" | "set" | "pegel" | "schild" | "laterne" | "geister" |
 export interface Optionsgruppe {
   id: string;
   label: string;
-  optionen: { id: string; label: string }[];
+  /** aufpreisCent: Aufpreis in Cent je Stueck, wenn diese Option gewaehlt ist (Standard 0). */
+  optionen: { id: string; label: string; aufpreisCent?: number }[];
 }
 
 export interface TextZeile { label: string; max: number; standard: string }
@@ -57,16 +58,21 @@ const HITZE = hitzeHinweis(MATERIAL);
 // TESTWERT: Testpreis (9,90 EUR) fuer alle bestellbaren Artikel, damit der Server Bestellungen annimmt.
 // Alex ersetzt ihn je Artikel durch den echten Preis.
 const TESTPREIS_CENT = 990;
+const TESTAUFPREIS_BOX_CENT = 400;
 
 export const PRODUKTE: Produkt[] = [
   {
     slug: "wochentags-untersetzer-set",
     name: "Wochentags-Untersetzer-Set Mo–Fr",
-    kurz: "Fünf Untersetzer, ein Halter. Jeder Tag bekommt seine Tasse.",
+    kurz: "Fünf Untersetzer für Montag bis Freitag, auf Wunsch mit Box.",
     beschreibung:
-      "Fünf Untersetzer für Montag bis Freitag mit Halter, damit der Tisch sauber bleibt, auch wenn der Kaffee es nicht ist. Auf Wunsch später mit QR-Code zum Song des Tages auf der Rückseite.",
+      "Fünf Untersetzer für Montag bis Freitag, damit der Tisch sauber bleibt, auch wenn der Kaffee es nicht ist. Auf Wunsch mit passender Box, in die du die Untersetzer hineinstellst. Auf Wunsch später mit QR-Code zum Song des Tages auf der Rückseite.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "set", grundfarbe: "#4fb894",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
+    // TESTWERT: Aufpreis Box (4,00 EUR), Alex legt den echten Preis fest.
+    optionen: [
+      { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: TESTAUFPREIS_BOX_CENT }] },
+    ],
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG], bestseller: true,
   },
   {
@@ -212,4 +218,15 @@ export function istIndividuell(p: Produkt, text: string | null | undefined, _opt
 export function hatFormatwahl(optionen?: Record<string, unknown> | null): boolean {
   if (!optionen) return false;
   return Object.entries(optionen).some(([k, v]) => (/^(fett|kursiv)_\d$/.test(k) && v === "1") || (k === "groesse" && v !== "m"));
+}
+
+/** Einzelpreis in Cent inkl. Aufpreisen der gewaehlten Optionen (id je Gruppe). null = Preis folgt. Gilt fuer Server und Anzeige. */
+export function einzelpreisCent(p: Produkt, optionen?: Record<string, unknown> | null): number | null {
+  if (p.preisCent == null) return null;
+  let s = p.preisCent;
+  for (const g of p.optionen) {
+    const gewaehlt = optionen?.[g.id];
+    s += g.optionen.find((o) => o.id === gewaehlt)?.aufpreisCent ?? 0;
+  }
+  return s;
 }

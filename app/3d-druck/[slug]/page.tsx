@@ -29,7 +29,8 @@ export default async function Produktseite({ params }: Props) {
   const { lieferzeit: LIEFERZEIT_TEXT, wunschtextPausiert } = await holeEinstellungen();
   const bestellbar = istBestellbar(p);
   const halloween = p.gruppe === "halloween";
-  const preis = p.nurAnfrage ? TEXTE.preisAnfrage : formatPreis(p.preisCent);
+  const hatAufpreis = p.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0));
+  const preis = p.nurAnfrage ? TEXTE.preisAnfrage : `${hatAufpreis ? "ab " : ""}${formatPreis(p.preisCent)}`;
 
   return (
     <ShopShell theme={halloween ? "halloween" : undefined} banner={<PauseBanner />}>

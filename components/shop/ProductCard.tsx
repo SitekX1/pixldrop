@@ -24,7 +24,7 @@ export default function ProductCard({
           <h3>{gesperrt ? <span>{p.name}</span> : <Link href={`/3d-druck/${p.slug}`}>{p.name}</Link>}</h3>
           <p className="meta">{meta}</p>
           <div className="shop-card-price">
-            <span className="shop-price-small">{p.nurAnfrage ? TEXTE.preisAnfrage : formatPreis(p.preisCent)}</span>
+            <span className="shop-price-small">{p.nurAnfrage ? TEXTE.preisAnfrage : (p.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0)) ? "ab " : "") + formatPreis(p.preisCent)}</span>
             {sichtbar.length > 0 && (
               <span className="shop-dots" role="img" aria-label={`${farben.length} Farben`}>
                 {sichtbar.map((f) => <i key={f.id} style={{ background: f.hex }} />)}

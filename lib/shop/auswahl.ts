@@ -71,10 +71,10 @@ export function speichereKorb(korb: Korb) {
 export const leereKorb = () => speichereKorb([]);
 
 /** Zwischensumme in Cent; null, wenn ein Preis noch nicht feststeht. */
-export function zwischensummeCent(korb: Korb, preisVon: (slug: string) => number | null | undefined): number | null {
+export function zwischensummeCent(korb: Korb, preisVon: (slug: string, a: Auswahl) => number | null | undefined): number | null {
   let s = 0;
   for (const p of korb) {
-    const e = preisVon(p.slug);
+    const e = preisVon(p.slug, p);
     if (e == null) return null;
     s += e * p.menge;
   }
