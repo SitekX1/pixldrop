@@ -611,7 +611,7 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-err a { color: inherit; }
 .shop-hinweis { padding: 16px; border-radius: var(--shop-r-inner); background: var(--shop-area); border: 1px solid var(--shop-line); font-size: 0.875rem; display: grid; gap: 8px; }
 .shop-hinweis ul { list-style: disc; padding-left: 1.2em; display: grid; gap: 4px; }
-.shop-hinweis summary { cursor: pointer; font-weight: 700; color: var(--shop-link); min-height: 32px; display: flex; align-items: center; }
+.shop-hinweis summary { cursor: pointer; font-weight: 700; color: var(--shop-link); min-height: 44px; display: flex; align-items: center; }
 .shop-hinweis details p { margin-top: 4px; }
 
 /* Header / Footer (Vollbreite per Spread-Schatten, clip-path begrenzt auf die Zeile) */
