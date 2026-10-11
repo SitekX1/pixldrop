@@ -1,4 +1,5 @@
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
+import PauseHoehe from "./PauseHoehe";
 
 // Hinweisbanner bei Bestellpause (Panel-Reiter "Einstellungen"). Server-Komponente: Text kommt fertig aus holeEinstellungen().
 // Bei Fehler/ohne DB liefert holeEinstellungen den Fallback (nicht pausiert) -> dann rendert nichts.
@@ -18,6 +19,7 @@ export default async function PauseBanner() {
           </div>
         </div>
       </div>
+      <PauseHoehe />
     </div>
   );
 }

@@ -12,8 +12,8 @@ export default function Galerie({ bild, preis, chips = [] }: { bild: React.React
       </div>
       <div className="shop-mini">
         <VorschauZusammenfassung />
-        <button type="button" className="shop-mini-btn" aria-expanded={!zu} aria-controls="shop-vorschau-bild" onClick={() => setZu(!zu)}>
-          {zu ? "Vorschau ausklappen" : "Vorschau einklappen"}
+        <button type="button" className="shop-mini-btn" aria-expanded={!zu} aria-controls="shop-vorschau-bild" aria-label={zu ? "Vorschau ausklappen" : "Vorschau einklappen"} onClick={() => setZu(!zu)}>
+          {zu ? "Ausklappen" : "Einklappen"}
         </button>
       </div>
       {(preis || chips.length > 0) && (
