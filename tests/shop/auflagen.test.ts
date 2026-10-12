@@ -15,7 +15,7 @@ const ctxZweiFarben = {
   ipHash: ctx.ipHash,
   kontext: kontext({ farben: [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }, { id: "weiss", name: "Weiß", hex: "#f4f1ea" }] }),
 };
-const wh = (extra: Record<string, unknown>, wert = "30.69") =>
+const wh = (extra: Record<string, unknown>, wert = "30.80") =>
   JSON.stringify({ event_type: "PAYMENT.CAPTURE.COMPLETED", resource: { id: "CAP-W1", status: "COMPLETED", amount: { value: wert, currency_code: "EUR" }, ...extra } });
 
 // ---------------------------------------------------------------- Routen

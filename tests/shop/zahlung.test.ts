@@ -23,13 +23,13 @@ test("Bestellung anlegen: Betrag kommt vom Server, PayPal-Order mit gleichem Bet
   assert.equal(a.body.ok, true);
   assert.match(String(a.body.approveUrl), /^https:\/\/www\.sandbox\.paypal\.com\//);
   assert.equal(db.bestellungen.length, 1);
-  assert.equal(db.bestellungen[0].gesamt_cent, 2 * 1290 + 489);
+  assert.equal(db.bestellungen[0].gesamt_cent, 2 * 1290 + 500);
   assert.equal(db.bestellungen[0].versandart, "hermes");
   assert.equal(db.bestellungen[0].status, "neu");
   assert.equal(db.bestellungen[0].zahlungsstatus, "offen");
   const order = [...paypal.orders.values()][0];
-  assert.equal(order.gesamtCent, 3069);
-  assert.equal(order.versandCent, 489, "PayPal-Versandbetrag = serverseitig aus der Versandart");
+  assert.equal(order.gesamtCent, 3080);
+  assert.equal(order.versandCent, 500, "PayPal-Versandbetrag = serverseitig aus der Versandart");
   assert.equal(order.summeWarenCent + order.versandCent, order.gesamtCent);
   assert.equal(order.returnUrl, `https://test.example/api/shop/zahlung/rueckkehr?b=${a.body.bestellnummer}`);
   assert.equal(db.bestellungen[0].paypal_order_id, "ORDER1TEST");
@@ -48,7 +48,7 @@ test("Versandart: fehlend/falsch/unzulaessig wird mit 422 abgelehnt, Betrag haen
   assert.equal(db.bestellungen.length, 0);
   const dhl = await legeBestellungAn(deps, bestellEingabe({ versandart: "dhl", versandCent: 1 }), ctx);
   assert.equal(dhl.status, 200);
-  assert.equal(db.bestellungen[0].gesamt_cent, 2 * 1290 + 519);
+  assert.equal(db.bestellungen[0].gesamt_cent, 2 * 1290 + 600);
 });
 
 test("Doppelklick/Wiederholung mit gleichem Key: genau eine Bestellung", async () => {
@@ -170,7 +170,7 @@ test("Webhook nach Capture: 200, keine Doppelbuchung, keine zweite Nachricht", a
   const { db, notifier, deps } = neueDeps();
   await legeBestellungAn(deps, bestellEingabe(), ctx);
   await schliesseZahlungAb(deps, "ORDER1TEST");
-  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ORDER1TEST", "30.69"));
+  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ORDER1TEST", "30.80"));
   assert.equal(w.status, 200);
   assert.equal(notifier.telegrams.length, 1);
   assert.equal(db.bestellungen[0].paypal_capture_id, "CAP-ORDER1TEST");
@@ -179,7 +179,7 @@ test("Webhook nach Capture: 200, keine Doppelbuchung, keine zweite Nachricht", a
 test("Webhook zuerst (Kunde schliesst Tab): bucht und meldet; spaetere Rueckkehr ist harmlos", async () => {
   const { db, paypal, notifier, deps } = neueDeps();
   await legeBestellungAn(deps, bestellEingabe(), ctx);
-  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-X1", "30.69"));
+  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-X1", "30.80"));
   assert.equal(w.status, 200);
   assert.equal(db.bestellungen[0].zahlungsstatus, "bezahlt");
   assert.equal(notifier.telegrams.length, 1);
@@ -193,7 +193,7 @@ test("Webhook: falsche Signatur wird abgelehnt und nichts gebucht", async () => 
   const { db, paypal, notifier, deps } = neueDeps();
   await legeBestellungAn(deps, bestellEingabe(), ctx);
   paypal.skript.webhookGueltig = false;
-  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-X1", "30.69"));
+  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-X1", "30.80"));
   assert.equal(w.status, 401);
   assert.equal(db.bestellungen[0].zahlungsstatus, "offen");
   assert.equal(notifier.telegrams.length, 0);
@@ -220,7 +220,7 @@ test("Webhook: DB-Fehler -> 500, damit PayPal erneut zustellt", async () => {
     if (name === "shop_zahlung_buchen") throw new Error("DB weg");
     return original(name, args);
   }) as typeof db.rpc;
-  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-X1", "30.69"));
+  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-X1", "30.80"));
   assert.equal(w.status, 500);
 });
 
@@ -240,7 +240,7 @@ test("Zweite, andere Zahlung auf dieselbe Bestellung wird als doppelt erkannt", 
   const { db, notifier, deps } = neueDeps();
   await legeBestellungAn(deps, bestellEingabe(), ctx);
   await schliesseZahlungAb(deps, "ORDER1TEST");
-  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ANDERE", "30.69"));
+  const w = await verarbeiteWebhook(deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ANDERE", "30.80"));
   assert.equal(w.status, 200);
   assert.ok(db.ereignisse.some((e) => e.art === "doppelte_zahlung"));
   assert.equal(db.bestellungen[0].paypal_capture_id, "CAP-ORDER1TEST", "Original-Capture bleibt");

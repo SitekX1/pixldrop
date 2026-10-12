@@ -40,25 +40,25 @@ test("Stufen klein / mittel / gross: Hermes und DHL", () => {
   const klein = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 1 }]);
   assert.deepEqual(arten(klein), ["hermes", "dhl"]);
   assert.equal(cent(klein, "hermes"), VERSAND_PREISE.hermes.klein.cent);
-  assert.equal(cent(klein, "hermes"), 399);
-  assert.equal(cent(klein, "dhl"), 419);
+  assert.equal(cent(klein, "hermes"), 410);
+  assert.equal(cent(klein, "dhl"), 510);
   const mittel = versandOptionen([{ slug: "stiftebecher-tasse", menge: 1 }]);
-  assert.equal(cent(mittel, "hermes"), 489);
-  assert.equal(cent(mittel, "dhl"), 519);
+  assert.equal(cent(mittel, "hermes"), 500);
+  assert.equal(cent(mittel, "dhl"), 600);
   const gross = versandOptionen([{ slug: "stiftebecher-tasse", menge: VERSAND_STUFE_HOEHER_UEBER_STUECK + 1 }]);
-  assert.equal(cent(gross, "hermes"), 590);
-  assert.equal(cent(gross, "dhl"), 769);
+  assert.equal(cent(gross, "hermes"), 600);
+  assert.equal(cent(gross, "dhl"), 700);
   // gedeckelt: noch mehr Stueck bleibt bei gross
-  assert.equal(cent(versandOptionen([{ slug: "stiftebecher-tasse", menge: 20 }]), "hermes"), 590);
+  assert.equal(cent(versandOptionen([{ slug: "stiftebecher-tasse", menge: 20 }]), "hermes"), 600);
 });
 
 test("Hoechste Stufe der Positionen gewinnt; Schwelle erst ab mehr als 4 Stueck", () => {
   const gemischt = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 1 }, { slug: "stiftebecher-tasse", menge: 1 }]);
-  assert.equal(cent(gemischt, "hermes"), 489);
+  assert.equal(cent(gemischt, "hermes"), 500);
   const vier = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 4 }]);
-  assert.equal(cent(vier, "hermes"), 399, "genau 4 Stueck: keine hoehere Stufe");
+  assert.equal(cent(vier, "hermes"), 410, "genau 4 Stueck: keine hoehere Stufe");
   const fuenf = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 5 }]);
-  assert.equal(cent(fuenf, "hermes"), 489, "5 Stueck: eine Stufe hoeher");
+  assert.equal(cent(fuenf, "hermes"), 500, "5 Stueck: eine Stufe hoeher");
 });
 
 test("Brief: nur flache Untersetzer ohne Box, automatisch nach Stueckzahl", () => {
@@ -101,7 +101,7 @@ test("Leerer Korb und unbekannter Slug", () => {
   assert.deepEqual(versandOptionen([{ slug: "x", menge: 0 }]), []);
   const u = versandOptionen([{ slug: "gibt-es-nicht", menge: 1 }]);
   assert.deepEqual(arten(u), ["hermes", "dhl"]);
-  assert.equal(cent(u, "hermes"), 489, "unbekannt = mittel, nie Brief");
+  assert.equal(cent(u, "hermes"), 500, "unbekannt = mittel, nie Brief");
 });
 
 test("versandOptionenFuerKorb ist tolerant gegenueber Muell", () => {

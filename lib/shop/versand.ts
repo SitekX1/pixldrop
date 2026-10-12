@@ -22,20 +22,21 @@ export interface VersandOption {
 }
 
 /**
- * Preise in Cent je Stufe (Stand 2026-10, vor Livegang auf hermes.de/dhl.de gegenpruefen).
- * DHL Paeckchen S/M haben keine Sendungsverfolgung und keine Haftung (Alex-Entscheidung 2026-10-12: trotzdem anbieten,
- * Hinweis "ohne Sendungsverfolgung" in Warenkorb/Mail/AGB/Versandseite; Risiko traegt der Verkaeufer, § 475 Abs. 2 BGB).
+ * KUNDENPREISE in Cent je Stufe (Alex-Entscheidung 2026-10-12). Hermes ~ Selbstkosten + ca. 10 ct; DHL = Hermes + 1 EUR ("Premium").
+ * Tatsaechliche Kosten fuer Alex: Hermes Paeckchen 3,99 / Paket S 4,89 / Paket M 5,90; DHL Paket 2 kg 6,19 / 5 kg 7,69
+ * (Stand Januar 2026, vor Livegang auf hermes.de/dhl.de gegenpruefen). Den DHL-Zuschuss rechnet Karla in die Artikelpreise ein.
+ * Beide Arten haben Sendungsverfolgung; nur Brief nicht.
  */
 export const VERSAND_PREISE: Record<"hermes" | "dhl", Record<VersandStufe, { label: string; cent: number; tracking: boolean }>> = {
   hermes: {
-    klein: { label: "Hermes Päckchen", cent: 399, tracking: true }, //   lang + kurz <= 37 cm
-    mittel: { label: "Hermes Paket S", cent: 489, tracking: true }, //   <= 50 cm
-    gross: { label: "Hermes Paket M", cent: 590, tracking: true }, //    <= 80 cm
+    klein: { label: "Hermes Päckchen", cent: 410, tracking: true }, //   lang + kurz <= 37 cm
+    mittel: { label: "Hermes Paket S", cent: 500, tracking: true }, //   <= 50 cm
+    gross: { label: "Hermes Paket M", cent: 600, tracking: true }, //    <= 80 cm
   },
   dhl: {
-    klein: { label: "DHL Päckchen S", cent: 419, tracking: false }, //   bis 35 x 25 x 10 cm, 2 kg
-    mittel: { label: "DHL Päckchen M", cent: 519, tracking: false }, //  bis 60 x 30 x 15 cm, 2 kg
-    gross: { label: "DHL Paket 5 kg", cent: 769, tracking: true }, //    bis 120 x 60 x 60 cm (VORLAEUFIG)
+    klein: { label: "DHL Paket 2 kg", cent: 510, tracking: true }, //   bis 60 x 30 x 15 cm
+    mittel: { label: "DHL Paket 2 kg", cent: 600, tracking: true }, //  bis 60 x 30 x 15 cm
+    gross: { label: "DHL Paket 5 kg", cent: 700, tracking: true }, //   bis 120 x 60 x 60 cm (VORLAEUFIG)
   },
 };
 

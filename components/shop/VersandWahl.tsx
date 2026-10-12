@@ -2,7 +2,7 @@
 import type { VersandOption, VersandArt } from "@/lib/shop/versand";
 import { formatPreis } from "@/lib/shop/config";
 
-const trackingText = (o: VersandOption) => (o.tracking ? "mit Sendungsverfolgung" : "ohne Sendungsverfolgung und Haftung");
+const trackingText = (o: VersandOption) => (o.tracking ? "mit Sendungsverfolgung" : "ohne Sendungsverfolgung");
 
 // Versandart im Warenkorb: Radiokarten (Hermes/DHL), bei Brief nur eine feste Zeile ohne Auswahl.
 export default function VersandWahl({ optionen, gewaehlt, onWahl, fehler }: { optionen: VersandOption[]; gewaehlt: VersandArt | null; onWahl: (a: VersandArt) => void; fehler?: string }) {
