@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { formatPreis } from "@/lib/shop/config";
 import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
-import { SCHRIFTEN, unerlaubteZeichen } from "@/lib/shop/schriften";
+import { SCHRIFTEN, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung, umlauteErsetzen } from "@/lib/shop/schriften";
 import { GROESSEN, type GroesseId } from "@/lib/shop/umbruch";
 import {
   NICHT_VERFUEGBAR, PASST_NICHT, formatZuOptionen, groessteDiePasst, pruefePasst, standardFormat, zeilenAnzahl, type TextFormat,
@@ -37,7 +37,7 @@ export default function ProductBuy({
   const [menge, setMenge] = useState(1);
   const pers = produkt.personalisierung;
   const [zeilen, setZeilen] = useState<string[]>(() => (pers?.zeilen ? pers.zeilen.map((z) => z.standard) : pers ? [""] : []));
-  const [schriftId, setSchriftId] = useState(pers?.festeSchrift ?? SCHRIFTEN[0].id);
+  const [schriftId, setSchriftId] = useState(pers?.festeSchrift ?? pers?.standardSchrift ?? SCHRIFTEN[0].id);
   const [fmtRoh, setFmtRoh] = useState<TextFormat>(() => standardFormat(pers ? zeilenAnzahl(pers) : 0));
   // null = Kunde hat keine Stufe gewählt: dann gilt automatisch die größte, die noch passt.
   const [groesseWahl, setGroesseWahl] = useState<GroesseId | null>(null);
@@ -64,7 +64,9 @@ export default function ProductBuy({
   const textFehler = !pers ? null
     : zeilen.some((z) => z.trim() === "") ? "Bitte fülle alle Textzeilen aus."
     : unerlaubteZeichen(zeilen.join("")).length > 0 ? `Nicht druckbare Zeichen: ${unerlaubteZeichen(zeilen.join("")).join(" ")}`
+    : schrift && fehlendeZeichen(zeilen.join(""), schrift.id).length > 0 ? fehlendeZeichenMeldung(zeilen.join(""), schrift.id)
     : null;
+  const umlauteFehlen = !!schrift && fehlendeZeichen(zeilen.join(""), schrift.id).some((c) => c in { "ä": 1, "ö": 1, "ü": 1, "Ä": 1, "Ö": 1, "Ü": 1, "ß": 1 });
   const trimmed = zeilen.map((z) => z.trim());
   const autoGroesse = pers && schrift && !textFehler ? groessteDiePasst(pers, trimmed, schrift, fmtOhneGroesse) : fmtOhneGroesse.groesse;
   const fmt: TextFormat = { ...fmtOhneGroesse, groesse: groesseWahl ?? autoGroesse };
@@ -201,7 +203,8 @@ export default function ProductBuy({
             </div>
           </fieldset>
           {passtNicht && <p id="t-passt" className="shop-err" role="alert"><span>{PASST_NICHT}</span></p>}
-          {textFehler && <p id="t-fehler" className="shop-err" role="alert"><span>{textFehler}</span></p>}
+          {textFehler && <p id="t-fehler" className="shop-err" role="alert"><span>{textFehler}</span>
+            {umlauteFehlen && <button type="button" className="shop-umlaut-btn" onClick={() => setZeilen((zs) => zs.map((z) => umlauteErsetzen(z, schrift?.fehlendeZeichen)))}>Umlaute ersetzen (ä→ae, ö→oe, ü→ue, Ä→Ae, Ö→Oe, Ü→Ue, ß→ss)</button>}</p>}
           {filterFehler && (
             <p id="t-filter" className="shop-err" role="alert">
               <span>{filterFehler}<br /><Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></span>
@@ -230,7 +233,7 @@ export default function ProductBuy({
               <label key={sf.id} className="shop-schrift">
                 <input type="radio" name="t-schrift" value={sf.id} checked={schriftId === sf.id} onChange={() => setSchriftId(sf.id)} />
                 <span className="shop-schrift-bsp" style={{ fontFamily: sf.family }} aria-hidden="true">{beispielText}</span>
-                <span className="shop-schrift-name">{sf.name}</span>
+                <span className="shop-schrift-name">{sf.name}{sf.fehlendeZeichen.includes("ä") || sf.fehlendeZeichen.includes("ß") ? <small className="shop-schrift-ohne"> · {sf.fehlendeZeichen.includes("ä") ? "ohne Umlaute" : "ohne ß"}</small> : null}</span>
               </label>
             ))}
           </div>

@@ -5,6 +5,7 @@ import {
   Bricolage_Grotesque, Montserrat, Oswald, Dancing_Script, Pacifico, Caveat, Satisfy, Lobster,
   Permanent_Marker, Bangers, Righteous, Playfair_Display, Cinzel,
 } from "next/font/google";
+import localFont from "next/font/local";
 
 const display = Bricolage_Grotesque({
   subsets: ["latin", "latin-ext"], weight: ["600", "700", "800"], variable: "--font-shop-display", display: "swap",
@@ -22,6 +23,24 @@ const righteous = Righteous({ subsets: ["latin"], weight: ["400"], variable: "--
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["700", "900"], style: ["normal", "italic"], variable: "--font-sf-playfair", display: "swap", preload: false });
 const cinzel = Cinzel({ subsets: ["latin"], weight: ["700", "900"], variable: "--font-sf-cinzel", display: "swap", preload: false });
 
+// 14 zusätzliche Schriften (Eko Bimantara / Khurasan / Montague), Dateien UNVERÄNDERT aus ./fonts-frei, selbst gehostet.
+// Lizenzen: siehe SCHRIFTEN-LIZENZEN.md (recht-texte im 3D-Druck-Ordner). preload:false = geladen erst, wenn ein Element die Schrift nutzt.
+const artsyF = localFont({ src: "./fonts-frei/artsy-morning.otf", weight: "400", style: "normal", variable: "--font-sf-artsy", display: "swap", preload: false, fallback: ["cursive"] });
+const bulbearF = localFont({ src: "./fonts-frei/bulbear.otf", weight: "400", style: "normal", variable: "--font-sf-bulbear", display: "swap", preload: false, fallback: ["cursive"] });
+const montagueF = localFont({ src: "./fonts-frei/montague.ttf", weight: "400", style: "normal", variable: "--font-sf-montague", display: "swap", preload: false, fallback: ["cursive"] });
+const oldwestF = localFont({ src: "./fonts-frei/oldwest.otf", weight: "400", style: "normal", variable: "--font-sf-oldwest", display: "swap", preload: false, fallback: ["cursive"] });
+const rosemartinF = localFont({ src: "./fonts-frei/rosemartin.otf", weight: "400", style: "normal", variable: "--font-sf-rosemartin", display: "swap", preload: false, fallback: ["cursive"] });
+const roundexF = localFont({ src: "./fonts-frei/roundex.otf", weight: "400", style: "normal", variable: "--font-sf-roundex", display: "swap", preload: false, fallback: ["cursive"] });
+const startstoryF = localFont({ src: "./fonts-frei/start-story.ttf", weight: "400", style: "normal", variable: "--font-sf-startstory", display: "swap", preload: false, fallback: ["cursive"] });
+const streetyearF = localFont({ src: "./fonts-frei/street-year.ttf", weight: "400", style: "normal", variable: "--font-sf-streetyear", display: "swap", preload: false, fallback: ["cursive"] });
+const sallyF = localFont({ src: "./fonts-frei/the-sally.ttf", weight: "400", style: "normal", variable: "--font-sf-sally", display: "swap", preload: false, fallback: ["cursive"] });
+const travelliaF = localFont({ src: "./fonts-frei/travellia.ttf", weight: "400", style: "normal", variable: "--font-sf-travellia", display: "swap", preload: false, fallback: ["cursive"] });
+const veganF = localFont({ src: "./fonts-frei/vegan-days.ttf", weight: "400", style: "normal", variable: "--font-sf-vegan", display: "swap", preload: false, fallback: ["cursive"] });
+const dramaF = localFont({ src: "./fonts-frei/welcome-drama.ttf", weight: "400", style: "normal", variable: "--font-sf-drama", display: "swap", preload: false, fallback: ["cursive"] });
+const winterF = localFont({ src: "./fonts-frei/winter-draw.ttf", weight: "400", style: "normal", variable: "--font-sf-winter", display: "swap", preload: false, fallback: ["cursive"] });
+const dragonF = localFont({ src: "./fonts-frei/wood-dragon.ttf", weight: "400", style: "normal", variable: "--font-sf-dragon", display: "swap", preload: false, fallback: ["cursive"] });
+
 export const fontVariablen = [
   display, montserrat, oswald, dancing, pacifico, caveat, satisfy, lobster, marker, bangers, righteous, playfair, cinzel,
+  artsyF, bulbearF, montagueF, oldwestF, rosemartinF, roundexF, startstoryF, streetyearF, sallyF, travelliaF, veganF, dramaF, winterF, dragonF,
 ].map((f) => f.variable).join(" ");

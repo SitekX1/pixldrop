@@ -5,7 +5,7 @@ import "server-only";
 // uebernommen, nur Artikel-Slug, Menge und Auswahl.
 import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "../produkte";
 import type { Farbe } from "../farben";
-import { SCHRIFTEN, unerlaubteZeichen } from "../schriften";
+import { SCHRIFTEN, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung } from "../schriften";
 import {
   formatAnzeige, formatAusOptionen, formatUnerlaubt, istFormatSchluessel, pruefePasst, zeilenAnzahl,
 } from "../textformat";
@@ -26,6 +26,7 @@ export interface Kontext {
 
 export type FehlerCode =
   | "ungueltig"
+  | "schrift_zeichen_fehlen"
   | "unbekannt"
   | "nicht_bestellbar"
   | "preis_folgt"
@@ -182,9 +183,12 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       }
       const pruef = pruefeWunschtext(zeilen);
       if (!pruef.ok) return fehler("text_unzulaessig", pruef.meldung);
-      const wunsch = pers.festeSchrift ?? (typeof roh.schriftId === "string" ? roh.schriftId : "");
+      const wunsch = pers.festeSchrift ?? (typeof roh.schriftId === "string" && roh.schriftId ? roh.schriftId : pers.standardSchrift ?? "");
       const s = SCHRIFTEN.find((x) => x.id === wunsch);
       if (!s) return fehler("text_ungueltig", "Bitte wähle eine Schrift.");
+      if (fehlendeZeichen(zeilen.join(""), s.id).length > 0) {
+        return fehler("schrift_zeichen_fehlen", fehlendeZeichenMeldung(zeilen.join(""), s.id) ?? "Die Schrift kann nicht alle Zeichen darstellen.");
+      }
       // Textformat: nur gelistete Schalter/Stufen, nur Fähigkeiten der Schrift, Text muss aufs Stück passen
       const fmt = formatAusOptionen(formatIn, zeilenAnzahl(pers));
       if (!fmt) return fehler("option_ungueltig", "Ungültige Formatwahl.");

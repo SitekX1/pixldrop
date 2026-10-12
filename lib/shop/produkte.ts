@@ -24,6 +24,8 @@ zeile2". */
   zeilen?: TextZeile[];
   /** Feste Schrift (id aus lib/shop/schriften.ts), keine Auswahl; andere Schrift nur ueber "Individuell anfragen". */
   festeSchrift?: string;
+  /** Vorbelegte Schrift (id), Kunde darf trotzdem wechseln. */
+  standardSchrift?: string;
 }
 
 /** Fertige Farbkombination (statt Lagerfarb-Wahl). Erweiterbar: einfach einen Eintrag in KOMBI_WOCHENTAG ergaenzen. */
@@ -150,7 +152,7 @@ export const PRODUKTE: Produkt[] = [
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1c1c1c",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: {
-      maxLaenge: 30, label: "Text auf dem Schild", beispiel: "Sabine", festeSchrift: "montserrat",
+      maxLaenge: 30, label: "Text auf dem Schild", beispiel: "Sabine", standardSchrift: "montserrat",
       zeilen: [
         { label: "Kleine Zeile oben links", max: 16, standard: "Teamleiter" },
         { label: "Große Zeile in der Mitte", max: 12, standard: "Sabine" },

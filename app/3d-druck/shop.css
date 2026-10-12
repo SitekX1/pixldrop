@@ -920,3 +920,8 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-versand-preis { flex: none; font: 800 1rem/1.2 var(--shop-display); color: var(--shop-ink); font-variant-numeric: tabular-nums; }
 .shop-versand-fest { display: grid; gap: 2px; padding: 12px 16px; border: 2px solid var(--shop-control); border-radius: 14px; background: var(--shop-card); }
 .shop-versand-fest strong { font: 700 1rem/1.25 var(--shop-display); color: var(--shop-ink); }
+
+.shop-umlaut-btn { display: block; margin-top: 8px; min-height: 44px; padding: 8px 12px; font: 600 0.875rem/1.25 var(--shop-display); text-align: left; color: var(--shop-ink); background: #fff; border: 1.5px solid var(--shop-ink); border-radius: var(--shop-r-m); cursor: pointer; touch-action: manipulation; }
+.shop-schrift-ohne { font-size: 0.6875rem; color: var(--shop-muted); }
+.shop-err:has(.shop-umlaut-btn) { flex-wrap: wrap; }
+.shop-err .shop-umlaut-btn { flex: 1 1 100%; width: 100%; }
