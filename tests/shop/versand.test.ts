@@ -41,10 +41,10 @@ test("Stufen klein / mittel / gross: Hermes und DHL", () => {
   assert.deepEqual(arten(klein), ["hermes", "dhl"]);
   assert.equal(cent(klein, "hermes"), VERSAND_PREISE.hermes.klein.cent);
   assert.equal(cent(klein, "hermes"), 399);
-  assert.equal(cent(klein, "dhl"), 619);
+  assert.equal(cent(klein, "dhl"), 419);
   const mittel = versandOptionen([{ slug: "stiftebecher-tasse", menge: 1 }]);
   assert.equal(cent(mittel, "hermes"), 489);
-  assert.equal(cent(mittel, "dhl"), 769);
+  assert.equal(cent(mittel, "dhl"), 519);
   const gross = versandOptionen([{ slug: "stiftebecher-tasse", menge: VERSAND_STUFE_HOEHER_UEBER_STUECK + 1 }]);
   assert.equal(cent(gross, "hermes"), 590);
   assert.equal(cent(gross, "dhl"), 769);

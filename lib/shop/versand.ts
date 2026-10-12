@@ -17,19 +17,25 @@ export interface VersandOption {
   art: VersandArt;
   label: string;
   cent: number;
+  /** true = mit Sendungsverfolgung (Hermes, DHL Paket); false = ohne (DHL Paeckchen, Brief) */
+  tracking: boolean;
 }
 
-/** Preise in Cent je Stufe (verifiziert, Stand 2026-10). DHL: nur Pakete mit Sendungsverfolgung (Paeckchen S/M haben keine). */
-export const VERSAND_PREISE: Record<"hermes" | "dhl", Record<VersandStufe, { label: string; cent: number }>> = {
+/**
+ * Preise in Cent je Stufe (Stand 2026-10, vor Livegang auf hermes.de/dhl.de gegenpruefen).
+ * DHL Paeckchen S/M haben keine Sendungsverfolgung und keine Haftung (Alex-Entscheidung 2026-10-12: trotzdem anbieten,
+ * Hinweis "ohne Sendungsverfolgung" in Warenkorb/Mail/AGB/Versandseite; Risiko traegt der Verkaeufer, § 475 Abs. 2 BGB).
+ */
+export const VERSAND_PREISE: Record<"hermes" | "dhl", Record<VersandStufe, { label: string; cent: number; tracking: boolean }>> = {
   hermes: {
-    klein: { label: "Hermes Päckchen", cent: 399 }, //   lang + kurz <= 37 cm
-    mittel: { label: "Hermes Paket S", cent: 489 }, //   <= 50 cm
-    gross: { label: "Hermes Paket M", cent: 590 }, //    <= 80 cm
+    klein: { label: "Hermes Päckchen", cent: 399, tracking: true }, //   lang + kurz <= 37 cm
+    mittel: { label: "Hermes Paket S", cent: 489, tracking: true }, //   <= 50 cm
+    gross: { label: "Hermes Paket M", cent: 590, tracking: true }, //    <= 80 cm
   },
   dhl: {
-    klein: { label: "DHL Paket 2 kg", cent: 619 }, //   bis 60 x 30 x 15 cm
-    mittel: { label: "DHL Paket 5 kg", cent: 769 }, //   bis 120 x 60 x 60 cm
-    gross: { label: "DHL Paket 5 kg", cent: 769 }, //    (gleiche Stufe wie mittel, VORLAEUFIG)
+    klein: { label: "DHL Päckchen S", cent: 419, tracking: false }, //   bis 35 x 25 x 10 cm, 2 kg
+    mittel: { label: "DHL Päckchen M", cent: 519, tracking: false }, //  bis 60 x 30 x 15 cm, 2 kg
+    gross: { label: "DHL Paket 5 kg", cent: 769, tracking: true }, //    bis 120 x 60 x 60 cm (VORLAEUFIG)
   },
 };
 
@@ -107,14 +113,14 @@ export function versandOptionen(positionen: readonly VersandPosition[]): Versand
   if (alleBrief) {
     const b = stueck <= VERSAND_BRIEF.grossbrief.maxStueck ? VERSAND_BRIEF.grossbrief
       : stueck <= VERSAND_BRIEF.maxibrief.maxStueck ? VERSAND_BRIEF.maxibrief : null;
-    if (b) return [{ art: "brief", label: b.label, cent: b.cent }];
+    if (b) return [{ art: "brief", label: b.label, cent: b.cent, tracking: false }];
   }
 
   if (stueck > VERSAND_STUFE_HOEHER_UEBER_STUECK) stufe += 1;
   const s = STUFEN[Math.min(stufe, STUFEN.length - 1)];
   return [
-    { art: "hermes", label: VERSAND_PREISE.hermes[s].label, cent: VERSAND_PREISE.hermes[s].cent },
-    { art: "dhl", label: VERSAND_PREISE.dhl[s].label, cent: VERSAND_PREISE.dhl[s].cent },
+    { art: "hermes", ...VERSAND_PREISE.hermes[s] },
+    { art: "dhl", ...VERSAND_PREISE.dhl[s] },
   ];
 }
 

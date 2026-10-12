@@ -57,8 +57,8 @@ test("Server rechnet den Versand aus der Versandart, nicht vom Client", () => {
   assert.ok(h.ok && d.ok);
   assert.equal(h.wert.versandCent, 489); // stiftebecher = mittel, 2 Stueck: Hermes Paket S
   assert.equal(h.wert.versandart, "hermes");
-  assert.equal(d.wert.versandCent, 769);
-  assert.equal(d.wert.gesamtCent, 2580 + 769);
+  assert.equal(d.wert.versandCent, 519);
+  assert.equal(d.wert.gesamtCent, 2580 + 519);
 });
 
 test("Brief nur fuer flache Untersetzer ohne Box", () => {

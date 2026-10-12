@@ -110,7 +110,7 @@ export default function Bestellablauf({
   const zwischen = zwischensummeCent(korb, (s, a) => { const x = produkte.find((q) => q.slug === s); return x ? einzelpreisCent(x, a.optionen) : undefined; });
   const versandOptionen = versandOptionenFuerKorb(korb);
   const versand = gueltigeVersandart(versandOptionen, versandWahl);
-  const versandText = versand ? `${versand.art === "brief" ? "Brief (Deutsche Post)" : versand.label}${versand.art === "brief" ? ", ohne Sendungsverfolgung" : ", mit Sendungsverfolgung"}` : "";
+  const versandText = versand ? `${versand.art === "brief" ? "Brief (Deutsche Post)" : versand.label}${versand.tracking ? ", mit Sendungsverfolgung" : ", ohne Sendungsverfolgung und Haftung"}` : "";
   const gesamt = zwischen != null && versand ? zwischen + versand.cent : null;
   const ausgenommen = pos.filter(({ a, p }) => istIndividuell(p, a.text, a.optionen));
   const individuell = ausgenommen.length > 0;

@@ -48,7 +48,7 @@ test("Versandart: fehlend/falsch/unzulaessig wird mit 422 abgelehnt, Betrag haen
   assert.equal(db.bestellungen.length, 0);
   const dhl = await legeBestellungAn(deps, bestellEingabe({ versandart: "dhl", versandCent: 1 }), ctx);
   assert.equal(dhl.status, 200);
-  assert.equal(db.bestellungen[0].gesamt_cent, 2 * 1290 + 769);
+  assert.equal(db.bestellungen[0].gesamt_cent, 2 * 1290 + 519);
 });
 
 test("Doppelklick/Wiederholung mit gleichem Key: genau eine Bestellung", async () => {
