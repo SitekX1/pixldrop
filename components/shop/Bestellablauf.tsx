@@ -6,8 +6,9 @@ import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produk
 import { TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
-import { ladeKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
-import { SHOP_AKTIV, TEXTE, VERSAND_CENT, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
+import { gueltigeVersandart, ladeKorb, ladeVersandart, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
+import { versandOptionenFuerKorb, VERSANDART_NAME } from "@/lib/shop/versand";
+import { SHOP_AKTIV, TEXTE, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
 import { pruefeWunschtext, TEXT_MELDUNG } from "@/lib/shop/textfilter";
 import PositionsBild, { kombiVon } from "./PositionsBild";
 import { baueBestellung, holeFormToken, idempotenzKeyFuer, istPaypalUrl, ladeKunde, sendeBestellung, speichereKunde } from "@/lib/shop/client";
@@ -54,6 +55,7 @@ export default function Bestellablauf({
   const [token, setToken] = useState<string | null>(null);
   const [tokenFehler, setTokenFehler] = useState(false);
   const [website, setWebsite] = useState("");
+  const [versandWahl, setVersandWahl] = useState<string | null>(null);
   const [pauseServer, setPauseServer] = useState<{ code: string; meldung: string } | null>(null);
   const kopf = useRef<HTMLHeadingElement>(null);
   const alertRef = useRef<HTMLDivElement>(null);
@@ -61,6 +63,7 @@ export default function Bestellablauf({
 
   useEffect(() => {
     setKorb(ladeKorb());
+    setVersandWahl(ladeVersandart());
     const k = ladeKunde();
     if (k) setDaten({ ...LEER, ...k });
     setGeladen(true);
@@ -94,7 +97,10 @@ export default function Bestellablauf({
 
   const pos = zeilen as { a: Korb[number]; p: Produkt }[];
   const zwischen = zwischensummeCent(korb, (s, a) => { const x = produkte.find((q) => q.slug === s); return x ? einzelpreisCent(x, a.optionen) : undefined; });
-  const gesamt = zwischen != null ? zwischen + (VERSAND_CENT ?? 0) : null;
+  const versandOptionen = versandOptionenFuerKorb(korb);
+  const versand = gueltigeVersandart(versandOptionen, versandWahl);
+  const versandText = versand ? `${versand.art === "brief" ? "Brief (Deutsche Post)" : versand.label}${versand.art === "brief" ? ", ohne Sendungsverfolgung" : ", mit Sendungsverfolgung"}` : "";
+  const gesamt = zwischen != null && versand ? zwischen + versand.cent : null;
   const ausgenommen = pos.filter(({ a, p }) => istIndividuell(p, a.text, a.optionen));
   const individuell = ausgenommen.length > 0;
   const wunschGesperrt = wunschtextPausiert && pos.some(({ p }) => !!p.personalisierung);
@@ -133,6 +139,7 @@ export default function Bestellablauf({
       requestAnimationFrame(() => alertRef.current?.focus());
       return;
     }
+    if (!versand) { setServerFehler("Für diesen Warenkorb konnte keine Versandart ermittelt werden. Bitte prüfe deinen Warenkorb."); requestAnimationFrame(() => alertRef.current?.focus()); return; }
     if (!SHOP_AKTIV) { setStatus("Bestellung noch nicht aktiv. Es wurde nichts gesendet oder gespeichert."); return; }
     setLaeuft(true);
     const t = token ?? (await holeFormToken());
@@ -143,9 +150,9 @@ export default function Bestellablauf({
       return;
     }
     setToken(t);
-    const inhalt = { korb, daten };
+    const inhalt = { korb, daten, versandart: versand.art };
     const key = idempotenzKeyFuer(JSON.stringify(inhalt));
-    const r = await sendeBestellung(baueBestellung({ token: t, idempotenzKey: key, auswahl: korb, kunde: daten, agb, verzicht: individuell && verzicht, website }));
+    const r = await sendeBestellung(baueBestellung({ token: t, idempotenzKey: key, auswahl: korb, kunde: daten, agb, verzicht: individuell && verzicht, website, versandart: versand?.art }));
     if (r.ok && istPaypalUrl(r.approveUrl)) {
       window.location.href = r.approveUrl; // Button bleibt gesperrt bis die Seite wechselt
       return;
@@ -155,6 +162,11 @@ export default function Bestellablauf({
     else {
       const fe = r.fehler;
       if (fe.code === "pausiert" || fe.code === "wunschtext_pausiert") { setPauseServer({ code: fe.code, meldung: fe.meldung }); requestAnimationFrame(() => alertRef.current?.focus()); return; }
+      if (fe.code === "versandart_fehlt" || fe.code === "versandart_ungueltig") {
+        setServerFehler("Die Versandart passt nicht mehr zu deinem Warenkorb. Bitte wähle sie im Warenkorb noch einmal aus.");
+        requestAnimationFrame(() => alertRef.current?.focus());
+        return;
+      }
       if (fe.code === "token") holeFormToken().then(setToken);
       if (fe.felder && Object.keys(fe.felder).length) {
         gehe(2);
@@ -214,7 +226,7 @@ export default function Bestellablauf({
       </ul>
       <dl className="shop-cart-sum">
         <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
-        <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "auf Anfrage"}</dd></div>
+        <div><dt>Versand ({versand ? VERSANDART_NAME[versand.art] : "Deutschland"})</dt><dd>{versand ? formatPreis(versand.cent) : "auf Anfrage"}</dd></div>
         <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div>
       </dl>
       <p className="muted">{TEXTE.kleinunternehmer}</p>
@@ -313,7 +325,8 @@ export default function Bestellablauf({
               </ul>
               <dl>
                 <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
-                <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "auf Anfrage"}</dd></div>
+                {versand && <div><dt>Versandart</dt><dd>{versandText}</dd></div>}
+                <div><dt>Versand ({versand ? VERSANDART_NAME[versand.art] : "Deutschland"})</dt><dd>{versand ? formatPreis(versand.cent) : "auf Anfrage"}</dd></div>
               </dl>
               <dl><div className="gesamt"><dt>Gesamtpreis</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div></dl>
               <div className="kleinteil">

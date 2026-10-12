@@ -2,14 +2,17 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { PRODUKTE, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN } from "@/lib/shop/schriften";
-import { berechneWarenkorb, type Kontext } from "@/lib/shop/server/preise";
+import { berechneWarenkorb as berechneRoh, type Kontext } from "@/lib/shop/server/preise";
 import {
   formatAnzeige, formatAusOptionen, formatZuOptionen, formatUnerlaubt, groessteDiePasst, pruefePasst, standardFormat,
 } from "@/lib/shop/textformat";
+import { versandOptionenFuerKorb } from "@/lib/shop/versand";
+// Standard-Versandart: erste zulaessige Option des Warenkorbs (Tests, die Versand nicht pruefen)
+const berechneWarenkorb = (e: unknown, c: Kontext, v: unknown = versandOptionenFuerKorb(Array.isArray(e) ? e : [])[0]?.art ?? "hermes") => berechneRoh(e, c, v);
 
 const katalog: Produkt[] = PRODUKTE.map((p) => ({ ...p, preisCent: 1290 }));
 const farben = [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }];
-const ctx = (): Kontext => ({ produkte: katalog, farben, versandCent: 490, bestellbar: () => true });
+const ctx = (): Kontext => ({ produkte: katalog, farben, bestellbar: () => true });
 const spruch = katalog.find((p) => p.slug === "spruch-untersetzer")!;
 const schild = katalog.find((p) => p.slug === "tischschild-erster-kaffee")!;
 const sf = (id: string) => SCHRIFTEN.find((s) => s.id === id)!;

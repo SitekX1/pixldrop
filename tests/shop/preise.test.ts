@@ -1,8 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { PRODUKTE, type Produkt } from "@/lib/shop/produkte";
-import { berechneWarenkorb, centZuPayPal, farbeId, payPalZuCent, type Kontext } from "@/lib/shop/server/preise";
+import { berechneWarenkorb as berechneRoh, centZuPayPal, farbeId, payPalZuCent, type Kontext } from "@/lib/shop/server/preise";
 import { farbenAusZeilen } from "@/lib/shop/farben";
+import { versandOptionenFuerKorb } from "@/lib/shop/versand";
+// Standard-Versandart: erste zulaessige Option des Warenkorbs (Tests, die Versand nicht pruefen)
+const berechneWarenkorb = (e: unknown, c: Kontext, v: unknown = versandOptionenFuerKorb(Array.isArray(e) ? e : [])[0]?.art ?? "hermes") => berechneRoh(e, c, v);
 
 const katalog: Produkt[] = PRODUKTE.map((p) => ({ ...p, preisCent: 1290 }));
 const farben = [
@@ -10,23 +13,23 @@ const farben = [
   { id: "schwarz", name: "Schwarz", hex: "#1c1c1c" },
 ];
 const ctx = (extra: Partial<Kontext> = {}): Kontext => ({
-  produkte: katalog, farben, versandCent: 490, bestellbar: () => true, ...extra,
+  produkte: katalog, farben, bestellbar: () => true, ...extra,
 });
 const K = "schwarz-tuerkis-weiss";
 const pos = (extra: Record<string, unknown> = {}) => ({ slug: "stiftebecher-tasse", menge: 2, farbeId: "schwarz", ...extra });
 
-test("Preis wird serverseitig berechnet: 2 x 12,90 + 4,90 Versand", () => {
+test("Preis wird serverseitig berechnet: 2 x 12,90 + 4,89 Versand (Hermes Paket S)", () => {
   const r = berechneWarenkorb([pos()], ctx());
   assert.ok(r.ok);
   assert.equal(r.wert.summeWarenCent, 2580);
-  assert.equal(r.wert.gesamtCent, 3070);
+  assert.equal(r.wert.gesamtCent, 3069);
   assert.equal(r.wert.positionen[0].einzelpreisCent, 1290);
 });
 
 test("Vom Client gesendete Preise werden ignoriert", () => {
   const r = berechneWarenkorb([pos({ einzelpreisCent: 1, preisCent: 1, preis: 0.01, gesamt: 1 })], ctx());
   assert.ok(r.ok);
-  assert.equal(r.wert.gesamtCent, 3070);
+  assert.equal(r.wert.gesamtCent, 3069);
 });
 
 test("Artikel ohne Preis (Preis folgt) ist nicht bestellbar", () => {
@@ -36,10 +39,43 @@ test("Artikel ohne Preis (Preis folgt) ist nicht bestellbar", () => {
   assert.equal(r.fehler.code, "preis_folgt");
 });
 
-test("Ohne festgelegte Versandkosten keine Bestellung", () => {
-  const r = berechneWarenkorb([pos()], ctx({ versandCent: null }));
-  assert.ok(!r.ok);
-  assert.equal(r.fehler.code, "versand_folgt");
+test("Versandart ist Pflicht und kommt aus der Whitelist", () => {
+  const ohne = berechneRoh([pos()], ctx(), undefined);
+  assert.ok(!ohne.ok);
+  assert.equal(ohne.fehler.code, "versandart_fehlt");
+  for (const v of [null, ""]) assert.equal((berechneWarenkorb([pos()], ctx(), v) as { fehler: { code: string } }).fehler.code, "versandart_fehlt");
+  for (const v of ["ups", "HERMES", 5, {}, ["hermes"], "hermes; drop"]) {
+    const r = berechneWarenkorb([pos()], ctx(), v);
+    assert.ok(!r.ok, String(v));
+    assert.equal(r.fehler.code, "versandart_ungueltig");
+  }
+});
+
+test("Server rechnet den Versand aus der Versandart, nicht vom Client", () => {
+  const h = berechneWarenkorb([pos({ versandCent: 1, versand: 0 })], ctx(), "hermes");
+  const d = berechneWarenkorb([pos()], ctx(), "dhl");
+  assert.ok(h.ok && d.ok);
+  assert.equal(h.wert.versandCent, 489); // stiftebecher = mittel, 2 Stueck: Hermes Paket S
+  assert.equal(h.wert.versandart, "hermes");
+  assert.equal(d.wert.versandCent, 769);
+  assert.equal(d.wert.gesamtCent, 2580 + 769);
+});
+
+test("Brief nur fuer flache Untersetzer ohne Box", () => {
+  const flach = { slug: "wochentags-untersetzer-einzeln", menge: 1, farbeId: null };
+  const ok = berechneWarenkorb([{ ...flach, optionen: { tag: "mo", box: "ohne", farbkombi: K } }], ctx(), "brief");
+  assert.ok(ok.ok);
+  assert.equal(ok.wert.versandCent, 180);
+  assert.equal(ok.wert.versandart, "brief");
+  // statt Brief gibt es dann keine Paketwahl
+  assert.equal((berechneWarenkorb([{ ...flach, optionen: { tag: "mo", box: "ohne", farbkombi: K } }], ctx(), "hermes") as { fehler: { code: string } }).fehler.code, "versandart_ungueltig");
+  // mit Box: kein Brief
+  const box = berechneWarenkorb([{ ...flach, optionen: { tag: "mo", box: "mit", farbkombi: K } }], ctx(), "brief");
+  assert.ok(!box.ok);
+  assert.equal(box.fehler.code, "versandart_ungueltig");
+  assert.ok(berechneWarenkorb([{ ...flach, optionen: { tag: "mo", box: "mit", farbkombi: K } }], ctx(), "hermes").ok);
+  // nicht brieffaehiger Artikel: kein Brief
+  assert.ok(!berechneWarenkorb([pos()], ctx(), "brief").ok);
 });
 
 test("Lager nicht lesbar -> kein stiller Platzhalter", () => {
@@ -158,7 +194,7 @@ test("Schriftfarbe: nur Lagerfarben, nicht gleich/aehnlich wie Grundfarbe, ohne 
   assert.ok(ok.ok);
   assert.equal(ok.wert.positionen[0].optionen["Schriftfarbe"], "Honiggold");
   assert.equal(ok.wert.individuell, false, "Schriftfarbe ist Variantenwahl: Standardtext bleibt widerruflich");
-  assert.equal(ok.wert.gesamtCent, 1290 + 490, "kein Preisaufschlag");
+  assert.equal(ok.wert.gesamtCent, 1290 + 399, "kein Preisaufschlag");
   const gleich = berechneWarenkorb([{ ...basis, optionen: { textfarbe: "schwarz" } }], ctx());
   assert.ok(!gleich.ok && gleich.fehler.code === "textfarbe_ungueltig", "gleiche Farbe wie Grundfarbe");
   const fremd = berechneWarenkorb([{ ...basis, optionen: { textfarbe: "neon-pink" } }], ctx());

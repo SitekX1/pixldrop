@@ -3,16 +3,16 @@
 // Stand/Autor: Dr. Justus, 2026-10-09 (recht-texte/agb-shop.md, Variante B). Endpruefung: Magnus.
 // Preise, Versandkosten und Lieferzeit stehen NICHT fest im Text, sondern kommen aus lib/shop/config.ts.
 // **fett** wird auf der Seite hervorgehoben und im Klartext entfernt.
-import { LIEFERZEIT_TEXT, VERSAND_CENT, formatPreis } from "./config";
+import { LIEFERZEIT_TEXT, formatPreis } from "./config";
+import { versandPreisUebersicht } from "./versand";
 
 export const AGB_TITEL = "Allgemeine Geschäftsbedingungen für den Online-Shop „3D-Druck“";
 export const AGB_STAND = "Stand: 10. Oktober 2026";
 
 export interface AgbAbschnitt { titel: string; a: string[] }
 
-const versandText = VERSAND_CENT != null
-  ? `**${formatPreis(VERSAND_CENT)}** je Bestellung`
-  : "in der auf der Übersichtsseite angezeigten Höhe";
+// Kosten je Versandart stehen in lib/shop/versand.ts (VORLAEUFIG bis die Packmaße gemessen sind).
+const versandText = versandPreisUebersicht(formatPreis);
 /** Lieferzeit kommt zur Laufzeit aus den Shop-Einstellungen (Panel); Standard: Konstante aus config.ts. */
 export function agbAbschnitte(lieferzeit: string | null = LIEFERZEIT_TEXT): AgbAbschnitt[] {
 const lieferzeitText = lieferzeit
@@ -44,7 +44,7 @@ return [
   ] },
   { titel: "4. Preise und Versandkosten", a: [
     "(1) Alle Preise sind Endpreise in Euro. Aufgrund der Kleinunternehmerregelung nach § 19 UStG wird **keine Umsatzsteuer erhoben und nicht ausgewiesen**.",
-    `(2) Zusätzlich zum Warenpreis fallen Versandkosten von ${versandText} an (nur Deutschland); sie werden vor Abgabe der Bestellung auf der Übersichtsseite angezeigt. Eine versandkostenfreie Lieferung gibt es nicht.`,
+    `(2) Zusätzlich zum Warenpreis fallen Versandkosten an (nur Deutschland). Sie hängen von Größe und Menge der Bestellung und der Versandart ab (zurzeit: ${versandText}). Den genauen Betrag der für deine Bestellung möglichen Versandart(en) siehst du vor Abgabe der Bestellung auf der Übersichtsseite; bei Hermes und DHL wählst du die Versandart selbst. Eine versandkostenfreie Lieferung gibt es nicht.`,
     "(3) Tischschild und Spruch-Untersetzer bestellst du im Shop mit änderbarem Wunschtext zum Preis der Artikelseite. Für alles Weitere (z. B. Logo, Bild, andere Schrift, Sonderfarben oder -maße, Anfertigung nach Vorlage) gibt es keinen Festpreis im Shop: **Preis nach Anfrage**, siehe Ziffer 10. Es entstehen keine weiteren Zusatzentgelte für die Zahlung.",
   ] },
   { titel: "5. Zahlung", a: [
@@ -54,7 +54,7 @@ return [
     "(4) Für Angebote nach Ziffer 10 gilt: Der volle Preis ist **sofort** per PayPal zu zahlen; du wirst direkt nach der Annahme-Schaltfläche zu PayPal weitergeleitet. Schließt du die Zahlung dort nicht ab, kommt noch kein Vertrag zustande (Ziffer 10 Abs. 3); du kannst das Angebot innerhalb seiner Gültigkeit (14 Tage) über denselben Link erneut annehmen und die Zahlung nachholen. Eine weitere Zahlungsfrist gibt es nicht. Nach Ablauf der Gültigkeit kann ich eine nicht bezahlte Annahme als erledigt behandeln; du schuldest dann nichts. Geht deine Zahlung erst nach Ablauf der Gültigkeit ein, kommt kein Vertrag zustande und ich erstatte sie vollständig. Ich beginne mit dem Druck erst nach bestätigter Zahlung.",
   ] },
   { titel: "6. Lieferung und Lieferzeit", a: [
-    "(1) Ich liefere an die von dir angegebene Lieferadresse in Deutschland; Versandart und Dienstleister: siehe „Versand & Zahlung“.",
+    "(1) Ich liefere an die von dir angegebene Lieferadresse in Deutschland; Versandart (Hermes, DHL oder, bei flachen Untersetzern ohne Box, Brief der Deutschen Post) und Dienstleister: siehe „Versand & Zahlung“.",
     `(2) Die Lieferzeit beträgt ${lieferzeitText}. Bei Anfertigungen nach Ziffer 10 steht die Frist im Angebot.`,
     "(3) Ist eine gewählte Farbe nach Vertragsschluss nicht mehr vorrätig, informiere ich dich unverzüglich. Du kannst dann eine Alternative wählen oder vom Vertrag zurücktreten; beim Rücktritt erstatte ich dir den gezahlten Betrag einschließlich der Versandkosten vollständig. Gesetzliche Rechte bleiben unberührt.",
     "(4) Ich liefere vollständige Bestellungen in einer Sendung. Teillieferungen erfolgen nur, wenn sie für dich zumutbar sind und keine zusätzlichen Versandkosten entstehen.",

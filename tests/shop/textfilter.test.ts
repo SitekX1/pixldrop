@@ -2,7 +2,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { pruefeWunschtext, LISTEN_GROESSE } from "@/lib/shop/textfilter";
 import { PRODUKTE } from "@/lib/shop/produkte";
-import { berechneWarenkorb, type Kontext } from "@/lib/shop/server/preise";
+import { berechneWarenkorb as berechneRoh, type Kontext } from "@/lib/shop/server/preise";
+import { versandOptionenFuerKorb } from "@/lib/shop/versand";
+// Standard-Versandart: erste zulaessige Option des Warenkorbs (Tests, die Versand nicht pruefen)
+const berechneWarenkorb = (e: unknown, c: Kontext, v: unknown = versandOptionenFuerKorb(Array.isArray(e) ? e : [])[0]?.art ?? "hermes") => berechneRoh(e, c, v);
 
 const ok = (...z: string[]) => assert.deepEqual(pruefeWunschtext(z), { ok: true }, `sollte erlaubt sein: ${z.join(" / ")}`);
 const nein = (grund: "unzulaessig" | "marke", ...z: string[]) => {
@@ -59,7 +62,7 @@ test("Listen sind umfangreich genug", () => {
 
 test("Server: berechneWarenkorb lehnt unzulaessigen Wunschtext ab", () => {
   const katalog = PRODUKTE.map((p) => ({ ...p, preisCent: 1290 }));
-  const ctx: Kontext = { produkte: katalog, farben: [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }], versandCent: 490, bestellbar: () => true };
+  const ctx: Kontext = { produkte: katalog, farben: [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }], bestellbar: () => true };
   const basis = { slug: "stiftebecher-tasse", menge: 1, farbeId: "schwarz" };
   const slugMitText = PRODUKTE.find((p) => p.personalisierung && !p.personalisierung.zeilen)!;
   const b = { slug: slugMitText.slug, menge: 1, farbeId: "schwarz", schriftId: slugMitText.personalisierung!.festeSchrift ?? "oswald" };

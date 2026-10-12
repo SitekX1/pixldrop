@@ -4,8 +4,10 @@ import Link from "next/link";
 import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
-import { aendereMenge, entferne, ladeKorb, speichereKorb, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
-import { TEXTE, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
+import { aendereMenge, entferne, gueltigeVersandart, ladeKorb, ladeVersandart, speichereKorb, speichereVersandart, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
+import { TEXTE, formatPreis } from "@/lib/shop/config";
+import { versandOptionenFuerKorb, type VersandArt } from "@/lib/shop/versand";
+import VersandWahl from "./VersandWahl";
 import { TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import PositionsBild, { kombiVon } from "./PositionsBild";
 
@@ -14,8 +16,14 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
   const [korb, setKorb] = useState<Korb>([]);
   const [geladen, setGeladen] = useState(false);
   const [meldung, setMeldung] = useState("");
+  const [versandWahl, setVersandWahl] = useState<string | null>(null);
 
-  useEffect(() => { setKorb(ladeKorb()); setGeladen(true); }, []);
+  useEffect(() => { setKorb(ladeKorb()); setVersandWahl(ladeVersandart()); setGeladen(true); }, []);
+  const versandOptionen = versandOptionenFuerKorb(korb);
+  const versand = gueltigeVersandart(versandOptionen, versandWahl);
+  const versandArt = versand?.art ?? null;
+  // Gültige Auswahl (oder die günstigste) festhalten, damit der Checkout dieselbe Art sieht
+  useEffect(() => { if (geladen) speichereVersandart(versandArt); }, [geladen, versandArt]);
   const setze = (k: Korb) => { setKorb(k); speichereKorb(k); };
 
   if (!geladen) return <div className="shop-skeleton" style={{ aspectRatio: "16 / 9" }} aria-busy="true" aria-label="Wird geladen" />;
@@ -35,7 +43,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
   const gesperrtNamen = [...new Set(korb.flatMap((a) => (gesperrtPos(a.slug) ? [von(a.slug)!.name] : [])))];
   const fehlt = korb.some((a) => !von(a.slug)) || gesperrtNamen.length > 0;
   const zwischen = zwischensummeCent(korb, (s, a) => { const x = von(s); return x ? einzelpreisCent(x, a.optionen) : undefined; });
-  const gesamt = zwischen != null ? zwischen + (VERSAND_CENT ?? 0) : null;
+  const gesamt = zwischen != null && versand ? zwischen + versand.cent : null;
   const ausgenommen = korb.flatMap((a) => { const p = von(a.slug); return p && istIndividuell(p, a.text, a.optionen) ? [p.name] : []; });
 
   return (
@@ -93,9 +101,11 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
       </div>
 
       <aside className="shop-zwei-r shop-form" aria-label="Zusammenfassung">
+      <VersandWahl optionen={versandOptionen} gewaehlt={(versand?.art as VersandArt) ?? null}
+        onWahl={(a) => { setVersandWahl(a); speichereVersandart(a); }} />
       <dl className="shop-cart-sum">
         <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
-        <div><dt>Versand (Deutschland)</dt><dd>{VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "auf Anfrage"}</dd></div>
+        <div><dt>Versand (Deutschland)</dt><dd>{versand ? formatPreis(versand.cent) : "auf Anfrage"}</dd></div>
         <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div>
       </dl>
       <p className="muted">{TEXTE.kleinunternehmer}</p>

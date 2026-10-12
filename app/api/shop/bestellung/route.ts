@@ -10,7 +10,7 @@ const WUNSCHTEXT_PAUSE_MELDUNG = (e: ShopEinstellungen) =>
 import { clientIp, erzeugeBremse, honeypotLeer, ipHash, pruefeFormToken } from "@/lib/shop/server/spam";
 
 // POST /api/shop/bestellung  (JSON)
-// { token, website (Honeypot, leer lassen), idempotenzKey, positionen:[{slug,menge,farbeId,optionen,text,schriftId}],
+// { token, website (Honeypot, leer lassen), idempotenzKey, versandart ("hermes"|"dhl"|"brief", Pflicht), positionen:[{slug,menge,farbeId,optionen,text,schriftId}],
 //   kunde:{name,strasse,plz,ort,email,telefon?,hinweis?}, einwilligungen:{agb,widerruf?,verzicht?} }
 // Antwort: { ok:true, bestellnummer, approveUrl } -> Browser leitet zu approveUrl (PayPal) weiter.
 // Preise werden NIE vom Client uebernommen, sondern serverseitig aus lib/shop/produkte.ts berechnet.

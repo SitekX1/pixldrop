@@ -103,10 +103,10 @@ test("Wunschtext bezahlt: nur Eingangsbestaetigung ohne Anhaenge, Telegram mit z
 
 test("Wunschtext: Webhook und Rueckkehr -> genau eine Eingangsmail, eine Telegram, keine Vertragsmail", async () => {
   const t = await wunschBestellung();
-  const w = await verarbeiteWebhook(t.deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ORDER1TEST", "17.80"));
+  const w = await verarbeiteWebhook(t.deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ORDER1TEST", "14.70"));
   assert.equal(w.status, 200);
   await schliesseZahlungAb(t.deps, "ORDER1TEST");
-  await verarbeiteWebhook(t.deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ORDER1TEST", "17.80"));
+  await verarbeiteWebhook(t.deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ORDER1TEST", "14.70"));
   assert.equal(t.notifier.kundenMails.length, 1);
   assert.equal(t.notifier.telegrams.length, 1);
   assert.equal(t.db.bestellungen[0].bestaetigt, false);
@@ -371,7 +371,7 @@ test("Parallel: Capture und Webhook gleichzeitig -> genau eine Eingangsmail; Sen
   const t = await wunschBestellung();
   await Promise.all([
     schliesseZahlungAb(t.deps, "ORDER1TEST"),
-    verarbeiteWebhook(t.deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ORDER1TEST", "17.80")),
+    verarbeiteWebhook(t.deps, new Headers(), webhookBody("ORDER1TEST", "CAP-ORDER1TEST", "14.70")),
   ]);
   assert.equal(t.notifier.kundenMails.length, 1);
 

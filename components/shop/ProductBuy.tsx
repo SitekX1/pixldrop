@@ -29,11 +29,11 @@ export default function ProductBuy({
   const [farbeId, setFarbeId] = useState<string | null>(kombis ? null : farben[0]?.id ?? null);
   const [kombiId, setKombiId] = useState<string | null>(kombis?.[0].id ?? null);
   const kombi = kombis?.find((k) => k.id === kombiId);
-  // Einzelartikel mit Tagwahl: Vorschau zeigt den gewählten Wochentag (Mo, Di, ...)
-  const tagKurz = kombi ? produkt.optionen.find((g) => g.id === "tag")?.optionen.find((o) => o.id === opt.tag)?.label.slice(0, 2) : undefined;
   const [opt, setOpt] = useState<Record<string, string>>(() =>
     Object.fromEntries(produkt.optionen.map((g) => [g.id, g.optionen[0].id])),
   );
+  // Einzelartikel mit Tagwahl: Vorschau zeigt den gewählten Wochentag (Mo, Di, ...)
+  const tagKurz = kombi ? produkt.optionen.find((g) => g.id === "tag")?.optionen.find((o) => o.id === opt.tag)?.label.slice(0, 2) : undefined;
   const [menge, setMenge] = useState(1);
   const pers = produkt.personalisierung;
   const [zeilen, setZeilen] = useState<string[]>(() => (pers?.zeilen ? pers.zeilen.map((z) => z.standard) : pers ? [""] : []));

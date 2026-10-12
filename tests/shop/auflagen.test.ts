@@ -4,7 +4,8 @@ import { legeBestellungAn, schliesseZahlungAb, verarbeiteWebhook } from "@/lib/s
 import { fuehreBereinigungAus } from "@/lib/shop/server/bereinigung";
 import { bestaetigungsMail, enthaeltStandardware, PFLICHTANGABEN_PLATZHALTER, type MailBestellung } from "@/lib/shop/server/vorlagen";
 import { AGB_TEXT } from "@/lib/shop/server/agb-text";
-import { LIEFERZEIT_TEXT, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
+import { LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
+import { VERSAND_BRIEF, VERSAND_PREISE } from "@/lib/shop/versand";
 import { PayPalFehler } from "@/lib/shop/server/paypal";
 import { pruefeKunde } from "@/lib/shop/server/validierung";
 import { FakeDb, bestellEingabe, kontext, neueDeps, KUNDE } from "./mocks";
@@ -14,7 +15,7 @@ const ctxZweiFarben = {
   ipHash: ctx.ipHash,
   kontext: kontext({ farben: [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }, { id: "weiss", name: "Weiß", hex: "#f4f1ea" }] }),
 };
-const wh = (extra: Record<string, unknown>, wert = "30.70") =>
+const wh = (extra: Record<string, unknown>, wert = "30.69") =>
   JSON.stringify({ event_type: "PAYMENT.CAPTURE.COMPLETED", resource: { id: "CAP-W1", status: "COMPLETED", amount: { value: wert, currency_code: "EUR" }, ...extra } });
 
 // ---------------------------------------------------------------- Routen
@@ -187,7 +188,7 @@ test("Bestaetigungsmail: bei freigegebenen Pflichtangaben nie mit Platzhalter", 
   assert.ok(echt.includes("ALLGEMEINE GESCHÄFTSBEDINGUNGEN") && echt.includes("Echte AGB"));
   assert.ok(!/PLATZHALTER/i.test(AGB_TEXT), "AGB-Text ist platzhalterfrei");
   assert.ok(AGB_TEXT.includes("Stand: 10. Oktober 2026") && !AGB_TEXT.includes("**"), "Stand gesetzt, Klartext ohne Fett-Markierung");
-  assert.ok(AGB_TEXT.includes(LIEFERZEIT_TEXT ?? "\0") && AGB_TEXT.includes(VERSAND_CENT != null ? formatPreis(VERSAND_CENT) : "\0"), "Lieferzeit und Versandkosten kommen aus config.ts");
+  assert.ok(AGB_TEXT.includes(LIEFERZEIT_TEXT ?? "\0") && AGB_TEXT.includes(formatPreis(VERSAND_PREISE.hermes.klein.cent)) && AGB_TEXT.includes(formatPreis(VERSAND_BRIEF.maxibrief.cent)), "Lieferzeit (config.ts) und Versandkosten (versand.ts) kommen aus den Konstanten");
 });
 
 test("enthaeltStandardware nutzt das Positions-Flag, sonst Fallback", () => {

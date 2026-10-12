@@ -7,7 +7,6 @@ import { erzeugeBenachrichtiger } from "./benachrichtigung";
 import type { Deps } from "./bestellung";
 import type { Kontext } from "./preise";
 import { sichtbareProdukte, istBestellbar } from "../produkte";
-import { VERSAND_CENT } from "../config";
 import { holeLagerFarben } from "../farben";
 
 export class NichtEingerichtet extends Error {
@@ -44,12 +43,11 @@ export function anfrageDeps(env: ShopEnv = leseEnv()) {
   return { env, db: erzeugeDbAusEnv(env), notifier: erzeugeBenachrichtiger(env) };
 }
 
-/** Katalog + aktuelle Lagerfarben + Versandkosten fuer die Preisberechnung. */
+/** Katalog + aktuelle Lagerfarben fuer die Preisberechnung. */
 export async function standardKontext(): Promise<Kontext> {
   return {
     produkte: sichtbareProdukte(),
     farben: await holeLagerFarben(),
-    versandCent: VERSAND_CENT,
     bestellbar: istBestellbar,
   };
 }

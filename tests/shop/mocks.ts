@@ -1,6 +1,7 @@
 // Test-Doubles: Fake-Datenbank (bildet die Entscheidungen der SQL-Funktionen nach), Fake-PayPal und
 // Fake-Benachrichtiger. KEINE echte Zahlung, KEIN Netzwerk, KEINE echte Datenbank.
 // Wichtig: Die Fake-DB prueft die Logik des TypeScript-Codes; das SQL selbst ist damit NICHT getestet.
+import { versandOptionenFuerKorb } from "@/lib/shop/versand";
 import type { Db } from "@/lib/shop/server/db";
 import type { Benachrichtiger } from "@/lib/shop/server/benachrichtigung";
 import { PayPalFehler, type OrderEingabe, type PayPalClient, type PayPalOrder } from "@/lib/shop/server/paypal";
@@ -12,6 +13,7 @@ import type { Deps } from "@/lib/shop/server/bestellung";
 type Row = Record<string, unknown>;
 
 export interface FakeBestellung {
+  versandart?: string | null;
   id: string;
   nummer: string;
   key: string;
@@ -89,7 +91,7 @@ export class FakeDb implements Db {
       case "shop_bestellung_anlegen": {
         const pos = p.p_positionen as Row[];
         const gesamt = pos.reduce((s, x) => s + (x.menge as number) * (x.einzelpreis_cent as number), 0) + (p.p_versand_cent as number);
-        const hash = JSON.stringify([pos, p.p_kunde, p.p_versand_cent]);
+        const hash = JSON.stringify([pos, p.p_kunde, p.p_versand_cent, p.p_versandart]);
         const vorh = this.bestellungen.find((b) => b.key === p.p_idempotenz_key);
         if (vorh) {
           if (vorh.gesamt_cent !== gesamt || vorh.hash !== hash) return { ok: false, grund: "key_konflikt" };
@@ -102,7 +104,7 @@ export class FakeDb implements Db {
           nummer: `PD-2026-${String(this.n).padStart(4, "0")}`,
           key: p.p_idempotenz_key as string, gesamt_cent: gesamt, status: "neu", zahlungsstatus: "offen",
           paypal_order_id: null, paypal_capture_id: null, benachrichtigt: false, bestaetigt: false, hash,
-          kunde: { ...(p.p_kunde as Row), __ip: p.p_ip_hash }, positionen: pos,
+          kunde: { ...(p.p_kunde as Row), __ip: p.p_ip_hash }, positionen: pos, versandart: (p.p_versandart as string | null) ?? null,
           freigabe: null, freigabeGrund: null, eingang: false, absage: false, erinnert: false, erstattung: null, angefordertVorH: 0,
         };
         this.bestellungen.push(b);
@@ -158,7 +160,7 @@ export class FakeDb implements Db {
         if (!b || b.zahlungsstatus !== "bezahlt" || b.bestaetigt) return { ok: false, grund: "nichts_zu_tun" };
         if ((b.freigabe ?? null) !== null && b.freigabe !== "freigegeben") return { ok: false, grund: "nichts_zu_tun" };  // DB-Sperre
         return {
-          ok: true, nummer: b.nummer, gesamt_cent: b.gesamt_cent, summe_waren_cent: b.gesamt_cent - 490, versand_cent: 490,
+          ok: true, nummer: b.nummer, gesamt_cent: b.gesamt_cent, summe_waren_cent: b.gesamt_cent - 490, versand_cent: 490, versandart: b.versandart ?? null,
           individuell: b.positionen.some((x) => x.individuell === true), name: b.kunde.name, strasse: b.kunde.strasse, plz: b.kunde.plz,
           ort: b.kunde.ort, email: b.kunde.email,
           positionen: b.positionen.map((x) => ({ name: x.name, menge: x.menge, einzelpreis_cent: x.einzelpreis_cent, farbe: x.farbe_name, text: x.text, schrift: x.schrift, optionen: x.optionen, individuell: x.individuell === true })),
@@ -390,17 +392,20 @@ export const katalogMitPreis = PRODUKTE.map((p) => ({ ...p, preisCent: 1290 }));
 export const kontext = (extra: Partial<Kontext> = {}): Kontext => ({
   produkte: katalogMitPreis,
   farben: [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }],
-  versandCent: 490,
   bestellbar: () => true,
   ...extra,
 });
 
 export const KUNDE = { name: "Erika Beispiel", strasse: "Teststraße 1", plz: "86663", ort: "Asbach-Bäumenheim", email: "erika@example.org" };
 
-export const bestellEingabe = (extra: Record<string, unknown> = {}) => ({
-  idempotenzKey: "key-0123456789abcdef",
-  positionen: [{ slug: "stiftebecher-tasse", menge: 2, farbeId: "schwarz" }],
-  kunde: KUNDE,
-  einwilligungen: { agb: true },
-  ...extra,
-});
+export const bestellEingabe = (extra: Record<string, unknown> = {}) => {
+  const e = {
+    idempotenzKey: "key-0123456789abcdef",
+    positionen: [{ slug: "stiftebecher-tasse", menge: 2, farbeId: "schwarz" }] as unknown[],
+    kunde: KUNDE,
+    einwilligungen: { agb: true },
+    ...extra,
+  };
+  // Versandart wie der Client: erste zulaessige Option (Brief bei flachen Untersetzern, sonst Hermes); explizit gesetzt gewinnt
+  return { versandart: versandOptionenFuerKorb(e.positionen)[0]?.art ?? "hermes", ...e };
+};

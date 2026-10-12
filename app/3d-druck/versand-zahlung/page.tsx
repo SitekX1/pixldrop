@@ -1,7 +1,8 @@
 import ShopShell from "@/components/shop/ShopShell";
 import EntwurfBanner from "@/components/shop/EntwurfBanner";
 import { Abschnitt } from "@/components/shop/RechtText";
-import { ENTWURF_MODUS, entwurfTitel, VERSAND_CENT, formatPreis } from "@/lib/shop/config";
+import { ENTWURF_MODUS, entwurfTitel, formatPreis } from "@/lib/shop/config";
+import { VERSAND_BRIEF, VERSAND_PREISE } from "@/lib/shop/versand";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
 export const dynamic = "force-dynamic"; // Lieferzeit kommt aus den Shop-Einstellungen
@@ -10,7 +11,9 @@ export const metadata = { title: entwurfTitel("Versand & Zahlung") };
 // recht-texte/versand-und-zahlung.md, Variante B, Stand 2026-10-09. Kosten und Lieferzeit kommen aus lib/shop/config.ts.
 export default async function Versand() {
   const { lieferzeit: LIEFERZEIT_TEXT } = await holeEinstellungen();
-  const versand = VERSAND_CENT != null ? `**${formatPreis(VERSAND_CENT)}** je Bestellung` : "wie auf der Übersichtsseite angezeigt";
+  // Preise kommen aus lib/shop/versand.ts (VORLAEUFIG bis die Packmaße gemessen sind)
+  const P = VERSAND_PREISE;
+  const bereich = (a: "hermes" | "dhl") => `**${formatPreis(P[a].klein.cent)}** bis **${formatPreis(P[a].gross.cent)}**`;
   const lieferzeit = LIEFERZEIT_TEXT ? `**${LIEFERZEIT_TEXT}** ab Vertragsschluss (Bestellbestätigung).` : "Die Lieferzeit steht bei jedem Artikel und auf der Übersichtsseite; sie läuft ab Vertragsschluss (Bestellbestätigung).";
   return (
     <ShopShell banner={<EntwurfBanner />}>
@@ -22,7 +25,8 @@ export default async function Versand() {
             "Ich liefere **nur innerhalb Deutschlands** an die Adresse, die du bei der Bestellung angibst. Eine Lieferung an Packstationen, Postfächer und Paketshops ist nicht möglich; bitte gib eine Straßenanschrift an, an der du das Paket annehmen kannst. Deutsche Inseln werden ohne Aufpreis beliefert.",
           ]} />
           <Abschnitt titel="Versandarten und Kosten" absaetze={[
-            `Versandart: Paket oder Päckchen mit DHL, **mit Sendungsverfolgung** · Kosten: ${versand} (Deutschland; Versandstufen nach Größe und Gewicht können folgen, maßgeblich ist der vor der Bestellung angezeigte Betrag). Sobald die Sendung übergeben ist, schicke ich dir die Sendungsnummer per E-Mail.`,
+            `Bei Paketversand wählst du zwischen **Hermes** (${bereich("hermes")}) und **DHL** (${bereich("dhl")}, jeweils mit Sendungsverfolgung). Die Kosten richten sich nach Größe und Gewicht deiner Bestellung (Deutschland); maßgeblich ist der vor der Bestellung angezeigte Betrag.`,
+            `Bestellst du nur flache Untersetzer ohne Box, versende ich als **Brief der Deutschen Post** (Großbrief **${formatPreis(VERSAND_BRIEF.grossbrief.cent)}**, Maxibrief **${formatPreis(VERSAND_BRIEF.maxibrief.cent)}**, je nach Stückzahl; ohne Auswahl, ohne Sendungsverfolgung). Sobald eine Sendung mit Sendungsnummer übergeben ist, schicke ich dir die Nummer per E-Mail.`,
             "Die Versandkosten werden vor dem Bestellbutton auf der Übersichtsseite angezeigt. Eine versandkostenfreie Lieferung gibt es nicht.",
           ]} />
           <Abschnitt titel="Lieferzeit" absaetze={[

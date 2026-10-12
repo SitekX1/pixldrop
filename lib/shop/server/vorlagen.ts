@@ -9,6 +9,7 @@ import "server-only";
 import { LIEFERZEIT_TEXT } from "../config";
 import { AGB_TEXT } from "./agb-text";
 import { ANGEBOT_TEXTE } from "../angebot-texte";
+import { VERSANDART_NAME, istVersandArt } from "../versand";
 import type { RechtsDokument } from "./pdf";
 import { FARBE, absatz, esc, hinweisBox, inline, mailRahmen, textZuHtml, ueberschrift } from "./mail-layout";
 
@@ -135,6 +136,8 @@ export interface MailBestellung {
   gesamt_cent: number;
   summe_waren_cent: number;
   versand_cent: number;
+  /** "hermes" | "dhl" | "brief" (Migration 14); fehlt bei Altbestellungen */
+  versandart?: string | null;
   individuell: boolean;
   positionen: MailPosition[];
   /** Bestelldatum, Zahlungsdatum (ISO) und Transaktions-ID (PayPal-Capture): optional, kommen aus mail_daten */
@@ -143,6 +146,12 @@ export interface MailBestellung {
   capture_id?: string | null;
   /** gesetzt = Bestellung stammt aus einem Angebot (Angebots-Flow); dann kein Wunschtext-Freigabe-Satz. Muss aus mail_daten kommen. */
   anfrage_id?: string | null;
+}
+
+/** "Versand (Deutschland, Hermes)"; ohne bekannte Versandart (Altbestellung) wie bisher "Versand (Deutschland)". */
+function versandZeile(b: { versandart?: string | null }): string {
+  const name = b.versandart && istVersandArt(b.versandart) ? VERSANDART_NAME[b.versandart] : null;
+  return name ? `Versand (Deutschland, ${name})` : "Versand (Deutschland)";
 }
 
 /** Deckt "[[PLATZHALTER" (Code) und "[PLATZHALTER" (AGB-Text) ab. */
@@ -239,7 +248,7 @@ export function bestaetigungsMail(
     ...zeilen,
     "",
     `Zwischensumme: ${eur(b.summe_waren_cent)}`,
-    `Versand (Deutschland): ${eur(b.versand_cent)}`,
+    `${versandZeile(b)}: ${eur(b.versand_cent)}`,
     `Gesamtpreis: ${eur(b.gesamt_cent)}`,
     "Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer.",
     "",
@@ -340,7 +349,7 @@ function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
   const summe = (label: string, wert: string, fett = false) =>
     `<tr><td class="txt" style="${TD}padding:3px 8px 3px 0;${fett ? "font-weight:bold;font-size:17px;padding-top:8px;" : ""}" align="right">${label}</td><td class="txt" align="right" style="${TD}padding:3px 0;white-space:nowrap;${fett ? "font-weight:bold;font-size:17px;padding-top:8px;" : ""}" width="110">${esc(wert)}</td></tr>`;
   const tabelle = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${zeilen}</table>` +
-    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;">${summe("Zwischensumme", eur(b.summe_waren_cent))}${summe("Versand (Deutschland)", eur(b.versand_cent))}${summe("Gesamtpreis", eur(b.gesamt_cent), true)}</table>` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;">${summe("Zwischensumme", eur(b.summe_waren_cent))}${summe(versandZeile(b), eur(b.versand_cent))}${summe("Gesamtpreis", eur(b.gesamt_cent), true)}</table>` +
     absatz("Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer.", `font-size:12px;line-height:18px;color:${FARBE.gedimmt};margin:8px 0 0 0;text-align:right;`);
   const feld = (kopf: string, inhalt: string) =>
     `<td valign="top" width="50%" class="txt" style="padding:0 12px 0 0;"><div class="kopf" style="font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:${FARBE.link};font-weight:bold;margin:0 0 6px 0;">${kopf}</div>${inhalt}</td>`;

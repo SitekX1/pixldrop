@@ -102,7 +102,7 @@ export async function legeBestellungAn(
     return fehler(422, "ungueltig", "Ungültige Anfrage.");
   }
 
-  const korb = berechneWarenkorb(e.positionen, ctx.kontext);
+  const korb = berechneWarenkorb(e.positionen, ctx.kontext, e.versandart);
   if (!korb.ok) {
     const status = korb.fehler.code === "lager_nicht_lesbar" ? 503 : 422;
     return fehler(status, korb.fehler.code, korb.fehler.meldung);
@@ -142,6 +142,7 @@ export async function legeBestellungAn(
         individuell: p.individuell,
       })),
       p_versand_cent: w.versandCent,
+      p_versandart: w.versandart,
       p_agb_version: AGB_VERSION,
     });
   } catch (err) {

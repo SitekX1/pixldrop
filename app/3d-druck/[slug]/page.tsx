@@ -9,7 +9,8 @@ import PauseBanner from "@/components/shop/PauseBanner";
 import ProductBuy from "@/components/shop/ProductBuy";
 import { holeProdukt, istBestellbar, hitzeHinweis } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
-import { formatPreis, halloweenModus, TEXTE, VERSAND_CENT } from "@/lib/shop/config";
+import { formatPreis, halloweenModus, TEXTE } from "@/lib/shop/config";
+import { VERSAND_BRIEF, VERSAND_PREISE, VERSAND_PRODUKTE } from "@/lib/shop/versand";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +31,9 @@ export default async function Produktseite({ params }: Props) {
   const bestellbar = istBestellbar(p);
   const halloween = p.gruppe === "halloween";
   const hatAufpreis = p.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0));
+  const vk = VERSAND_PRODUKTE[p.slug];
+  const abPaket = Math.min(...(["hermes", "dhl"] as const).map((a) => VERSAND_PREISE[a][vk?.versandStufe ?? "mittel"].cent));
+  const versandHinweisText = `Versand ab ${formatPreis(abPaket)} (Hermes/DHL)${vk?.briefFaehig ? `, reine Untersetzer als Brief ab ${formatPreis(VERSAND_BRIEF.grossbrief.cent)}` : ""}, nur Deutschland`;
   const preis = p.nurAnfrage ? TEXTE.preisAnfrage : `${hatAufpreis ? "ab " : ""}${formatPreis(p.preisCent)}`;
 
   return (
@@ -50,7 +54,7 @@ export default async function Produktseite({ params }: Props) {
               <span className="shop-price">{preis}</span>
               <ul>
                 <li>{TEXTE.kleinunternehmer}</li>
-                <li>{p.nurAnfrage ? "Preis, Versand und Lieferzeit stehen im Angebot per E-Mail" : VERSAND_CENT != null ? `zzgl. ${formatPreis(VERSAND_CENT)} Versand (nur Deutschland)` : TEXTE.versandHinweis}</li>
+                <li>{p.nurAnfrage ? "Preis, Versand und Lieferzeit stehen im Angebot per E-Mail" : `zzgl. ${versandHinweisText}`}</li>
                 {!p.nurAnfrage && <li>{LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}</li>}
                 <li><Link className="shop-link" href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               </ul>
@@ -84,7 +88,7 @@ export default async function Produktseite({ params }: Props) {
             <article className="shop-dkarte" aria-labelledby="versand-widerruf">
               <div className="shop-dkopf"><span className="shop-medaillon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.8 3.5 7.3v9.4l8.5 4.5 8.5-4.5V7.3L12 2.8Z"/><path d="m3.5 7.3 8.5 4.5 8.5-4.5"/><path d="M12 11.8v9.4"/><path d="m7.8 5 8.4 4.4"/></svg></span><h3 id="versand-widerruf">Versand, Lieferzeit, Widerruf</h3></div>
               <ul>
-                <li>{p.nurAnfrage ? "Preis, Versand und Lieferzeit stehen im Angebot per E-Mail" : VERSAND_CENT != null ? `Versand ${formatPreis(VERSAND_CENT)} (nur Deutschland)` : TEXTE.versandHinweis}</li>
+                <li>{p.nurAnfrage ? "Preis, Versand und Lieferzeit stehen im Angebot per E-Mail" : versandHinweisText}</li>
                 {!p.nurAnfrage && <li>{LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}</li>}
                 <li>Standardware: 14 Tage Widerruf. Bei individuellem Text besteht kein Widerrufsrecht.</li>
                 <li><Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>

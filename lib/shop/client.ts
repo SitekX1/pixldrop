@@ -60,13 +60,15 @@ export function neuerIdempotenzKey(): string {
   return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 }
 
-export function baueBestellung(p: { token: string; idempotenzKey: string; auswahl: Auswahl | Auswahl[]; kunde: Kunde; agb: boolean; verzicht: boolean; website?: string }) {
+export function baueBestellung(p: { token: string; idempotenzKey: string; auswahl: Auswahl | Auswahl[]; kunde: Kunde; agb: boolean; verzicht: boolean; website?: string; versandart?: string }) {
   const k = p.kunde;
   const liste = Array.isArray(p.auswahl) ? p.auswahl : [p.auswahl];
   return {
     token: p.token,
     website: p.website ?? "",
     idempotenzKey: p.idempotenzKey,
+    // Nur die Art ("hermes" | "dhl" | "brief"), nie ein Betrag; der Server rechnet den Preis selbst.
+    ...(p.versandart ? { versandart: p.versandart } : {}),
     positionen: liste.map((a) => {
       const mitText = a.text.trim() !== "";
       return {

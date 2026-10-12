@@ -70,6 +70,24 @@ export function speichereKorb(korb: Korb) {
 }
 export const leereKorb = () => speichereKorb([]);
 
+// Gewählte Versandart (nur die Art, nie ein Betrag), ebenfalls nur im sessionStorage dieses Tabs.
+const VERSAND_KEY = "shop-versandart-v1";
+export function ladeVersandart(): string | null {
+  try { return sessionStorage.getItem(VERSAND_KEY); } catch { return null; }
+}
+export function speichereVersandart(art: string | null) {
+  try {
+    if (art) sessionStorage.setItem(VERSAND_KEY, art);
+    else sessionStorage.removeItem(VERSAND_KEY);
+  } catch { /* Speicher gesperrt: Auswahl bleibt im Tab-Zustand */ }
+}
+/** Gespeicherte Auswahl, wenn sie unter den Optionen noch zulässig ist, sonst die günstigste. */
+export function gueltigeVersandart<T extends { art: string; cent: number }>(optionen: readonly T[], gespeichert: string | null): T | null {
+  if (optionen.length === 0) return null;
+  const treffer = gespeichert ? optionen.find((o) => o.art === gespeichert) : undefined;
+  return treffer ?? optionen.reduce((m, o) => (o.cent < m.cent ? o : m), optionen[0]);
+}
+
 /** Zwischensumme in Cent; null, wenn ein Preis noch nicht feststeht. */
 export function zwischensummeCent(korb: Korb, preisVon: (slug: string, a: Auswahl) => number | null | undefined): number | null {
   let s = 0;
