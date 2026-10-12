@@ -22,7 +22,7 @@ export interface Personalisierung {
   /** Mehrzeiliger Text (Tischschild): je Zeile Label, Maximallaenge und Standardtext. Gespeichert als "zeile1
 zeile2". */
   zeilen?: TextZeile[];
-  /** Feste Schrift (id aus lib/shop/schriften.ts), keine Auswahl; andere Schrift nur ueber "Individuell anfragen". */
+  /** Feste Schrift (id aus lib/shop/schriften.ts), keine Auswahl; Schrift ausserhalb der Shop-Liste nur ueber "Individuell anfragen". */
   festeSchrift?: string;
   /** Vorbelegte Schrift (id), Kunde darf trotzdem wechseln. */
   standardSchrift?: string;
@@ -129,7 +129,7 @@ export const PRODUKTE: Produkt[] = [
     name: "Stiftebecher in Tassenform",
     kurz: "Der Stiftebecher fürs Büro, mit Lamellen und Kaffeetassen-Look.",
     beschreibung:
-      "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee.",
+      "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee. Auf Wunsch mit einer Textzeile in einer von 26 Schriften; änderst du den Text, wird das Stück einzeln für dich gefertigt.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "tasse", grundfarbe: "#6b4423",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: { maxLaenge: 14, label: "Text auf der Tasse", beispiel: "Stifte", standardSchrift: "montserrat" },
@@ -138,9 +138,9 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "spruch-untersetzer",
     name: "Spruch-Untersetzer mit deinem Text",
-    kurz: "Name oder Spruch frei wählbar, Schrift aus zwölf Vorschlägen.",
+    kurz: "Name oder Spruch frei wählbar, Schrift aus 26 Vorschlägen.",
     beschreibung:
-      "Ein Untersetzer mit deinem Namen oder Spruch, in einer von zwölf Schriften. Jedes Stück wird einzeln für dich gedruckt.",
+      "Ein Untersetzer mit deinem Namen oder Spruch, in einer von 26 Schriften. Jedes Stück wird einzeln für dich gedruckt.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#f0bb55",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: korbGruppe(100),
     personalisierung: { maxLaenge: 40, label: "Dein Text", beispiel: "Montag" },

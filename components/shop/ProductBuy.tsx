@@ -229,7 +229,7 @@ export default function ProductBuy({
               <p>Erst nach meiner Prüfung bekommst du die Bestellbestätigung; vorher nur eine Eingangsbestätigung (AGB Ziffer 9 Abs. 3). Der unveränderte Vorschlagstext (auch mit Fett, Kursiv oder anderer Größe) bleibt normale Standardware mit 14 Tagen Widerruf. Im Zweifel hilft eine individuelle Anfrage.</p>
             </details>
           </div>
-          <p className="muted">Andere Schrift, Logo oder Bild? <Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></p>
+          <p className="muted">Eigene Schrift (nicht in der Liste), Logo oder Bild? <Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></p>
         </fieldset>
       )}
 

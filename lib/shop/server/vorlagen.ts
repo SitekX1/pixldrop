@@ -45,7 +45,7 @@ export function pflichtangabenText(individuell: boolean, siteUrl?: string, mitSt
   if (individuell) {
     return [
       "HINWEIS ZUM WIDERRUF",
-      "Für Stücke, die nach deinen Angaben individuell angefertigt werden (z. B. Tischschild oder Spruch-Untersetzer mit geändertem Wunschtext), besteht kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB). Deine gesetzlichen Mängelrechte bleiben unberührt.",
+      "Für Stücke, die nach deinen Angaben individuell angefertigt werden (z. B. Tischschild, Spruch-Untersetzer oder Stiftetasse mit geändertem Wunschtext), besteht kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB). Deine gesetzlichen Mängelrechte bleiben unberührt.",
       "",
       ...(mitStandardware
         ? ["Für alle übrigen Artikel deiner Bestellung (Standardware, ohne geänderten Wunschtext) gilt die folgende Widerrufsbelehrung:", "", pflichtangabenText(false, siteUrl), ""]

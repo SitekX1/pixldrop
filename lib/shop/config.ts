@@ -37,7 +37,7 @@ export const TEXTE = {
   anfrageInaktiv: "Anfrage noch nicht aktiv",
   preisFolgt: "Preis auf Anfrage",
   preisAnfrage: "Preis nach Anfrage",
-  startHinweis: "Lieferung nur innerhalb Deutschlands. Bezahlung sofort per PayPal. Sonderwünsche (andere Schrift, Logo, Bild): bitte über „Individueller Druck“ anfragen.",
+  startHinweis: "Lieferung nur innerhalb Deutschlands. Bezahlung sofort per PayPal. Sonderwünsche (Schrift außerhalb der Shop-Liste, Logo, Bild): bitte über „Individueller Druck“ anfragen.",
   vertragsschluss: "Nach dem Klick geht es direkt zu PayPal. Der Vertrag kommt mit meiner Bestellbestätigung per E-Mail nach erfolgter Zahlung zustande. Bei geändertem Wunschtext erhältst du zuerst eine Eingangsbestätigung; der Vertrag kommt mit meiner Bestätigung nach Textfreigabe (innerhalb von 24 Stunden nach Zahlung) zustande.",
   datenschutzHinweis: "Informationen zur Verarbeitung deiner Daten findest du in der",
   versandHinweis: "Versandkosten werden im Warenkorb angezeigt (Lieferung nur innerhalb Deutschlands)",
