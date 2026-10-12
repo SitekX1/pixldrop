@@ -49,7 +49,7 @@ export default function ShopShell({
             </p>
             <p><a href="mailto:as@sitekx.de">as@sitekx.de</a> · <a href="/impressum">Impressum</a></p>
           </section>
-          <p className="muted" style={{ fontSize: "0.85rem", marginTop: 16 }}>© Alexander Sitek / PixlDrop. Eigene Konstruktionen; soweit geschützt, ist der gewerbliche Nachbau ohne Zustimmung nicht gestattet.</p>
+          <p className="muted" style={{ fontSize: "0.85rem", marginTop: 16, textAlign: "center", maxWidth: 560, marginInline: "auto" }}>© Alexander Sitek / PixlDrop. Eigene Konstruktionen; soweit geschützt, ist der gewerbliche Nachbau ohne Zustimmung nicht gestattet.</p>
         </footer>
       </div>
     </div>
