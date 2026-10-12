@@ -20,7 +20,7 @@ export default async function Agb() {
           {ENTWURF_MODUS && <p className="muted">Entwurf, noch nicht rechtsverbindlich.</p>}
           {AGB_ABSCHNITTE.map((s) => <Abschnitt key={s.titel} titel={s.titel} absaetze={s.a} />)}
           <h2>Urheberrecht</h2>
-          <p>Die Entwürfe, Konstruktionsdaten, Fotos und Texte dieses Shops sind urheberrechtlich geschützt (© Alexander Sitek / PixlDrop). Mit dem Kauf eines gedruckten Artikels erwirbst du das Eigentum am Artikel, aber keine Rechte an den zugrunde liegenden Entwürfen und Daten. Nachbau, Vervielfältigung, das Erstellen von Modellen nach unseren Artikeln oder Bildern (auch mit KI-Werkzeugen) und der gewerbliche Weiterverkauf nachgebauter Artikel sind ohne unsere schriftliche Zustimmung nicht gestattet.</p>
+          <p>Die Modelle in diesem Shop sind meine eigenen Konstruktionen; Fotos und Texte stammen von mir (© Alexander Sitek / PixlDrop). Soweit Entwürfe, Konstruktionsdaten, Fotos und Texte urheberrechtlich oder sonst gesetzlich geschützt sind, bleiben die Rechte daran bei mir. Mit dem Kauf eines gedruckten Artikels erwirbst du das Eigentum am Artikel; du darfst ihn frei nutzen, verschenken und weiterverkaufen. Du erwirbst aber keine Rechte an den zugrunde liegenden Entwürfen und Daten. Das gewerbliche Nachbauen und Vervielfältigen sowie die gewerbliche Verwertung meiner Fotos und Texte sind ohne meine vorherige Zustimmung nicht gestattet. Gesetzlich erlaubte Nutzungen, etwa im privaten Bereich, bleiben unberührt.</p>
           <p>Impressum und Datenschutzerklärung findest du im Fuß der Seite.</p>
         </article>
       </div>

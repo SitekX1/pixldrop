@@ -1,10 +1,10 @@
 -- =====================================================================
 -- Migration 14: Versandart je Bestellung (Hermes / DHL / Brief)
 -- (Auftrag nannte "09_shop_versandart.sql"; 09 ist schon 09_spam_haertung.sql, naechste freie Nummer ist 14.)
--- Projekt: Admin-Panel-Supabase (dort liegen die shop_*-Funktionen). NICHT live angewendet; Anwendung durch den Orchestrator.
+-- Projekt: Admin-Panel-Supabase (dort liegen die shop_*-Funktionen). LIVE ANGEWENDET 2026-10-12 (siehe Abweichung unten).
 -- Voraussetzung: 08_shop_position_individuell.sql und 10_freigabe.sql sind angewendet. Idempotent, kein begin/commit.
 -- Inhalt:
---   1. Spalte shop_bestellungen.versandart text (null oder 'hermes'|'dhl'|'brief'); Altbestellungen bleiben null
+--   1. Spalte shop_bestellungen.versandart bestand schon (not null, default 'paket'); Check erweitert auf paket|hermes|dhl|brief
 --   2. shop_bestellung_anlegen: neuer LETZTER Parameter p_versandart text default null (Basis: 08, sonst 1:1);
 --      alte 8-Argument-Funktion wird gedroppt (kein Ueberlade-Konflikt). Ungueltiger Wert -> ungueltige_eingabe.
 --      Der Betrag (p_versand_cent) kommt weiterhin vom Server, der ihn aus lib/shop/versand.ts rechnet.
@@ -18,8 +18,7 @@
 -- Rollback:
 --   drop function public.shop_bestellung_anlegen(text,text,text,jsonb,jsonb,jsonb,int,text,text);
 --   -- danach Definition aus 08 (anlegen) und 10 (mail_daten) erneut ausfuehren;
---   alter table public.shop_bestellungen drop constraint shop_bestellungen_versandart_chk;
---   alter table public.shop_bestellungen drop column versandart;
+--   -- Check zurueck: alter table public.shop_bestellungen drop constraint shop_bestellungen_versandart_check; add constraint ... check (versandart = 'paket');
 -- =====================================================================
 
 -- ANGEWENDET 2026-10-12 (live, Projekt gvtthlwopumnbuakqvbe, in drei Teilen 14a/14b/14c).
