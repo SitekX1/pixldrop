@@ -99,8 +99,8 @@ export default function Bestellablauf({
   if (versandOptionenPruef.length > 0 && !gueltigeVersandart(versandOptionenPruef, versandWahl)) {
     return (
       <div className="shop-empty" role="alert">
-        <h2>Bitte wähle im Warenkorb die Versandart.</h2>
-        <p>Hermes oder DHL, das entscheidest du. Ohne Wahl kannst du nicht bestellen.</p>
+        <h2>Bitte Versandart wählen.</h2>
+        <p>Ohne Versandart kannst du nicht bestellen. Du wählst sie im Warenkorb.</p>
         <Link className="shop-btn" href="/3d-druck/warenkorb">Zurück zum Warenkorb</Link>
       </div>
     );

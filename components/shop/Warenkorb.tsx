@@ -123,7 +123,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
           <button type="button" className="shop-btn" aria-disabled="true">Zur Kasse</button>
         ) : versandFehlt ? (
           <button type="button" className="shop-btn" aria-disabled="true" onClick={() => {
-            setVersandMeldung("Bitte wähle zuerst Hermes oder DHL.");
+            setVersandMeldung("Bitte Versandart wählen.");
             requestAnimationFrame(() => zusRef.current?.querySelector<HTMLInputElement>('input[name="versandart"]')?.focus());
           }}>Zur Kasse</button>
         ) : (
