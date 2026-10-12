@@ -52,13 +52,23 @@ function Schild({ c, text, family, format, tc: tcWahl }: { c: string; text?: str
   );
 }
 
-function Kuerbis({ c, gesicht, offen }: { c: string; gesicht?: boolean; offen?: boolean }) {
+const STIEL = "#3f5a2a";
+
+/**
+ * EINSTIEGSPUNKT für echte Produktfotos mit Teile-Masken (noch nicht gebaut):
+ * Später hier statt der SVG-Fläche ein Foto rendern und je Teil (teileFarben: teilId -> hex) eine Maske
+ * (z. B. Alpha-Maske als CSS mask-image oder SVG <mask>) in der gewählten Farbe darüberlegen.
+ * Die Aufrufer (ProductBuy, Warenkorb, Bon) übergeben teileFarben bereits, sie müssen dafür nicht geändert werden.
+ */
+function Kuerbis({ c, gesicht, offen, teileFarben }: { c: string; gesicht?: boolean; offen?: boolean; teileFarben?: Record<string, string> }) {
+  const stiel = teileFarben?.stiel ?? STIEL;
+  c = teileFarben?.koerper ?? c;
   return (
     <g>
       <ellipse cx="30" cy="56" rx="20" ry="27" fill={c} />
       <ellipse cx="70" cy="56" rx="20" ry="27" fill={c} />
       <ellipse cx="50" cy="56" rx="22" ry="29" fill={c} stroke="rgba(0,0,0,.22)" strokeWidth="1.5" />
-      <rect x="46" y="20" width="8" height="12" rx="3" fill="#3f5a2a" />
+      <rect x="46" y="20" width="8" height="12" rx="3" fill={stiel} stroke="rgba(0,0,0,.22)" strokeWidth="1" />
       {gesicht && (
         <g fill={LICHT}>
           <path d="M36 48 L46 48 L41 40 Z" />
@@ -72,6 +82,23 @@ function Kuerbis({ c, gesicht, offen }: { c: string; gesicht?: boolean; offen?: 
           <circle cx="50" cy="33" r="4" fill={LICHT} />
         </g>
       )}
+    </g>
+  );
+}
+
+// Stiftebecher in Tassenform: Tassenkörper, Henkel, Textfläche wie beim Tischschild.
+function Tasse({ c, text, family, format, tc: tcWahl }: { c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string }) {
+  const tc = tcWahl ?? textfarbeFuer(c);
+  const t = (text ?? "Stifte").replace(/\n/g, " ");
+  const fm = format?.fmt;
+  const fit = format && fm ? passtInFlaeche({ text: t, flaeche: FLAECHE_RUND, groesse: fm.groesse, breite: format.breite, fett: fm.fett[0] === true, fettFaktor: FETT_FAKTOR }) : null;
+  const u = fit?.passt ? fit : umbrechen(t, 44, fit ? fit.size : 12, 7, 2, 30);
+  return (
+    <g>
+      <path d="M72 38 H82 a9 9 0 0 1 9 9 v12 a9 9 0 0 1 -9 9 H70" fill="none" stroke={c} strokeWidth="7" strokeLinecap="round" />
+      <path d="M17 26 H73 V70 a14 14 0 0 1 -14 14 H31 a14 14 0 0 1 -14 -14 Z" fill={c} stroke="rgba(0,0,0,.25)" strokeWidth="1.5" />
+      <rect x="17" y="26" width="56" height="6" rx="2" fill="rgba(0,0,0,.18)" />
+      <Zeilen zeilen={u.zeilen} size={u.size} x={45} cy={56} fill={tc} family={family ?? "sans-serif"} weight={fm?.fett[0] ? 900 : 700} kursiv={fm?.kursiv[0] === true} />
     </g>
   );
 }
@@ -99,7 +126,7 @@ function KombiUntersetzer({ x, y, r, kf, label, size }: { x: number; y: number; 
   );
 }
 
-function Motiv({ form, c, text, family, format, tc: tcWahl, kf, tag }: { form: Form; tag?: string; c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string; kf?: string[] }) {
+function Motiv({ form, c, text, family, format, tc: tcWahl, kf, tag, teileFarben }: { form: Form; tag?: string; teileFarben?: Record<string, string>; c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string; kf?: string[] }) {
   const tc = tcWahl ?? textfarbeFuer(c);
   if (kf && kf.length >= 3 && form === "rund") return <KombiUntersetzer x={50} y={50} r={35} kf={kf} label={tag ?? "Mo"} size={20} />;
   if (kf && kf.length >= 3 && form === "set") {
@@ -147,7 +174,9 @@ function Motiv({ form, c, text, family, format, tc: tcWahl, kf, tag }: { form: F
     case "schild":
       return <Schild c={c} text={text} family={family} format={format} tc={tc} />;
     case "laterne":
-      return <Kuerbis c={c} gesicht />;
+      return <Kuerbis c={c} gesicht teileFarben={teileFarben} />;
+    case "tasse":
+      return <Tasse c={c} text={text} family={family} format={format} tc={tc} />;
     case "geister":
       return (
         <g>
@@ -171,13 +200,13 @@ function Motiv({ form, c, text, family, format, tc: tcWahl, kf, tag }: { form: F
 }
 
 export default function ProductImage({
-  form, farbe, typ = "Illustration", breit = false, text, family, format, textfarbe, farben, tag,
-}: { form: Form; tag?: string; /** Farbkombination (Grund, Akzent, Schrift) fuer Wochentags-Untersetzer */ farben?: string[]; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat; /** gewählte Schriftfarbe (Hex); ohne Angabe automatisch kontrastreich */ textfarbe?: string }) {
+  form, farbe, typ = "Illustration", breit = false, text, family, format, textfarbe, farben, tag, teileFarben,
+}: { form: Form; tag?: string; /** Mehrteilige Artikel: teilId -> Hex (z. B. koerper, stiel) */ teileFarben?: Record<string, string>; /** Farbkombination (Grund, Akzent, Schrift) fuer Wochentags-Untersetzer */ farben?: string[]; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat; /** gewählte Schriftfarbe (Hex); ohne Angabe automatisch kontrastreich */ textfarbe?: string }) {
   return (
     <div className={`shop-img ${breit ? "shop-img--wide" : ""}`} role="img" aria-label={`Produktillustration: ${typ}`}>
       <svg className="motiv" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <path d="M70 92C86 86 96 70 94 54" fill="none" stroke="rgba(107,68,35,.28)" strokeWidth="5" strokeLinecap="round" />
-        <Motiv form={form} c={farbe} text={text} family={family} format={format} tc={textfarbe} kf={farben} tag={tag} />
+        <Motiv form={form} c={farbe} text={text} family={family} format={format} tc={textfarbe} kf={farben} tag={tag} teileFarben={teileFarben} />
       </svg>
       <span className="shop-placeholder-tag">{typ}</span>
     </div>

@@ -3,7 +3,7 @@
 import { halloweenModus } from "./config";
 
 export type Kategorie = "halloween" | "untersetzer" | "sonstiges";
-export type Form = "rund" | "set" | "pegel" | "schild" | "laterne" | "geister" | "teelicht" | "untersetzer-kuerbis";
+export type Form = "rund" | "set" | "pegel" | "schild" | "laterne" | "tasse" | "geister" | "teelicht" | "untersetzer-kuerbis";
 
 export interface Optionsgruppe {
   id: string;
@@ -48,6 +48,8 @@ export interface Produkt {
   optionen: Optionsgruppe[];
   /** Fertige Farbkombinationen; gesetzt = keine Lagerfarb-Wahl, Auswahl als optionen.farbkombi (erste = Standard). */
   kombinationen?: Farbkombination[];
+  /** Mehrteilige Artikel: je Teil eine Lagerfarbe (Auswahl.teilFarben: teilId -> farbeId). */
+  teile?: { id: string; label: string }[];
   personalisierung: null | Personalisierung;
   nurMitText?: boolean;
   /** Nur über „Individueller Druck“ (Preis nach Anfrage), nie im Warenkorb (Variante B). */
@@ -128,9 +130,10 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Der Stiftebecher fürs Büro, mit Lamellen und Kaffeetassen-Look.",
     beschreibung:
       "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee.",
-    gruppe: "allgemein", kategorien: ["sonstiges"], form: "rund", grundfarbe: "#6b4423",
+    gruppe: "allgemein", kategorien: ["sonstiges"], form: "tasse", grundfarbe: "#6b4423",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
-    personalisierung: null, hinweise: [KEIN_SPIELZEUG],
+    personalisierung: { maxLaenge: 14, label: "Text auf der Tasse", beispiel: "Stifte", standardSchrift: "montserrat" },
+    hinweise: [KEIN_SPIELZEUG],
   },
   {
     slug: "spruch-untersetzer",
@@ -168,6 +171,7 @@ export const PRODUKTE: Produkt[] = [
       "Eine ausgehöhlte Kürbis-Laterne für ein LED-Teelicht. Das Licht scheint durch das Gesicht. Der Drehverschluss sitzt unten, das Teelicht wechselst du ohne Werkzeug.",
     gruppe: "halloween", kategorien: ["halloween"], form: "laterne", grundfarbe: "#ff8a1f",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
+    teile: [{ id: "koerper", label: "Kürbis" }, { id: "stiel", label: "Stiel" }],
     optionen: [
       { id: "gesicht", label: "Gesicht", optionen: [{ id: "a", label: "Gesicht A" }, { id: "b", label: "Gesicht B" }, { id: "c", label: "Gesicht C" }] },
       { id: "groesse", label: "Größe", optionen: [{ id: "klein", label: "Klein" }, { id: "mittel", label: "Mittel" }] },

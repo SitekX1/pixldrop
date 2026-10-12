@@ -117,7 +117,7 @@ test("Optionen: alle Gruppen Pflicht, nur gueltige IDs", () => {
   assert.ok(!fremd.ok);
   const ok = berechneWarenkorb([pos({ slug: "kuerbis-laterne", optionen: { gesicht: "a", groesse: "mittel" } })], ctx());
   assert.ok(ok.ok);
-  assert.deepEqual(ok.wert.positionen[0].optionen, { Gesicht: "Gesicht A", "Größe": "Mittel" });
+  assert.deepEqual(ok.wert.positionen[0].optionen, { Gesicht: "Gesicht A", "Größe": "Mittel", "Kürbis": "Honiggold", Stiel: "Honiggold" }, "Teile ohne Wahl: Standardfarbe");
 });
 
 test("Personalisierung: Laenge, Zeichen, Schrift, individuell-Flag", () => {
@@ -130,7 +130,7 @@ test("Personalisierung: Laenge, Zeichen, Schrift, individuell-Flag", () => {
   assert.ok(ok.ok);
   assert.equal(ok.wert.positionen[0].text, "Montag");
   assert.equal(ok.wert.individuell, true);
-  assert.ok(!berechneWarenkorb([pos({ text: "Hallo", schriftId: "oswald" })], ctx()).ok, "Artikel ohne Personalisierung");
+  assert.ok(!berechneWarenkorb([pos({ slug: "geister-set", text: "Hallo", schriftId: "oswald" })], ctx()).ok, "Artikel ohne Personalisierung");
   assert.equal((berechneWarenkorb([pos()], ctx()) as { wert: { individuell: boolean } }).wert.individuell, false);
 });
 
@@ -163,12 +163,14 @@ test("Farb-IDs und Lager-Zeilen", () => {
   assert.equal(farbeId("  Weiß / Perl "), "weiss-perl");
   const f = farbenAusZeilen([
     { name: "Schwarz", hex: "#1C1C1C", material: "PLA", vorraetig: true },
-    { name: "schwarz", hex: "#1C1C1C", material: "PETG", vorraetig: true },
+    { name: "Schwarz", hex: "#1C1C1C", material: "PLA Matte", vorraetig: true },
+    { name: "Grün", hex: "#00AA00", material: "PETG", vorraetig: true },
+    { name: "Gelb", hex: "#FFFF00", vorraetig: true },
     { name: "Rot", hex: "kaputt", material: "PLA", vorraetig: true },
     { name: "Blau", hex: "#0000FF", material: "PLA", vorraetig: false },
   ]);
   assert.equal(f.length, 1);
-  assert.deepEqual(f[0], { id: "schwarz", name: "Schwarz", hex: "#1c1c1c", material: "PLA / PETG" });
+  assert.deepEqual(f[0], { id: "schwarz", name: "Schwarz", hex: "#1c1c1c", material: "PLA / PLA Matte" });
   assert.deepEqual(farbenAusZeilen(null), []);
 });
 
@@ -314,4 +316,71 @@ test("Alte Warenkorb-Slugs (entfernte Artikel) liefern 'unbekannt'", () => {
 test("Livegang: keine Testpreise mehr im Katalog", { skip: process.env.SHOP_LIVEGANG_CHECK !== "1" }, () => {
   const test = PRODUKTE.filter((p) => !p.nurAnfrage && p.preisCent === 990).map((p) => p.slug);
   assert.deepEqual(test, [], `Noch Testpreis (9,90 EUR): ${test.join(", ")}`);
+});
+
+// --- Teile (mehrfarbige Artikel, z. B. Kuerbis-Laterne) ---
+const tfarben = [
+  { id: "orange", name: "Orange", hex: "#ff8a1f" },
+  { id: "gruen", name: "Grün", hex: "#00aa00" },
+];
+const lat = (extra: Record<string, unknown> = {}) => ({ slug: "kuerbis-laterne", menge: 1, farbeId: null, optionen: { gesicht: "a", groesse: "klein" }, ...extra });
+
+test("PLA-Filter: PETG und leeres Material fliegen raus, PLA Matte + PLA Basic = ein Eintrag", () => {
+  const f = farbenAusZeilen([
+    { name: "Grün", hex: "#00AA00", material: "pla basic", vorraetig: true },
+    { name: "Grün", hex: "#00AA00", material: "PLA Matte", vorraetig: true },
+    { name: "Blau", hex: "#0000FF", material: "PETG", vorraetig: true },
+    { name: "Rosa", hex: "#FF00FF", material: "", vorraetig: true },
+  ]);
+  assert.equal(f.length, 1);
+  assert.equal(f[0].id, "gruen");
+});
+
+test("Teile: gueltige Teilfarben landen in Optionen und Farbname, Preis unabhaengig", () => {
+  const a = berechneWarenkorb([lat({ teilFarben: { koerper: "orange", stiel: "gruen" } })], ctx({ farben: tfarben }));
+  const b = berechneWarenkorb([lat({ teilFarben: { koerper: "gruen", stiel: "gruen" } })], ctx({ farben: tfarben }));
+  assert.ok(a.ok && b.ok);
+  assert.equal(a.wert.positionen[0].optionen["Kürbis"], "Orange");
+  assert.equal(a.wert.positionen[0].optionen["Stiel"], "Grün");
+  assert.equal(a.wert.positionen[0].farbeName, "Orange / Grün");
+  assert.equal(a.wert.gesamtCent, b.wert.gesamtCent);
+});
+
+test("Teile: unbekannte/nicht vorraetige/PETG-Farbe wird abgelehnt", () => {
+  for (const tf of [{ koerper: "neon-pink" }, { stiel: "petg-blau" }, { koerper: 5 }, { unbekannt: "orange" }, "orange"]) {
+    const r = berechneWarenkorb([lat({ teilFarben: tf })], ctx({ farben: tfarben }));
+    assert.ok(!r.ok && r.fehler.code === "farbe_ungueltig", JSON.stringify(tf));
+  }
+  const ohne = berechneWarenkorb([pos({ teilFarben: { koerper: "schwarz" } })], ctx());
+  assert.ok(!ohne.ok && ohne.fehler.code === "farbe_ungueltig", "Produkt ohne Teile");
+});
+
+test("Teile: alter Warenkorb ohne teilFarben -> Standardfarbe (erste vorraetige)", () => {
+  const r = berechneWarenkorb([lat()], ctx({ farben: tfarben }));
+  assert.ok(r.ok);
+  assert.equal(r.wert.positionen[0].optionen["Kürbis"], "Orange");
+  assert.equal(r.wert.positionen[0].optionen["Stiel"], "Orange");
+  const teil = berechneWarenkorb([lat({ teilFarben: { stiel: "gruen" } })], ctx({ farben: tfarben }));
+  assert.ok(teil.ok && teil.wert.positionen[0].optionen["Kürbis"] === "Orange" && teil.wert.positionen[0].optionen["Stiel"] === "Grün");
+});
+
+test("Teile: Bestaetigungsmail zeigt die Teilfarben", async () => {
+  const { bestaetigungsMail } = await import("@/lib/shop/server/vorlagen");
+  const r = berechneWarenkorb([lat({ teilFarben: { koerper: "orange", stiel: "gruen" } })], ctx({ farben: tfarben }));
+  assert.ok(r.ok);
+  const p = r.wert.positionen[0];
+  const mail = bestaetigungsMail({
+    nummer: "PD-2026-0001", name: "E", strasse: "S 1", plz: "86663", ort: "O", gesamt_cent: 3070, summe_waren_cent: 2580, versand_cent: 490,
+    individuell: false,
+    positionen: [{ name: p.name, menge: 1, einzelpreis_cent: p.einzelpreisCent, farbe: p.farbeName, optionen: p.optionen }],
+  } as never, "Echter Rechtstext", true, { lieferzeit: "5 Werktage", agbText: "AGB" });
+  assert.match(mail.text, /Kürbis: Orange, Stiel: Grün/);
+});
+
+test("Auswahl: teilFarben unterscheidet Positionen, alte Eintraege ohne Feld bleiben gueltig", async () => {
+  const { gleichePosition } = await import("@/lib/shop/auswahl");
+  const basis = { slug: "kuerbis-laterne", farbeId: null, optionen: {}, text: "", schriftId: null, menge: 1 };
+  assert.ok(gleichePosition(basis, { ...basis }));
+  assert.ok(gleichePosition(basis, { ...basis, teilFarben: {} }));
+  assert.ok(!gleichePosition(basis, { ...basis, teilFarben: { stiel: "gruen" } }));
 });

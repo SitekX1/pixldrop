@@ -57,7 +57,7 @@ test("Wunschtext-Pause: jeder Artikel mit Personalisierung gesperrt (auch Standa
     assert.equal(r.body.code, "wunschtext_pausiert");
   }
   const { deps } = neueDeps();
-  const ok = await legeBestellungAn(deps, bestellEingabe(), ctx);
+  const ok = await legeBestellungAn(deps, bestellEingabe({ positionen: [{ slug: "geister-set", menge: 1, farbeId: "schwarz" }] }), ctx);
   assert.notEqual(ok.body.code, "wunschtext_pausiert", "Standardartikel bleibt bestellbar");
 });
 

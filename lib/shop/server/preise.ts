@@ -125,12 +125,32 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
     // Farbe: Artikel mit fertigen Kombinationen brauchen eine bekannte Kombination (kein Lager); sonst muss die Farbe aktuell im Lager sein
     const fid = typeof roh.farbeId === "string" ? roh.farbeId : "";
     let farbe: Farbe | undefined;
+    const teilOptionen: Record<string, string> = {};
     let kombi: NonNullable<Produkt["kombinationen"]>[number] | undefined;
     if (produkt.kombinationen) {
       const kid = istObjekt(roh.optionen) ? roh.optionen[KOMBI_KEY] : undefined;
       kombi = typeof kid === "string" ? produkt.kombinationen.find((k) => k.id === kid) : undefined;
       if (!kombi) return fehler("farbe_ungueltig", "Bitte wähle eine Farbkombination.");
+    } else if (produkt.teile) {
+      // Mehrteilig: je Teil eine vorrätige PLA-Lagerfarbe; fehlt ein Teil, gilt die Standardfarbe (erste vorrätige)
+      const roh2 = roh.teilFarben;
+      if (roh2 !== undefined && !istObjekt(roh2)) return fehler("farbe_ungueltig", "Ungültige Farbwahl.");
+      const wahl = roh2 ?? {};
+      if (Object.keys(wahl).some((k) => !produkt.teile!.some((t) => t.id === k))) return fehler("farbe_ungueltig", "Ungültige Farbwahl.");
+      const standard = ctx.farben[0];
+      if (!standard) return fehler("farbe_ungueltig", "Zurzeit ist keine Farbe vorrätig. Bitte versuch es später noch einmal.");
+      const gewaehlt: Farbe[] = [];
+      for (const t of produkt.teile) {
+        const w = wahl[t.id];
+        if (w === undefined) { gewaehlt.push(standard); teilOptionen[t.label] = standard.name; continue; }
+        const f = typeof w === "string" ? ctx.farben.find((x) => x.id === w) : undefined;
+        if (!f) return fehler("farbe_ungueltig", `Die Farbe für „${t.label}“ ist nicht (mehr) vorrätig. Bitte wähle eine andere.`);
+        gewaehlt.push(f);
+        teilOptionen[t.label] = f.name;
+      }
+      farbe = { ...gewaehlt[0], name: gewaehlt.map((f) => f.name).join(" / ") };
     } else {
+      if (roh.teilFarben !== undefined) return fehler("farbe_ungueltig", "Ungültige Farbwahl.");
       farbe = ctx.farben.find((f) => f.id === fid);
       if (!farbe) return fehler("farbe_ungueltig", "Diese Farbe ist nicht (mehr) vorrätig. Bitte wähle eine andere.");
     }
@@ -156,6 +176,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
     }
 
     if (kombi) optionen["Farbkombination"] = kombi.label;
+    Object.assign(optionen, teilOptionen); // z. B. „Kürbis: Orange“, „Stiel: Grün“ (Mail, PDF, Telegram, Admin lesen optionen)
 
     // Personalisierung (Text einzeilig oder mehrzeilig "zeile1\nzeile2", Schrift fest oder aus der Liste)
     const pers = produkt.personalisierung;

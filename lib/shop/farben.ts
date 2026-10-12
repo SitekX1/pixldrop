@@ -35,6 +35,7 @@ export function farbenAusZeilen(zeilen: unknown): Farbe[] {
   for (const z of zeilen as FarbZeile[]) {
     if (typeof z?.name !== "string" || typeof z.hex !== "string") continue;
     if (z.vorraetig === false) continue;
+    if (typeof z.material !== "string" || !/^PLA/i.test(z.material.trim())) continue; // nur PLA im Shop
     if (!/^#[0-9A-Fa-f]{6}$/.test(z.hex)) continue;
     const id = farbeId(z.name);
     if (!id) continue;

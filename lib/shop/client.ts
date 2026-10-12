@@ -72,7 +72,7 @@ export function baueBestellung(p: { token: string; idempotenzKey: string; auswah
     positionen: liste.map((a) => {
       const mitText = a.text.trim() !== "";
       return {
-        slug: a.slug, menge: a.menge, farbeId: a.farbeId, optionen: a.optionen,
+        slug: a.slug, menge: a.menge, farbeId: a.farbeId, ...(a.teilFarben && Object.keys(a.teilFarben).length ? { teilFarben: a.teilFarben } : {}), optionen: a.optionen,
         text: mitText ? a.text.trim() : "", schriftId: mitText ? a.schriftId : null,
       };
     }),

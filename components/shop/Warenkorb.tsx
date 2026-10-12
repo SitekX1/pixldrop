@@ -4,6 +4,7 @@ import Link from "next/link";
 import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
+import { teilFarbenText } from "@/lib/shop/teilfarben";
 import { aendereMenge, entferne, gueltigeVersandart, ladeKorb, ladeVersandart, speichereKorb, speichereVersandart, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { TEXTE, formatPreis } from "@/lib/shop/config";
 import { versandOptionenFuerKorb, type VersandArt } from "@/lib/shop/versand";
@@ -76,10 +77,10 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
           const ind = istIndividuell(p, a.text, a.optionen);
           return (
             <li key={`${a.slug}-${i}`} className="shop-cart-item">
-              <div className="shop-cart-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} textfarbeHex={tfarbe?.hex} /></div>
+              <div className="shop-cart-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} textfarbeHex={tfarbe?.hex} farben={farben} /></div>
               <div className="shop-cart-body">
                 <h2><Link href={`/3d-druck/${p.slug}`}>{p.name}</Link></h2>
-                {kombiVon(p, a) ? <p className="muted">Farbkombination: {kombiVon(p, a)!.label}</p> : farbe && <p className="muted">Farbe: {farbe.name}</p>}
+                {kombiVon(p, a) ? <p className="muted">Farbkombination: {kombiVon(p, a)!.label}</p> : p.teile ? <p className="muted">{teilFarbenText(p, a, farben)}</p> : farbe && <p className="muted">Farbe: {farbe.name}</p>}
                 {opt.map((t) => <p key={t} className="muted">{t}</p>)}
                 {a.text && <p className="muted">Wunschtext: „{a.text.split("\n").join(" / ")}“</p>}
                 {gesperrtPos(a.slug) && <p className="shop-cart-gesperrt" role="note">Vorübergehend nicht bestellbar: Artikel mit Wunschtext sind aktuell pausiert. Bitte entferne diesen Artikel, um zur Kasse zu gehen.</p>}

@@ -6,6 +6,7 @@ import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produk
 import { TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
+import { teilFarbenVon, teilFarbenText } from "@/lib/shop/teilfarben";
 import { gueltigeVersandart, ladeKorb, ladeVersandart, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { versandOptionenFuerKorb, VERSANDART_NAME } from "@/lib/shop/versand";
 import { SHOP_AKTIV, TEXTE, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
@@ -178,6 +179,11 @@ export default function Bestellablauf({
         requestAnimationFrame(() => alertRef.current?.focus());
         return;
       }
+      if (fe.code === "farbe_ungueltig") {
+        setServerFehler(`${fe.meldung} Gehe zurück zum Warenkorb, entferne den Artikel und wähle die Farbe auf der Artikelseite neu.`);
+        requestAnimationFrame(() => alertRef.current?.focus());
+        return;
+      }
       if (fe.code === "token") holeFormToken().then(setToken);
       if (fe.felder && Object.keys(fe.felder).length) {
         gehe(2);
@@ -226,10 +232,10 @@ export default function Bestellablauf({
       <ul className="shop-zus-pos">
         {pos.map(({ a, p }, i) => (
           <li key={i}>
-            <div className="shop-zus-img"><PositionsBild p={p} a={a} farbeHex={farben.find((f) => f.id === a.farbeId)?.hex} textfarbeHex={a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY])?.hex : undefined} /></div>
+            <div className="shop-zus-img"><PositionsBild p={p} a={a} farbeHex={farben.find((f) => f.id === a.farbeId)?.hex} textfarbeHex={a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY])?.hex : undefined} farben={farben} /></div>
             <div className="shop-zus-txt">
               <strong>{p.name}</strong>
-              <span className="muted">{a.menge} × {formatPreis(einzelpreisCent(p, a.optionen))}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}</span>
+              <span className="muted">{a.menge} × {formatPreis(einzelpreisCent(p, a.optionen))}{p.teile ? ` · ${teilFarbenText(p, a, farben)}` : ""}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}</span>
             </div>
             <span className="shop-zus-sum">{einzelpreisCent(p, a.optionen) != null ? formatPreis(einzelpreisCent(p, a.optionen)! * a.menge) : "auf Anfrage"}</span>
           </li>
@@ -318,10 +324,10 @@ export default function Bestellablauf({
                   ];
                   return (
                     <li key={i}>
-                      <div className="shop-bon-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} textfarbeHex={tfarbe?.hex} /></div>
+                      <div className="shop-bon-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} textfarbeHex={tfarbe?.hex} farben={farben} /></div>
                       <dl>
                         <div><dt>Ware</dt><dd>{p.name}</dd></div>
-                        {kombiVon(p, a) ? <div><dt>Farbkombination</dt><dd>{kombiVon(p, a)!.label}</dd></div> : farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
+                        {kombiVon(p, a) ? <div><dt>Farbkombination</dt><dd>{kombiVon(p, a)!.label}</dd></div> : p.teile ? teilFarbenVon(p, a, farben).map((t) => <div key={t.id}><dt>Farbe {t.label}</dt><dd>{t.farbe?.name ?? "nicht mehr vorrätig"}</dd></div>) : farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
                         {optText.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
                         {a.text && <div><dt>Text</dt><dd>{a.text.split("\n").join(" / ")}</dd></div>}
                         {p.masse && <div><dt>Maße</dt><dd>{`ca. ${p.masse} mm${p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}`}</dd></div>}

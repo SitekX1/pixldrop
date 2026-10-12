@@ -14,6 +14,7 @@ import type { Farbe } from "@/lib/shop/farben";
 import { TEXTE } from "@/lib/shop/config";
 import { pruefeWunschtext } from "@/lib/shop/textfilter";
 import { TEXTFARBE_HINWEIS, TEXTFARBE_KEY, automatischeTextfarbe, textfarbeErlaubt } from "@/lib/shop/textfarbe";
+import { standardTeilFarben } from "@/lib/shop/teilfarben";
 import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
 
 function hell(hex: string) {
@@ -26,9 +27,14 @@ export default function ProductBuy({
   produkt, farben, bestellbar, preisText, wunschPause = false,
 }: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string; wunschPause?: boolean }) {
   const kombis = produkt.kombinationen;
-  const [farbeId, setFarbeId] = useState<string | null>(kombis ? null : farben[0]?.id ?? null);
+  const [farbeId, setFarbeId] = useState<string | null>(kombis || produkt.teile ? null : farben[0]?.id ?? null);
   const [kombiId, setKombiId] = useState<string | null>(kombis?.[0].id ?? null);
   const kombi = kombis?.find((k) => k.id === kombiId);
+  // Mehrteilige Artikel (Kürbis-Laterne): je Teil eine eigene Lagerfarbe, Standard = ähnlichste Farbe zur Referenz (orange / grün).
+  const teile = produkt.teile;
+  const [teilWahl, setTeilWahl] = useState<Record<string, string>>(() => (teile ? standardTeilFarben(teile, farben) : {}));
+  const teilFarbe = (id: string) => farben.find((f) => f.id === teilWahl[id]);
+  const teileHex = teile ? Object.fromEntries(teile.flatMap((t) => { const f = teilFarbe(t.id); return f ? [[t.id, f.hex]] : []; })) : undefined;
   const [opt, setOpt] = useState<Record<string, string>>(() =>
     Object.fromEntries(produkt.optionen.map((g) => [g.id, g.optionen[0].id])),
   );
@@ -83,13 +89,14 @@ export default function ProductBuy({
   const livePreis = hatAufpreis ? formatPreis(einzelpreisCent(produkt, opt)) : preisText;
   const setzeVorschau = useVorschauSetzen();
   const beispielText = (zeilen[0] ?? "").trim().slice(0, 9) || pers?.beispiel || "Abc";
-  const vorFarbe = farbe?.hex ?? produkt.grundfarbe;
+  const vorFarbe = (teile ? teilFarbe(teile[0].id)?.hex : farbe?.hex) ?? produkt.grundfarbe;
+  const teileKey = JSON.stringify(teileHex ?? {});
   const vorTextfarbe = pers ? textfarbe?.hex : undefined;
   const vorFamily = schrift?.family;
   useEffect(() => {
-    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: kombi?.label ?? farbe?.name, farben: kombi?.farben.map((f) => f.hex), tag: tagKurz, format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
+    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: kombi?.label ?? (teile ? teile.map((t) => `${t.label}: ${teilFarbe(t.id)?.name ?? "?"}`).join(" · ") : farbe?.name), teileFarben: teileHex, farben: kombi?.farben.map((f) => f.hex), tag: tagKurz, format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, kombi?.label, tagKurz, vorTextfarbe, textfarbe?.name, JSON.stringify(formatOpt)]);
+  }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, kombi?.label, teileKey, tagKurz, vorTextfarbe, textfarbe?.name, JSON.stringify(formatOpt)]);
   const kaufReg = useKaufRegistrieren();
   const kaufArt = wunschPause ? "pause" : bestellbar ? "ja" : "nein";
   useEffect(() => { kaufReg?.setzeKauf({ art: kaufArt, gesperrt, bestaetigt }); }, [kaufReg?.setzeKauf, kaufArt, gesperrt, bestaetigt]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -106,6 +113,7 @@ export default function ProductBuy({
     const r = fuegeHinzu(ladeKorb(), {
       slug: produkt.slug,
       farbeId,
+      ...(teile ? { teilFarben: teilWahl } : {}),
       optionen: { ...opt, ...(kombi ? { [KOMBI_KEY]: kombi.id } : {}), ...formatOpt, ...(pers && textfarbe ? { [TEXTFARBE_KEY]: textfarbe.id } : {}) },
       text: pers ? text : "",
       schriftId: pers ? (pers.festeSchrift ?? schriftId) : null,
@@ -257,6 +265,29 @@ export default function ProductBuy({
           </div>
           <p className="muted">Fertige Kombination aus drei Farben. Bildschirmfarben können leicht abweichen.</p>
         </fieldset>
+      ) : teile && farben.length > 0 ? (
+        <>
+          {teile.map((t) => {
+            const gew = teilFarbe(t.id);
+            return (
+              <fieldset key={t.id} className="shop-step">
+                <legend>Farbe {t.label}</legend>
+                <div className="shop-swatches">
+                  {farben.map((f) => (
+                    <label key={f.id} className="shop-swatch">
+                      <input type="radio" name={`farbe-${t.id}`} value={f.id} checked={teilWahl[t.id] === f.id} onChange={() => setTeilWahl({ ...teilWahl, [t.id]: f.id })} aria-label={`${f.name} (${t.label})`} />
+                      <span className="dot" style={{ background: f.hex }}>
+                        <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5l3.5 3.5 7.5-8" fill="none" stroke={hell(f.hex) ? "#2e1c0f" : "#fff"} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <p aria-live="polite" style={{ marginTop: 6 }}><strong>{t.label}: {gew?.name}</strong> · auf Lager</p>
+              </fieldset>
+            );
+          })}
+          <p className="muted">Nur Farben, die gerade im Regal liegen. Bildschirmfarben können leicht abweichen.</p>
+        </>
       ) : farben.length > 0 ? (
         <fieldset className="shop-step">
           <legend>Farbe</legend>

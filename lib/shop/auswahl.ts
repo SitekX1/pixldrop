@@ -3,6 +3,8 @@
 export interface Auswahl {
   slug: string;
   farbeId: string | null;
+  /** Mehrteilige Artikel: teilId -> farbeId. Fehlt das Feld (alte Warenkörbe), gilt die Standardfarbe. */
+  teilFarben?: Record<string, string>;
   optionen: Record<string, string>;
   text: string;
   schriftId: string | null;
@@ -19,6 +21,7 @@ const ALT_KEY = "shop-auswahl-v1"; // früher: genau ein Stück
 
 export function gleichePosition(a: Auswahl, b: Auswahl): boolean {
   return a.slug === b.slug && a.farbeId === b.farbeId && a.text === b.text && a.schriftId === b.schriftId
+    && JSON.stringify(Object.entries(a.teilFarben ?? {}).sort()) === JSON.stringify(Object.entries(b.teilFarben ?? {}).sort())
     && JSON.stringify(Object.entries(a.optionen).sort()) === JSON.stringify(Object.entries(b.optionen).sort());
 }
 
