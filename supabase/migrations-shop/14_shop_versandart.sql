@@ -22,17 +22,12 @@
 --   alter table public.shop_bestellungen drop column versandart;
 -- =====================================================================
 
-alter table public.shop_bestellungen add column if not exists versandart text;
-
-do $$
-begin
-  if not exists (select 1 from pg_catalog.pg_constraint where conname = 'shop_bestellungen_versandart_chk') then
-    alter table public.shop_bestellungen
-      add constraint shop_bestellungen_versandart_chk
-      check (versandart is null or versandart in ('hermes', 'dhl', 'brief'));
-  end if;
-end
-$$;
+-- ANGEWENDET 2026-10-12 (live, Projekt gvtthlwopumnbuakqvbe, in drei Teilen 14a/14b/14c).
+-- ABWEICHUNG: Die Spalte versandart gab es schon (01: NOT NULL, default 'paket', check = 'paket').
+-- Daher: Check erweitert auf paket|hermes|dhl|brief; die Funktion schreibt coalesce(p_versandart,'paket').
+alter table public.shop_bestellungen drop constraint if exists shop_bestellungen_versandart_check;
+alter table public.shop_bestellungen add constraint shop_bestellungen_versandart_check
+  check (versandart in ('paket', 'hermes', 'dhl', 'brief'));
 
 -- ---------------------------------------------------------------------
 -- shop_bestellung_anlegen (vollstaendig, Basis 08 + p_versandart)
@@ -67,6 +62,7 @@ declare
   v_nummer  text;
   v_anzahl  int;
   v_hash    text;
+  v_art     text := coalesce(p_versandart, 'paket');
 begin
   if not public.shop_secret_ok(p_secret) then
     return jsonb_build_object('ok', false, 'grund', 'nicht_berechtigt');
@@ -81,7 +77,7 @@ begin
      or pg_catalog.jsonb_array_length(p_positionen) not between 1 and 10
      or p_versand_cent is null or p_versand_cent not between 0 and 10000
      or (p_agb_version is not null and char_length(p_agb_version) > 40)
-     or (p_versandart is not null and p_versandart not in ('hermes', 'dhl', 'brief'))
+     or v_art not in ('paket', 'hermes', 'dhl', 'brief')
   then
     return jsonb_build_object('ok', false, 'grund', 'ungueltige_eingabe');
   end if;
@@ -145,7 +141,7 @@ begin
   -- Hash ueber Positionen + Kundendaten + Versand (jsonb ist normalisiert): gleicher Key, anderer Inhalt = Konflikt
   v_hash := pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(
               p_positionen::text || '|' || p_kunde::text || '|' || p_versand_cent::text
-              || '|' || coalesce(p_versandart, ''), 'utf8')), 'hex');
+              || '|' || v_art, 'utf8')), 'hex');
   select b.id, b.nummer, b.gesamt_cent, b.anfrage_hash into v_vorh
     from public.shop_bestellungen b
    where b.idempotenz_key = p_idempotenz_key;
@@ -178,7 +174,7 @@ begin
       agb_version, einwilligung_agb_am, einwilligung_widerruf_am, einwilligung_verzicht_am,
       enthaelt_individuell, ip_hash, anfrage_hash
     ) values (
-      v_nummer, p_idempotenz_key, v_summe, p_versand_cent, p_versandart, v_gesamt,
+      v_nummer, p_idempotenz_key, v_summe, p_versand_cent, v_art, v_gesamt,
       pg_catalog.btrim(p_kunde->>'name'), pg_catalog.btrim(p_kunde->>'strasse'), p_kunde->>'plz',
       pg_catalog.btrim(p_kunde->>'ort'), pg_catalog.lower(pg_catalog.btrim(p_kunde->>'email')),
       nullif(pg_catalog.btrim(coalesce(p_kunde->>'telefon', '')), ''),
@@ -212,7 +208,7 @@ begin
 
   insert into public.shop_ereignisse (bestellung_id, nummer, art, details)
   values (v_id, v_nummer, 'angelegt',
-          jsonb_build_object('gesamt_cent', v_gesamt, 'individuell', v_indiv, 'versandart', p_versandart));
+          jsonb_build_object('gesamt_cent', v_gesamt, 'individuell', v_indiv, 'versandart', v_art));
 
   return jsonb_build_object('ok', true, 'wiederholt', false, 'id', v_id,
                             'nummer', v_nummer, 'gesamt_cent', v_gesamt);
