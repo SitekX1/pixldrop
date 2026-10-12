@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
@@ -17,12 +17,14 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
   const [geladen, setGeladen] = useState(false);
   const [meldung, setMeldung] = useState("");
   const [versandWahl, setVersandWahl] = useState<string | null>(null);
+  const [versandMeldung, setVersandMeldung] = useState("");
+  const zusRef = useRef<HTMLElement>(null);
 
   useEffect(() => { setKorb(ladeKorb()); setVersandWahl(ladeVersandart()); setGeladen(true); }, []);
   const versandOptionen = versandOptionenFuerKorb(korb);
   const versand = gueltigeVersandart(versandOptionen, versandWahl);
   const versandArt = versand?.art ?? null;
-  // Gültige Auswahl (oder die günstigste) festhalten, damit der Checkout dieselbe Art sieht
+  // Nur eine bewusst gewählte (oder feste Brief-)Art festhalten; ohne Wahl wird nichts gespeichert (keine Vorauswahl)
   useEffect(() => { if (geladen) speichereVersandart(versandArt); }, [geladen, versandArt]);
   const setze = (k: Korb) => { setKorb(k); speichereKorb(k); };
 
@@ -43,6 +45,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
   const gesperrtNamen = [...new Set(korb.flatMap((a) => (gesperrtPos(a.slug) ? [von(a.slug)!.name] : [])))];
   const fehlt = korb.some((a) => !von(a.slug)) || gesperrtNamen.length > 0;
   const zwischen = zwischensummeCent(korb, (s, a) => { const x = von(s); return x ? einzelpreisCent(x, a.optionen) : undefined; });
+  const versandFehlt = !versand && versandOptionen.length > 1;
   const gesamt = zwischen != null && versand ? zwischen + versand.cent : null;
   const ausgenommen = korb.flatMap((a) => { const p = von(a.slug); return p && istIndividuell(p, a.text, a.optionen) ? [p.name] : []; });
 
@@ -100,13 +103,13 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
       </ul>
       </div>
 
-      <aside className="shop-zwei-r shop-form" aria-label="Zusammenfassung">
-      <VersandWahl optionen={versandOptionen} gewaehlt={(versand?.art as VersandArt) ?? null}
-        onWahl={(a) => { setVersandWahl(a); speichereVersandart(a); }} />
+      <aside ref={zusRef} className="shop-zwei-r shop-form" aria-label="Zusammenfassung">
+      <VersandWahl optionen={versandOptionen} gewaehlt={(versand?.art as VersandArt) ?? null} fehler={versandFehlt ? versandMeldung : undefined}
+        onWahl={(a) => { setVersandWahl(a); speichereVersandart(a); setVersandMeldung(""); }} />
       <dl className="shop-cart-sum">
         <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
-        <div><dt>Versand (Deutschland)</dt><dd>{versand ? formatPreis(versand.cent) : "auf Anfrage"}</dd></div>
-        <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div>
+        <div><dt>Versand (Deutschland)</dt><dd>{versand ? formatPreis(versand.cent) : versandFehlt ? "bitte Versandart wählen" : "auf Anfrage"}</dd></div>
+        <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : versandFehlt ? (zwischen != null ? `${formatPreis(zwischen)} zzgl. Versand` : "zzgl. Versand") : "auf Anfrage"}</dd></div>
       </dl>
       <p className="muted">{TEXTE.kleinunternehmer}</p>
       {ausgenommen.length > 0 && (
@@ -118,6 +121,11 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
       <div className="shop-actions" style={{ marginTop: 0 }}>
         {fehlt ? (
           <button type="button" className="shop-btn" aria-disabled="true">Zur Kasse</button>
+        ) : versandFehlt ? (
+          <button type="button" className="shop-btn" aria-disabled="true" onClick={() => {
+            setVersandMeldung("Bitte wähle zuerst Hermes oder DHL.");
+            requestAnimationFrame(() => zusRef.current?.querySelector<HTMLInputElement>('input[name="versandart"]')?.focus());
+          }}>Zur Kasse</button>
         ) : (
           <Link className="shop-btn" href="/3d-druck/bestellung?schritt=2">Zur Kasse</Link>
         )}

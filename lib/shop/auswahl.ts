@@ -81,11 +81,15 @@ export function speichereVersandart(art: string | null) {
     else sessionStorage.removeItem(VERSAND_KEY);
   } catch { /* Speicher gesperrt: Auswahl bleibt im Tab-Zustand */ }
 }
-/** Gespeicherte Auswahl, wenn sie unter den Optionen noch zulässig ist, sonst die günstigste. */
+/**
+ * Gültige Versandart: Bei genau einer Option (Brief) ist sie fest zugewiesen. Bei mehreren Optionen (Hermes/DHL)
+ * zählt nur die gespeicherte Art, wenn sie noch zulässig ist, sonst null. Es gibt bewusst keine Vorauswahl
+ * (z. B. die günstigste): Der Kunde muss aktiv wählen.
+ */
 export function gueltigeVersandart<T extends { art: string; cent: number }>(optionen: readonly T[], gespeichert: string | null): T | null {
   if (optionen.length === 0) return null;
-  const treffer = gespeichert ? optionen.find((o) => o.art === gespeichert) : undefined;
-  return treffer ?? optionen.reduce((m, o) => (o.cent < m.cent ? o : m), optionen[0]);
+  if (optionen.length === 1) return optionen[0];
+  return (gespeichert ? optionen.find((o) => o.art === gespeichert) : undefined) ?? null;
 }
 
 /** Zwischensumme in Cent; null, wenn ein Preis noch nicht feststeht. */

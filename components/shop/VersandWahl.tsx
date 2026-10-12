@@ -9,7 +9,7 @@ const KURZTEXT: Record<VersandArt, string> = {
 };
 
 // Versandart im Warenkorb: Radiokarten (Hermes/DHL), bei Brief nur eine feste Zeile ohne Auswahl.
-export default function VersandWahl({ optionen, gewaehlt, onWahl }: { optionen: VersandOption[]; gewaehlt: VersandArt | null; onWahl: (a: VersandArt) => void }) {
+export default function VersandWahl({ optionen, gewaehlt, onWahl, fehler }: { optionen: VersandOption[]; gewaehlt: VersandArt | null; onWahl: (a: VersandArt) => void; fehler?: string }) {
   if (optionen.length === 0) return null;
   if (optionen.length === 1) {
     const o = optionen[0];
@@ -21,8 +21,9 @@ export default function VersandWahl({ optionen, gewaehlt, onWahl }: { optionen: 
     );
   }
   return (
-    <fieldset className="shop-versand">
-      <legend>Versand</legend>
+    <fieldset className="shop-versand" aria-describedby={fehler ? "versand-fehler" : undefined}>
+      <legend>{gewaehlt ? "Versand" : "Versand: bitte wählen"} <span className="opt">(Pflichtangabe)</span></legend>
+      {fehler && <p id="versand-fehler" className="shop-alert" role="alert">{fehler}</p>}
       <div className="shop-kombis">
         {optionen.map((o) => (
           <label key={o.art} className="shop-kombi">

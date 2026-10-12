@@ -95,6 +95,17 @@ export default function Bestellablauf({
     );
   }
 
+  const versandOptionenPruef = versandOptionenFuerKorb(korb);
+  if (versandOptionenPruef.length > 0 && !gueltigeVersandart(versandOptionenPruef, versandWahl)) {
+    return (
+      <div className="shop-empty" role="alert">
+        <h2>Bitte wähle im Warenkorb die Versandart.</h2>
+        <p>Hermes oder DHL, das entscheidest du. Ohne Wahl kannst du nicht bestellen.</p>
+        <Link className="shop-btn" href="/3d-druck/warenkorb">Zurück zum Warenkorb</Link>
+      </div>
+    );
+  }
+
   const pos = zeilen as { a: Korb[number]; p: Produkt }[];
   const zwischen = zwischensummeCent(korb, (s, a) => { const x = produkte.find((q) => q.slug === s); return x ? einzelpreisCent(x, a.optionen) : undefined; });
   const versandOptionen = versandOptionenFuerKorb(korb);

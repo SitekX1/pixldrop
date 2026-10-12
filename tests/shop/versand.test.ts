@@ -6,6 +6,23 @@ import {
   istVersandArt, versandOptionen, versandOptionenFuerKorb,
 } from "@/lib/shop/versand";
 
+import { gueltigeVersandart } from "@/lib/shop/auswahl";
+
+test("gueltigeVersandart: keine Vorauswahl bei mehreren Optionen", () => {
+  const opt = [{ art: "hermes", cent: 499 }, { art: "dhl", cent: 549 }];
+  assert.equal(gueltigeVersandart(opt, null), null);
+  assert.equal(gueltigeVersandart(opt, "brief"), null); // ungueltige gespeicherte Art
+  assert.equal(gueltigeVersandart(opt, "quatsch"), null);
+  assert.equal(gueltigeVersandart(opt, "dhl")?.art, "dhl");
+  assert.equal(gueltigeVersandart(opt, "hermes")?.art, "hermes");
+});
+test("gueltigeVersandart: Brief (eine Option) ist fest zugewiesen, leer => null", () => {
+  const brief = [{ art: "brief", cent: 120 }];
+  assert.equal(gueltigeVersandart(brief, null)?.art, "brief");
+  assert.equal(gueltigeVersandart(brief, "dhl")?.art, "brief");
+  assert.equal(gueltigeVersandart([], "dhl"), null);
+});
+
 const arten = (l: { art: string }[]) => l.map((o) => o.art);
 const cent = (l: { art: string; cent: number }[], art: string) => l.find((o) => o.art === art)?.cent;
 
