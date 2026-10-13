@@ -18,18 +18,18 @@ const ctx = (extra: Partial<Kontext> = {}): Kontext => ({
 const K = "schwarz-tuerkis-weiss";
 const pos = (extra: Record<string, unknown> = {}) => ({ slug: "stiftebecher-tasse", menge: 2, farbeId: "schwarz", ...extra });
 
-test("Preis wird serverseitig berechnet: 2 x 12,90 + 5,00 Versand (Hermes Paket S)", () => {
+test("Preis wird serverseitig berechnet: 2 x 12,90 + 4,10 Versand (Hermes Päckchen)", () => {
   const r = berechneWarenkorb([pos()], ctx());
   assert.ok(r.ok);
   assert.equal(r.wert.summeWarenCent, 2580);
-  assert.equal(r.wert.gesamtCent, 3080);
+  assert.equal(r.wert.gesamtCent, 2990);
   assert.equal(r.wert.positionen[0].einzelpreisCent, 1290);
 });
 
 test("Vom Client gesendete Preise werden ignoriert", () => {
   const r = berechneWarenkorb([pos({ einzelpreisCent: 1, preisCent: 1, preis: 0.01, gesamt: 1 })], ctx());
   assert.ok(r.ok);
-  assert.equal(r.wert.gesamtCent, 3080);
+  assert.equal(r.wert.gesamtCent, 2990);
 });
 
 test("Artikel ohne Preis (Preis folgt) ist nicht bestellbar", () => {
@@ -55,10 +55,10 @@ test("Server rechnet den Versand aus der Versandart, nicht vom Client", () => {
   const h = berechneWarenkorb([pos({ versandCent: 1, versand: 0 })], ctx(), "hermes");
   const d = berechneWarenkorb([pos()], ctx(), "dhl");
   assert.ok(h.ok && d.ok);
-  assert.equal(h.wert.versandCent, 500); // stiftebecher = mittel, 2 Stueck: Hermes Paket S
+  assert.equal(h.wert.versandCent, 410); // 2 Tassen passen in ein Hermes Päckchen
   assert.equal(h.wert.versandart, "hermes");
-  assert.equal(d.wert.versandCent, 600);
-  assert.equal(d.wert.gesamtCent, 2580 + 600);
+  assert.equal(d.wert.versandCent, 510);
+  assert.equal(d.wert.gesamtCent, 2580 + 510);
 });
 
 test("Brief nur fuer flache Untersetzer ohne Box", () => {

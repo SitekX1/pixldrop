@@ -46,9 +46,6 @@ export const VERSAND_BRIEF = {
   maxibrief: { label: "Maxibrief (Deutsche Post)", cent: 290, maxStueck: 7 }, //  35,3 x 25 x 5 cm, 1 kg
 } as const;
 
-/** Ab MEHR als dieser Stueckzahl (gesamt) rutscht der Warenkorb eine Stufe hoeher. VORLAEUFIG. */
-export const VERSAND_STUFE_HOEHER_UEBER_STUECK = 4;
-
 /** Kurzname der Versandart fuer Mails/Anzeige. */
 export const VERSANDART_NAME: Record<VersandArt, string> = {
   hermes: "Hermes",
@@ -57,27 +54,122 @@ export const VERSANDART_NAME: Record<VersandArt, string> = {
 };
 
 /**
- * Je Produkt: Versandstufe, Brieffaehigkeit und Stueck je Menge (ein Set zaehlt mehrfach). VORLAEUFIG.
- * briefFaehig gilt NUR ohne Box (Option BOX_GRUPPE = BOX_MIT).
- * Unbekannter Slug: Stufe "mittel", nicht brieffaehig, 1 Stueck.
+ * VOLUMENMODELL (Alex 2026-10-13): Es gibt keine festen Kartons. Die Grenze einer Stufe ist das Hoechstmass, das der
+ * Paketdienst fuer diese Stufe vorschreibt (Hermes: laengste + kuerzeste Seite; Paeckchen 37 cm, Paket S 50 cm, M 80 cm).
+ * Jeder Artikel hat echte Masse aus den STL-Dateien (Modelle/Uebersicht/PACKMASSE.md). Der Warenkorb passt in eine Stufe, wenn
+ *   (1) ein Karton mit laengste + kuerzeste Seite <= Grenze existiert, in den jeder Artikel (mit PACK_PUFFER_MM) passt und
+ *   (2) dessen Volumen fuer das Gesamtvolumen x POLSTER_FAKTOR reicht.
+ * Passt der Korb nicht in die groesste Stufe oder ueber das Hoechstgewicht, wird er auf mehrere Pakete verteilt und die
+ * Preise addiert. Es gibt nie "bitte anfragen". Preise der Stufen: VERSAND_PREISE.
  */
+export const POLSTER_FAKTOR = 1.3;
+/** Platz je Kartonkante fuer Wand/Polster in mm (zusaetzlich zum Volumenzuschlag). */
+export const PACK_PUFFER_MM = 10;
+/** Grenze "laengste + kuerzeste Seite" in mm je Stufe (Hermes-Preisliste 2026; DHL-Paeckchen/Paket sind grosszuegiger). */
+export const STUFE_GRENZE_MM: Record<VersandStufe, number> = { klein: 370, mittel: 500, gross: 800 };
+/** Hoechstgewicht je Paket in g (DHL 5-kg-Produkt). Darueber wird auf mehrere Pakete verteilt. */
+export const PAKET_MAX_G = 5000;
+/** DHL "Paket 2 kg" ist nur bis 2 kg zulaessig: schwerere Pakete zahlen mindestens den Preis der Stufe "gross" (5 kg). */
+export const DHL_KLEIN_MAX_G = 2000;
+
+/** Ein Teil eines Produkts: Masse in mm (Reihenfolge egal), Gewicht in g, Anzahl. */
+export interface PackTeil { mm: [number, number, number]; g: number; anz: number }
 export const BOX_GRUPPE = "box";
 export const BOX_MIT = "mit";
-export interface VersandProdukt { versandStufe: VersandStufe; briefFaehig: boolean; stueckJeMenge: number }
-export const VERSAND_PRODUKTE: Record<string, VersandProdukt> = {
-  "wochentags-untersetzer-set": { versandStufe: "klein", briefFaehig: true, stueckJeMenge: 5 },
-  "wochentags-untersetzer-einzeln": { versandStufe: "klein", briefFaehig: true, stueckJeMenge: 1 },
-  "spruch-untersetzer": { versandStufe: "klein", briefFaehig: true, stueckJeMenge: 1 },
-  "halloween-untersetzer-set": { versandStufe: "klein", briefFaehig: true, stueckJeMenge: 3 },
-  "halloween-untersetzer-einzeln": { versandStufe: "klein", briefFaehig: true, stueckJeMenge: 1 },
-  "stiftebecher-tasse": { versandStufe: "mittel", briefFaehig: false, stueckJeMenge: 1 },
-  "tischschild-erster-kaffee": { versandStufe: "klein", briefFaehig: false, stueckJeMenge: 1 },
-  "kuerbis-laterne": { versandStufe: "mittel", briefFaehig: false, stueckJeMenge: 1 },
-  "geister-set": { versandStufe: "mittel", briefFaehig: false, stueckJeMenge: 1 },
-  "geister-set-klein": { versandStufe: "klein", briefFaehig: false, stueckJeMenge: 1 },
-  "kuerbis-teelichthalter": { versandStufe: "klein", briefFaehig: false, stueckJeMenge: 1 },
+export interface VersandProdukt {
+  /** Teile je Stueck (z. B. Set aus 3 Geistern) */
+  teile: PackTeil[];
+  /** Mit Box (BOX_MIT): ersetzt die Teile durch die Box mit Inhalt */
+  teileMitBox?: PackTeil[];
+  briefFaehig: boolean;
+  /** Stueck je Menge fuer die Brief-Grenzen (ein Set zaehlt mehrfach) */
+  stueckJeMenge: number;
+  /** Stufe bei genau 1 Stueck (nur fuer die Anzeige "Versand ab"), wird unten berechnet */
+  versandStufe: VersandStufe;
+}
+type Roh = Omit<VersandProdukt, "versandStufe">;
+const UNTERSETZER = (anz: number): PackTeil => ({ mm: [90, 90, 3], g: 15, anz });
+const BOX_SET: PackTeil[] = [{ mm: [96.8, 40, 54], g: 169, anz: 1 }]; // 5 Untersetzer hochkant in der Box
+const ROH: Record<string, Roh> = {
+  "wochentags-untersetzer-set": { teile: [UNTERSETZER(5)], teileMitBox: BOX_SET, briefFaehig: true, stueckJeMenge: 5 },
+  "wochentags-untersetzer-einzeln": { teile: [UNTERSETZER(1)], teileMitBox: BOX_SET, briefFaehig: true, stueckJeMenge: 1 },
+  "spruch-untersetzer": { teile: [UNTERSETZER(1)], briefFaehig: true, stueckJeMenge: 1 },
+  "halloween-untersetzer-set": { teile: [UNTERSETZER(3)], briefFaehig: true, stueckJeMenge: 3 },
+  "halloween-untersetzer-einzeln": { teile: [UNTERSETZER(1)], briefFaehig: true, stueckJeMenge: 1 },
+  "stiftebecher-tasse": { teile: [{ mm: [166.3, 85, 100], g: 97, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
+  "tischschild-erster-kaffee": { teile: [{ mm: [196.5, 57.7, 19], g: 67, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Platte 6 + Staender 13, zerlegt
+  "kuerbis-laterne": { teile: [{ mm: [108, 111, 120], g: 150, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Gewicht VORLAEUFIG, Alex wiegt nach
+  "geister-set": { teile: [{ mm: [77.2, 86.2, 70], g: 21, anz: 1 }, { mm: [81.5, 84.2, 96], g: 24, anz: 1 }, { mm: [104.5, 104.5, 80], g: 28, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
+  "geister-set-klein": { teile: [{ mm: [46.3, 51.7, 42], g: 6, anz: 1 }, { mm: [48.9, 50.5, 57.6], g: 6, anz: 1 }, { mm: [62.7, 62.7, 48], g: 7, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
+  "kuerbis-teelichthalter": { teile: [{ mm: [72, 73, 40], g: 38, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
 };
-const UNBEKANNT: VersandProdukt = { versandStufe: "mittel", briefFaehig: false, stueckJeMenge: 1 };
+/** Unbekannter Slug: grosszuegiger Quader, nie Brief. */
+const UNBEKANNT: Roh = { teile: [{ mm: [200, 150, 100], g: 300, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 };
+
+/** Ein einzelnes Packstueck (Masse sortiert: l >= m >= k). */
+interface Stueck { l: number; m: number; k: number; g: number; vol: number }
+function stueckVon(t: PackTeil): Stueck {
+  const [l, m, k] = [...t.mm].sort((x, y) => y - x);
+  return { l, m, k, g: t.g, vol: l * m * k };
+}
+function teileJeStueck(roh: Roh, box: boolean): PackTeil[] {
+  return box && roh.teileMitBox ? roh.teileMitBox : roh.teile;
+}
+const stueckeAusTeilen = (teile: readonly PackTeil[]): Stueck[] =>
+  teile.flatMap((t) => Array.from({ length: t.anz }, () => stueckVon(t)));
+
+/** Groesstes Kartonvolumen (mm3) der Stufe fuer diesen Inhalt; 0 = passt nicht. Karton a x a x c mit a + c = Grenze. */
+function kartonVolumen(stufe: VersandStufe, inhalt: readonly Stueck[]): number {
+  const grenze = STUFE_GRENZE_MM[stufe];
+  const maxL = Math.max(...inhalt.map((x) => x.l)) + PACK_PUFFER_MM;
+  const maxM = Math.max(...inhalt.map((x) => x.m)) + PACK_PUFFER_MM;
+  const maxK = Math.max(...inhalt.map((x) => x.k)) + PACK_PUFFER_MM;
+  // kurze Kante c in [maxK, grenze - max(maxL, maxM)]; (grenze - c)^2 * c ist bei c = grenze / 3 am groessten
+  const cMin = maxK;
+  const cMax = grenze - Math.max(maxL, maxM);
+  if (cMax < cMin) return 0;
+  const c = Math.min(Math.max(grenze / 3, cMin), cMax);
+  const a = grenze - c;
+  return a * a * c;
+}
+
+const volumenInhalt = (inhalt: readonly Stueck[]) => inhalt.reduce((t, x) => t + x.vol, 0) * POLSTER_FAKTOR;
+const gewichtInhalt = (inhalt: readonly Stueck[]) => inhalt.reduce((t, x) => t + x.g, 0);
+
+/** Kleinste Stufe, in die der Inhalt passt (null = passt in keine). */
+function kleinsteStufe(inhalt: readonly Stueck[]): VersandStufe | null {
+  const v = volumenInhalt(inhalt);
+  for (const s of STUFEN) if (kartonVolumen(s, inhalt) >= v) return s;
+  return null;
+}
+
+/** Verteilt die Stuecke auf Pakete (groesste zuerst, First-Fit). Ein Stueck, das nirgends passt, bekommt ein eigenes Paket. */
+function verteileAufPakete(stuecke: readonly Stueck[]): Stueck[][] {
+  const pakete: Stueck[][] = [];
+  for (const st of [...stuecke].sort((x, y) => y.vol - x.vol)) {
+    const platz = pakete.find((p) => {
+      const neu = [...p, st];
+      return gewichtInhalt(neu) <= PAKET_MAX_G && kleinsteStufe(neu) !== null;
+    });
+    if (platz) platz.push(st); else pakete.push([st]);
+  }
+  return pakete;
+}
+
+/** Stuecke eines Warenkorbs (je Menge einzeln, damit sie auf Pakete verteilt werden koennen). */
+function stueckeAusKorb(positionen: readonly VersandPosition[]): Stueck[] {
+  const out: Stueck[] = [];
+  for (const p of positionen) {
+    const roh = ROH[p.slug] ?? UNBEKANNT;
+    const box = p.optionen?.[BOX_GRUPPE] === BOX_MIT;
+    for (let i = 0, n = Math.min(mengeOk(p.menge), 500); i < n; i++) out.push(...stueckeAusTeilen(teileJeStueck(roh, box)));
+  }
+  return out;
+}
+
+export const VERSAND_PRODUKTE: Record<string, VersandProdukt> = Object.fromEntries(
+  Object.entries(ROH).map(([slug, roh]) => [slug, { ...roh, versandStufe: kleinsteStufe(stueckeAusTeilen(roh.teile)) ?? "gross" }]),
+);
 
 // ------------------------------------------------------------------------------------------
 // Logik
@@ -100,13 +192,10 @@ function mengeOk(m: unknown): number {
 /** Zulaessige Versandoptionen fuer die Positionen. Brief-faehig = NUR Brief (keine Auswahl); sonst Hermes + DHL. */
 export function versandOptionen(positionen: readonly VersandPosition[]): VersandOption[] {
   let stueck = 0;
-  let stufe = 0;
   let alleBrief = positionen.length > 0;
   for (const p of positionen) {
-    const k = VERSAND_PRODUKTE[p.slug] ?? UNBEKANNT;
-    const menge = mengeOk(p.menge);
-    stueck += menge * k.stueckJeMenge;
-    stufe = Math.max(stufe, STUFEN.indexOf(k.versandStufe));
+    const k = ROH[p.slug] ?? UNBEKANNT;
+    stueck += mengeOk(p.menge) * k.stueckJeMenge;
     if (!k.briefFaehig || p.optionen?.[BOX_GRUPPE] === BOX_MIT) alleBrief = false;
   }
   if (positionen.length === 0 || stueck < 1) return [];
@@ -117,12 +206,20 @@ export function versandOptionen(positionen: readonly VersandPosition[]): Versand
     if (b) return [{ art: "brief", label: b.label, cent: b.cent, tracking: false }];
   }
 
-  if (stueck > VERSAND_STUFE_HOEHER_UEBER_STUECK) stufe += 1;
-  const s = STUFEN[Math.min(stufe, STUFEN.length - 1)];
-  return [
-    { art: "hermes", ...VERSAND_PREISE.hermes[s] },
-    { art: "dhl", ...VERSAND_PREISE.dhl[s] },
-  ];
+  const pakete = verteileAufPakete(stueckeAusKorb(positionen));
+  const option = (art: "hermes" | "dhl"): VersandOption => {
+    const stufen = pakete.map((p) => {
+      let s = kleinsteStufe(p) ?? "gross";
+      if (art === "dhl" && gewichtInhalt(p) > DHL_KLEIN_MAX_G) s = "gross";
+      return s;
+    });
+    const cent = stufen.reduce((t, s) => t + VERSAND_PREISE[art][s].cent, 0);
+    const label = stufen.length === 1
+      ? VERSAND_PREISE[art][stufen[0]].label
+      : `${art === "hermes" ? "Hermes" : "DHL"}, ${stufen.length} Pakete`;
+    return { art, label, cent, tracking: true };
+  };
+  return [option("hermes"), option("dhl")];
 }
 
 /**

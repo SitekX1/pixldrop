@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { PRODUKTE } from "@/lib/shop/produkte";
 import {
-  VERSAND_BRIEF, VERSAND_PREISE, VERSAND_PRODUKTE, VERSAND_STUFE_HOEHER_UEBER_STUECK,
+  VERSAND_BRIEF, VERSAND_PREISE, VERSAND_PRODUKTE,
   istVersandArt, versandOptionen, versandOptionenFuerKorb,
 } from "@/lib/shop/versand";
 
@@ -35,30 +35,50 @@ test("Whitelist der Versandarten", () => {
   for (const v of ["ups", "", null, undefined, 1, "Hermes"]) assert.equal(istVersandArt(v), false);
 });
 
-test("Stufen klein / mittel / gross: Hermes und DHL", () => {
-  // klein: tischschild, mittel: stiftebecher; gross: eine Stufe hoeher ab > 4 Stueck
-  const klein = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 1 }]);
-  assert.deepEqual(arten(klein), ["hermes", "dhl"]);
-  assert.equal(cent(klein, "hermes"), VERSAND_PREISE.hermes.klein.cent);
-  assert.equal(cent(klein, "hermes"), 410);
-  assert.equal(cent(klein, "dhl"), 510);
-  const mittel = versandOptionen([{ slug: "stiftebecher-tasse", menge: 1 }]);
-  assert.equal(cent(mittel, "hermes"), 500);
-  assert.equal(cent(mittel, "dhl"), 600);
-  const gross = versandOptionen([{ slug: "stiftebecher-tasse", menge: VERSAND_STUFE_HOEHER_UEBER_STUECK + 1 }]);
-  assert.equal(cent(gross, "hermes"), 600);
-  assert.equal(cent(gross, "dhl"), 700);
-  // gedeckelt: noch mehr Stueck bleibt bei gross
-  assert.equal(cent(versandOptionen([{ slug: "stiftebecher-tasse", menge: 20 }]), "hermes"), 600);
+const labelDe = (l: { art: string; label: string }[], art: string) => l.find((o) => o.art === art)?.label;
+
+test("Volumenmodell: einzelne Artikel passen in die kleinste Stufe (Paeckchen)", () => {
+  for (const slug of ["tischschild-erster-kaffee", "stiftebecher-tasse", "kuerbis-laterne", "geister-set", "geister-set-klein", "kuerbis-teelichthalter"]) {
+    const o = versandOptionen([{ slug, menge: 1 }]);
+    assert.deepEqual(arten(o), ["hermes", "dhl"], slug);
+    assert.equal(cent(o, "hermes"), VERSAND_PREISE.hermes.klein.cent, slug);
+    assert.equal(cent(o, "hermes"), 410);
+    assert.equal(cent(o, "dhl"), 510);
+    assert.equal(VERSAND_PRODUKTE[slug].versandStufe, "klein", slug);
+  }
 });
 
-test("Hoechste Stufe der Positionen gewinnt; Schwelle erst ab mehr als 4 Stueck", () => {
-  const gemischt = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 1 }, { slug: "stiftebecher-tasse", menge: 1 }]);
-  assert.equal(cent(gemischt, "hermes"), 500);
-  const vier = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 4 }]);
-  assert.equal(cent(vier, "hermes"), 410, "genau 4 Stueck: keine hoehere Stufe");
-  const fuenf = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 5 }]);
-  assert.equal(cent(fuenf, "hermes"), 500, "5 Stueck: eine Stufe hoeher");
+test("Volumenmodell: mehr Ware => groessere Stufe, ganz viel => mehrere Pakete, nie leer", () => {
+  const tasse = (n: number) => versandOptionen([{ slug: "stiftebecher-tasse", menge: n }]);
+  assert.equal(cent(tasse(1), "hermes"), 410);
+  assert.equal(cent(tasse(6), "hermes"), 500, "6 Tassen: Paket S");
+  assert.equal(cent(tasse(20), "hermes"), 600, "20 Tassen: Paket M");
+  const viele = tasse(120);
+  assert.deepEqual(arten(viele), ["hermes", "dhl"]);
+  assert.match(labelDe(viele, "hermes") ?? "", /Pakete/);
+  assert.ok((cent(viele, "hermes") ?? 0) > 600, "mehrere Pakete kosten mehr als eines");
+  // monoton: mehr Menge nie billiger
+  let letzte = 0;
+  for (let n = 1; n <= 150; n++) {
+    const c = cent(tasse(n), "hermes") ?? 0;
+    assert.ok(c >= letzte, `Menge ${n}`);
+    letzte = c;
+  }
+});
+
+test("Volumenmodell: Mischkorb rechnet das Gesamtvolumen, nicht die groesste Stufe", () => {
+  const klein = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 1 }, { slug: "stiftebecher-tasse", menge: 1 }]);
+  assert.equal(cent(klein, "hermes"), 410);
+  const mehr = versandOptionen([{ slug: "kuerbis-laterne", menge: 2 }, { slug: "geister-set", menge: 1 }, { slug: "stiftebecher-tasse", menge: 1 }]);
+  assert.ok((cent(mehr, "hermes") ?? 0) >= 500);
+});
+
+test("Volumenmodell: Untersetzer-Set mit Box ist ein Paeckchen, DHL ab 2 kg Gewicht teurer", () => {
+  const box = versandOptionen([{ slug: "wochentags-untersetzer-set", menge: 1, optionen: { box: "mit" } }]);
+  assert.equal(cent(box, "hermes"), 410);
+  // 15 Sets mit Box = 2,5 kg: DHL "Paket 2 kg" reicht nicht mehr, wird auf die 5-kg-Stufe gehoben
+  const schwer = versandOptionen([{ slug: "wochentags-untersetzer-set", menge: 15, optionen: { box: "mit" } }]);
+  assert.equal(cent(schwer, "dhl"), VERSAND_PREISE.dhl.gross.cent);
 });
 
 test("Brief: nur flache Untersetzer ohne Box, automatisch nach Stueckzahl", () => {
@@ -101,7 +121,7 @@ test("Leerer Korb und unbekannter Slug", () => {
   assert.deepEqual(versandOptionen([{ slug: "x", menge: 0 }]), []);
   const u = versandOptionen([{ slug: "gibt-es-nicht", menge: 1 }]);
   assert.deepEqual(arten(u), ["hermes", "dhl"]);
-  assert.equal(cent(u, "hermes"), 500, "unbekannt = mittel, nie Brief");
+  assert.ok((cent(u, "hermes") ?? 0) >= 410, "unbekannt = grosszuegiger Quader, nie Brief");
 });
 
 test("versandOptionenFuerKorb ist tolerant gegenueber Muell", () => {
