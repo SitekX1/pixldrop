@@ -8,3 +8,4 @@ node_modules
 # Umgebungsdateien nie committen (Vorlage ausgenommen)
 .env*
 !.env.example
+.playwright-mcp/
