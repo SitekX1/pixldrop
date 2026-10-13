@@ -111,13 +111,13 @@ test("Optionen: alle Gruppen Pflicht, nur gueltige IDs", () => {
   const ohne = berechneWarenkorb([pos({ slug: "kuerbis-laterne" })], ctx());
   assert.ok(!ohne.ok);
   assert.equal(ohne.fehler.code, "option_ungueltig");
-  const falsch = berechneWarenkorb([pos({ slug: "kuerbis-laterne", optionen: { gesicht: "x", groesse: "klein" } })], ctx());
+  const falsch = berechneWarenkorb([pos({ slug: "kuerbis-laterne", optionen: { gesicht: "x" } })], ctx());
   assert.ok(!falsch.ok);
-  const fremd = berechneWarenkorb([pos({ slug: "kuerbis-laterne", optionen: { gesicht: "a", groesse: "klein", preis: "0" } })], ctx());
+  const fremd = berechneWarenkorb([pos({ slug: "kuerbis-laterne", optionen: { gesicht: "a", preis: "0" } })], ctx());
   assert.ok(!fremd.ok);
-  const ok = berechneWarenkorb([pos({ slug: "kuerbis-laterne", optionen: { gesicht: "a", groesse: "mittel" } })], ctx());
+  const ok = berechneWarenkorb([pos({ slug: "kuerbis-laterne", optionen: { gesicht: "a" } })], ctx());
   assert.ok(ok.ok);
-  assert.deepEqual(ok.wert.positionen[0].optionen, { Gesicht: "Gesicht A", "Größe": "Mittel", "Kürbis": "Honiggold", Stiel: "Honiggold" }, "Teile ohne Wahl: Standardfarbe");
+  assert.deepEqual(ok.wert.positionen[0].optionen, { Gesicht: "Gesicht A", "Kürbis": "Honiggold", Stiel: "Honiggold" }, "Teile ohne Wahl: Standardfarbe");
 });
 
 test("Personalisierung: Laenge, Zeichen, Schrift, individuell-Flag", () => {
@@ -323,7 +323,7 @@ const tfarben = [
   { id: "orange", name: "Orange", hex: "#ff8a1f" },
   { id: "gruen", name: "Grün", hex: "#00aa00" },
 ];
-const lat = (extra: Record<string, unknown> = {}) => ({ slug: "kuerbis-laterne", menge: 1, farbeId: null, optionen: { gesicht: "a", groesse: "klein" }, ...extra });
+const lat = (extra: Record<string, unknown> = {}) => ({ slug: "kuerbis-laterne", menge: 1, farbeId: null, optionen: { gesicht: "a" }, ...extra });
 
 test("PLA-Filter: PETG und leeres Material fliegen raus, PLA Matte + PLA Basic = ein Eintrag", () => {
   const f = farbenAusZeilen([

@@ -13,7 +13,7 @@ const farben = [
 ];
 const laterne = holeProdukt("kuerbis-laterne")!;
 const ctx: Kontext = { produkte: PRODUKTE.map((p) => ({ ...p, preisCent: 1290 })), farben, bestellbar: () => true };
-const opt = { gesicht: "a", groesse: "klein" };
+const opt = { gesicht: "a" };
 
 test("Standardfarben: Körper orange-ähnlich, Stiel grün-ähnlich", () => {
   assert.deepEqual(standardTeilFarben(laterne.teile!, farben), { koerper: "orange", stiel: "gruen" });
