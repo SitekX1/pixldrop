@@ -8,6 +8,7 @@
 import type { Personalisierung } from "./produkte";
 import type { Schrift } from "./schriften";
 import { FETT_FAKTOR } from "./schriften";
+import { NS, NS_BREITE, kappeJeEm } from "./namensschild";
 import {
   FLAECHE_RUND, FLAECHE_SCHILD, FLAECHE_SCHILD_KLEIN, GROESSEN, STANDARD_GROESSE, istGroesseId, passtInFlaeche,
   type Flaeche, type GroesseId,
@@ -67,6 +68,16 @@ export function formatUnerlaubt(f: TextFormat, s: Schrift): boolean {
 export interface PasstZeile { passt: boolean; zeilen: string[]; size: number }
 /** Prüft jede Zeile in ihrer Fläche. `zeilen` = Eingabezeilen (Tischschild: 2, sonst 1 Zeile). */
 export function pruefePasst(pers: Personalisierung, zeilen: string[], s: Schrift, f: TextFormat): { passt: boolean; zeilen: PasstZeile[] } {
+  if (pers.fuellt) {
+    // Namensschild: jede Zeile in einer Zeile, Mindest-Kappenhöhe darf nicht unterschritten werden (Schätzwert wie sonst auch)
+    const erg = zeilen.map((z, i) => {
+      const t = z.replace(/\s+/g, " ").trim();
+      const em = (i === 0 ? NS.nameKappeMin : NS.titelKappeMin) / kappeJeEm(s.id);
+      const breite = t.length * s.breite * (f.fett[i] === true ? FETT_FAKTOR : 1) * em;
+      return { passt: t !== "" && breite <= NS_BREITE, zeilen: [t], size: em };
+    });
+    return { passt: erg.every((e) => e.passt), zeilen: erg };
+  }
   const fl = flaechen(pers);
   const erg = fl.map((flaeche, i) => passtInFlaeche({
     text: zeilen[i] ?? "", flaeche, groesse: pers.zeilen && i === 0 ? STANDARD_GROESSE : f.groesse,
@@ -78,6 +89,7 @@ export function pruefePasst(pers: Personalisierung, zeilen: string[], s: Schrift
 /** Größte Stufe, bei der der Text noch passt (Voreinstellung, solange der Kunde keine Stufe gewählt hat).
  *  Passt keine Stufe, kommt die kleinste zurück (der Passt-nicht-Hinweis erscheint dann trotzdem). */
 export function groessteDiePasst(pers: Personalisierung, zeilen: string[], s: Schrift, f: TextFormat): GroesseId {
+  if (pers.fuellt) return STANDARD_GROESSE;
   for (let i = GROESSEN.length - 1; i >= 0; i--) {
     if (pruefePasst(pers, zeilen, s, { ...f, groesse: GROESSEN[i].id }).passt) return GROESSEN[i].id;
   }

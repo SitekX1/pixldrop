@@ -14,7 +14,7 @@ const katalog: Produkt[] = PRODUKTE.map((p) => ({ ...p, preisCent: 1290 }));
 const farben = [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }];
 const ctx = (): Kontext => ({ produkte: katalog, farben, bestellbar: () => true });
 const spruch = katalog.find((p) => p.slug === "spruch-untersetzer")!;
-const schild = katalog.find((p) => p.slug === "tischschild-erster-kaffee")!;
+const schild = katalog.find((p) => p.slug === "namensschild")!;
 const sf = (id: string) => SCHRIFTEN.find((s) => s.id === id)!;
 const bestell = (slug: string, text: string, schriftId: string | undefined, optionen?: Record<string, unknown>) =>
   berechneWarenkorb([{ slug, menge: 1, farbeId: "schwarz", text, schriftId, ...(optionen ? { optionen } : {}) }], ctx());
@@ -35,12 +35,13 @@ test("Passt-Pruefung: gleiche Funktion, Groessenstufen, Wortgrenzen", () => {
   assert.ok(norm.zeilen[0].zeilen.length <= fett.zeilen[0].zeilen.length);
 });
 
-test("Tischschild: Standardtext passt in allen Stufen bis gross, beide Zeilen einzeln", () => {
+test("Namensschild: Standardtext passt, zu langer Name nicht (Mindest-Kappenhoehe), Titel einzeln", () => {
   const p = schild.personalisierung!;
-  assert.ok(pruefePasst(p, ["Teamleiter", "Sabine"], sf("montserrat"), standardFormat(2)).passt);
+  assert.ok(pruefePasst(p, ["Eddie Pixldrop", "Content Creator"], sf("montserrat"), standardFormat(2)).passt);
   const gross = { ...standardFormat(2), groesse: "xl" as const };
-  assert.ok(!pruefePasst(p, ["Teamleiter", "Maximilian"], sf("montserrat"), gross).passt, "grosse Zeile zu lang fuer sehr gross");
-  assert.ok(pruefePasst(p, ["Teamleiter", "Maximilian"], sf("montserrat"), { ...gross, groesse: "s" }).passt);
+  assert.ok(!pruefePasst(p, ["Maximilian Alexander Muster", "Titel"], sf("montserrat"), gross).passt, "Name zu lang");
+  assert.ok(!pruefePasst(p, ["Name", "Ein sehr sehr langer Titel der nicht mehr passt"], sf("montserrat"), gross).passt, "Titel zu lang");
+  assert.ok(pruefePasst(p, ["Maximilian", "Titel"], sf("montserrat"), gross).passt, "Groessenstufe spielt beim Namensschild keine Rolle");
 });
 
 test("Fähigkeiten: Fett/Kursiv gesperrt bei Schriften ohne Schnitt", () => {
@@ -94,21 +95,20 @@ test("Server lehnt ab: zu groß, ungültig, Schrift ohne Schnitt, Format ohne Te
 });
 
 test("individuell: Formatwahl beim Standardtext macht das Stück individuell, Preis bleibt", () => {
-  const std = "Teamleiter\nSabine";
-  const ohne = bestell("tischschild-erster-kaffee", std, undefined);
+  const std = "Eddie Pixldrop\nContent Creator";
+  const ohne = bestell("namensschild", std, undefined);
   assert.ok(ohne.ok);
   assert.equal(ohne.wert.positionen[0].individuell, false);
-  const mit = bestell("tischschild-erster-kaffee", std, undefined, { fett_1: "1", groesse: "s" });
+  const mit = bestell("namensschild", std, undefined, { fett_1: "1" });
   assert.ok(mit.ok, JSON.stringify(mit));
   assert.equal(mit.wert.positionen[0].individuell, false);  // Format/Groesse allein: Variantenwahl, Widerruf bleibt
   assert.equal(mit.wert.gesamtCent, ohne.wert.gesamtCent);
-  assert.deepEqual(mit.wert.positionen[0].optionen, { "Format Große Zeile in der Mitte": "Fett", "Schriftgröße": "Klein" });
+  assert.deepEqual(mit.wert.positionen[0].optionen, { "Format Titel (kleine Zeile)": "Fett" });
   // explizit gesendeter Standard (groesse m) ändert nichts
-  const m = bestell("tischschild-erster-kaffee", std, undefined, { groesse: "m" });
+  const m = bestell("namensschild", std, undefined, { groesse: "m" });
   assert.ok(m.ok);
   assert.equal(m.wert.positionen[0].individuell, false);
   assert.equal(istIndividuell(schild, std, { fett_0: "1" }), false);
-  assert.equal(istIndividuell(schild, std, { groesse: "xl" }), false);
   assert.equal(istIndividuell(schild, std, {}), false);
   // geaenderter Text bleibt individuell, mit oder ohne Format
   const anders = std.replace(/^./, "X");
@@ -131,7 +131,7 @@ test("Automatische Groesse: groesste Stufe, die noch passt", () => {
   assert.equal(groessteDiePasst(pers, ["Donaudampfschifffahrt"], sf("montserrat"), f), "s");
   // Tischschild: gleiche Logik, Ergebnis passt
   const sp = schild.personalisierung!;
-  const z = ["Teamleiter", "Sabine"];
+  const z = ["Eddie Pixldrop", "Content Creator"];
   const gs = groessteDiePasst(sp, z, sf("oswald"), standardFormat(2));
   assert.ok(pruefePasst(sp, z, sf("oswald"), { ...standardFormat(2), groesse: gs }).passt);
   // Server prueft die vom Client gesendete Stufe

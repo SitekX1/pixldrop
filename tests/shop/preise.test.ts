@@ -174,9 +174,9 @@ test("Farb-IDs und Lager-Zeilen", () => {
   assert.deepEqual(farbenAusZeilen(null), []);
 });
 
-test("Tischschild: Standardtext = Standardware, geaenderter Text = individuell, Zeilen werden geprueft", () => {
-  const basis = { slug: "tischschild-erster-kaffee", menge: 1, farbeId: "schwarz" };
-  const std = berechneWarenkorb([{ ...basis, text: "Teamleiter\nSabine" }], ctx());
+test("Namensschild: Standardtext = Standardware, geaenderter Text = individuell, Zeilen werden geprueft", () => {
+  const basis = { slug: "namensschild", menge: 1, farbeId: "schwarz" };
+  const std = berechneWarenkorb([{ ...basis, text: "Eddie Pixldrop\nContent Creator" }], ctx());
   assert.ok(std.ok);
   assert.equal(std.wert.individuell, false);
   assert.equal(std.wert.positionen[0].schriftId, "montserrat", "feste Schrift");
@@ -185,13 +185,13 @@ test("Tischschild: Standardtext = Standardware, geaenderter Text = individuell, 
   assert.equal(neu.wert.individuell, true);
   assert.equal(neu.wert.positionen[0].text, "Chef\nPetra");
   assert.ok(!berechneWarenkorb([{ ...basis, text: "nur eine Zeile" }], ctx()).ok, "zwei Zeilen noetig");
-  assert.ok(!berechneWarenkorb([{ ...basis, text: "Chef\nPetra Maria Katharina" }], ctx()).ok, "Zeile zu lang");
+  assert.ok(!berechneWarenkorb([{ ...basis, text: "Eine sehr sehr lange Zeile hier\nTitel" }], ctx()).ok, "Zeile zu lang");
   assert.ok(!berechneWarenkorb([{ ...basis, text: "Chef\n<b>" }], ctx()).ok, "unerlaubte Zeichen");
   assert.ok(berechneWarenkorb([{ ...basis }], ctx()).ok, "ohne Text bestellbar (Standard)");
 });
 
 test("Schriftfarbe: nur Lagerfarben, nicht gleich/aehnlich wie Grundfarbe, ohne Preis- und Widerrufswirkung", () => {
-  const basis = { slug: "tischschild-erster-kaffee", menge: 1, farbeId: "schwarz", text: "Teamleiter\nSabine" };
+  const basis = { slug: "namensschild", menge: 1, farbeId: "schwarz", text: "Eddie Pixldrop\nContent Creator" };
   const ok = berechneWarenkorb([{ ...basis, optionen: { textfarbe: "honiggold" } }], ctx());
   assert.ok(ok.ok);
   assert.equal(ok.wert.positionen[0].optionen["Schriftfarbe"], "Honiggold");
@@ -203,7 +203,7 @@ test("Schriftfarbe: nur Lagerfarben, nicht gleich/aehnlich wie Grundfarbe, ohne 
   assert.ok(!fremd.ok && fremd.fehler.code === "textfarbe_ungueltig", "nicht im Lager");
   const ohne = berechneWarenkorb([{ ...basis }], ctx());
   assert.ok(ohne.ok, "ohne Schriftfarbe (alter Warenkorb) weiter moeglich");
-  const ohneText = berechneWarenkorb([{ slug: "tischschild-erster-kaffee", menge: 1, farbeId: "schwarz", optionen: { textfarbe: "honiggold" } }], ctx());
+  const ohneText = berechneWarenkorb([{ slug: "namensschild", menge: 1, farbeId: "schwarz", optionen: { textfarbe: "honiggold" } }], ctx());
   assert.ok(!ohneText.ok, "Schriftfarbe nur mit Wunschtext");
   const kaum = berechneWarenkorb([{ ...basis, farbeId: "honiggold", optionen: { textfarbe: "honiggold" } }], ctx());
   assert.ok(!kaum.ok);

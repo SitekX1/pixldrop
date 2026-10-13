@@ -17,7 +17,7 @@ export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Mus
   let format;
   if (pers && schrift) {
     const nur = Object.fromEntries(Object.entries(a.optionen).filter(([k]) => istFormatSchluessel(k)));
-    format = { fmt: formatAusOptionen(nur, zeilenAnzahl(pers)) ?? standardFormat(zeilenAnzahl(pers)), breite: schrift.breite };
+    format = { fmt: formatAusOptionen(nur, zeilenAnzahl(pers)) ?? standardFormat(zeilenAnzahl(pers)), breite: schrift.breite, schriftId: schrift.id };
   }
   return <ProductImage form={p.form} farbe={farbeHex ?? p.grundfarbe} text={a.text || undefined} family={schrift?.family} format={format} textfarbe={textfarbeHex} typ={typ} farben={kombiVon(p, a)?.farben.map((f) => f.hex)} teileFarben={farben ? teilHexe(p, a, farben) : undefined} />;
 }

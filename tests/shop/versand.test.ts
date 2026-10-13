@@ -38,7 +38,7 @@ test("Whitelist der Versandarten", () => {
 const labelDe = (l: { art: string; label: string }[], art: string) => l.find((o) => o.art === art)?.label;
 
 test("Volumenmodell: einzelne Artikel passen in die kleinste Stufe (Paeckchen)", () => {
-  for (const slug of ["tischschild-erster-kaffee", "stiftebecher-tasse", "kuerbis-laterne", "geister-set", "geister-set-klein", "kuerbis-teelichthalter"]) {
+  for (const slug of ["namensschild", "stiftebecher-tasse", "kuerbis-laterne", "geister-set", "geister-set-klein", "kuerbis-teelichthalter"]) {
     const o = versandOptionen([{ slug, menge: 1 }]);
     assert.deepEqual(arten(o), ["hermes", "dhl"], slug);
     assert.equal(cent(o, "hermes"), VERSAND_PREISE.hermes.klein.cent, slug);
@@ -67,7 +67,7 @@ test("Volumenmodell: mehr Ware => groessere Stufe, ganz viel => mehrere Pakete, 
 });
 
 test("Volumenmodell: Mischkorb rechnet das Gesamtvolumen, nicht die groesste Stufe", () => {
-  const klein = versandOptionen([{ slug: "tischschild-erster-kaffee", menge: 1 }, { slug: "stiftebecher-tasse", menge: 1 }]);
+  const klein = versandOptionen([{ slug: "namensschild", menge: 1 }, { slug: "stiftebecher-tasse", menge: 1 }]);
   assert.equal(cent(klein, "hermes"), 410);
   const mehr = versandOptionen([{ slug: "kuerbis-laterne", menge: 2 }, { slug: "geister-set", menge: 1 }, { slug: "stiftebecher-tasse", menge: 1 }]);
   assert.ok((cent(mehr, "hermes") ?? 0) >= 500);

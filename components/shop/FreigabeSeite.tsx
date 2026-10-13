@@ -31,12 +31,16 @@ function formatStil(p: FreigabePosition, zeile: number): React.CSSProperties {
 
 function Schild({ p }: { p: FreigabePosition }) {
   const zeilen = (p.text ?? "").split(/\r?\n/).map((z) => z.trimEnd());
-  const klein = zeilen.length > 1 ? zeilen[0] : "Wunschtext";
-  const gross = zeilen.length > 1 ? zeilen.slice(1).join("\n") : zeilen[0];
+  // Namensschild: erste Zeile = Name (groß), zweite = Titel (klein); sonst (ältere Struktur) erste Zeile klein, Rest groß
+  const nameZuerst = PRODUKTE.find((x) => x.name === p.name)?.personalisierung?.fuellt === true;
+  const klein = nameZuerst ? zeilen[1] : zeilen.length > 1 ? zeilen[0] : "Wunschtext";
+  const gross = nameZuerst ? zeilen[0] : zeilen.length > 1 ? zeilen.slice(1).join("\n") : zeilen[0];
+  const kleinIdx = nameZuerst ? 1 : 0;
+  const grossIdx = nameZuerst ? 0 : zeilen.length > 1 ? 1 : 0;
   return (
     <div className="fg-schild" style={{ fontFamily: schriftVon(p.schrift)?.family }} role="group" aria-label={`Wunschtext: ${(p.text ?? "").replace(/\n/g, ", ")}`}>
-      {klein && <span className="fg-klein" style={formatStil(p, 0)} aria-hidden="true">{klein}</span>}
-      <span className="fg-gross" style={formatStil(p, zeilen.length > 1 ? 1 : 0)} aria-hidden="true">{gross}</span>
+      {klein && <span className="fg-klein" style={formatStil(p, kleinIdx)} aria-hidden="true">{klein}</span>}
+      <span className="fg-gross" style={formatStil(p, grossIdx)} aria-hidden="true">{gross}</span>
     </div>
   );
 }

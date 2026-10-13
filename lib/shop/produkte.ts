@@ -26,6 +26,8 @@ zeile2". */
   festeSchrift?: string;
   /** Vorbelegte Schrift (id), Kunde darf trotzdem wechseln. */
   standardSchrift?: string;
+  /** Schrift füllt die Zeile (Namensschild): keine Größenstufen, der Name wird so groß wie möglich (lib/shop/namensschild.ts). */
+  fuellt?: boolean;
 }
 
 /** Fertige Farbkombination (statt Lagerfarb-Wahl). Erweiterbar: einfach einen Eintrag in KOMBI_WOCHENTAG ergaenzen. */
@@ -147,18 +149,18 @@ export const PRODUKTE: Produkt[] = [
     nurMitText: true, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {
-    slug: "tischschild-erster-kaffee",
-    name: "Tischschild „Bitte nicht vor dem ersten Kaffee“",
-    kurz: "Das Schild für den Schreibtisch. Der Name ist änderbar.",
+    slug: "namensschild",
+    name: "Namensschild für den Schreibtisch",
+    kurz: "Dein Name groß, darunter dein Titel. Schrift und Farben wählst du selbst.",
     beschreibung:
-      "Ein Tischschild mit dem Satz, den jeder schon mal denken wollte. Die kleine Zeile und der große Name sind vorbelegt („Teamleiter“, „Sabine“). Du kannst beide ändern, die Vorschau zeigt sofort, wie es aussieht.",
+      "Ein Namensschild mit Ständer für den Schreibtisch: Dein Name steht groß in der Mitte, darunter dein Titel (vorbelegt sind „Eddie Pixldrop“ und „Content Creator“). Die Schrift ist bündig ins Schild eingelegt. Du wählst Schrift, Schildfarbe und Schriftfarbe, die Vorschau zeigt das fertige Schild genau so, wie es gedruckt wird.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1c1c1c",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: {
-      maxLaenge: 30, label: "Text auf dem Schild", beispiel: "Sabine", standardSchrift: "montserrat",
+      maxLaenge: 40, label: "Text auf dem Schild", beispiel: "Eddie Pixldrop", standardSchrift: "montserrat", fuellt: true,
       zeilen: [
-        { label: "Kleine Zeile oben links", max: 16, standard: "Teamleiter" },
-        { label: "Große Zeile in der Mitte", max: 12, standard: "Sabine" },
+        { label: "Name (große Zeile)", max: 20, standard: "Eddie Pixldrop" },
+        { label: "Titel (kleine Zeile)", max: 28, standard: "Content Creator" },
       ],
     },
     hinweise: [KEIN_SPIELZEUG],

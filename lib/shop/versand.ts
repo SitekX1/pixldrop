@@ -97,7 +97,7 @@ const ROH: Record<string, Roh> = {
   "halloween-untersetzer-set": { teile: [UNTERSETZER(3)], briefFaehig: true, stueckJeMenge: 3 },
   "halloween-untersetzer-einzeln": { teile: [UNTERSETZER(1)], briefFaehig: true, stueckJeMenge: 1 },
   "stiftebecher-tasse": { teile: [{ mm: [166.3, 85, 100], g: 97, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
-  "tischschild-erster-kaffee": { teile: [{ mm: [196.5, 57.7, 19], g: 67, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Platte 6 + Staender 13, zerlegt
+  "namensschild": { teile: [{ mm: [196.5, 57.7, 19], g: 67, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Platte 6 + Staender 13, zerlegt
   "kuerbis-laterne": { teile: [{ mm: [108, 111, 120], g: 150, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Gewicht VORLAEUFIG, Alex wiegt nach
   "geister-set": { teile: [{ mm: [77.2, 86.2, 70], g: 21, anz: 1 }, { mm: [81.5, 84.2, 96], g: 24, anz: 1 }, { mm: [104.5, 104.5, 80], g: 28, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
   "geister-set-klein": { teile: [{ mm: [46.3, 51.7, 42], g: 6, anz: 1 }, { mm: [48.9, 50.5, 57.6], g: 6, anz: 1 }, { mm: [62.7, 62.7, 48], g: 7, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },

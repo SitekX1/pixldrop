@@ -1,10 +1,11 @@
 import type { Form } from "@/lib/shop/produkte";
-import { umbrechen, passtInFlaeche, FLAECHE_RUND, FLAECHE_SCHILD } from "@/lib/shop/umbruch";
+import { umbrechen, passtInFlaeche, FLAECHE_RUND } from "@/lib/shop/umbruch";
 import { FETT_FAKTOR } from "@/lib/shop/schriften";
 import type { TextFormat } from "@/lib/shop/textformat";
+import NamensschildSvg from "./NamensschildSvg";
 
 // Textformat der Vorschau (Fett/Kursiv je Zeile, Größenstufe) und Zeichenbreite der Schrift für den Umbruch.
-export interface VorschauFormat { fmt: TextFormat; breite: number }
+export interface VorschauFormat { fmt: TextFormat; breite: number; /** Schrift-ID (für Kappenhöhe, Namensschild) */ schriftId?: string }
 
 // Mehrzeiliger, zentrierter SVG-Text (Mittelpunkt cy), Zeilenabstand 1,15.
 function Zeilen({ zeilen, size, x, cy, fill, family, weight = 700, kursiv = false }: { zeilen: string[]; size: number; x: number; cy: number; fill: string; family: string; weight?: number; kursiv?: boolean }) {
@@ -37,18 +38,15 @@ const LICHT = "#ffe9a8";
 
 function Schild({ c, text, family, format, tc: tcWahl }: { c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string }) {
   const tc = tcWahl ?? textfarbeFuer(c);
-  const [klein, gross] = (text ?? "Teamleiter\nSabine").split("\n");
-  const f = family ?? "sans-serif";
+  const [name, titel] = (text ?? "Eddie Pixldrop\nContent Creator").split("\n");
   const fm = format?.fmt;
-  const fit = format && fm ? passtInFlaeche({ text: (gross ?? "").replace(/\n/g, " "), flaeche: FLAECHE_SCHILD, groesse: fm.groesse, breite: format.breite, fett: fm.fett[1] === true, fettFaktor: FETT_FAKTOR }) : null;
-  const u = fit?.passt ? fit : umbrechen((gross ?? "").replace(/\n/g, " "), 70, fit ? fit.size : 14, 8, 3, 30);
   return (
-    <g>
-      <rect x="10" y="28" width="80" height="46" rx="7" fill={c} stroke="rgba(0,0,0,.25)" strokeWidth="1.5" />
-      <text x="16" y="39" fontSize="5.2" fill={tc} fillOpacity=".85" fontWeight={fm?.fett[0] ? 900 : undefined} fontStyle={fm?.kursiv[0] ? "italic" : undefined} style={{ fontFamily: f }}>{klein}</text>
-      <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={58} fill={tc} family={f} weight={fm?.fett[1] ? 900 : 700} kursiv={fm?.kursiv[1] === true} />
-      <rect x="22" y="74" width="56" height="5" rx="2" fill="rgba(0,0,0,.25)" />
-    </g>
+    <NamensschildSvg
+      name={name ?? ""} titel={titel ?? ""} schriftId={format?.schriftId ?? "montserrat"} family={family ?? "sans-serif"}
+      platte={c} schrift={tc} breiteEm={format?.breite ?? 0.6}
+      fmtName={{ fett: fm?.fett[0] === true, kursiv: fm?.kursiv[0] === true }}
+      fmtTitel={{ fett: fm?.fett[1] === true, kursiv: fm?.kursiv[1] === true }}
+    />
   );
 }
 

@@ -309,10 +309,10 @@ test("Fake-DB ist von FakeDb-Instanz getrennt (Sicherheitsnetz fuer Testaufbau)"
   assert.notEqual(new FakeDb(), new FakeDb());
 });
 
-test("Tischschild: Standardtext ohne Verzicht bestellbar, geaenderter Text braucht den Verzicht", async () => {
+test("Namensschild: Standardtext ohne Verzicht bestellbar, geaenderter Text braucht den Verzicht", async () => {
   const { deps } = neueDeps();
-  const schild = (text: string) => ({ positionen: [{ slug: "tischschild-erster-kaffee", menge: 1, farbeId: "schwarz", text }] });
-  const std = await legeBestellungAn(deps, bestellEingabe(schild("Teamleiter\nSabine")), ctx);
+  const schild = (text: string) => ({ positionen: [{ slug: "namensschild", menge: 1, farbeId: "schwarz", text }] });
+  const std = await legeBestellungAn(deps, bestellEingabe(schild("Eddie Pixldrop\nContent Creator")), ctx);
   assert.equal(std.status, 200);
   const neuOhne = await legeBestellungAn(deps, bestellEingabe({ ...schild("Chef\nPetra"), idempotenzKey: "key-schild-eigener-text-1" }), ctx);
   assert.equal(neuOhne.status, 422);
@@ -322,8 +322,8 @@ test("Tischschild: Standardtext ohne Verzicht bestellbar, geaenderter Text brauc
 
 test("Mehrzeiliger Text wird als einzeiliger Text an die DB gegeben (kein Steuerzeichen)", async () => {
   const re = /\r?\n/g;
-  const text = "Teamleiter\nSabine".replace(re, " / ");
-  assert.equal(text, "Teamleiter / Sabine");
+  const text = "Eddie Pixldrop\nContent Creator".replace(re, " / ");
+  assert.equal(text, "Eddie Pixldrop / Content Creator");
   assert.ok(/^[^\u0000-\u001f\u007f]{1,40}$/.test(text));
 });
 

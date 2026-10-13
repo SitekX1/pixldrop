@@ -94,7 +94,7 @@ export default function ProductBuy({
   const vorTextfarbe = pers ? textfarbe?.hex : undefined;
   const vorFamily = schrift?.family;
   useEffect(() => {
-    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: kombi?.label ?? (teile ? teile.map((t) => `${t.label}: ${teilFarbe(t.id)?.name ?? "?"}`).join(" · ") : farbe?.name), teileFarben: teileHex, farben: kombi?.farben.map((f) => f.hex), tag: tagKurz, format: pers && schrift ? { fmt, breite: schrift.breite } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
+    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: kombi?.label ?? (teile ? teile.map((t) => `${t.label}: ${teilFarbe(t.id)?.name ?? "?"}`).join(" · ") : farbe?.name), teileFarben: teileHex, farben: kombi?.farben.map((f) => f.hex), tag: tagKurz, format: pers && schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, kombi?.label, teileKey, tagKurz, vorTextfarbe, textfarbe?.name, JSON.stringify(formatOpt)]);
   const kaufReg = useKaufRegistrieren();
@@ -180,7 +180,7 @@ export default function ProductBuy({
         <fieldset className="shop-step">
           <legend>{pers.label}</legend>
           <div className="shop-textvorschau">
-            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} format={schrift ? { fmt, breite: schrift.breite } : undefined} textfarbe={vorTextfarbe} typ="Live-Vorschau" breit />
+            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} format={schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id } : undefined} textfarbe={vorTextfarbe} typ="Live-Vorschau" breit />
           </div>
           {pers.zeilen ? (
             pers.zeilen.map((z, i) => (
@@ -199,7 +199,8 @@ export default function ProductBuy({
               {formatSchalter(0, pers.label)}
             </div>
           )}
-          <fieldset className="shop-groesse">
+          {pers.fuellt && <p className="muted" style={{ margin: "6px 0 0" }}>Die Schriftgröße passt sich automatisch an: Der Name füllt das Schild, bis zur größten möglichen Höhe.</p>}
+          {!pers.fuellt && <fieldset className="shop-groesse">
             <legend>Schriftgröße{pers.zeilen ? " der großen Zeile" : ""}</legend>
             <div className="shop-options">
               {GROESSEN.map((g) => (
@@ -209,8 +210,8 @@ export default function ProductBuy({
                 </label>
               ))}
             </div>
-          </fieldset>
-          {passtNicht && <p id="t-passt" className="shop-err" role="alert"><span>{PASST_NICHT}</span></p>}
+          </fieldset>}
+          {passtNicht &&<p id="t-passt" className="shop-err" role="alert"><span>{PASST_NICHT}</span></p>}
           {textFehler && <p id="t-fehler" className="shop-err" role="alert"><span>{textFehler}</span>
             {umlauteFehlen && <button type="button" className="shop-umlaut-btn" onClick={() => setZeilen((zs) => zs.map((z) => umlauteErsetzen(z, schrift?.fehlendeZeichen)))}>Umlaute ersetzen (ä→ae, ö→oe, ü→ue, Ä→Ae, Ö→Oe, Ü→Ue, ß→ss)</button>}</p>}
           {filterFehler && (
