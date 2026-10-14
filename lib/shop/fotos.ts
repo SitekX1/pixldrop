@@ -24,10 +24,11 @@ const ALT: Record<string, string[]> = {
     "Stiftebecher mit Henkel, Schrägansicht",
     "Stiftebecher von oben",
   ],
+  // Foto 1 = Blanko-Schild von vorn: Farbe und Text deiner Wahl werden live daraufgelegt (components/shop/NamensschildFoto.tsx)
   "namensschild": [
+    "Namensschild von vorn mit deinem Text und deiner Farbe (Vorschau)",
     "Namensschild mit Ständer, Beispieltext",
     "Namensschild von schräg vorn, Beispieltext",
-    "Namensschild ohne Schrift (Blanko)",
     "Namensschild von hinten",
   ],
   "geister-set": [

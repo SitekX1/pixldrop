@@ -4,6 +4,7 @@ import type { Form } from "@/lib/shop/produkte";
 import { TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
 import { bereiten, umfaerben, zielFarben, type UmfaerbModus, type Vorbereitet } from "@/lib/shop/umfaerben";
 import { LiveProductImage, useVorschauWerte } from "./Vorschau";
+import NamensschildAufdruck from "./NamensschildAufdruck";
 
 const GROESSE = 720; // Arbeitsauflösung des Umfärbens (Anzeige ca. 480 CSS-Pixel)
 const cache = new Map<string, Promise<Vorbereitet | null>>();
@@ -36,18 +37,19 @@ function vorbereiten(src: string, modus: UmfaerbModus): Promise<Vorbereitet | nu
 // Ändert er den Wunschtext, springt die Anzeige auf die Live-Vorschau (Text lässt sich nicht ins Foto setzen).
 export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { slug: string; form: Form; grundfarbe: string; fotos: Foto[]; name: string }) {
   const w = useVorschauWerte();
-  const modus = UMFAERBEN[slug];
   const [idx, setIdx] = useState(0); // -1 = Live-Vorschau
+  // Namensschild: Foto 1 = Blanko-Schild (ganzes Objekt in der Schildfarbe, Text kommt als Aufdruck), die übrigen = Beispielfotos mit Schrift
+  const modus: UmfaerbModus | undefined = slug === "namensschild" ? (idx === 0 ? "farbe" : "schild") : UMFAERBEN[slug];
   const canvas = useRef<HTMLCanvasElement>(null);
   const [gefaerbt, setGefaerbt] = useState(false); // Canvas zeigt gerade das umgefärbte Foto
 
   // Der Standardtext (z. B. "Eddie Pixldrop") zählt nicht: erst eine Änderung durch den Kunden schaltet um.
   const startText = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (!w.text) return;
+    if (!w.text || slug === "namensschild") return;
     if (startText.current === undefined) { startText.current = w.text; return; }
     if (w.text !== startText.current) setIdx(-1);
-  }, [w.text]);
+  }, [w.text, slug]);
 
   // Einzel-Untersetzer: gewählter Wochentag zeigt das passende Foto.
   useEffect(() => {
@@ -58,11 +60,13 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
 
   // Farbwahl: Das Foto zeigt zuerst das echte Stück; erst wenn der Kunde die Farbe ändert, wird umgefärbt.
   const farbKey = modus === "kombi" ? (w.farben ?? []).join() : modus === "schild" ? `${w.farbe ?? ""}|${w.textfarbe ?? ""}` : (w.farbe ?? "");
-  const startFarbe = useRef<string | undefined>(undefined);
+  const startFarbe = useRef<Record<string, string>>({});
   useEffect(() => {
-    if (startFarbe.current === undefined && farbKey.replace(/\|/g, "")) startFarbe.current = farbKey;
-  }, [farbKey]);
-  const aktiv = !!modus && startFarbe.current !== undefined && farbKey !== startFarbe.current;
+    if (modus && startFarbe.current[modus] === undefined && farbKey.replace(/\|/g, "")) startFarbe.current[modus] = farbKey;
+  }, [farbKey, modus]);
+  // Namensschild: Foto 1 ist das Blanko-Schild, auf das Farbe und Text live gelegt werden (immer umgefärbt, mit Aufdruck).
+  const mitAufdruck = slug === "namensschild" && idx === 0;
+  const aktiv = !!modus && (mitAufdruck || (startFarbe.current[modus] !== undefined && farbKey !== startFarbe.current[modus]));
 
   const foto = idx >= 0 ? fotos[idx] : null;
   const fotoSrc = foto?.src;
@@ -96,6 +100,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
           {aktiv && (
             <canvas ref={canvas} className="shop-foto" width={GROESSE} height={GROESSE} role="img" aria-label={`${foto.alt}, in deiner gewählten Farbe`} style={zeigeCanvas ? undefined : { visibility: "hidden" }} />
           )}
+          {mitAufdruck && <NamensschildAufdruck w={w} />}
         </div>
       ) : (
         <LiveProductImage form={form} grundfarbe={grundfarbe} />
@@ -107,11 +112,13 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
             <img src={f.src} alt="" width={96} height={96} loading="lazy" decoding="async" />
           </button>
         ))}
-        <button type="button" className="shop-fotoleiste-live" aria-pressed={idx === -1} onClick={() => setIdx(-1)}>Deine Wahl<br />Live</button>
+        {slug !== "namensschild" && <button type="button" className="shop-fotoleiste-live" aria-pressed={idx === -1} onClick={() => setIdx(-1)}>Deine Wahl<br />Live</button>}
       </div>
       {foto && (
         <p className="shop-fotohinweis">
-          {zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). Echte Farben können am Bildschirm leicht abweichen." : "Foto: Beispielstück. Ändere die Farbe, dann zeigt das Bild deine Wahl."}
+          {mitAufdruck
+            ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). Echte Farben können am Bildschirm leicht abweichen."
+            : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). Echte Farben können am Bildschirm leicht abweichen." : "Foto: Beispielstück. Ändere die Farbe, dann zeigt das Bild deine Wahl."}
         </p>
       )}
     </div>

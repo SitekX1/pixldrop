@@ -13,10 +13,11 @@ const Y = (y: number) => 48 - y; // Druckkoordinate (y nach oben) -> SVG (y nach
 export interface ZeileFormat { fett: boolean; kursiv: boolean }
 
 export default function NamensschildSvg({
-  name, titel, schriftId, family, platte, schrift, fmtName, fmtTitel, breiteEm,
+  name, titel, schriftId, family, platte, schrift, fmtName, fmtTitel, breiteEm, nurSchrift = false,
 }: {
   name: string; titel: string; schriftId: string; family: string; platte: string; schrift: string;
   fmtName: ZeileFormat; fmtTitel: ZeileFormat; /** Schätzwert Zeichenbreite (em) bis die Messung vorliegt */ breiteEm: number;
+  /** Nur Balken und Text in Schildkoordinaten (mm, y nach unten) ohne Platte und Ständer: für die Foto-Vorschau */ nurSchrift?: boolean;
 }) {
   const kappe = kappeJeEm(schriftId);
   const refName = useRef<SVGTextElement>(null);
@@ -57,16 +58,22 @@ export default function NamensschildSvg({
   const s = 94 / 196.5;
   const hoehe = (48 + NS_STAENDER.hoehe) * s;
   const umriss = NS_UMRISS.map(([x, y]) => `${x},${Y(y)}`).join(" ");
-  return (
-    <g transform={`translate(3 ${(100 - hoehe) / 2}) scale(${s})`}>
-      <rect x={NS_STAENDER.x} y={Y(0)} width={NS_STAENDER.breite} height={NS_STAENDER.hoehe} rx="2" fill={platte} stroke="rgba(0,0,0,.3)" strokeWidth="0.8" />
-      <polygon points={umriss} fill={platte} stroke="rgba(0,0,0,.3)" strokeWidth="0.8" strokeLinejoin="round" />
+  const inhalt = (
+    <>
       <rect x={NS.zoneL} y={Y(NS.balkenOben)} width={NS_BREITE} height={NS.balkenOben - NS.balkenUnten} fill={schrift} />
       <text x={NS.mitte} y={Y(NS.nameGrundlinie)} textAnchor="middle" fontSize={kName / kappe} fill={schrift} style={stil(fmtName)}>{name}</text>
       <text x={NS.mitte} y={Y(NS.titelGrundlinie)} textAnchor="middle" fontSize={kTitel / kappe} fill={schrift} style={stil(fmtTitel)}>{titel}</text>
       {/* unsichtbare Messtexte (feste Größe), liefern die echte Textbreite der gewählten Schrift */}
       <text ref={refName} x="0" y="0" fontSize={MESS_SIZE} visibility="hidden" style={stil(fmtName)}>{name}</text>
       <text ref={refTitel} x="0" y="0" fontSize={MESS_SIZE} visibility="hidden" style={stil(fmtTitel)}>{titel}</text>
+    </>
+  );
+  if (nurSchrift) return <g>{inhalt}</g>;
+  return (
+    <g transform={`translate(3 ${(100 - hoehe) / 2}) scale(${s})`}>
+      <rect x={NS_STAENDER.x} y={Y(0)} width={NS_STAENDER.breite} height={NS_STAENDER.hoehe} rx="2" fill={platte} stroke="rgba(0,0,0,.3)" strokeWidth="0.8" />
+      <polygon points={umriss} fill={platte} stroke="rgba(0,0,0,.3)" strokeWidth="0.8" strokeLinejoin="round" />
+      {inhalt}
     </g>
   );
 }
