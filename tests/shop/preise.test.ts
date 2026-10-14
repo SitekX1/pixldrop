@@ -216,7 +216,8 @@ test("Schriftfarbe: Kontrastregel und automatische Voreinstellung", async () => 
   const weiss = { id: "weiss", name: "Weiß", hex: "#f4f1ea" };
   const alle = [...farben, weiss];
   assert.equal(textfarbeErlaubt(farben[0], farben[0]), false, "gleiche Farbe gesperrt");
-  assert.equal(textfarbeErlaubt(farben[0], weiss), false, "Honig auf Weiss zu schwach");
+  assert.equal(textfarbeErlaubt(farben[0], weiss), true, "Honig auf Weiss reicht seit Schwelle 1,5");
+  assert.equal(textfarbeErlaubt(weiss, { id: "creme", name: "Creme", hex: "#ece6d8" }), false, "fast gleiche helle Farben gesperrt");
   assert.equal(textfarbeErlaubt(farben[1], weiss), true);
   assert.equal(automatischeTextfarbe(farben[1], alle)?.id, "weiss", "dunkle Grundfarbe -> helle Schrift");
   assert.equal(automatischeTextfarbe(farben[0], alle)?.id, "schwarz", "helle Grundfarbe -> dunkle Schrift");

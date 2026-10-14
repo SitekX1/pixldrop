@@ -5,8 +5,8 @@
 import type { Farbe } from "./farben";
 
 export const TEXTFARBE_KEY = "textfarbe";
-/** Mindestkontrast (WCAG-Verhältnis) zwischen Schrift- und Grundfarbe; darunter ist die Schrift schlecht lesbar. */
-export const MIN_KONTRAST = 2;
+/** Mindestkontrast (WCAG-Verhältnis, 1,5 seit 14.10.) zwischen Schrift- und Grundfarbe; darunter ist die Schrift schlecht lesbar. */
+export const MIN_KONTRAST = 1.5;
 export const TEXTFARBE_HINWEIS = "Schrift muss sich von der Grundfarbe abheben";
 
 function leuchtdichte(hex: string): number {

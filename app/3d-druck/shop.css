@@ -384,10 +384,13 @@
 .shop-bon h2 { font-size: 1.375rem; }
 .shop-bon dl { margin: 0; display: grid; gap: 10px; }
 .shop-bon dl > div { display: flex; align-items: baseline; gap: 8px; }
-.shop-bon dt { flex: none; max-width: 60%; }
+.shop-bon > *, .shop-bon-pos li > dl { min-width: 0; }
+.shop-bon dt { flex: 0 0 auto; max-width: 60%; overflow-wrap: break-word; }
 .shop-bon dd { margin: 0; flex: 1; text-align: right; font-variant-numeric: tabular-nums; position: relative; overflow-wrap: anywhere; }
 .shop-bon dl > div::before { content: ""; order: 1; flex: 1 1 12px; border-bottom: 1px dotted var(--shop-control); min-width: 12px; }
-.shop-bon dt { order: 0; } .shop-bon dd { order: 2; flex: none; max-width: 50%; }
+.shop-bon dt { order: 0; } .shop-bon dd { order: 2; flex: 0 1 auto; min-width: 0; max-width: 60%; }
+.shop-bon dl > div { min-width: 0; }
+@media (max-width: 480px) { .shop-bon dl > div::before { min-width: 6px; flex-basis: 6px; } }
 .shop-bon .gesamt { border-top: 2px solid var(--shop-ink); padding-top: 10px; font: 800 1.375rem/1.2 var(--shop-display); color: var(--shop-ink); }
 .shop-bon .gesamt dd, .shop-bon .gesamt dt { font: inherit; }
 .shop-bon .kleinteil { font-size: 0.9375rem; color: var(--shop-text); display: grid; gap: 4px; }
