@@ -77,6 +77,8 @@ export default function ProductBuy({
   const trimmed = zeilen.map((z) => z.trim());
   // Echte Textbreite (im Browser mit der gewählten Schrift gemessen); fontTick misst neu, sobald die Schrift geladen ist.
   const [fontTick, setFontTick] = useState(0);
+  const [gemountet, setGemountet] = useState(false); // erst nach dem Mount messen: Server-HTML und erster Client-Render bleiben gleich
+  useEffect(() => setGemountet(true), []);
   useEffect(() => {
     const f = typeof document !== "undefined" ? document.fonts : undefined;
     if (!f) return;
@@ -87,7 +89,7 @@ export default function ProductBuy({
   }, []);
   const messer = (fam: string) => (t: string, fett: boolean, kursiv: boolean) => messeEm(t, fam, fett, kursiv);
   void fontTick;
-  const echtFuer = (g: GroesseId) => (pers && schrift && !textFehler ? echtPasst(pers, trimmed, schrift, { ...fmtOhneGroesse, groesse: g }, messer(schrift.family)) : null);
+  const echtFuer = (g: GroesseId) => (gemountet && pers && schrift && !textFehler ? echtPasst(pers, trimmed, schrift, { ...fmtOhneGroesse, groesse: g }, messer(schrift.family)) : null);
   const autoGroesse = pers && schrift && !textFehler ? groessteDiePasst(pers, trimmed, schrift, fmtOhneGroesse, (g) => echtFuer(g)?.passt !== false) : fmtOhneGroesse.groesse;
   const fmt: TextFormat = { ...fmtOhneGroesse, groesse: groesseWahl ?? autoGroesse };
   const formatOpt = pers ? formatZuOptionen(fmt) : {};

@@ -7,6 +7,8 @@ import { LiveProductImage, useVorschauWerte } from "./Vorschau";
 import NamensschildAufdruck from "./NamensschildAufdruck";
 
 const GROESSE = 720; // Arbeitsauflösung des Umfärbens (Anzeige ca. 480 CSS-Pixel)
+// Je Foto ca. 10-16 MB (RGBA, Maske, Klassengewichte): nur die zuletzt benutzten Fotos behalten (Handy-Speicher).
+const CACHE_MAX = 3;
 const cache = new Map<string, Promise<Vorbereitet | null>>();
 
 function ladeBild(src: string): Promise<HTMLImageElement> {
@@ -23,12 +25,13 @@ function pixel(i: HTMLImageElement) {
 function vorbereiten(src: string, modus: UmfaerbModus): Promise<Vorbereitet | null> {
   const key = `${modus}|${src}`;
   let p = cache.get(key);
-  if (!p) {
-    p = Promise.all([ladeBild(src), ladeBild(src.replace(/\.webp$/, ".m.webp"))])
-      .then(([f, m]) => bereiten(modus, pixel(f), pixel(m), GROESSE, GROESSE))
-      .catch(() => null);
-    cache.set(key, p);
-  }
+  if (p) { cache.delete(key); cache.set(key, p); return p; } // zuletzt benutzt nach hinten
+  p = Promise.all([ladeBild(src), ladeBild(src.replace(/\.webp$/, ".m.webp"))])
+    .then(([f, m]) => bereiten(modus, pixel(f), pixel(m), GROESSE, GROESSE))
+    .catch(() => null)
+    .then((v) => { if (v === null) cache.delete(key); return v; }); // Fehler nicht dauerhaft merken
+  cache.set(key, p);
+  while (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value as string);
   return p;
 }
 
@@ -41,7 +44,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   // Namensschild: Foto 1 = Blanko-Schild (ganzes Objekt in der Schildfarbe, Text kommt als Aufdruck), die übrigen = Beispielfotos mit Schrift
   const modus: UmfaerbModus | undefined = slug === "namensschild" ? (idx === 0 ? "farbe" : "schild") : UMFAERBEN[slug];
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [gefaerbt, setGefaerbt] = useState(false); // Canvas zeigt gerade das umgefärbte Foto
+  const [gefaerbtFuer, setGefaerbtFuer] = useState<string | null>(null); // Foto, dessen umgefärbte Pixel im Canvas stehen
 
   // Der Standardtext (z. B. "Eddie Pixldrop") zählt nicht: erst eine Änderung durch den Kunden schaltet um.
   const startText = useRef<string | undefined>(undefined);
@@ -73,23 +76,23 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   const farbeSchluessel = `${w.farbe}|${w.textfarbe}|${(w.farben ?? []).join()}`;
   useEffect(() => {
     let abgebrochen = false;
-    if (!aktiv || !fotoSrc || !modus) { setGefaerbt(false); return; }
+    if (!aktiv || !fotoSrc || !modus) { setGefaerbtFuer(null); return; }
     vorbereiten(fotoSrc, modus).then((v) => {
       const c = canvas.current;
       if (abgebrochen || !v || !c) return;
       const ziele = zielFarben(modus, { farbe: w.farbe, farben: w.farben, textfarbe: w.textfarbe });
-      if (ziele.every((z) => z === null)) { setGefaerbt(false); return; }
+      if (ziele.every((z) => z === null)) { setGefaerbtFuer(null); return; }
       const ctx = c.getContext("2d");
       if (!ctx) return;
       const bild = ctx.createImageData(v.w, v.h);
       umfaerben(v, ziele, bild.data);
       ctx.putImageData(bild, 0, 0);
-      setGefaerbt(true);
+      setGefaerbtFuer(fotoSrc);
     });
     return () => { abgebrochen = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aktiv, fotoSrc, modus, farbeSchluessel]);
-  const zeigeCanvas = !!foto && aktiv && gefaerbt;
+  const zeigeCanvas = !!foto && aktiv && gefaerbtFuer === fotoSrc;
 
   return (
     <div>
