@@ -51,6 +51,29 @@ function einzeilig(s: string): string {
   return s.replace(/[\r\n]+/g, " ").slice(0, 200);
 }
 
+// Bremse gegen Meldungsfluten (Spam ueber Formulare): je Art hoechstens N Meldungen an Alex in 10 Minuten
+// (pro Serverless-Instanz, im Arbeitsspeicher). Darueber hinaus wird nicht gesendet (false = "nicht zugestellt",
+// die DB-Flags bleiben offen) und EINMAL je Fenster eine Warnung geschickt. Kundenmails sind nicht betroffen
+// (die haben Limits je IP und je Adresse in der Datenbank).
+const BREMSE_FENSTER_MS = 10 * 60_000;
+export const BREMSE_MAX = { telegram: 20, mailAlex: 30 } as const;
+const gesendet: Record<keyof typeof BREMSE_MAX, number[]> = { telegram: [], mailAlex: [] };
+const gewarntAm: Record<keyof typeof BREMSE_MAX, number> = { telegram: 0, mailAlex: 0 };
+
+/** Nur fuer Tests. */
+export function bremseZuruecksetzen() {
+  for (const k of Object.keys(gesendet) as (keyof typeof BREMSE_MAX)[]) { gesendet[k] = []; gewarntAm[k] = 0; }
+}
+
+/** "ja" = senden, "warnen" = nicht senden, aber jetzt die Warnung schicken, "nein" = nicht senden. */
+function bremsePruefen(art: keyof typeof BREMSE_MAX, jetzt: number = Date.now()): "ja" | "warnen" | "nein" {
+  const neu = gesendet[art].filter((t) => jetzt - t < BREMSE_FENSTER_MS);
+  if (neu.length < BREMSE_MAX[art]) { neu.push(jetzt); gesendet[art] = neu; return "ja"; }
+  gesendet[art] = neu;
+  if (jetzt - gewarntAm[art] >= BREMSE_FENSTER_MS) { gewarntAm[art] = jetzt; return "warnen"; }
+  return "nein";
+}
+
 export function erzeugeBenachrichtiger(
   env: ShopEnv,
   fetchImpl: FetchFn = fetch,
@@ -78,25 +101,39 @@ export function erzeugeBenachrichtiger(
     }
   }
 
+  async function telegramSenden(text: string): Promise<boolean> {
+    try {
+      const res = await fetchImpl(`https://api.telegram.org/bot${env.telegramToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: env.telegramChatId, text, link_preview_options: { is_disabled: true } }),
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!res.ok) console.error("Shop-Telegram-Fehler:", res.status);
+      return res.ok;
+    } catch {
+      console.error("Shop-Telegram-Fehler: Netz");
+      return false;
+    }
+  }
+
   return {
     async telegram(text) {
       if (!env.telegramToken || !env.telegramChatId) return false;
-      try {
-        const res = await fetchImpl(`https://api.telegram.org/bot${env.telegramToken}/sendMessage`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ chat_id: env.telegramChatId, text, link_preview_options: { is_disabled: true } }),
-          signal: AbortSignal.timeout(8000),
-        });
-        if (!res.ok) console.error("Shop-Telegram-Fehler:", res.status);
-        return res.ok;
-      } catch {
-        console.error("Shop-Telegram-Fehler: Netz");
+      const b = bremsePruefen("telegram");
+      if (b !== "ja") {
+        if (b === "warnen") await telegramSenden("⚠ Shop: ungewöhnlich viele Meldungen (mehr als " + BREMSE_MAX.telegram + " in 10 Minuten). Weitere werden vorübergehend nicht gesendet. Bitte im Panel nachsehen.");
         return false;
       }
+      return telegramSenden(text);
     },
     async mailAlex(betreff, text, replyTo) {
       if (!env.alexMail) return false;
+      const b = bremsePruefen("mailAlex");
+      if (b !== "ja") {
+        if (b === "warnen") await senden(env.alexMail, "Shop: ungewöhnlich viele Meldungen", "Mehr als " + BREMSE_MAX.mailAlex + " Mails an dich in 10 Minuten. Weitere werden vorübergehend nicht gesendet. Bitte im Panel nachsehen.");
+        return false;
+      }
       return senden(env.alexMail, betreff, text, replyTo);
     },
     async mailKunde(an, betreff, text, anhaenge, html) {

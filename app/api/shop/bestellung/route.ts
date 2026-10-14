@@ -7,7 +7,7 @@ import { holeEinstellungen, STANDARD_WUNSCHTEXT_PAUSE_TEXT, type ShopEinstellung
 // Meldung bei pausierten Wunschtexten: Grundtext plus (falls gesetzt) das voraussichtliche Datum.
 const WUNSCHTEXT_PAUSE_MELDUNG = (e: ShopEinstellungen) =>
   e.pauseBis ? `${STANDARD_WUNSCHTEXT_PAUSE_TEXT} Voraussichtlich wieder ab ${e.pauseBis}${/[.!?]$/.test(e.pauseBis) ? "" : "."}` : STANDARD_WUNSCHTEXT_PAUSE_TEXT;
-import { clientIp, erzeugeBremse, honeypotLeer, ipHash, pruefeFormToken } from "@/lib/shop/server/spam";
+import { clientIp, erzeugeBremse, honeypotLeer, ipHash, leseBegrenzt, pruefeFormToken } from "@/lib/shop/server/spam";
 
 // POST /api/shop/bestellung  (JSON)
 // { token, website (Honeypot, leer lassen), idempotenzKey, versandart ("hermes"|"dhl"|"brief", Pflicht), positionen:[{slug,menge,farbeId,optionen,text,schriftId}],
@@ -41,12 +41,12 @@ export async function POST(request: Request) {
     return antwort(503, { ok: false, code: "pausiert", error: einst.pauseText, pauseBis: einst.pauseBis });
   }
 
-  const laenge = Number(request.headers.get("content-length") ?? 0);
-  if (laenge > 50_000) return antwort(413, { ok: false, code: "zu_gross", error: "Anfrage zu groß." });
-
+  // Body hoechstens 50 kB, auch wenn kein (oder ein falsches) Content-Length geschickt wird.
+  const roh = await leseBegrenzt(request, 50_000);
+  if (roh === null) return antwort(413, { ok: false, code: "zu_gross", error: "Anfrage zu groß." });
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(roh);
   } catch {
     return antwort(400, { ok: false, code: "ungueltig", error: "Ungültige Anfrage." });
   }

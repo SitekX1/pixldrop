@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { formatPreis } from "@/lib/shop/config";
 import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung, umlauteErsetzen } from "@/lib/shop/schriften";
-import { GROESSEN, type GroesseId } from "@/lib/shop/umbruch";
+import { GROESSEN, STANDARD_GROESSE, type GroesseId } from "@/lib/shop/umbruch";
 import { messeEm } from "@/lib/shop/textmessung";
 import {
   NICHT_VERFUEGBAR, PASST_NICHT, formatZuOptionen, echtPasst, groessteDiePasst, pruefePasst, standardFormat, zeilenAnzahl, type TextFormat,
@@ -87,9 +87,18 @@ export default function ProductBuy({
     f.addEventListener?.("loadingdone", neu);
     return () => f.removeEventListener?.("loadingdone", neu);
   }, []);
-  const messer = (fam: string) => (t: string, fett: boolean, kursiv: boolean) => messeEm(t, fam, fett, kursiv);
-  void fontTick;
-  const echtFuer = (g: GroesseId) => (gemountet && pers && schrift && !textFehler ? echtPasst(pers, trimmed, schrift, { ...fmtOhneGroesse, groesse: g }, messer(schrift.family)) : null);
+  // Echte Breite je Größenstufe nur neu messen, wenn sich Text, Schrift, Format oder die geladene Schrift ändern (nicht bei jedem Neuaufbau).
+  const echtErgebnisse = useMemo(() => {
+    const m: Partial<Record<GroesseId, ReturnType<typeof echtPasst>>> = {};
+    if (!gemountet || !pers || !schrift || textFehler) return m;
+    const messer = (t: string, fett: boolean, kursiv: boolean) => messeEm(t, schrift.family, fett, kursiv);
+    for (const g of pers.fuellt ? [STANDARD_GROESSE] : GROESSEN.map((x) => x.id)) {
+      m[g] = echtPasst(pers, trimmed, schrift, { ...fmtOhneGroesse, groesse: g }, messer);
+    }
+    return m;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gemountet, pers, schrift?.id, schrift?.family, textFehler, trimmed.join("|"), fmtOhneGroesse.fett.join(), fmtOhneGroesse.kursiv.join(), fontTick]);
+  const echtFuer = (g: GroesseId) => echtErgebnisse[pers?.fuellt ? STANDARD_GROESSE : g] ?? null;
   const autoGroesse = pers && schrift && !textFehler ? groessteDiePasst(pers, trimmed, schrift, fmtOhneGroesse, (g) => echtFuer(g)?.passt !== false) : fmtOhneGroesse.groesse;
   const fmt: TextFormat = { ...fmtOhneGroesse, groesse: groesseWahl ?? autoGroesse };
   const formatOpt = pers ? formatZuOptionen(fmt) : {};

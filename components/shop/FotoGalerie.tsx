@@ -46,13 +46,22 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   const canvas = useRef<HTMLCanvasElement>(null);
   const [gefaerbtFuer, setGefaerbtFuer] = useState<string | null>(null); // Foto, dessen umgefärbte Pixel im Canvas stehen
 
-  // Der Standardtext (z. B. "Eddie Pixldrop") zählt nicht: erst eine Änderung durch den Kunden schaltet um.
+  // Wunschtext: Der Standardtext (z. B. "Eddie Pixldrop") zählt nicht. Hat der Kunde den Text geändert und eine Weile nicht getippt,
+  // springt die Anzeige EINMAL auf die Live-Vorschau; danach nie wieder von selbst. Wer die Fotos ansehen will, wird nicht zurückgeworfen,
+  // und der Knopf unter dem Bild bringt jederzeit zur Live-Vorschau.
   const startText = useRef<string | undefined>(undefined);
+  const einmalUmgeschaltet = useRef(false);
+  const [textGeaendert, setTextGeaendert] = useState(false);
   useEffect(() => {
-    if (!w.text || slug === "namensschild") return;
-    if (startText.current === undefined) { startText.current = w.text; return; }
-    if (w.text !== startText.current) setIdx(-1);
-  }, [w.text, slug]);
+    if (slug === "namensschild" || w.preisText === undefined) return; // preisText fehlt, solange der Kaufbereich noch nichts gemeldet hat
+    const text = w.text ?? "";
+    if (startText.current === undefined) { startText.current = text; return; } // Standardtext (auch leer) = Ausgangswert
+    if (text === startText.current) { setTextGeaendert(false); return; }
+    setTextGeaendert(true);
+    if (einmalUmgeschaltet.current) return;
+    const t = setTimeout(() => { einmalUmgeschaltet.current = true; setIdx(-1); }, 1500);
+    return () => clearTimeout(t);
+  }, [w.text, w.preisText, slug]);
 
   // Einzel-Untersetzer: gewählter Wochentag zeigt das passende Foto.
   useEffect(() => {
@@ -117,6 +126,9 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
         ))}
         {slug !== "namensschild" && <button type="button" className="shop-fotoleiste-live" aria-pressed={idx === -1} onClick={() => setIdx(-1)}>Deine Wahl<br />Live</button>}
       </div>
+      {foto && textGeaendert && (
+        <p className="shop-fotohinweis">Dein Text steht nur in der Live-Vorschau. <button type="button" className="shop-link" style={{ minHeight: 0, background: "none", border: 0, padding: 0, cursor: "pointer", font: "inherit" }} onClick={() => { einmalUmgeschaltet.current = true; setIdx(-1); }}>Mit deinem Text ansehen</button></p>
+      )}
       {foto && (
         <p className="shop-fotohinweis">
           {mitAufdruck

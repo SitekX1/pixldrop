@@ -84,14 +84,14 @@ export function pruefeFormToken(token: unknown, salz: string, bindung: TokenBind
 }
 
 /**
- * Liest den Request-Body hoechstens bis maxBytes (auch ohne/mit falschem Content-Length).
+ * Liest den Request-Body hoechstens bis maxBytes (auch ohne/mit falschem Content-Length), als Bytes.
  * Gibt null zurueck, wenn er groesser ist oder nicht gelesen werden kann.
  */
-export async function leseBegrenzt(request: Request, maxBytes: number): Promise<string | null> {
+export async function leseBegrenztBytes(request: Request, maxBytes: number): Promise<Uint8Array | null> {
   const angabe = request.headers.get("content-length");
   if (angabe !== null && !(Number(angabe) <= maxBytes)) return null;
   const reader = request.body?.getReader();
-  if (!reader) return "";
+  if (!reader) return new Uint8Array(0);
   const teile: Uint8Array[] = [];
   let summe = 0;
   try {
@@ -108,7 +108,13 @@ export async function leseBegrenzt(request: Request, maxBytes: number): Promise<
   } catch {
     return null;
   }
-  return Buffer.concat(teile).toString("utf8");
+  return new Uint8Array(Buffer.concat(teile));
+}
+
+/** Wie leseBegrenztBytes, als UTF-8-Text. */
+export async function leseBegrenzt(request: Request, maxBytes: number): Promise<string | null> {
+  const b = await leseBegrenztBytes(request, maxBytes);
+  return b === null ? null : Buffer.from(b).toString("utf8");
 }
 
 /** Honeypot: das Feld "website" muss leer sein. */

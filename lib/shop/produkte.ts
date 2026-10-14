@@ -202,9 +202,9 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "kuerbis-klein-set",
     name: "Mini-Kürbisse mit Gesicht (4er-Set)",
-    kurz: "Vier kleine Kürbisse mit vier verschiedenen Gesichtern als Deko.",
+    kurz: "Vier lustige Deko-Kürbisse mit Gesicht.",
     beschreibung:
-      "Vier kleine Kürbisse mit Gesicht zum Hinstellen: drei runde und ein birnenförmiger, jeder mit anderem Gesichtsausdruck. Sie sind 50 mm hoch und 35 bis 60 mm breit, innen massiv, ohne Teelicht. Eine kleine Deko für Fensterbank, Tisch oder Regal.",
+      "Vier lustige Deko-Kürbisse mit Gesicht zum Hinstellen, jeder mit anderem Gesichtsausdruck. Sie sind 50 mm hoch und 35 bis 60 mm breit, innen massiv, ohne Teelicht. Eine kleine Deko für Fensterbank, Tisch oder Regal.",
     gruppe: "halloween", kategorien: ["halloween"], form: "laterne", grundfarbe: "#ff8a1f",
     preisCent: TESTPREIS_CENT, masse: "60 × 60 × 50", material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { leseEnv } from "@/lib/shop/server/env";
 import { anfrageDeps, NichtEingerichtet } from "@/lib/shop/server/deps";
 import { verarbeiteKontakt } from "@/lib/shop/server/kontakt";
-import { clientIp, erzeugeBremse, honeypotLeer, ipHash, pruefeFormToken } from "@/lib/shop/server/spam";
+import { clientIp, erzeugeBremse, honeypotLeer, ipHash, leseBegrenzt, pruefeFormToken } from "@/lib/shop/server/spam";
 
 // POST /api/shop/kontakt  (JSON)  { token, website:"" (Honeypot), name, email, nachricht }
 // Antwort: 200 { ok:true } | { ok:false, code, error, felder? } mit 400 (Token/Honeypot/JSON), 413, 422 (Felder), 429, 503.
@@ -30,16 +30,8 @@ export async function POST(request: Request) {
   const hash = ipHash(clientIp(request.headers) ?? "unbekannt", env.ipSalt)!;
   if (bremse(hash)) return antwort(429, { ok: false, code: "zu_viele", error: "Zu viele Anfragen. Bitte warte kurz." });
 
-  if (Number(request.headers.get("content-length") ?? 0) > MAX_BYTES) {
-    return antwort(413, { ok: false, code: "zu_gross", error: "Anfrage zu groß." });
-  }
-  let roh: string;
-  try {
-    roh = await request.text();
-  } catch {
-    return antwort(400, { ok: false, code: "ungueltig", error: "Ungültige Anfrage." });
-  }
-  if (roh.length > MAX_BYTES) return antwort(413, { ok: false, code: "zu_gross", error: "Anfrage zu groß." });
+  const roh = await leseBegrenzt(request, MAX_BYTES);
+  if (roh === null) return antwort(413, { ok: false, code: "zu_gross", error: "Anfrage zu groß." });
 
   let body: unknown;
   try {

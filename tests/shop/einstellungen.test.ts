@@ -67,5 +67,5 @@ test("Volle Bestellpause: Anfrage-Route lehnt serverseitig mit 503 'pausiert' ab
   const i = src.indexOf("einst.bestellungPausiert");
   assert.ok(i > 0, "Pausecheck vorhanden");
   assert.match(src.slice(i, i + 200), /antwort\(503, \{ ok: false, code: "pausiert"/);
-  assert.ok(i < src.indexOf("request.formData()"), "Check vor formData()");
+  assert.ok(i < src.indexOf("leseBegrenztBytes(request"), "Check vor dem Lesen und Parsen des Bodys");
 });

@@ -4,7 +4,7 @@ import { anfrageDeps, NichtEingerichtet } from "@/lib/shop/server/deps";
 import { legeAnfrageAn, type HochgeladenesBild } from "@/lib/shop/server/anfrage";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 import { MAX_BILDER } from "@/lib/shop/server/bild";
-import { clientIp, erzeugeBremse, honeypotLeer, ipHash, pruefeFormToken } from "@/lib/shop/server/spam";
+import { clientIp, erzeugeBremse, honeypotLeer, ipHash, leseBegrenztBytes, pruefeFormToken } from "@/lib/shop/server/spam";
 import { holeLagerFarben } from "@/lib/shop/farben";
 
 // POST /api/shop/anfrage  (multipart/form-data)
@@ -38,14 +38,15 @@ export async function POST(request: Request) {
     return antwort(503, { ok: false, code: "pausiert", error: einst.pauseText, pauseBis: einst.pauseBis });
   }
 
-  const laenge = Number(request.headers.get("content-length") ?? 0);
-  if (laenge > 4_500_000) {
+  // Body hoechstens ca. 4,5 MB, auch ohne (oder mit falschem) Content-Length.
+  const bytes = await leseBegrenztBytes(request, 4_500_000);
+  if (bytes === null) {
     return antwort(413, { ok: false, code: "zu_gross", error: "Die Bilder sind zusammen zu groß (höchstens ca. 4 MB)." });
   }
 
   let form: FormData;
   try {
-    form = await request.formData();
+    form = await new Response(bytes as BodyInit, { headers: { "content-type": request.headers.get("content-type") ?? "" } }).formData();
   } catch {
     return antwort(400, { ok: false, code: "ungueltig", error: "Ungültige Anfrage." });
   }
