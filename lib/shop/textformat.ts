@@ -87,13 +87,58 @@ export function pruefePasst(pers: Personalisierung, zeilen: string[], s: Schrift
 }
 
 /** Größte Stufe, bei der der Text noch passt (Voreinstellung, solange der Kunde keine Stufe gewählt hat).
- *  Passt keine Stufe, kommt die kleinste zurück (der Passt-nicht-Hinweis erscheint dann trotzdem). */
-export function groessteDiePasst(pers: Personalisierung, zeilen: string[], s: Schrift, f: TextFormat): GroesseId {
+ *  Passt keine Stufe, kommt die kleinste zurück (der Passt-nicht-Hinweis erscheint dann trotzdem).
+ *  extra = zusätzliche Prüfung je Stufe (Browser: echte Textbreite). */
+export function groessteDiePasst(pers: Personalisierung, zeilen: string[], s: Schrift, f: TextFormat, extra?: (g: GroesseId) => boolean): GroesseId {
   if (pers.fuellt) return STANDARD_GROESSE;
   for (let i = GROESSEN.length - 1; i >= 0; i--) {
-    if (pruefePasst(pers, zeilen, s, { ...f, groesse: GROESSEN[i].id }).passt) return GROESSEN[i].id;
+    if (pruefePasst(pers, zeilen, s, { ...f, groesse: GROESSEN[i].id }).passt && (!extra || extra(GROESSEN[i].id))) return GROESSEN[i].id;
   }
   return GROESSEN[0].id;
+}
+
+/** Misst die Breite eines Textes in em mit der gewählten Schrift (null = nicht messbar). */
+export type Messer = (text: string, fett: boolean, kursiv: boolean) => number | null;
+export interface EchtErgebnis { passt: boolean; meldung?: string }
+
+/**
+ * Prüfung mit der ECHTEN Textbreite (Browser): die Schätzung in pruefePasst rechnet mit einer durchschnittlichen
+ * Zeichenbreite, breite Buchstaben (W, M ...) fallen dort durch. Hier gelten dieselben Mindestgrößen,
+ * aber mit der gemessenen Breite. Liefert null, wenn nicht messbar (dann gilt nur die Schätzung).
+ * Ist die Schätzung schon durchgefallen, kommt passt:true zurück (die Meldung dafür liefert pruefePasst).
+ */
+export function echtPasst(pers: Personalisierung, zeilen: string[], s: Schrift, f: TextFormat, messer: Messer): EchtErgebnis | null {
+  if (pers.fuellt) {
+    for (let i = 0; i < zeilen.length; i++) {
+      const t = zeilen[i].replace(/\s+/g, " ").trim();
+      if (!t) continue;
+      const em = messer(t, f.fett[i] === true, f.kursiv[i] === true);
+      if (em === null) return null;
+      const max = i === 0 ? NS.nameKappeMax : NS.titelKappe;
+      const min = i === 0 ? NS.nameKappeMin : NS.titelKappeMin;
+      const kappe = Math.min(max, (NS_BREITE * kappeJeEm(s.id)) / em);
+      if (kappe < min - 0.01) {
+        return { passt: false, meldung: `${i === 0 ? "Der Name" : "Der Titel"} ist mit dieser Schrift zu lang: Die Buchstaben würden kleiner als ${String(min).replace(".", ",")} mm. Bitte kürzen oder eine schmalere Schrift wählen.` };
+      }
+    }
+    return { passt: true };
+  }
+  const fl = flaechen(pers);
+  for (let i = 0; i < fl.length; i++) {
+    const est = passtInFlaeche({
+      text: zeilen[i] ?? "", flaeche: fl[i], groesse: pers.zeilen && i === 0 ? STANDARD_GROESSE : f.groesse,
+      breite: s.breite, fett: f.fett[i] === true, fettFaktor: FETT_FAKTOR,
+    });
+    if (!est.passt) continue;
+    for (const z of est.zeilen) {
+      const em = messer(z, f.fett[i] === true, f.kursiv[i] === true);
+      if (em === null) return null;
+      if (em * est.size > fl[i].breite + 0.3) {
+        return { passt: false, meldung: "Der Text ist mit dieser Schrift zu breit für die Fläche. Bitte kürzen, eine kleinere Größe oder eine schmalere Schrift wählen." };
+      }
+    }
+  }
+  return { passt: true };
 }
 
 /** Lesbare Anzeige fürs Format als [Beschriftung, Wert]-Paare (Warenkorb, Bon, Freigabe, Mails; nur Abweichungen vom Standard). */

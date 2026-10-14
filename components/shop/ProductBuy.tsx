@@ -5,8 +5,9 @@ import { formatPreis } from "@/lib/shop/config";
 import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung, umlauteErsetzen } from "@/lib/shop/schriften";
 import { GROESSEN, type GroesseId } from "@/lib/shop/umbruch";
+import { messeEm } from "@/lib/shop/textmessung";
 import {
-  NICHT_VERFUEGBAR, PASST_NICHT, formatZuOptionen, groessteDiePasst, pruefePasst, standardFormat, zeilenAnzahl, type TextFormat,
+  NICHT_VERFUEGBAR, PASST_NICHT, formatZuOptionen, echtPasst, groessteDiePasst, pruefePasst, standardFormat, zeilenAnzahl, type TextFormat,
 } from "@/lib/shop/textformat";
 import ProductImage from "./ProductImage";
 import { useKaufRegistrieren, useVorschauSetzen } from "./Vorschau";
@@ -74,11 +75,26 @@ export default function ProductBuy({
     : null;
   const umlauteFehlen = !!schrift && fehlendeZeichen(zeilen.join(""), schrift.id).some((c) => c in { "ä": 1, "ö": 1, "ü": 1, "Ä": 1, "Ö": 1, "Ü": 1, "ß": 1 });
   const trimmed = zeilen.map((z) => z.trim());
-  const autoGroesse = pers && schrift && !textFehler ? groessteDiePasst(pers, trimmed, schrift, fmtOhneGroesse) : fmtOhneGroesse.groesse;
+  // Echte Textbreite (im Browser mit der gewählten Schrift gemessen); fontTick misst neu, sobald die Schrift geladen ist.
+  const [fontTick, setFontTick] = useState(0);
+  useEffect(() => {
+    const f = typeof document !== "undefined" ? document.fonts : undefined;
+    if (!f) return;
+    const neu = () => setFontTick((t) => t + 1);
+    f.ready.then(neu).catch(() => {});
+    f.addEventListener?.("loadingdone", neu);
+    return () => f.removeEventListener?.("loadingdone", neu);
+  }, []);
+  const messer = (fam: string) => (t: string, fett: boolean, kursiv: boolean) => messeEm(t, fam, fett, kursiv);
+  void fontTick;
+  const echtFuer = (g: GroesseId) => (pers && schrift && !textFehler ? echtPasst(pers, trimmed, schrift, { ...fmtOhneGroesse, groesse: g }, messer(schrift.family)) : null);
+  const autoGroesse = pers && schrift && !textFehler ? groessteDiePasst(pers, trimmed, schrift, fmtOhneGroesse, (g) => echtFuer(g)?.passt !== false) : fmtOhneGroesse.groesse;
   const fmt: TextFormat = { ...fmtOhneGroesse, groesse: groesseWahl ?? autoGroesse };
   const formatOpt = pers ? formatZuOptionen(fmt) : {};
   const passt = !pers || !schrift || textFehler ? null : pruefePasst(pers, trimmed, schrift, fmt);
-  const passtNicht = passt !== null && !passt.passt;
+  const echt = echtFuer(fmt.groesse);
+  const passtNicht = (passt !== null && !passt.passt) || echt?.passt === false;
+  const passtMeldung = passt !== null && !passt.passt ? PASST_NICHT : echt?.meldung ?? PASST_NICHT;
   const filter = pers && !textFehler ? pruefeWunschtext(zeilen) : { ok: true as const };
   const [filterZeigen, setFilterZeigen] = useState(false);
   const filterFehler = filterZeigen && !filter.ok ? filter.meldung : null;
@@ -211,7 +227,7 @@ export default function ProductBuy({
               ))}
             </div>
           </fieldset>}
-          {passtNicht &&<p id="t-passt" className="shop-err" role="alert"><span>{PASST_NICHT}</span></p>}
+          {passtNicht &&<p id="t-passt" className="shop-err" role="alert"><span>{passtMeldung}</span></p>}
           {textFehler && <p id="t-fehler" className="shop-err" role="alert"><span>{textFehler}</span>
             {umlauteFehlen && <button type="button" className="shop-umlaut-btn" onClick={() => setZeilen((zs) => zs.map((z) => umlauteErsetzen(z, schrift?.fehlendeZeichen)))}>Umlaute ersetzen (ä→ae, ö→oe, ü→ue, Ä→Ae, Ö→Oe, Ü→Ue, ß→ss)</button>}</p>}
           {filterFehler && (
