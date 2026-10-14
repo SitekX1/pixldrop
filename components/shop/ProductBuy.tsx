@@ -105,7 +105,7 @@ export default function ProductBuy({
   const passt = !pers || !schrift || textFehler ? null : pruefePasst(pers, trimmed, schrift, fmt);
   const echt = echtFuer(fmt.groesse);
   const passtNicht = (passt !== null && !passt.passt) || echt?.passt === false;
-  const passtMeldung = passt !== null && !passt.passt ? PASST_NICHT : echt?.meldung ?? PASST_NICHT;
+  const passtMeldung = echt?.passt === false && echt.meldung ? echt.meldung : PASST_NICHT;
   const filter = pers && !textFehler ? pruefeWunschtext(zeilen) : { ok: true as const };
   const [filterZeigen, setFilterZeigen] = useState(false);
   const filterFehler = filterZeigen && !filter.ok ? filter.meldung : null;
@@ -214,7 +214,7 @@ export default function ProductBuy({
               <div className="shop-field" key={z.label}>
                 <label htmlFor={`t-${i}`}>{z.label}</label>
                 <input id={`t-${i}`} className="shop-input" type="text" maxLength={z.max} value={zeilen[i]} autoComplete="off" spellCheck={false}
-                  aria-invalid={filterFehler || passtNicht ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => aendereZeile(i, e.target.value)} />
+                  aria-invalid={filterFehler || (passtNicht && (echt?.zeile === undefined || echt.zeile === i)) ? true : undefined} aria-describedby={beschreibung} onBlur={() => setFilterZeigen(true)} onChange={(e) => aendereZeile(i, e.target.value)} />
                 {formatSchalter(i, z.label)}
               </div>
             ))

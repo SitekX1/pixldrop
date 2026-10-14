@@ -99,7 +99,7 @@ export function groessteDiePasst(pers: Personalisierung, zeilen: string[], s: Sc
 
 /** Misst die Breite eines Textes in em mit der gewählten Schrift (null = nicht messbar). */
 export type Messer = (text: string, fett: boolean, kursiv: boolean) => number | null;
-export interface EchtErgebnis { passt: boolean; meldung?: string }
+export interface EchtErgebnis { passt: boolean; meldung?: string; /** Index der Eingabezeile, die nicht passt (Namensschild) */ zeile?: number }
 
 /**
  * Prüfung mit der ECHTEN Textbreite (Browser): die Schätzung in pruefePasst rechnet mit einer durchschnittlichen
@@ -118,7 +118,7 @@ export function echtPasst(pers: Personalisierung, zeilen: string[], s: Schrift, 
       const min = i === 0 ? NS.nameKappeMin : NS.titelKappeMin;
       const kappe = Math.min(max, (NS_BREITE * kappeJeEm(s.id)) / em);
       if (kappe < min - 0.01) {
-        return { passt: false, meldung: `${i === 0 ? "Der Name" : "Der Titel"} ist mit dieser Schrift zu lang: Die Buchstaben würden kleiner als ${String(min).replace(".", ",")} mm. Bitte kürzen oder eine schmalere Schrift wählen.` };
+        return { passt: false, zeile: i, meldung: `${i === 0 ? "Der Name" : "Der Titel"} ist mit dieser Schrift zu lang: Die Buchstaben würden kleiner als ${String(min).replace(".", ",")} mm. Bitte kürzen oder eine schmalere Schrift wählen.` };
       }
     }
     return { passt: true };

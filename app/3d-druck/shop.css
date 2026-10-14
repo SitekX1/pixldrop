@@ -941,3 +941,6 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 @media (max-width: 1023.98px) {
   .shop-gallery:not([data-gross="true"]) .shop-fotoleiste, .shop-gallery:not([data-gross="true"]) .shop-fotohinweis { display: none; }
 }
+
+.shop-fotoleiste { padding-inline: 10px; }
+.shop-fotohinweis { padding: 0 14px 12px; }

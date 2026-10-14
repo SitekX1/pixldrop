@@ -117,7 +117,19 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
       ) : (
         <LiveProductImage form={form} grundfarbe={grundfarbe} />
       )}
-      <div className="shop-fotoleiste" role="group" aria-label={`Bilder von ${name}`}>
+      <div
+        className="shop-fotoleiste" role="group" aria-label={`Bilder von ${name}`}
+        onKeyDown={(e) => {
+          // Pfeiltasten wechseln das Bild (Fokus folgt); Tab/Enter wie bisher
+          if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+          const n = fotos.length;
+          const naechst = e.key === "ArrowRight" ? Math.min(n - 1, idx + 1) : Math.max(0, idx <= 0 ? 0 : idx - 1);
+          if (naechst === idx && idx >= 0) return;
+          e.preventDefault();
+          setIdx(naechst);
+          (e.currentTarget.querySelectorAll("button")[naechst] as HTMLButtonElement | undefined)?.focus();
+        }}
+      >
         {fotos.map((f, i) => (
           <button key={f.src} type="button" aria-pressed={idx === i} aria-label={`Bild ${i + 1}: ${f.alt}`} onClick={() => setIdx(i)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
