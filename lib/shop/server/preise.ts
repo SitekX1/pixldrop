@@ -13,7 +13,7 @@ import { TEXTFARBE_HINWEIS, TEXTFARBE_KEY, textfarbeErlaubt } from "../textfarbe
 import { istVersandArt, versandOptionen, type VersandArt, type VersandPosition } from "../versand";
 
 export const MAX_MENGE = 20;
-export const MAX_POSITIONEN = 5;
+export const MAX_POSITIONEN = 10;
 export const MAX_GESAMT_CENT = 200_000;
 
 export interface Kontext {

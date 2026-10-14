@@ -374,7 +374,7 @@ export default function ProductBuy({
             {hinzu.ok ? (
               <strong>Hinzugefügt: {hinzu.menge} × {produkt.name}</strong>
             ) : (
-              <strong>Der Warenkorb ist voll (höchstens 5 verschiedene Positionen). Bitte schließe zuerst die Bestellung ab oder entferne eine Position.</strong>
+              <strong>Der Warenkorb ist voll (höchstens 10 verschiedene Positionen). Bitte schließe zuerst die Bestellung ab oder entferne eine Position.</strong>
             )}
             <div className="shop-actions" style={{ marginTop: 0 }}>
               <Link className="shop-btn" href="/3d-druck/warenkorb">Zum Warenkorb</Link>

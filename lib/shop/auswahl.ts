@@ -14,7 +14,7 @@ export type Korb = Auswahl[];
 
 // Spiegelt MAX_MENGE / MAX_POSITIONEN aus lib/shop/server/preise.ts (der Server prüft verbindlich).
 export const MAX_MENGE_POS = 20;
-export const MAX_POSITIONEN_KORB = 5;
+export const MAX_POSITIONEN_KORB = 10;
 
 const KEY = "shop-korb-v1";
 const ALT_KEY = "shop-auswahl-v1"; // früher: genau ein Stück
