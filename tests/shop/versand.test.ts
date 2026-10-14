@@ -38,7 +38,7 @@ test("Whitelist der Versandarten", () => {
 const labelDe = (l: { art: string; label: string }[], art: string) => l.find((o) => o.art === art)?.label;
 
 test("Volumenmodell: einzelne Artikel passen in die kleinste Stufe (Paeckchen)", () => {
-  for (const slug of ["namensschild", "stiftebecher-tasse", "kuerbis-laterne", "geister-set", "geister-set-klein", "kuerbis-teelichthalter"]) {
+  for (const slug of ["namensschild", "stiftebecher-tasse", "kuerbis-laterne", "geister-set", "geister-set-klein", "kuerbis-klein-set", "kuerbis-teelichthalter"]) {
     const o = versandOptionen([{ slug, menge: 1 }]);
     assert.deepEqual(arten(o), ["hermes", "dhl"], slug);
     assert.equal(cent(o, "hermes"), VERSAND_PREISE.hermes.klein.cent, slug);
