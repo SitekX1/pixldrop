@@ -928,3 +928,16 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-schrift-ohne { font-size: 0.6875rem; color: var(--shop-muted); }
 .shop-err:has(.shop-umlaut-btn) { flex-wrap: wrap; }
 .shop-err .shop-umlaut-btn { flex: 1 1 100%; width: 100%; }
+
+/* Echte Produktfotos */
+.shop-img .shop-foto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.shop-fotoleiste { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px; }
+.shop-fotoleiste button { flex: 0 0 auto; width: 56px; height: 56px; padding: 0; border: 2px solid transparent; border-radius: var(--shop-r-s); background: var(--shop-tint); cursor: pointer; overflow: hidden; }
+.shop-fotoleiste button img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.shop-fotoleiste button[aria-pressed="true"] { border-color: var(--shop-ink); }
+.shop-fotoleiste button:focus-visible { outline: 2px solid var(--shop-ink); outline-offset: 2px; }
+.shop-fotoleiste .shop-fotoleiste-live { width: auto; min-width: 72px; padding: 0 10px; font: 600 0.75rem/1.2 var(--shop-display); color: var(--shop-ink); }
+.shop-fotohinweis { margin: 8px 0 0; font-size: 0.8125rem; opacity: .8; }
+@media (max-width: 1023.98px) {
+  .shop-gallery:not([data-gross="true"]) .shop-fotoleiste, .shop-gallery:not([data-gross="true"]) .shop-fotohinweis { display: none; }
+}

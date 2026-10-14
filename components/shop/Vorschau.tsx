@@ -23,6 +23,10 @@ export function VorschauProvider({ children }: { children: React.ReactNode }) {
   return <Ctx.Provider value={wert}>{children}</Ctx.Provider>;
 }
 
+export function useVorschauWerte() {
+  return useContext(Ctx)?.werte ?? {};
+}
+
 export function useVorschauSetzen() {
   const c = useContext(Ctx);
   return c ? c.setze : () => {};

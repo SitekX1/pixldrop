@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Ring from "./Ring";
 import ProductImage from "./ProductImage";
+import { fotosFuer } from "@/lib/shop/fotos";
 import { formatPreis, TEXTE } from "@/lib/shop/config";
 import type { Produkt } from "@/lib/shop/produkte";
 import type { Farbe } from "@/lib/shop/farben";
@@ -10,13 +11,21 @@ const KAT_LABEL: Record<string, string> = { halloween: "Halloween", untersetzer:
 export default function ProductCard({
   p, farben, vorschau, erste = false, gesperrt = false,
 }: { p: Produkt; farben: Farbe[]; vorschau: boolean; erste?: boolean; gesperrt?: boolean }) {
+  const foto = fotosFuer(p.slug)[0];
   const sichtbar = farben.slice(0, 5);
   const rest = farben.length - sichtbar.length;
   const meta = [KAT_LABEL[p.kategorien[0]], p.nurAnfrage ? "Nur auf Anfrage" : p.material.split(" ")[0]].join(" · ");
   return (
     <li className={erste ? "shop-first" : undefined}>
       <article className={gesperrt ? "shop-card shop-card--gesperrt" : "shop-card"}>
-        <ProductImage form={p.form} farbe={p.grundfarbe} breit={erste} />
+        {foto ? (
+          <div className={`shop-img ${erste ? "shop-img--wide" : ""}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="shop-foto" src={foto.src} alt={foto.alt} width={1100} height={1100} loading={erste ? "eager" : "lazy"} decoding="async" />
+          </div>
+        ) : (
+          <ProductImage form={p.form} farbe={p.grundfarbe} breit={erste} />
+        )}
         <Ring />
         <div className="shop-card-body">
           {gesperrt && <span className="shop-state">Vorübergehend nicht bestellbar</span>}
