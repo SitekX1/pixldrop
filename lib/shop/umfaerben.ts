@@ -8,7 +8,8 @@
 //  "untersetzer": Individueller Untersetzer, zwei Bereiche (Untersetzer dunkel / Zierlinien hell). Die Linien kommen aus dem
 //                 G-Kanal der Maske (R = Untersetzer-Freisteller), nicht aus der Farbe -> Untersetzerfarbe, Linienfarbe
 //  "grund"  : Halloween-Untersetzer: nur der dunkle Grund wird umgefärbt, das Motiv bleibt
-export type UmfaerbModus = "farbe" | "kombi" | "schild" | "grund" | "untersetzer";
+//  "becher" : wie "farbe", aber fürs dunkle Becherfoto: Schattierung aus entrauschter Helligkeit (kein Körnungs-/Pigment-Rauschen), 5. bis 95. Perzentil, leicht aufgehellt (kein Grauschleier)
+export type UmfaerbModus = "farbe" | "kombi" | "schild" | "grund" | "untersetzer" | "becher";
 
 export interface UmfaerbZiel { farbe?: string; farben?: string[]; textfarbe?: string; linienfarbe?: string }
 
@@ -19,7 +20,7 @@ export function hexZuRgb(hex: string): [number, number, number] | null {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-const KLASSEN: Record<UmfaerbModus, number> = { farbe: 1, kombi: 3, schild: 2, grund: 1, untersetzer: 2 };
+const KLASSEN: Record<UmfaerbModus, number> = { farbe: 1, kombi: 3, schild: 2, grund: 1, untersetzer: 2, becher: 1 };
 const MIN_BEREICH = 0.24;
 const klemme = (x: number, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
 
@@ -29,6 +30,7 @@ export function zielFarben(modus: UmfaerbModus, z: UmfaerbZiel): ([number, numbe
   switch (modus) {
     case "farbe": return [h(z.farbe)];
     case "grund": return [h(z.farbe)];
+    case "becher": return [h(z.farbe)];
     case "schild": return [h(z.farbe), h(z.textfarbe)];
     case "untersetzer": return [h(z.farbe), h(z.linienfarbe)];
     case "kombi": return [h(z.farben?.[0]), h(z.farben?.[1]), h(z.farben?.[2])];
@@ -38,7 +40,7 @@ export function zielFarben(modus: UmfaerbModus, z: UmfaerbZiel): ([number, numbe
 /** Gewichte je Klasse aus der Originalfarbe (0..1 je Kanal). Summe der Gewichte <= 1. */
 function klassen(modus: UmfaerbModus, r: number, g: number, b: number, l: number, out: number[], lin = 0) {
   switch (modus) {
-    case "farbe": out[0] = 1; return;
+    case "farbe": case "becher": out[0] = 1; return;
     case "grund": out[0] = klemme((0.3 - l) / 0.12); return;
     case "untersetzer": out[1] = lin; out[0] = 1 - lin; return;
     case "schild": {
@@ -61,11 +63,20 @@ export interface Vorbereitet {
   schatten: Float32Array[];     // je Klasse normierte Helligkeit 0..1
 }
 
+/** Mittelwert 5 x 5 (getrennt, Rand wird geklemmt). */
+function glaette(src: Float32Array, w: number, h: number): Float32Array {
+  const tmp = new Float32Array(src.length), out = new Float32Array(src.length);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let a = 0; for (let d = -2; d <= 2; d++) a += src[y * w + Math.min(w - 1, Math.max(0, x + d))]; tmp[y * w + x] = a / 5; }
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let a = 0; for (let d = -2; d <= 2; d++) a += tmp[Math.min(h - 1, Math.max(0, y + d)) * w + x]; out[y * w + x] = a / 5; }
+  return out;
+}
+
 /** Einmal je Foto: Klassengewichte und je Klasse normierte Helligkeit (2. bis 98. Perzentil). */
 export function bereiten(modus: UmfaerbModus, rgba: Uint8ClampedArray, maskeR: Uint8ClampedArray | Uint8Array, w: number, h: number): Vorbereitet {
   const n = w * h, k = KLASSEN[modus];
   const maske = new Float32Array(n);
   const lum = new Float32Array(n);
+  const becher = modus === "becher";
   const klasseGew = Array.from({ length: k }, () => new Float32Array(n));
   const tmp = new Array<number>(k).fill(0);
   for (let i = 0; i < n; i++) {
@@ -77,21 +88,24 @@ export function bereiten(modus: UmfaerbModus, rgba: Uint8ClampedArray, maskeR: U
     klassen(modus, r, g, b, l, tmp, maskeR[i * 4 + 1] / 255);
     for (let c = 0; c < k; c++) klasseGew[c][i] = tmp[c];
   }
+  // Becher: Schattierung aus entrauschter Helligkeit (2 x Mittelwert 5 x 5), damit weiße Pigmente/Körnung nicht mitgefärbt werden
+  const lumS = becher ? glaette(glaette(lum, w, h), w, h) : lum;
+  const pLo = becher ? 0.05 : 0.02, pHi = becher ? 0.95 : 0.98, minB = becher ? 0.14 : MIN_BEREICH;
   const schatten: Float32Array[] = [];
   for (let c = 0; c < k; c++) {
     const hist = new Uint32Array(256); let tot = 0;
-    for (let i = 0; i < n; i++) if (maske[i] > 0.5 && klasseGew[c][i] > 0.6) { hist[Math.min(255, (lum[i] * 255) | 0)]++; tot++; }
+    for (let i = 0; i < n; i++) if (maske[i] > 0.5 && klasseGew[c][i] > 0.6) { hist[Math.min(255, (lumS[i] * 255) | 0)]++; tot++; }
     let lo = 0, hi = 1;
     if (tot > 50) {
       let acc = 0, a = 0, b = 255;
-      for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= tot * 0.02) { a = v; break; } }
+      for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= tot * pLo) { a = v; break; } }
       acc = 0;
-      for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= tot * 0.98) { b = v; break; } }
+      for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc >= tot * pHi) { b = v; break; } }
       // Kontrastarme Fotos (z. B. weiss auf hellem Grund) nicht zu stark spreizen: sonst werden Kompressionsbloecke sichtbar.
-      hi = Math.max(b / 255, 0.04); lo = Math.min(a / 255, hi - MIN_BEREICH);
+      hi = Math.max(b / 255, 0.04); lo = Math.min(a / 255, hi - minB);
     }
     const s = new Float32Array(n);
-    for (let i = 0; i < n; i++) s[i] = klemme((lum[i] - lo) / (hi - lo));
+    for (let i = 0; i < n; i++) { const v = klemme((lumS[i] - lo) / (hi - lo)); s[i] = becher ? 0.1 + 0.72 * Math.pow(v, 0.8) : v; }
     schatten.push(s);
   }
   return { w, h, orig: rgba, maske, klasseGew, schatten };

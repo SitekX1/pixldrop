@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Form } from "@/lib/shop/produkte";
-import { MIT_AUFDRUCK, OHNE_UMFAERBEN, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
-import { bereiten, umfaerben, zielFarben, type UmfaerbModus, type Vorbereitet } from "@/lib/shop/umfaerben";
+import { MIT_AUFDRUCK, ORIGINALFARBE, OHNE_UMFAERBEN, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
+import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
+import { vorbereiteFoto, farbAbstand } from "./fotoFaerben";
 import { LiveProductImage, useVorschauWerte } from "./Vorschau";
 import NamensschildAufdruck from "./NamensschildAufdruck";
 import UntersetzerAufdruck from "./UntersetzerAufdruck";
@@ -10,33 +11,8 @@ import BecherAufdruck from "./BecherAufdruck";
 import { TEXTE } from "@/lib/shop/config";
 
 const GROESSE = 720; // Arbeitsauflösung des Umfärbens (Anzeige ca. 480 CSS-Pixel)
-// Je Foto ca. 10-16 MB (RGBA, Maske, Klassengewichte): nur die zuletzt benutzten Fotos behalten (Handy-Speicher).
 const CACHE_MAX = 3;
-const cache = new Map<string, Promise<Vorbereitet | null>>();
-
-function ladeBild(src: string): Promise<HTMLImageElement> {
-  return new Promise((ok, fehler) => { const i = new Image(); i.onload = () => ok(i); i.onerror = fehler; i.src = src; });
-}
-function pixel(i: HTMLImageElement) {
-  const c = document.createElement("canvas"); c.width = c.height = GROESSE;
-  const x = c.getContext("2d", { willReadFrequently: true });
-  if (!x) throw new Error("kein Canvas");
-  x.drawImage(i, 0, 0, GROESSE, GROESSE);
-  return x.getImageData(0, 0, GROESSE, GROESSE).data;
-}
-/** Foto + Maske laden und für das Umfärben vorbereiten (einmal je Foto, danach aus dem Cache). */
-function vorbereiten(src: string, modus: UmfaerbModus): Promise<Vorbereitet | null> {
-  const key = `${modus}|${src}`;
-  let p = cache.get(key);
-  if (p) { cache.delete(key); cache.set(key, p); return p; } // zuletzt benutzt nach hinten
-  p = Promise.all([ladeBild(src), ladeBild(src.replace(/\.webp$/, ".m.webp"))])
-    .then(([f, m]) => bereiten(modus, pixel(f), pixel(m), GROESSE, GROESSE))
-    .catch(() => null)
-    .then((v) => { if (v === null) cache.delete(key); return v; }); // Fehler nicht dauerhaft merken
-  cache.set(key, p);
-  while (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value as string);
-  return p;
-}
+const vorbereiten = (src: string, modus: UmfaerbModus) => vorbereiteFoto(src, modus, GROESSE, CACHE_MAX);
 
 // Galerie-Hauptbild: echte Fotos als Blättergalerie, dazu die Live-Vorschau ("Deine Wahl").
 // Ändert der Kunde die Farbe, wird das Foto in dieser Farbe gezeigt (Licht und Struktur bleiben).
@@ -80,7 +56,9 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   // Namensschild: Foto 1 ist das Blanko-Schild, auf das Farbe und Text live gelegt werden (immer umgefärbt, mit Aufdruck).
   const mitAufdruck = liveAufFoto && idx === 0;
   // Das Foto wird von Anfang an in der gewählten Farbe gezeigt (auch in der Vorauswahl), sobald der Kaufbereich eine Farbe gemeldet hat.
-  const aktiv = !!modus && (mitAufdruck || farbKey.replace(/\|/g, "") !== "");
+  const orig = ORIGINALFARBE[slug];
+  const istOriginalfarbe = !!orig && idx === 0 && !!w.farbe && farbAbstand(w.farbe, orig) < 45;
+  const aktiv = !!modus && !istOriginalfarbe && (mitAufdruck || farbKey.replace(/\|/g, "") !== "");
 
   const foto = idx >= 0 ? fotos[idx] : null;
   const fotoSrc = foto?.src;

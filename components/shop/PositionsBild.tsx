@@ -3,6 +3,8 @@ import type { Auswahl } from "@/lib/shop/auswahl";
 import { SCHRIFTEN } from "@/lib/shop/schriften";
 import { formatAusOptionen, istFormatSchluessel, standardFormat, zeilenAnzahl } from "@/lib/shop/textformat";
 import ProductImage from "./ProductImage";
+import FotoMiniatur, { miniaturModus } from "./FotoMiniatur";
+import { fotosFuer, MIT_AUFDRUCK, TAG_FOTO } from "@/lib/shop/fotos";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilHexe } from "@/lib/shop/teilfarben";
 import { LINIENFARBE_KEY } from "@/lib/shop/textfarbe";
@@ -19,6 +21,18 @@ export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Mus
   if (pers && schrift) {
     const nur = Object.fromEntries(Object.entries(a.optionen).filter(([k]) => istFormatSchluessel(k)));
     format = { fmt: formatAusOptionen(nur, zeilenAnzahl(pers)) ?? standardFormat(zeilenAnzahl(pers)), breite: schrift.breite, schriftId: schrift.id };
+  }
+  // Echtes Foto statt Zeichnung: Foto 1 (bzw. Foto des gewählten Wochentags) in gewählter Farbe, bei Wunschtext-Artikeln mit Aufdruck (wie die Galerie)
+  const kombiFarben = kombiVon(p, a)?.farben.map((f) => f.hex);
+  const tagKurz = p.optionen.find((g) => g.id === "tag")?.optionen.find((o) => o.id === a.optionen.tag)?.label.slice(0, 2);
+  const fotoNr = p.slug === "wochentags-untersetzer-einzeln" && tagKurz ? TAG_FOTO[tagKurz] ?? 0 : 0;
+  const fotos = fotosFuer(p.slug);
+  if (fotos[fotoNr] && !p.teile && (MIT_AUFDRUCK.includes(p.slug) || miniaturModus(p.slug, fotoNr)) && (farbeHex || kombiFarben)) {
+    const w = {
+      farbe: farbeHex, text: a.text || undefined, family: schrift?.family, format, textfarbe: textfarbeHex, farben: kombiFarben,
+      linienfarbe: p.linienfarbe ? farben?.find((f) => f.id === a.optionen[LINIENFARBE_KEY])?.hex : undefined,
+    };
+    return <FotoMiniatur slug={p.slug} src={fotos[fotoNr].src} alt={`${p.name}, Vorschau deiner Auswahl`} w={w} fotoNr={fotoNr} />;
   }
   return <ProductImage form={p.form} farbe={farbeHex ?? p.grundfarbe} text={a.text || undefined} family={schrift?.family} format={format} textfarbe={textfarbeHex} linienfarbe={p.linienfarbe ? farben?.find((f) => f.id === a.optionen[LINIENFARBE_KEY])?.hex : undefined} typ={typ} farben={kombiVon(p, a)?.farben.map((f) => f.hex)} teileFarben={farben ? teilHexe(p, a, farben) : undefined} />;
 }

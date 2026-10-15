@@ -91,7 +91,7 @@ export function fotosFuer(slug: string): Foto[] {
 export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "wochentags-untersetzer-set": "kombi",
   "wochentags-untersetzer-einzeln": "kombi",
-  "stiftebecher-tasse": "farbe",
+  "stiftebecher-tasse": "becher",
   "namensschild": "schild",
   "spruch-untersetzer": "untersetzer",
   "geister-set": "farbe",
@@ -105,11 +105,15 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
 /** Fotos ohne Maske, die nie umgefärbt werden (Kork-Rückseite): Slug -> Fotonummern (0-basiert). */
 export const OHNE_UMFAERBEN: Record<string, number[]> = {
   "spruch-untersetzer": [1],
+  "stiftebecher-tasse": [1, 2, 3], // Alex' Originalfotos bleiben unverändert (Beispielstücke)
   "wochentags-untersetzer-set": [5],
   "wochentags-untersetzer-einzeln": [5],
   "halloween-untersetzer-set": [5],
   "halloween-untersetzer-einzeln": [3],
 };
+
+/** Foto 1 zeigt diese echte Farbe: Ist sie gewählt (Abstand klein), erscheint das unveränderte Foto statt des umgefärbten Canvas. */
+export const ORIGINALFARBE: Record<string, string> = { "stiftebecher-tasse": "#1c1c1c" };
 
 /** Artikel, bei denen Foto 1 die Live-Vorschau ist: Farben und Text des Kunden werden direkt aufs Foto gelegt (kein extra „Deine Wahl Live“). */
 export const MIT_AUFDRUCK = ["namensschild", "spruch-untersetzer", "stiftebecher-tasse"];
