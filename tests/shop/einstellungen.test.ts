@@ -46,7 +46,7 @@ test("Wunschtext-Pause: jeder Artikel mit Personalisierung gesperrt (auch Standa
   const { bestellEingabe, kontext, neueDeps } = await import("./mocks");
   const ctx = { ipHash: "ip-hash-0123456789abcdef", kontext: kontext(), wunschtextPausiert: true };
   const pers = PRODUKTE.filter((p) => p.personalisierung);
-  assert.ok(pers.length >= 2, "mind. Spruch-Untersetzer und Tischschild");
+  assert.ok(pers.length >= 2, "mind. individueller Untersetzer und Tischschild");
   for (const p of pers) {
     const { deps } = neueDeps();
     const pe = p.personalisierung!;
