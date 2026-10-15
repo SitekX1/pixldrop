@@ -110,13 +110,13 @@ test("Brief: Box, nicht brieffaehige Artikel und Mischkorb schliessen Brief aus"
   assert.deepEqual(arten(versandOptionen([{ slug: "spruch-untersetzer", menge: 1, optionen: { kork: "mit" } }])), ["brief"]);
 });
 
-test("Set zaehlt mit seinen Stuecken: Grossbrief nimmt 20 Untersetzer ohne Kork, 25 mit Kork", () => {
+test("Set zaehlt mit seinen Stuecken: Grossbrief nimmt 25 Untersetzer ohne Kork, 20 mit Kork", () => {
   const set = (menge: number, optionen: Record<string, unknown> = { box: "ohne" }) => versandOptionen([{ slug: "wochentags-untersetzer-set", menge, optionen }]);
   assert.equal(set(1)[0].cent, 180);
-  assert.equal(set(4)[0].cent, 180, "20 Stueck ohne Kork");
-  assert.equal(set(5)[0].cent, 290, "25 Stueck ohne Kork: Maxibrief");
-  assert.equal(set(5, { box: "ohne", kork: "mit" })[0].cent, 180, "25 Stueck mit Kork");
-  assert.equal(set(6, { box: "ohne", kork: "mit" })[0].cent, 290, "30 Stueck mit Kork: Maxibrief");
+  assert.equal(set(5)[0].cent, 180, "25 Stueck ohne Kork");
+  assert.equal(set(6)[0].cent, 290, "30 Stueck ohne Kork: Maxibrief");
+  assert.equal(set(4, { box: "ohne", kork: "mit" })[0].cent, 180, "20 Stueck mit Kork");
+  assert.equal(set(5, { box: "ohne", kork: "mit" })[0].cent, 290, "25 Stueck mit Kork: Maxibrief");
 });
 
 test("Hohlraum: kleine Artikel reisen in der Tasse mit (kein eigenes Volumen)", () => {
