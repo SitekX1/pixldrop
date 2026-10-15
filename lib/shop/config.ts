@@ -50,10 +50,10 @@ export const TEXTE = {
   widerrufNormal: "14 Tage Widerruf, Rücksendekosten trägt der Kunde.",
 } as const;
 
-// TESTWERTE, damit der Server Bestellungen annimmt. Alex ersetzt sie durch die echten Werte
-// (null = nicht angegeben, dann ist nichts bestellbar). Artikelpreise: je Artikel in lib/shop/produkte.ts.
-export const VERSAND_CENT: number | null = 490; // TESTWERT 4,90 EUR
-export const LIEFERZEIT_TEXT: string | null = "3-5 Werktage"; // TESTWERT
+// Versand-Pauschale nur fuer Angebote (individueller Druck); Artikelversand rechnet lib/shop/versand.ts.
+// Lieferzeit: Alex 2026-10-15 (im Panel-Reiter Einstellungen aenderbar). Artikelpreise: lib/shop/produkte.ts.
+export const VERSAND_CENT: number | null = 490; // 4,90 EUR
+export const LIEFERZEIT_TEXT: string | null = "3 bis 5 Werktage";
 
 export const VERKAEUFER = {
   name: "Alex Sitek",
