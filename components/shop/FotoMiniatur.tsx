@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, darfUmfaerben, UMFAERBEN } from "@/lib/shop/fotos";
+import { MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, darfUmfaerben, UMFAERBEN } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
 import { farbAbstand, vorbereiteFoto } from "./fotoFaerben";
 import type { VorschauWerte } from "./Vorschau";
@@ -22,7 +22,7 @@ export default function FotoMiniatur({ slug, src, alt, w, fotoNr = 0 }: { slug: 
   const canvas = useRef<HTMLCanvasElement>(null);
   const modus = miniaturModus(slug, fotoNr);
   const orig = ORIGINALFARBE[slug];
-  const original = !!orig && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND;
+  const original = !!orig && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND && (!ORIGINAL_LINIE[slug] || (!!w.linienfarbe && farbAbstand(w.linienfarbe, ORIGINAL_LINIE[slug]) < ORIGINAL_ABSTAND));
   const aktiv = !!modus && !original && (!!w.farbe || !!w.farben);
   const [fertig, setFertig] = useState<string | null>(null);
   const schluessel = `${w.farbe}|${w.textfarbe}|${w.linienfarbe}|${(w.farben ?? []).join()}`;

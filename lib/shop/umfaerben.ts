@@ -41,7 +41,11 @@ export function zielFarben(modus: UmfaerbModus, z: UmfaerbZiel): ([number, numbe
 function klassen(modus: UmfaerbModus, r: number, g: number, b: number, l: number, out: number[], lin = 0) {
   switch (modus) {
     case "farbe": case "becher": out[0] = 1; return;
-    case "grund": out[0] = klemme((0.3 - l) / 0.12); return;
+    case "grund": {
+      // nur der dunkle, unbunte Grund: dunkle Motivfarben (Orange im Schatten) und Weiß bleiben unberührt
+      const mx = Math.max(r, g, b), sat = ((mx - Math.min(r, g, b)) / (mx + 0.02)) * klemme((l - 0.08) / 0.1); // sehr dunkle Pixel: Farbrauschen ignorieren
+      out[0] = klemme((0.3 - l) / 0.12) * (1 - klemme((sat - 0.22) / 0.18)); return;
+    }
     case "untersetzer": out[1] = lin; out[0] = 1 - lin; return;
     case "schild": {
       const bl = klemme((b - r - 0.1) / 0.15);
@@ -68,7 +72,7 @@ export interface Vorbereitet {
 function kurve(modus: UmfaerbModus, c: number, v: number): number {
   if ((modus === "kombi" || modus === "untersetzer") && c >= 1) return 0.78 + 0.22 * v;
   if (modus === "untersetzer" || modus === "grund") return 0.6 + 0.3 * v;
-  return 0.18 + 0.76 * Math.pow(v, 0.7);
+  return 0.16 + 0.72 * Math.pow(v, 0.7); // max. 0,88: Weiß wird nicht überstrahlt
 }
 
 /** Mittelwert 5 x 5 (getrennt, Rand wird geklemmt). */

@@ -116,11 +116,13 @@ export const OHNE_UMFAERBEN: Record<string, number[]> = {
 /** Foto 1 zeigt diese echte Farbe: Ist sie gewählt (Abstand klein), erscheint das unveränderte Foto statt des umgefärbten Canvas. */
 export const ORIGINALFARBE: Record<string, string> = {
   "stiftebecher-tasse": "#1c1c1c", "namensschild": "#1c1c1c", "kuerbis-teelichthalter": "#1c1c1c",
-  "halloween-untersetzer-set": "#1c1c1c", "halloween-untersetzer-einzeln": "#1c1c1c",
+  "spruch-untersetzer": "#1c1c1c", "halloween-untersetzer-set": "#1c1c1c", "halloween-untersetzer-einzeln": "#1c1c1c",
   "geister-set": "#f4f1ea", "geister-set-klein": "#f4f1ea", "kuerbis-klein-set": "#ff8a1f",
 }
 /** Abstand (RGB), bis zu dem die gewählte Farbe als "Farbe des Fotos" gilt: dann Originalfoto statt Umfärbung. */
 export const ORIGINAL_ABSTAND = 55;
+/** Zusätzlich nötige Linienfarbe für das Originalfoto (Individueller Untersetzer: Schwarz + weiße Linien = Foto). */
+export const ORIGINAL_LINIE: Record<string, string> = { "spruch-untersetzer": "#f4f1ea" };
 
 /** Welche Fotos beim Farbwechsel umgefärbt werden dürfen: nur Foto 1 (Live-Vorschau); alle weiteren sind Alex' Originale ("Foto: Beispielstück").
  *  Ausnahme: Einzel-Wochentags-Untersetzer, dort zeigt jedes der 5 Tagesfotos die gewählte Farbkombination. */

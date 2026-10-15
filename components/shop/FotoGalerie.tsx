@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Form } from "@/lib/shop/produkte";
-import { MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, darfUmfaerben, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
+import { MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, darfUmfaerben, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
 import { vorbereiteFoto, farbAbstand } from "./fotoFaerben";
 import { LiveProductImage, useVorschauWerte } from "./Vorschau";
@@ -17,8 +17,9 @@ const vorbereiten = (src: string, modus: UmfaerbModus) => vorbereiteFoto(src, mo
 // Galerie-Hauptbild: echte Fotos als Blättergalerie, dazu die Live-Vorschau ("Deine Wahl").
 // Ändert der Kunde die Farbe, wird das Foto in dieser Farbe gezeigt (Licht und Struktur bleiben).
 // Ändert er den Wunschtext, springt die Anzeige auf die Live-Vorschau (Text lässt sich nicht ins Foto setzen).
-export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { slug: string; form: Form; grundfarbe: string; fotos: Foto[]; name: string }) {
-  const w = useVorschauWerte();
+export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorText }: { /** Standardtext: erscheint sofort als Aufdruck, bevor der Kaufbereich geladen ist (Handy, langsames Netz) */ vorText?: string; slug: string; form: Form; grundfarbe: string; fotos: Foto[]; name: string }) {
+  const wRoh = useVorschauWerte();
+  const w = wRoh.text === undefined && vorText ? { ...wRoh, text: vorText, family: wRoh.family ?? "var(--font-sf-montserrat), sans-serif" } : wRoh;
   const [idx, setIdx] = useState(0); // -1 = Live-Vorschau
   // Namensschild: Foto 1 = Blanko-Schild (ganzes Objekt in der Schildfarbe, Text kommt als Aufdruck), die übrigen = Beispielfotos mit Schrift
   const ohneUmfaerben = !darfUmfaerben(slug, idx); // z. B. Kork-Rückseite: Foto bleibt, wie es ist
@@ -57,7 +58,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   const mitAufdruck = liveAufFoto && idx === 0;
   // Das Foto wird von Anfang an in der gewählten Farbe gezeigt (auch in der Vorauswahl), sobald der Kaufbereich eine Farbe gemeldet hat.
   const orig = ORIGINALFARBE[slug];
-  const istOriginalfarbe = !!orig && idx === 0 && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND;
+  const istOriginalfarbe = !!orig && idx === 0 && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND && (!ORIGINAL_LINIE[slug] || (!!w.linienfarbe && farbAbstand(w.linienfarbe, ORIGINAL_LINIE[slug]) < ORIGINAL_ABSTAND));
   const aktiv = !!modus && !istOriginalfarbe && (mitAufdruck || farbKey.replace(/\|/g, "") !== "");
 
   const foto = idx >= 0 ? fotos[idx] : null;
