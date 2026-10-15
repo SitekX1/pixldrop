@@ -110,13 +110,13 @@ test("Brief: Box, nicht brieffaehige Artikel und Mischkorb schliessen Brief aus"
   assert.deepEqual(arten(versandOptionen([{ slug: "spruch-untersetzer", menge: 1, optionen: { kork: "mit" } }])), ["brief"]);
 });
 
-test("Set zaehlt mit seinen Stuecken (5 Untersetzer 15 mm + Umschlag = Grossbrief, mit Kork Maxibrief)", () => {
-  const o = versandOptionen([{ slug: "wochentags-untersetzer-set", menge: 1, optionen: { box: "ohne" } }]);
-  assert.deepEqual(arten(o), ["brief"]);
-  assert.equal(o[0].cent, 180);
-  const k = versandOptionen([{ slug: "wochentags-untersetzer-set", menge: 1, optionen: { box: "ohne", kork: "mit" } }]);
-  assert.equal(k[0].cent, 290, "5 x (3 + 1 mm Kork) + Umschlag > 20 mm");
-  assert.equal(versandOptionen([{ slug: "wochentags-untersetzer-set", menge: 2, optionen: { box: "ohne" } }])[0].cent, 290, "10 Stueck: Maxibrief");
+test("Set zaehlt mit seinen Stuecken: Grossbrief nimmt 6 Stapel (3 x 2) zu je 5 Untersetzern", () => {
+  const set = (menge: number, optionen: Record<string, unknown> = { box: "ohne" }) => versandOptionen([{ slug: "wochentags-untersetzer-set", menge, optionen }]);
+  assert.equal(set(1)[0].cent, 180);
+  assert.equal(set(6)[0].cent, 180, "30 Stueck = 6 Stapel x 5 (15 mm + Umschlag)");
+  assert.equal(set(7)[0].cent, 290, "35 Stueck: Maxibrief");
+  assert.equal(set(1, { box: "ohne", kork: "mit" })[0].cent, 180, "5 x 4 mm = 20 mm geht als 2 Stapel");
+  assert.equal(set(6, { box: "ohne", kork: "mit" })[0].cent, 290, "30 Stueck mit Kork zu dick fuer 6 Stapel");
 });
 
 test("Hohlraum: kleine Artikel reisen in der Tasse mit (kein eigenes Volumen)", () => {

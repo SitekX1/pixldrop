@@ -42,9 +42,14 @@ export const VERSAND_PREISE: Record<"hermes" | "dhl", Record<VersandStufe, { lab
 
 /** Brief (Deutsche Post), nur fuer flache Untersetzer OHNE Box. VORLAEUFIG: Stueckgrenzen. */
 export const VERSAND_BRIEF = {
-  grossbrief: { label: "Großbrief (Deutsche Post)", cent: 180, maxStueck: 5, maxDickeMm: 20 }, // 35,3 x 25 x 2 cm, 500 g
-  maxibrief: { label: "Maxibrief (Deutsche Post)", cent: 290, maxStueck: 11, maxDickeMm: 50 }, //  35,3 x 25 x 5 cm, 1 kg
+  grossbrief: { label: "Großbrief (Deutsche Post)", cent: 180, maxStueck: 30, maxDickeMm: 20, maxG: 500 }, // 35,3 x 25 x 2 cm, 500 g
+  maxibrief: { label: "Maxibrief (Deutsche Post)", cent: 290, maxStueck: 63, maxDickeMm: 50, maxG: 1000 }, //  35,3 x 25 x 5 cm, 1 kg
 } as const;
+/** Untersetzer (Ø 90 mm) liegen als Stapel nebeneinander: 3 in der Laenge (35,3 cm) x 2 in der Breite (25 cm) = 6 Stapel. */
+export const BRIEF_STAPEL = 6;
+/** Gewicht von Umschlag + Pappe in g (Annahme). */
+export const BRIEF_UMSCHLAG_G = 50;
+export const UNTERSETZER_G = 15;
 /** Brief-Dicke: Untersetzer 3 mm (Ø 90 mm passt flach), selbstklebender Kork +1 mm (Annahme, Alex misst nach), Umschlag/Pappe 3 mm. */
 export const UNTERSETZER_DICKE_MM = 3;
 export const KORK_DICKE_MM = 1;
@@ -228,7 +233,7 @@ function mengeOk(m: unknown): number {
 /** Zulaessige Versandoptionen fuer die Positionen. Brief-faehig = NUR Brief (keine Auswahl); sonst Hermes + DHL. */
 export function versandOptionen(positionen: readonly VersandPosition[]): VersandOption[] {
   let stueck = 0;
-  let dicke = BRIEF_UMSCHLAG_MM;
+  let dicke = 0;
   let alleBrief = positionen.length > 0;
   for (const p of positionen) {
     const k = ROH[p.slug] ?? UNBEKANNT;
@@ -239,7 +244,9 @@ export function versandOptionen(positionen: readonly VersandPosition[]): Versand
   if (positionen.length === 0 || stueck < 1) return [];
 
   if (alleBrief) {
-    const passt = (x: { maxStueck: number; maxDickeMm: number }) => stueck <= x.maxStueck && dicke <= x.maxDickeMm;
+    // Stapel (Dicke je Stueck) nebeneinander: so viele Stapel wie noetig, hoechstens BRIEF_STAPEL; Gewicht inkl. Umschlag
+    const passt = (x: { maxDickeMm: number; maxG: number }) =>
+      Math.ceil(dicke / (x.maxDickeMm - BRIEF_UMSCHLAG_MM)) <= BRIEF_STAPEL && stueck * UNTERSETZER_G + BRIEF_UMSCHLAG_G <= x.maxG;
     const b = passt(VERSAND_BRIEF.grossbrief) ? VERSAND_BRIEF.grossbrief
       : passt(VERSAND_BRIEF.maxibrief) ? VERSAND_BRIEF.maxibrief : null;
     if (b) return [{ art: "brief", label: b.label, cent: b.cent, tracking: false }];
