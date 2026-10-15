@@ -5,6 +5,7 @@ import SongGrid from "@/components/SongGrid";
 import TrackedLink from "@/components/TrackedLink";
 import LegalFooter from "@/components/LegalFooter";
 import SpotifyLinkButton from "@/components/SpotifyLinkButton";
+import { SHOP_AKTIV, ENTWURF_MODUS } from "@/lib/shop/config";
 import {
   TikTokIcon,
   InstagramIcon,
@@ -125,6 +126,23 @@ export default async function Home({
             <span className="pill-btn">Jetzt spielen →</span>
             <EddieCameo side="right" targetId="pixlgame-target" />
           </TrackedLink>
+
+          {/* 3D-Druck-Shop: erscheint erst beim Livegang (NEXT_PUBLIC_SHOP_AKTIV=true, ENTWURF=false), ohne Codeänderung */}
+          {SHOP_AKTIV && !ENTWURF_MODUS && (
+            <>
+              <div className="section-label">🧩 3D-Druck</div>
+              <TrackedLink href="/3d-druck" className="card" event="shop-click">
+                <div className="card-glow" />
+                <div className="eyebrow-small">Selbst gedruckt &middot; Untersetzer &amp; Halloween-Deko</div>
+                <h3>Eddies 3D-Druck-Shop</h3>
+                <p>
+                  Untersetzer, Namensschilder, Geister und Kürbisse aus meinem 3D-Drucker. Kork, Box und Wunschtext
+                  auf Wunsch.
+                </p>
+                <span className="pill-btn">Zum Shop →</span>
+              </TrackedLink>
+            </>
+          )}
 
           <div className="section-label">🎬 Meine Tools &amp; Musik</div>
           <TrackedLink

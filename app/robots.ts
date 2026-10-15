@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SHOP_AKTIV, ENTWURF_MODUS } from "@/lib/shop/config";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -6,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // /3d-druck: Shop-Gerüst, noch nicht öffentlich
-      disallow: ["/stats", "/3d-druck"],
+      disallow: SHOP_AKTIV && !ENTWURF_MODUS ? ["/stats"] : ["/stats", "/3d-druck"],
     },
     sitemap: "https://pixldrop.de/sitemap.xml",
   };
