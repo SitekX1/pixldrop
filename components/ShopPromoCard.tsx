@@ -1,5 +1,6 @@
 import { Bricolage_Grotesque } from "next/font/google";
 import TrackedLink from "@/components/TrackedLink";
+import { Fledermaus, Netz, Kuerbis, Geist } from "@/components/shop/HalloweenSvgs";
 
 const titel = Bricolage_Grotesque({ subsets: ["latin", "latin-ext"], weight: ["800"], display: "swap" });
 
@@ -11,9 +12,13 @@ export default function ShopPromoCard() {
       <div className="card-glow" />
       <div className="shop-promo-bild" aria-hidden="true">
         <div className="shop-promo-halloween">
-          <span className="shop-promo-emoji shop-promo-e1">🎃</span>
-          <span className="shop-promo-emoji shop-promo-e2">👻</span>
-          <span className="shop-promo-emoji shop-promo-e3">🦇</span>
+          <Netz className="spw-netz spw-netz--tr" />
+          <Netz className="spw-netz spw-netz--br" />
+          <Fledermaus className="spw-bat spw-bat--1" />
+          <Fledermaus className="spw-bat spw-bat--2" />
+          <Geist className="spw-geist" />
+          <Kuerbis className="spw-kuerbis spw-kuerbis--1" />
+          <Kuerbis className="spw-kuerbis spw-kuerbis--2" />
           <span className={`shop-promo-hallotext ${titel.className}`}>Halloween</span>
         </div>
         <span className={`shop-promo-titel ${titel.className}`}>Eddies<br />3D-Druck-Shop</span>
