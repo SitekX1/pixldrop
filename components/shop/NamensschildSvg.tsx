@@ -13,13 +13,17 @@ const Y = (y: number) => 48 - y; // Druckkoordinate (y nach oben) -> SVG (y nach
 export interface ZeileFormat { fett: boolean; kursiv: boolean }
 
 export default function NamensschildSvg({
-  name, titel, schriftId, family, platte, schrift, fmtName, fmtTitel, breiteEm, nurSchrift = false,
+  name, titel, schriftId, family, platte, schrift, fmtName, fmtTitel, breiteEm, nurSchrift = false, titelSchriftId, titelFamily, titelBreiteEm,
 }: {
+  /** Eigene Schrift für die Titelzeile (ohne Angabe: dieselbe wie der Name) */ titelSchriftId?: string; titelFamily?: string; titelBreiteEm?: number;
   name: string; titel: string; schriftId: string; family: string; platte: string; schrift: string;
   fmtName: ZeileFormat; fmtTitel: ZeileFormat; /** Schätzwert Zeichenbreite (em) bis die Messung vorliegt */ breiteEm: number;
   /** Nur Balken und Text in Schildkoordinaten (mm, y nach unten) ohne Platte und Ständer: für die Foto-Vorschau */ nurSchrift?: boolean;
 }) {
   const kappe = kappeJeEm(schriftId);
+  const kappeT = kappeJeEm(titelSchriftId ?? schriftId);
+  const familyT = titelFamily ?? family;
+  const breiteT = titelBreiteEm ?? breiteEm;
   const refName = useRef<SVGTextElement>(null);
   const refTitel = useRef<SVGTextElement>(null);
   // gemessene Textbreite in mm bei Kappenhöhe 1 mm (null = noch nicht gemessen)
@@ -40,19 +44,19 @@ export default function NamensschildSvg({
       if (!el) return null;
       try {
         const w = el.getComputedTextLength();
-        return w > 0 ? w / (MESS_SIZE * kappe) : null; // mm je 1 mm Kappenhöhe
+        return w > 0 ? w / (MESS_SIZE * (el === refTitel.current ? kappeT : kappe)) : null; // mm je 1 mm Kappenhöhe
       } catch { return null; }
     };
     setMess((alt) => {
       const neu = { name: mass(refName.current), titel: mass(refTitel.current) };
       return alt.name === neu.name && alt.titel === neu.titel ? alt : neu;
     });
-  }, [name, titel, family, fmtName.fett, fmtName.kursiv, fmtTitel.fett, fmtTitel.kursiv, kappe, fontTick]);
+  }, [name, titel, family, familyT, fmtName.fett, fmtName.kursiv, fmtTitel.fett, fmtTitel.kursiv, kappe, kappeT, fontTick]);
 
-  const schaetz = (t: string, fett: boolean) => Math.max(1, t.length) * breiteEm * (fett ? 1.08 : 1) / kappe;
+  const schaetz = (t: string, fett: boolean, b = breiteEm, k = kappe) => Math.max(1, t.length) * b * (fett ? 1.08 : 1) / k;
   const kName = nameKappe(mess.name ?? schaetz(name, fmtName.fett));
-  const kTitel = titelKappe(mess.titel ?? schaetz(titel, fmtTitel.fett));
-  const stil = (f: ZeileFormat) => ({ fontFamily: family, fontWeight: f.fett ? 700 : 400, fontStyle: f.kursiv ? "italic" : "normal" } as const);
+  const kTitel = titelKappe(mess.titel ?? schaetz(titel, fmtTitel.fett, breiteT, kappeT));
+  const stil = (f: ZeileFormat, fam = family) => ({ fontFamily: fam, fontWeight: f.fett ? 700 : 400, fontStyle: f.kursiv ? "italic" : "normal" } as const);
 
   // Zeichnung: 196,5 x 61 mm in die 100er-Fläche einpassen
   const s = 94 / 196.5;
@@ -62,10 +66,10 @@ export default function NamensschildSvg({
     <>
       <rect x={NS.zoneL} y={Y(NS.balkenOben)} width={NS_BREITE} height={NS.balkenOben - NS.balkenUnten} fill={schrift} />
       <text x={NS.mitte} y={Y(NS.nameGrundlinie)} textAnchor="middle" fontSize={kName / kappe} fill={schrift} style={stil(fmtName)}>{name}</text>
-      <text x={NS.mitte} y={Y(NS.titelGrundlinie)} textAnchor="middle" fontSize={kTitel / kappe} fill={schrift} style={stil(fmtTitel)}>{titel}</text>
+      <text x={NS.mitte} y={Y(NS.titelGrundlinie)} textAnchor="middle" fontSize={kTitel / kappeT} fill={schrift} style={stil(fmtTitel, familyT)}>{titel}</text>
       {/* unsichtbare Messtexte (feste Größe), liefern die echte Textbreite der gewählten Schrift */}
       <text ref={refName} x="0" y="0" fontSize={MESS_SIZE} visibility="hidden" style={stil(fmtName)}>{name}</text>
-      <text ref={refTitel} x="0" y="0" fontSize={MESS_SIZE} visibility="hidden" style={stil(fmtTitel)}>{titel}</text>
+      <text ref={refTitel} x="0" y="0" fontSize={MESS_SIZE} visibility="hidden" style={stil(fmtTitel, familyT)}>{titel}</text>
     </>
   );
   if (nurSchrift) return <g>{inhalt}</g>;

@@ -8,6 +8,7 @@ import { fotosFuer, liveIdx, MIT_AUFDRUCK, TAG_FOTO } from "@/lib/shop/fotos";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilHexe } from "@/lib/shop/teilfarben";
 import { LINIENFARBE_KEY } from "@/lib/shop/textfarbe";
+import { SCHRIFT_TITEL_KEY } from "@/lib/shop/schriften";
 
 export function kombiVon(p: Produkt, a: Auswahl) {
   return p.kombinationen?.find((k) => k.id === a.optionen[KOMBI_KEY]);
@@ -17,10 +18,11 @@ export function kombiVon(p: Produkt, a: Auswahl) {
 export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Muster", farben }: { p: Produkt; a: Auswahl; farbeHex?: string; textfarbeHex?: string; typ?: string; /** Lagerfarben: nötig für mehrteilige Artikel (teilFarben) */ farben?: Farbe[] }) {
   const pers = p.personalisierung;
   const schrift = pers ? SCHRIFTEN.find((s) => s.id === (pers.festeSchrift ?? a.schriftId)) : undefined;
+  const titelSchrift = pers?.schriftJeZeile ? SCHRIFTEN.find((s) => s.id === a.optionen[SCHRIFT_TITEL_KEY]) : undefined;
   let format;
   if (pers && schrift) {
     const nur = Object.fromEntries(Object.entries(a.optionen).filter(([k]) => istFormatSchluessel(k)));
-    format = { fmt: formatAusOptionen(nur, zeilenAnzahl(pers)) ?? standardFormat(zeilenAnzahl(pers)), breite: schrift.breite, schriftId: schrift.id };
+    format = { fmt: formatAusOptionen(nur, zeilenAnzahl(pers)) ?? standardFormat(zeilenAnzahl(pers)), breite: schrift.breite, schriftId: schrift.id, ...(titelSchrift ? { titel: { schriftId: titelSchrift.id, breite: titelSchrift.breite, family: titelSchrift.family } } : {}) };
   }
   // Echtes Foto statt Zeichnung: Foto 1 (bzw. Foto des gewählten Wochentags) in gewählter Farbe, bei Wunschtext-Artikeln mit Aufdruck (wie die Galerie)
   const kombiFarben = kombiVon(p, a)?.farben.map((f) => f.hex);

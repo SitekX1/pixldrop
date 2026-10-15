@@ -49,7 +49,8 @@ export function wunschtextKurzliste(positionen: KurzPosition[]): string[] {
     const groesse = `Größe ${GROESSEN.find((x) => x.id === g)?.label ?? g}`;
     const sf = typeof p.optionen.Schriftfarbe === "string" ? `Schriftfarbe ${p.optionen.Schriftfarbe}` : null;
     const lf = typeof p.optionen.Linienfarbe === "string" ? `Linienfarbe ${p.optionen.Linienfarbe}` : null;
-    const teile = [p.schrift ? `Schrift ${p.schrift}` : null, sf, lf, ...format, groesse].filter(Boolean);
+    const sn = typeof p.optionen["Schrift Name"] === "string" ? `Schrift Name ${p.optionen["Schrift Name"]}, Schrift Titel ${p.optionen["Schrift Titel"]}` : null;
+    const teile = [sn ?? (p.schrift ? `Schrift ${p.schrift}` : null), sf, lf, ...format, groesse].filter(Boolean);
     return `- ${p.menge} × ${p.name}: „${kuerze(p.text as string)}“ (${teile.join(", ")})`;
   });
 }

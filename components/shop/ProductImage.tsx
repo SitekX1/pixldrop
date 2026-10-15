@@ -5,7 +5,7 @@ import type { TextFormat } from "@/lib/shop/textformat";
 import NamensschildSvg from "./NamensschildSvg";
 
 // Textformat der Vorschau (Fett/Kursiv je Zeile, Größenstufe) und Zeichenbreite der Schrift für den Umbruch.
-export interface VorschauFormat { fmt: TextFormat; breite: number; /** Schrift-ID (für Kappenhöhe, Namensschild) */ schriftId?: string }
+export interface VorschauFormat { fmt: TextFormat; breite: number; /** Namensschild: eigene Schrift der Titelzeile */ titel?: { schriftId: string; breite: number; family: string }; /** Schrift-ID (für Kappenhöhe, Namensschild) */ schriftId?: string }
 
 // Mehrzeiliger, zentrierter SVG-Text (Mittelpunkt cy), Zeilenabstand 1,15.
 function Zeilen({ zeilen, size, x, cy, fill, family, weight = 700, kursiv = false }: { zeilen: string[]; size: number; x: number; cy: number; fill: string; family: string; weight?: number; kursiv?: boolean }) {
@@ -43,7 +43,7 @@ function Schild({ c, text, family, format, tc: tcWahl }: { c: string; text?: str
   return (
     <NamensschildSvg
       name={name ?? ""} titel={titel ?? ""} schriftId={format?.schriftId ?? "montserrat"} family={family ?? "sans-serif"}
-      platte={c} schrift={tc} breiteEm={format?.breite ?? 0.6}
+      platte={c} schrift={tc} breiteEm={format?.breite ?? 0.6} titelSchriftId={format?.titel?.schriftId} titelFamily={format?.titel?.family} titelBreiteEm={format?.titel?.breite}
       fmtName={{ fett: fm?.fett[0] === true, kursiv: fm?.kursiv[0] === true }}
       fmtTitel={{ fett: fm?.fett[1] === true, kursiv: fm?.kursiv[1] === true }}
     />

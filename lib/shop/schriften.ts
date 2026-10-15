@@ -18,6 +18,8 @@ export interface Schrift {
   fehlendeZeichen: string;
 }
 /** Zusatzbreite des fetten Schnitts gegenüber dem Standardschnitt. */
+/** optionen-Schlüssel der Titelschrift (Namensschild: eigene Schrift je Zeile; die Namensschrift bleibt `schriftId`, alte Bestellungen ohne diesen Schlüssel haben eine Schrift für beide Zeilen). */
+export const SCHRIFT_TITEL_KEY = "schriftTitel";
 export const FETT_FAKTOR = 1.08;
 
 // Kuratierte Auswahl (alle SIL OFL 1.1 laut Google Fonts, kommerzielle Nutzung und Druck erlaubt).
@@ -77,4 +79,16 @@ export function fehlendeZeichenMeldung(text: string, schriftId: string): string 
   const s = SCHRIFTEN.find((x) => x.id === schriftId)!;
   const z = f.map((c) => `„${c}“`).join(", ");
   return `Die Schrift ${s.name} hat kein ${z}. Wähle eine andere Schrift${f.some((c) => c in UMLAUT_ERSATZ) ? " oder ersetze es (z. B. durch „ae“)" : ""}.`;
+}
+
+/** Anzeigezeilen der Schrift einer Position (Warenkorb, Bon): ["Schrift", Name] bzw. beim Namensschild ["Schrift Name", ...] und ["Schrift Titel", ...]. Alte Positionen ohne Titelschrift: beide gleich. */
+export function schriftZeilen(
+  p: { personalisierung: { festeSchrift?: string; schriftJeZeile?: boolean } | null },
+  a: { text: string; schriftId: string | null; optionen: Record<string, string> },
+): [string, string][] {
+  if (!p.personalisierung || !a.text) return [];
+  const name = SCHRIFTEN.find((s) => s.id === (p.personalisierung?.festeSchrift ?? a.schriftId))?.name ?? "";
+  if (!p.personalisierung.schriftJeZeile) return [["Schrift", name]];
+  const titel = SCHRIFTEN.find((s) => s.id === a.optionen[SCHRIFT_TITEL_KEY])?.name ?? name;
+  return [["Schrift Name", name], ["Schrift Titel", titel]];
 }

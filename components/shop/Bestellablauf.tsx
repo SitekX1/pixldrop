@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { LINIENFARBE_KEY, TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
-import { SCHRIFTEN } from "@/lib/shop/schriften";
+import { SCHRIFTEN, schriftZeilen } from "@/lib/shop/schriften";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilFarbenVon, teilFarbenText } from "@/lib/shop/teilfarben";
@@ -322,7 +322,7 @@ export default function Bestellablauf({
                   const lfarbe = p.linienfarbe ? farben.find((f) => f.id === a.optionen[LINIENFARBE_KEY]) : undefined;
                   const optText = [
                     ...p.optionen.map((g) => [g.label, g.optionen.find((o) => o.id === (a.optionen[g.id] ?? (g.optional ? g.optionen[0].id : undefined)))?.label ?? ""] as const),
-                    ...(p.personalisierung && a.text ? [["Schrift", SCHRIFTEN.find((s) => s.id === (p.personalisierung?.festeSchrift ?? a.schriftId))?.name ?? ""] as const] : []),
+                    ...schriftZeilen(p, a),
                     ...(lfarbe ? [["Linienfarbe", lfarbe.name] as const] : []),
                     ...(tfarbe ? [["Schriftfarbe", tfarbe.name] as const] : []),
                     ...formatAnzeigeAusOptionen(p.personalisierung, a.optionen),

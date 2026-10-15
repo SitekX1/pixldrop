@@ -5,7 +5,7 @@ import "server-only";
 // uebernommen, nur Artikel-Slug, Menge und Auswahl.
 import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "../produkte";
 import type { Farbe } from "../farben";
-import { SCHRIFTEN, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung } from "../schriften";
+import { SCHRIFTEN, SCHRIFT_TITEL_KEY, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung } from "../schriften";
 import {
   formatAnzeige, formatAusOptionen, formatUnerlaubt, istFormatSchluessel, pruefePasst, zeilenAnzahl,
 } from "../textformat";
@@ -158,7 +158,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
 
     // Optionen: jede Gruppe des Artikels braucht eine gueltige Auswahl, nichts darueber hinaus
     // Textformat-Schluessel (fett_i, kursiv_i, groesse) gehoeren nicht zu den Optionsgruppen und werden unten geprueft.
-    const { [TEXTFARBE_KEY]: textfarbeRoh, [LINIENFARBE_KEY]: linienRoh, [KOMBI_KEY]: _kombiRoh, ...optAlle } = istObjekt(roh.optionen) ? roh.optionen : ({} as Record<string, unknown>);
+    const { [TEXTFARBE_KEY]: textfarbeRoh, [SCHRIFT_TITEL_KEY]: schriftTitelRoh, [LINIENFARBE_KEY]: linienRoh, [KOMBI_KEY]: _kombiRoh, ...optAlle } = istObjekt(roh.optionen) ? roh.optionen : ({} as Record<string, unknown>);
     if (!produkt.kombinationen && istObjekt(roh.optionen) && KOMBI_KEY in roh.optionen) return fehler("option_ungueltig", "Ungültige Auswahl.");
     const optIn: Record<string, unknown> = {};
     const formatIn: Record<string, unknown> = {};
@@ -218,18 +218,31 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       const wunsch = pers.festeSchrift ?? (typeof roh.schriftId === "string" && roh.schriftId ? roh.schriftId : pers.standardSchrift ?? "");
       const s = SCHRIFTEN.find((x) => x.id === wunsch);
       if (!s) return fehler("text_ungueltig", "Bitte wähle eine Schrift.");
-      if (fehlendeZeichen(zeilen.join(""), s.id).length > 0) {
-        return fehler("schrift_zeichen_fehlen", fehlendeZeichenMeldung(zeilen.join(""), s.id) ?? "Die Schrift kann nicht alle Zeichen darstellen.");
+      // Namensschild: optional eigene Schrift für die Titelzeile (nur Schriften aus der Shop-Liste); ohne Angabe gilt die Namensschrift
+      let sTitel = s;
+      if (schriftTitelRoh !== undefined) {
+        if (!pers.schriftJeZeile) return fehler("option_ungueltig", "Ungültige Auswahl.");
+        const st = typeof schriftTitelRoh === "string" ? SCHRIFTEN.find((x) => x.id === schriftTitelRoh) : undefined;
+        if (!st) return fehler("text_ungueltig", "Bitte wähle eine Schrift für den Titel.");
+        sTitel = st;
+      }
+      const schriftenJeZeile = pers.schriftJeZeile ? [s, sTitel] : s;
+      for (let zi = 0; zi < zeilen.length; zi++) {
+        const sz = pers.schriftJeZeile ? (zi === 1 ? sTitel : s) : s;
+        if (fehlendeZeichen(zeilen[zi], sz.id).length > 0) {
+          return fehler("schrift_zeichen_fehlen", fehlendeZeichenMeldung(zeilen[zi], sz.id) ?? "Die Schrift kann nicht alle Zeichen darstellen.");
+        }
       }
       // Textformat: nur gelistete Schalter/Stufen, nur Fähigkeiten der Schrift, Text muss aufs Stück passen
       const fmt = formatAusOptionen(formatIn, zeilenAnzahl(pers));
       if (!fmt) return fehler("option_ungueltig", "Ungültige Formatwahl.");
-      if (formatUnerlaubt(fmt, s)) return fehler("option_ungueltig", "Diese Formatwahl ist bei dieser Schrift nicht verfügbar.");
-      if (!pruefePasst(pers, zeilen, s, fmt).passt) return fehler("text_passt_nicht", "Passt nicht aufs Stück – bitte kleiner wählen oder kürzen.");
+      if (formatUnerlaubt(fmt, schriftenJeZeile)) return fehler("option_ungueltig", "Diese Formatwahl ist bei dieser Schrift nicht verfügbar.");
+      if (!pruefePasst(pers, zeilen, schriftenJeZeile, fmt).passt) return fehler("text_passt_nicht", "Passt nicht aufs Stück – bitte kleiner wählen oder kürzen.");
       for (const [k, v] of formatAnzeige(pers, fmt)) optionen[k] = v;
       formatWahl = formatIn;
       text = zeilen.join("\n");
       schriftId = s.id;
+      if (pers.schriftJeZeile) { optionen["Schrift Name"] = s.name; optionen["Schrift Titel"] = sTitel.name; }
       // Schriftfarbe (optional, Variantenwahl ohne Preis-/Widerrufswirkung): nur vorrätige Lagerfarbe, die sich von der Grundfarbe abhebt
       if (textfarbeRoh !== undefined) {
         const tf = typeof textfarbeRoh === "string" ? ctx.farben.find((f) => f.id === textfarbeRoh) : undefined;
@@ -237,6 +250,8 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
         if (farbe && !textfarbeErlaubt(farbe, tf)) return fehler("textfarbe_ungueltig", `${TEXTFARBE_HINWEIS}. Bitte wähle eine andere Schriftfarbe.`);
         optionen["Schriftfarbe"] = tf.name;
       }
+    } else if (schriftTitelRoh !== undefined) {
+      return fehler("option_ungueltig", "Eine Schrift gibt es nur mit Wunschtext.");
     } else if (textfarbeRoh !== undefined) {
       return fehler("option_ungueltig", "Eine Schriftfarbe gibt es nur mit Wunschtext.");
     } else if (Object.keys(formatIn).length > 0) {

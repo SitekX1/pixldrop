@@ -38,7 +38,7 @@ export default function NamensschildAufdruck({ w }: { w: VorschauWerte }) {
             <NamensschildSvg
               nurSchrift
               name={name ?? ""} titel={titel ?? ""} schriftId={w.format?.schriftId ?? "montserrat"} family={w.family ?? "sans-serif"}
-              platte={w.farbe ?? "#1c1c1c"} schrift={schrift} breiteEm={w.format?.breite ?? 0.6}
+              platte={w.farbe ?? "#1c1c1c"} schrift={schrift} breiteEm={w.format?.breite ?? 0.6} titelSchriftId={w.format?.titel?.schriftId} titelFamily={w.format?.titel?.family} titelBreiteEm={w.format?.titel?.breite}
               fmtName={{ fett: fm?.fett[0] === true, kursiv: fm?.kursiv[0] === true }}
               fmtTitel={{ fett: fm?.fett[1] === true, kursiv: fm?.kursiv[1] === true }}
             />

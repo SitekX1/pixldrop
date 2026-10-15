@@ -5,13 +5,14 @@ import { formatPreis } from "@/lib/shop/config";
 import { ORIGINALFARBE, ORIGINAL_ABSTAND } from "@/lib/shop/fotos";
 import { farbAbstand } from "./fotoFaerben";
 import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
-import { SCHRIFTEN, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung, umlauteErsetzen } from "@/lib/shop/schriften";
+import { SCHRIFTEN, SCHRIFT_TITEL_KEY, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung, umlauteErsetzen } from "@/lib/shop/schriften";
 import { GROESSEN, STANDARD_GROESSE, type GroesseId } from "@/lib/shop/umbruch";
 import { messeEm } from "@/lib/shop/textmessung";
 import {
   NICHT_VERFUEGBAR, PASST_NICHT, formatZuOptionen, echtPasst, groessteDiePasst, pruefePasst, standardFormat, zeilenAnzahl, type TextFormat,
 } from "@/lib/shop/textformat";
 import ProductImage from "./ProductImage";
+import SchriftWahl from "./SchriftWahl";
 import { useKaufRegistrieren, useVorschauSetzen } from "./Vorschau";
 import type { Farbe } from "@/lib/shop/farben";
 import { TEXTE } from "@/lib/shop/config";
@@ -53,6 +54,7 @@ export default function ProductBuy({
   const pers = produkt.personalisierung;
   const [zeilen, setZeilen] = useState<string[]>(() => (pers?.zeilen ? pers.zeilen.map((z) => z.standard) : pers ? [pers.standardText ?? ""] : []));
   const [schriftId, setSchriftId] = useState(pers?.festeSchrift ?? pers?.standardSchrift ?? SCHRIFTEN[0].id);
+  const [schriftTitelId, setSchriftTitelId] = useState(pers?.standardSchrift ?? SCHRIFTEN[0].id); // nur Namensschild (schriftJeZeile)
   const [fmtRoh, setFmtRoh] = useState<TextFormat>(() => standardFormat(pers ? zeilenAnzahl(pers) : 0));
   // null = Kunde hat keine Stufe gewählt: dann gilt automatisch die größte, die noch passt.
   const [groesseWahl, setGroesseWahl] = useState<GroesseId | null>(null);
@@ -73,19 +75,23 @@ export default function ProductBuy({
   const linienGewaehlt = farben.find((f) => f.id === linienWahl);
   const linienfarbe = produkt.linienfarbe ? (linienGewaehlt && textfarbeErlaubt(farbe, linienGewaehlt) ? linienGewaehlt : automatischeLinienfarbe(farbe, farben)) : null;
   const schrift = SCHRIFTEN.find((s) => s.id === (pers?.festeSchrift ?? schriftId));
+  const schriftTitel = pers?.schriftJeZeile ? SCHRIFTEN.find((s) => s.id === schriftTitelId) : undefined;
+  /** Schrift der Zeile i (Namensschild: Zeile 1 = Titel hat eine eigene Schrift) */
+  const sz = (i: number) => (i === 1 && schriftTitel ? schriftTitel : schrift);
+  const schriftenJeZeile = schrift ? (schriftTitel ? [schrift, schriftTitel] : schrift) : undefined;
   const text = zeilen.map((z) => z.trim()).join("\n");
   // Wirksames Format: Schalter, die die gewählte Schrift nicht kann, zählen nicht (Schriftwechsel setzt sie zurück).
   const fmtOhneGroesse: TextFormat = {
     ...fmtRoh,
-    fett: fmtRoh.fett.map((v) => v && schrift?.hatFett === true),
-    kursiv: fmtRoh.kursiv.map((v) => v && schrift?.hatKursiv === true),
+    fett: fmtRoh.fett.map((v, i) => v && sz(i)?.hatFett === true),
+    kursiv: fmtRoh.kursiv.map((v, i) => v && sz(i)?.hatKursiv === true),
   };
   const textFehler = !pers ? null
     : zeilen.some((z) => z.trim() === "") ? "Bitte fülle alle Textzeilen aus."
     : unerlaubteZeichen(zeilen.join("")).length > 0 ? `Nicht druckbare Zeichen: ${unerlaubteZeichen(zeilen.join("")).join(" ")}`
-    : schrift && fehlendeZeichen(zeilen.join(""), schrift.id).length > 0 ? fehlendeZeichenMeldung(zeilen.join(""), schrift.id)
+    : zeilen.findIndex((z, i) => { const s = sz(i); return !!s && fehlendeZeichen(z, s.id).length > 0; }) >= 0 ? (() => { const i = zeilen.findIndex((z, k) => { const s = sz(k); return !!s && fehlendeZeichen(z, s.id).length > 0; }); return fehlendeZeichenMeldung(zeilen[i], sz(i)!.id); })()
     : null;
-  const umlauteFehlen = !!schrift && fehlendeZeichen(zeilen.join(""), schrift.id).some((c) => c in { "ä": 1, "ö": 1, "ü": 1, "Ä": 1, "Ö": 1, "Ü": 1, "ß": 1 });
+  const umlauteFehlen = zeilen.some((z, i) => { const s = sz(i); return !!s && fehlendeZeichen(z, s.id).some((c) => c in { "ä": 1, "ö": 1, "ü": 1, "Ä": 1, "Ö": 1, "Ü": 1, "ß": 1 }); });
   const trimmed = zeilen.map((z) => z.trim());
   // Echte Textbreite (im Browser mit der gewählten Schrift gemessen); fontTick misst neu, sobald die Schrift geladen ist.
   const [fontTick, setFontTick] = useState(0);
@@ -103,18 +109,18 @@ export default function ProductBuy({
   const echtErgebnisse = useMemo(() => {
     const m: Partial<Record<GroesseId, ReturnType<typeof echtPasst>>> = {};
     if (!gemountet || !pers || !schrift || textFehler) return m;
-    const messer = (t: string, fett: boolean, kursiv: boolean) => messeEm(t, schrift.family, fett, kursiv);
+    const messer = (t: string, fett: boolean, kursiv: boolean, zeile = 0) => messeEm(t, (sz(zeile) ?? schrift).family, fett, kursiv);
     for (const g of pers.fuellt ? [STANDARD_GROESSE] : GROESSEN.map((x) => x.id)) {
-      m[g] = echtPasst(pers, trimmed, schrift, { ...fmtOhneGroesse, groesse: g }, messer);
+      m[g] = echtPasst(pers, trimmed, schriftenJeZeile ?? schrift, { ...fmtOhneGroesse, groesse: g }, messer);
     }
     return m;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gemountet, pers, schrift?.id, schrift?.family, textFehler, trimmed.join("|"), fmtOhneGroesse.fett.join(), fmtOhneGroesse.kursiv.join(), fontTick]);
+  }, [gemountet, pers, schrift?.id, schrift?.family, schriftTitel?.id, schriftTitel?.family, textFehler, trimmed.join("|"), fmtOhneGroesse.fett.join(), fmtOhneGroesse.kursiv.join(), fontTick]);
   const echtFuer = (g: GroesseId) => echtErgebnisse[pers?.fuellt ? STANDARD_GROESSE : g] ?? null;
-  const autoGroesse = pers && schrift && !textFehler ? groessteDiePasst(pers, trimmed, schrift, fmtOhneGroesse, (g) => echtFuer(g)?.passt !== false) : fmtOhneGroesse.groesse;
+  const autoGroesse = pers && schrift && !textFehler ? groessteDiePasst(pers, trimmed, schriftenJeZeile ?? schrift, fmtOhneGroesse, (g) => echtFuer(g)?.passt !== false) : fmtOhneGroesse.groesse;
   const fmt: TextFormat = { ...fmtOhneGroesse, groesse: groesseWahl ?? autoGroesse };
   const formatOpt = pers ? formatZuOptionen(fmt) : {};
-  const passt = !pers || !schrift || textFehler ? null : pruefePasst(pers, trimmed, schrift, fmt);
+  const passt = !pers || !schrift || textFehler ? null : pruefePasst(pers, trimmed, schriftenJeZeile ?? schrift, fmt);
   const echt = echtFuer(fmt.groesse);
   const passtNicht = (passt !== null && !passt.passt) || echt?.passt === false;
   const passtMeldung = echt?.passt === false && echt.meldung ? echt.meldung : PASST_NICHT;
@@ -134,9 +140,9 @@ export default function ProductBuy({
   const vorLinienfarbe = linienfarbe?.hex;
   const vorFamily = schrift?.family;
   useEffect(() => {
-    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: kombi?.label ?? (teile ? teile.map((t) => `${t.label}: ${teilFarbe(t.id)?.name ?? "?"}`).join(" · ") : farbe?.name), teileFarben: teileHex, farben: kombi?.farben.map((f) => f.hex), tag: tagKurz, format: pers && schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, linienfarbe: vorLinienfarbe, linienfarbeName: linienfarbe?.name, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
+    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: kombi?.label ?? (teile ? teile.map((t) => `${t.label}: ${teilFarbe(t.id)?.name ?? "?"}`).join(" · ") : farbe?.name), teileFarben: teileHex, farben: kombi?.farben.map((f) => f.hex), tag: tagKurz, format: pers && schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id, ...(schriftTitel ? { titel: { schriftId: schriftTitel.id, breite: schriftTitel.breite, family: schriftTitel.family } } : {}) } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, linienfarbe: vorLinienfarbe, linienfarbeName: linienfarbe?.name, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") + (schriftTitel?.id ?? "") : undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, kombi?.label, teileKey, tagKurz, vorTextfarbe, textfarbe?.name, vorLinienfarbe, linienfarbe?.name, JSON.stringify(formatOpt)]);
+  }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, schriftTitel?.id, farbe?.name, kombi?.label, teileKey, tagKurz, vorTextfarbe, textfarbe?.name, vorLinienfarbe, linienfarbe?.name, JSON.stringify(formatOpt)]);
   const kaufReg = useKaufRegistrieren();
   const kaufArt = wunschPause ? "pause" : bestellbar ? "ja" : "nein";
   useEffect(() => { kaufReg?.setzeKauf({ art: kaufArt, gesperrt, bestaetigt }); }, [kaufReg?.setzeKauf, kaufArt, gesperrt, bestaetigt]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -154,7 +160,7 @@ export default function ProductBuy({
       slug: produkt.slug,
       farbeId,
       ...(teile ? { teilFarben: teilWahl } : {}),
-      optionen: { ...opt, ...(kombi ? { [KOMBI_KEY]: kombi.id } : {}), ...formatOpt, ...(pers && textfarbe ? { [TEXTFARBE_KEY]: textfarbe.id } : {}), ...(linienfarbe ? { [LINIENFARBE_KEY]: linienfarbe.id } : {}) },
+      optionen: { ...opt, ...(kombi ? { [KOMBI_KEY]: kombi.id } : {}), ...formatOpt, ...(pers && textfarbe ? { [TEXTFARBE_KEY]: textfarbe.id } : {}), ...(linienfarbe ? { [LINIENFARBE_KEY]: linienfarbe.id } : {}), ...(pers && schriftTitel ? { [SCHRIFT_TITEL_KEY]: schriftTitel.id } : {}) },
       text: pers ? text : "",
       schriftId: pers ? (pers.festeSchrift ?? schriftId) : null,
       menge,
@@ -195,14 +201,14 @@ export default function ProductBuy({
     <p className="shop-widerruf" role="note">Standardware mit 14 Tagen Widerruf.</p>
   );
   function schalte(art: "fett" | "kursiv", i: number) {
-    if (art === "fett" ? !schrift?.hatFett : !schrift?.hatKursiv) return;
+    if (art === "fett" ? !sz(i)?.hatFett : !sz(i)?.hatKursiv) return;
     const neu = fmtRoh[art].slice(); neu[i] = !neu[i];
     setFmtRoh({ ...fmtRoh, [art]: neu });
   }
   const formatSchalter = (i: number, zeilenLabel: string) => (
     <div className="shop-fmt" role="group" aria-label={`Format: ${zeilenLabel}`}>
       {(["fett", "kursiv"] as const).map((art) => {
-        const kann = art === "fett" ? schrift?.hatFett === true : schrift?.hatKursiv === true;
+        const kann = art === "fett" ? sz(i)?.hatFett === true : sz(i)?.hatKursiv === true;
         const name = art === "fett" ? "Fett" : "Kursiv";
         return (
           <button key={art} type="button" className={`shop-fmt-btn shop-fmt-btn--${art}`} aria-pressed={kann && fmt[art][i] ? true : false}
@@ -220,7 +226,7 @@ export default function ProductBuy({
         <fieldset className="shop-step">
           <legend>{pers.label}</legend>
           <div className="shop-textvorschau">
-            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} format={schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id } : undefined} textfarbe={vorTextfarbe} linienfarbe={vorLinienfarbe} typ="Live-Vorschau" breit />
+            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} format={schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id, ...(schriftTitel ? { titel: { schriftId: schriftTitel.id, breite: schriftTitel.breite, family: schriftTitel.family } } : {}) } : undefined} textfarbe={vorTextfarbe} linienfarbe={vorLinienfarbe} typ="Live-Vorschau" breit />
           </div>
           {pers.zeilen ? (
             pers.zeilen.map((z, i) => (
@@ -253,7 +259,7 @@ export default function ProductBuy({
           </fieldset>}
           {passtNicht &&<p id="t-passt" className="shop-err" role="alert"><span>{passtMeldung}</span></p>}
           {textFehler && <p id="t-fehler" className="shop-err" role="alert"><span>{textFehler}</span>
-            {umlauteFehlen && <button type="button" className="shop-umlaut-btn" onClick={() => setZeilen((zs) => zs.map((z) => umlauteErsetzen(z, schrift?.fehlendeZeichen)))}>Umlaute ersetzen (ä→ae, ö→oe, ü→ue, Ä→Ae, Ö→Oe, Ü→Ue, ß→ss)</button>}</p>}
+            {umlauteFehlen && <button type="button" className="shop-umlaut-btn" onClick={() => setZeilen((zs) => zs.map((z, i) => umlauteErsetzen(z, sz(i)?.fehlendeZeichen)))}>Umlaute ersetzen (ä→ae, ö→oe, ü→ue, Ä→Ae, Ö→Oe, Ü→Ue, ß→ss)</button>}</p>}
           {filterFehler && (
             <p id="t-filter" className="shop-err" role="alert">
               <span>{filterFehler}<br /><Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></span>
@@ -275,18 +281,10 @@ export default function ProductBuy({
       )}
 
       {pers && !pers.festeSchrift && (
-        <fieldset className="shop-step shop-schriften">
-          <legend>Schrift wählen</legend>
-          <div className="shop-schriften-raster">
-            {SCHRIFTEN.map((sf) => (
-              <label key={sf.id} className="shop-schrift">
-                <input type="radio" name="t-schrift" value={sf.id} checked={schriftId === sf.id} onChange={() => setSchriftId(sf.id)} />
-                <span className="shop-schrift-bsp" style={{ fontFamily: sf.family }} aria-hidden="true">{beispielText}</span>
-                <span className="shop-schrift-name">{sf.name}{sf.fehlendeZeichen.includes("ä") || sf.fehlendeZeichen.includes("ß") ? <small className="shop-schrift-ohne"> · {sf.fehlendeZeichen.includes("ä") ? "ohne Umlaute" : "ohne ß"}</small> : null}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <>
+          <SchriftWahl legend={pers.schriftJeZeile ? "Schrift für den Namen (große Zeile)" : "Schrift wählen"} schriftId={schriftId} onChange={setSchriftId} beispiel={pers.schriftJeZeile ? (zeilen[0] || "Name").trim().slice(0, 14) : beispielText} radioName="t-schrift" hinweis={!pers.schriftJeZeile} />
+          {pers.schriftJeZeile && <SchriftWahl legend="Schrift für den Titel (kleine Zeile)" schriftId={schriftTitelId} onChange={setSchriftTitelId} beispiel={(zeilen[1] || "Titel").trim().slice(0, 14)} radioName="t-schrift-titel" />}
+        </>
       )}
 
       {/* Farbwahl */}

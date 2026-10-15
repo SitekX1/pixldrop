@@ -14,6 +14,10 @@ import {
   type Flaeche, type GroesseId,
 } from "./umbruch";
 
+/** Eine Schrift für alle Zeilen oder je Zeile eine (Namensschild: [Name, Titel]). */
+export type Schriften = Schrift | Schrift[];
+const schriftZeile = (s: Schriften, i: number): Schrift => (Array.isArray(s) ? (s[i] ?? s[0]) : s);
+
 export interface TextFormat { fett: boolean[]; kursiv: boolean[]; groesse: GroesseId }
 export const PASST_NICHT = "Passt nicht aufs Stück – bitte kleiner wählen oder kürzen";
 export const NICHT_VERFUEGBAR = "Bei dieser Schrift nicht verfügbar";
@@ -61,17 +65,18 @@ export function flaechen(pers: Personalisierung): Flaeche[] {
 }
 
 /** Fähigkeiten verletzt? (Fett/Kursiv gewählt, obwohl die Schrift den Schnitt nicht hat.) */
-export function formatUnerlaubt(f: TextFormat, s: Schrift): boolean {
-  return (!s.hatFett && f.fett.some(Boolean)) || (!s.hatKursiv && f.kursiv.some(Boolean));
+export function formatUnerlaubt(f: TextFormat, s: Schriften): boolean {
+  return f.fett.some((v, i) => v && !schriftZeile(s, i).hatFett) || f.kursiv.some((v, i) => v && !schriftZeile(s, i).hatKursiv);
 }
 
 export interface PasstZeile { passt: boolean; zeilen: string[]; size: number }
 /** Prüft jede Zeile in ihrer Fläche. `zeilen` = Eingabezeilen (Tischschild: 2, sonst 1 Zeile). */
-export function pruefePasst(pers: Personalisierung, zeilen: string[], s: Schrift, f: TextFormat): { passt: boolean; zeilen: PasstZeile[] } {
+export function pruefePasst(pers: Personalisierung, zeilen: string[], schriften: Schriften, f: TextFormat): { passt: boolean; zeilen: PasstZeile[] } {
   if (pers.fuellt) {
     // Namensschild: jede Zeile in einer Zeile, Mindest-Kappenhöhe darf nicht unterschritten werden (Schätzwert wie sonst auch)
     const erg = zeilen.map((z, i) => {
       const t = z.replace(/\s+/g, " ").trim();
+      const s = schriftZeile(schriften, i);
       const em = (i === 0 ? NS.nameKappeMin : NS.titelKappeMin) / kappeJeEm(s.id);
       const breite = t.length * s.breite * (f.fett[i] === true ? FETT_FAKTOR : 1) * em;
       return { passt: t !== "" && breite <= NS_BREITE, zeilen: [t], size: em };
@@ -81,7 +86,7 @@ export function pruefePasst(pers: Personalisierung, zeilen: string[], s: Schrift
   const fl = flaechen(pers);
   const erg = fl.map((flaeche, i) => passtInFlaeche({
     text: zeilen[i] ?? "", flaeche, groesse: pers.zeilen && i === 0 ? STANDARD_GROESSE : f.groesse,
-    breite: s.breite, fett: f.fett[i] === true, fettFaktor: FETT_FAKTOR,
+    breite: schriftZeile(schriften, i).breite, fett: f.fett[i] === true, fettFaktor: FETT_FAKTOR,
   }));
   return { passt: erg.every((e) => e.passt), zeilen: erg };
 }
@@ -89,7 +94,7 @@ export function pruefePasst(pers: Personalisierung, zeilen: string[], s: Schrift
 /** Größte Stufe, bei der der Text noch passt (Voreinstellung, solange der Kunde keine Stufe gewählt hat).
  *  Passt keine Stufe, kommt die kleinste zurück (der Passt-nicht-Hinweis erscheint dann trotzdem).
  *  extra = zusätzliche Prüfung je Stufe (Browser: echte Textbreite). */
-export function groessteDiePasst(pers: Personalisierung, zeilen: string[], s: Schrift, f: TextFormat, extra?: (g: GroesseId) => boolean): GroesseId {
+export function groessteDiePasst(pers: Personalisierung, zeilen: string[], s: Schriften, f: TextFormat, extra?: (g: GroesseId) => boolean): GroesseId {
   if (pers.fuellt) return STANDARD_GROESSE;
   for (let i = GROESSEN.length - 1; i >= 0; i--) {
     if (pruefePasst(pers, zeilen, s, { ...f, groesse: GROESSEN[i].id }).passt && (!extra || extra(GROESSEN[i].id))) return GROESSEN[i].id;
@@ -98,7 +103,7 @@ export function groessteDiePasst(pers: Personalisierung, zeilen: string[], s: Sc
 }
 
 /** Misst die Breite eines Textes in em mit der gewählten Schrift (null = nicht messbar). */
-export type Messer = (text: string, fett: boolean, kursiv: boolean) => number | null;
+export type Messer = (text: string, fett: boolean, kursiv: boolean, zeile?: number) => number | null;
 export interface EchtErgebnis { passt: boolean; meldung?: string; /** Index der Eingabezeile, die nicht passt (Namensschild) */ zeile?: number }
 
 /**
@@ -107,12 +112,13 @@ export interface EchtErgebnis { passt: boolean; meldung?: string; /** Index der 
  * aber mit der gemessenen Breite. Liefert null, wenn nicht messbar (dann gilt nur die Schätzung).
  * Ist die Schätzung schon durchgefallen, kommt passt:true zurück (die Meldung dafür liefert pruefePasst).
  */
-export function echtPasst(pers: Personalisierung, zeilen: string[], s: Schrift, f: TextFormat, messer: Messer): EchtErgebnis | null {
+export function echtPasst(pers: Personalisierung, zeilen: string[], schriften: Schriften, f: TextFormat, messer: Messer): EchtErgebnis | null {
   if (pers.fuellt) {
     for (let i = 0; i < zeilen.length; i++) {
       const t = zeilen[i].replace(/\s+/g, " ").trim();
       if (!t) continue;
-      const em = messer(t, f.fett[i] === true, f.kursiv[i] === true);
+      const s = schriftZeile(schriften, i);
+      const em = messer(t, f.fett[i] === true, f.kursiv[i] === true, i);
       if (em === null) return null;
       const max = i === 0 ? NS.nameKappeMax : NS.titelKappe;
       const min = i === 0 ? NS.nameKappeMin : NS.titelKappeMin;
@@ -127,11 +133,11 @@ export function echtPasst(pers: Personalisierung, zeilen: string[], s: Schrift, 
   for (let i = 0; i < fl.length; i++) {
     const est = passtInFlaeche({
       text: zeilen[i] ?? "", flaeche: fl[i], groesse: pers.zeilen && i === 0 ? STANDARD_GROESSE : f.groesse,
-      breite: s.breite, fett: f.fett[i] === true, fettFaktor: FETT_FAKTOR,
+      breite: schriftZeile(schriften, i).breite, fett: f.fett[i] === true, fettFaktor: FETT_FAKTOR,
     });
     if (!est.passt) continue;
     for (const z of est.zeilen) {
-      const em = messer(z, f.fett[i] === true, f.kursiv[i] === true);
+      const em = messer(z, f.fett[i] === true, f.kursiv[i] === true, i);
       if (em === null) return null;
       if (em * est.size > fl[i].breite + 0.3) {
         return { passt: false, meldung: "Der Text ist mit dieser Schrift zu breit für die Fläche. Bitte kürzen, eine kleinere Größe oder eine schmalere Schrift wählen." };

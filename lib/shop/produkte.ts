@@ -30,6 +30,8 @@ zeile2". */
   fuellt?: boolean;
   /** Vorbelegter Text bei einzeiligen Artikeln (ohne `zeilen`). Der unveränderte Standardtext bleibt Standardware (Widerruf). */
   standardText?: string;
+  /** Eigene Schrift je Zeile (Namensschild: Name und Titel getrennt, Titelschrift in optionen.schriftTitel). */
+  schriftJeZeile?: boolean;
   /** Freie Textfläche des runden Artikels: Standard = Spruch-/Stiftetassen-Fläche, "untersetzer" = Mitte innerhalb der Zierlinien. */
   flaeche?: "untersetzer" | "becher";
 }
@@ -163,7 +165,7 @@ export const PRODUKTE: Produkt[] = [
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1c1c1c",
     preisCent: 1690, masse: null, material: MATERIAL, optionen: [],
     personalisierung: {
-      maxLaenge: 40, label: "Text auf dem Schild", beispiel: "Eddie Pixldrop", standardSchrift: "montserrat", fuellt: true,
+      maxLaenge: 40, label: "Text auf dem Schild", beispiel: "Eddie Pixldrop", standardSchrift: "montserrat", fuellt: true, schriftJeZeile: true,
       zeilen: [
         { label: "Name (große Zeile)", max: 20, standard: "Eddie Pixldrop" },
         { label: "Titel (kleine Zeile)", max: 28, standard: "Content Creator" },

@@ -944,3 +944,9 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 
 .shop-fotoleiste { padding-inline: 10px; }
 .shop-fotohinweis { padding: 0 14px 12px; }
+
+/* Ausklappbare Schriftwahl: eingeklappt aktuelle Schrift + Knopf */
+.shop-schrift-kopf { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; }
+.shop-schriften-titel { grid-column: 1 / -1; font: 600 0.9375rem var(--shop-display); color: var(--shop-ink); }
+.shop-schrift-aktuell { display: grid; gap: 2px; min-width: 0; padding: 8px 10px; background: #fff; border: 1.5px solid var(--shop-line, #e6d9b8); border-radius: var(--shop-r-s); }
+.shop-schrift-aktuell .shop-schrift-bsp { font-size: 1.5rem; }

@@ -103,7 +103,7 @@ test("individuell: Formatwahl beim Standardtext macht das Stück individuell, Pr
   assert.ok(mit.ok, JSON.stringify(mit));
   assert.equal(mit.wert.positionen[0].individuell, false);  // Format/Groesse allein: Variantenwahl, Widerruf bleibt
   assert.equal(mit.wert.gesamtCent, ohne.wert.gesamtCent);
-  assert.deepEqual(mit.wert.positionen[0].optionen, { "Format Titel (kleine Zeile)": "Fett" });
+  assert.deepEqual(mit.wert.positionen[0].optionen, { "Format Titel (kleine Zeile)": "Fett", "Schrift Name": "Montserrat", "Schrift Titel": "Montserrat" });
   // explizit gesendeter Standard (groesse m) ändert nichts
   const m = bestell("namensschild", std, undefined, { groesse: "m" });
   assert.ok(m.ok);
@@ -145,4 +145,33 @@ test("Katalog: keine Optionsgruppe traegt 'Format…' oder 'Schriftgröße' als 
       assert.ok(!/^\s*Format/i.test(g.label) && !/^\s*Schriftgr(ö|oe)ße/i.test(g.label), `${p.slug}: Optionsgruppe "${g.label}" kollidiert`);
     }
   }
+});
+
+test("Namensschild: eigene Schrift je Zeile (Titelschrift), abwärtskompatibel, je Zeile geprüft", () => {
+  const std = "Eddie Pixldrop\nContent Creator";
+  const alt = bestell("namensschild", std, "oswald");
+  assert.ok(alt.ok);
+  assert.equal(alt.wert.positionen[0].optionen["Schrift Name"], "Oswald");
+  assert.equal(alt.wert.positionen[0].optionen["Schrift Titel"], "Oswald", "alte Position ohne Titelschrift: beide Zeilen gleich");
+  const neu = bestell("namensschild", std, "oswald", { schriftTitel: "pacifico" });
+  assert.ok(neu.ok, JSON.stringify(neu));
+  assert.equal(neu.wert.positionen[0].optionen["Schrift Titel"], "Pacifico");
+  assert.equal(neu.wert.positionen[0].schriftId, "oswald");
+  assert.equal(neu.wert.gesamtCent, alt.wert.gesamtCent, "Preis unverändert");
+  const fremd = bestell("namensschild", std, "oswald", { schriftTitel: "comic-sans" });
+  assert.ok(!fremd.ok && fremd.fehler.code === "text_ungueltig", "nur Schriften aus der Shop-Liste");
+  const untersetzer = bestell("spruch-untersetzer", "Montag", "oswald", { schriftTitel: "pacifico" });
+  assert.ok(!untersetzer.ok, "Titelschrift nur beim Namensschild");
+  // Fett nur, wenn die Schrift der jeweiligen Zeile es kann (Pacifico hat kein Fett)
+  const fettTitel = bestell("namensschild", std, "montserrat", { schriftTitel: "pacifico", fett_1: "1" });
+  assert.ok(!fettTitel.ok && fettTitel.fehler.code === "option_ungueltig");
+  const fettName = bestell("namensschild", std, "montserrat", { schriftTitel: "pacifico", fett_0: "1" });
+  assert.ok(fettName.ok, "Fett beim Namen mit Montserrat erlaubt");
+  // Passt-Prüfung je Zeile mit ihrer Schrift
+  const pers = schild.personalisierung!;
+  const eng = [sf("oswald"), sf("oswald")], breit = [sf("oswald"), sf("montserrat")];
+  const f = standardFormat(2);
+  const titel = "x".repeat(28);
+  assert.equal(pruefePasst(pers, ["Eddie", titel], eng, f).passt === pruefePasst(pers, ["Eddie", titel], sf("oswald"), f).passt, true, "Array mit gleicher Schrift = einzelne Schrift");
+  assert.equal(pruefePasst(pers, ["Eddie", titel], breit, f).zeilen[1].passt, pruefePasst(pers, ["Eddie", titel], sf("montserrat"), f).zeilen[1].passt, "Titelzeile nutzt die Titelschrift");
 });
