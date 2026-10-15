@@ -51,7 +51,7 @@ export const TEXTE = {
 } as const;
 
 // TESTWERTE, damit der Server Bestellungen annimmt. Alex ersetzt sie durch die echten Werte
-// (null = nicht angegeben, dann ist nichts bestellbar). Artikelpreise: TESTPREIS_CENT in lib/shop/produkte.ts.
+// (null = nicht angegeben, dann ist nichts bestellbar). Artikelpreise: je Artikel in lib/shop/produkte.ts.
 export const VERSAND_CENT: number | null = 490; // TESTWERT 4,90 EUR
 export const LIEFERZEIT_TEXT: string | null = "3-5 Werktage"; // TESTWERT
 

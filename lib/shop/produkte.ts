@@ -72,14 +72,11 @@ export function hitzeHinweis(material: string, untersetzer = false): string {
 const LED = "Nicht für offene Flammen (nur mit LED-Teelichtern).";
 const MATERIAL = "PLA"; // Alex trägt je Artikel das echte Material ein (PLA oder PETG)
 const HITZE = hitzeHinweis(MATERIAL, true); // alle Artikel mit HITZE sind Untersetzer
-// TESTWERT: Testpreis (9,90 EUR) fuer alle bestellbaren Artikel, damit der Server Bestellungen annimmt.
-// Alex ersetzt ihn je Artikel durch den echten Preis.
-const TESTPREIS_CENT = 990;
-const TESTAUFPREIS_BOX_CENT = 400;
+// Preise (Alex, 2026-10-15, Karla-Kalkulation): je Artikel direkt bei preisCent. Kork: 30 Cent je Untersetzer, nicht im Grundpreis.
+const AUFPREIS_BOX_CENT = 490; // Box: Set 14,90 -> 19,80 EUR, Einzel 5,90 -> 10,80 EUR
 // Kork-Unterseite (selbstklebend, 90 mm; Einkauf 24,90 EUR / 100 Stk = 0,25 EUR je Stueck).
 // KORK_LIEFERBAR auf false setzen, solange der Kork nicht geliefert ist: dann verschwindet die Option.
 const KORK_LIEFERBAR = true;
-// TESTWERTE Aufpreis: Alex legt die echten Preise fest.
 const korbGruppe = (aufpreisCent: number): Optionsgruppe[] => KORK_LIEFERBAR ? [{
   id: "kork", label: "Unterseite", optional: true,
   optionen: [{ id: "ohne", label: "Ohne Kork" }, { id: "mit", label: "Mit selbstklebendem Kork", aufpreisCent }],
@@ -104,11 +101,10 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Fünf Untersetzer für Montag bis Freitag, damit der Tisch sauber bleibt, auch wenn der Kaffee es nicht ist. Auf Wunsch mit passender Box, in die du die Untersetzer hineinstellst. Auf der Unterseite der Box sitzt ein QR-Code zu meinen Songs auf Spotify.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "set", grundfarbe: "#4fb894",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
-    // TESTWERT: Aufpreis Box (4,00 EUR), Alex legt den echten Preis fest.
+    preisCent: 1490, masse: null, material: MATERIAL,
     optionen: [
-      { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: TESTAUFPREIS_BOX_CENT }] },
-      ...korbGruppe(200),
+      { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: AUFPREIS_BOX_CENT }] },
+      ...korbGruppe(150),
     ],
     kombinationen: KOMBI_WOCHENTAG,
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG], bestseller: true,
@@ -120,11 +116,11 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein einzelner Untersetzer mit deinem Wochentag, 90 mm Durchmesser. Wähle den Tag. Du möchtest alle fünf? Dann gibt es das Set Montag bis Freitag. Auf Wunsch mit passender Box, auf der ein QR-Code zu meinen Songs auf Spotify sitzt.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#4fb894",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
+    preisCent: 590, masse: null, material: MATERIAL,
     optionen: [
       { id: "tag", label: "Wochentag", optionen: [{ id: "mo", label: "Montag" }, { id: "di", label: "Dienstag" }, { id: "mi", label: "Mittwoch" }, { id: "do", label: "Donnerstag" }, { id: "fr", label: "Freitag" }] },
-      { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: TESTAUFPREIS_BOX_CENT }] },
-      ...korbGruppe(50),
+      { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: AUFPREIS_BOX_CENT }] },
+      ...korbGruppe(30),
     ],
     kombinationen: KOMBI_WOCHENTAG,
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
@@ -136,7 +132,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee. Auf Wunsch mit einer Textzeile in einer von 25 Schriften; änderst du den Text, wird das Stück einzeln für dich gefertigt.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "tasse", grundfarbe: "#6b4423",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 1290, masse: null, material: MATERIAL, optionen: [],
     personalisierung: { maxLaenge: 14, label: "Text auf der Tasse", beispiel: "Stifte", standardSchrift: "montserrat" },
     hinweise: [KEIN_SPIELZEUG],
   },
@@ -147,7 +143,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Untersetzer mit deinem Namen oder Spruch, in einer von 25 Schriften. Jedes Stück wird einzeln für dich gedruckt.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#f0bb55",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: korbGruppe(100),
+    preisCent: 590, masse: null, material: MATERIAL, optionen: korbGruppe(30),
     personalisierung: { maxLaenge: 40, label: "Dein Text", beispiel: "Montag" },
     nurMitText: true, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
@@ -158,7 +154,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Namensschild mit Ständer für den Schreibtisch: Dein Name steht groß in der Mitte, darunter dein Titel (vorbelegt sind „Eddie Pixldrop“ und „Content Creator“). Die Schrift ist bündig ins Schild eingelegt. Du wählst Schrift, Schildfarbe und Schriftfarbe, die Vorschau zeigt das fertige Schild genau so, wie es gedruckt wird.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1c1c1c",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 1690, masse: null, material: MATERIAL, optionen: [],
     personalisierung: {
       maxLaenge: 40, label: "Text auf dem Schild", beispiel: "Eddie Pixldrop", standardSchrift: "montserrat", fuellt: true,
       zeilen: [
@@ -175,7 +171,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Eine ausgehöhlte Kürbis-Laterne für ein LED-Teelicht. Das Licht scheint durch das Gesicht. Der Drehverschluss sitzt unten, das Teelicht wechselst du ohne Werkzeug.",
     gruppe: "halloween", kategorien: ["halloween"], form: "laterne", grundfarbe: "#ff8a1f",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
+    preisCent: 1690, masse: null, material: MATERIAL,
     teile: [{ id: "koerper", label: "Kürbis" }, { id: "stiel", label: "Stiel" }],
     optionen: [
       { id: "gesicht", label: "Gesicht", optionen: [{ id: "a", label: "Gesicht A" }, { id: "b", label: "Gesicht B" }, { id: "c", label: "Gesicht C" }] }
@@ -189,7 +185,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Drei Geister, die mit einem LED-Teelicht von innen leuchten. Der Verschluss sitzt unten.",
     gruppe: "halloween", kategorien: ["halloween"], form: "geister", grundfarbe: "#f4f1ea",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 1190, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
@@ -199,7 +195,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Drei kleine Geister zum Hinstellen, dieselben wie im großen Set, nur kleiner. Es passt kein Teelicht hinein.",
     gruppe: "halloween", kategorien: ["halloween"], form: "geister", grundfarbe: "#f4f1ea",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 690, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
@@ -209,7 +205,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Vier lustige Deko-Kürbisse mit Gesicht zum Hinstellen, jeder mit anderem Gesichtsausdruck. Sie sind 50 mm hoch und 35 bis 60 mm breit, innen massiv, ohne Teelicht. Eine kleine Deko für Fensterbank, Tisch oder Regal.",
     gruppe: "halloween", kategorien: ["halloween"], form: "laterne", grundfarbe: "#ff8a1f",
-    preisCent: TESTPREIS_CENT, masse: "60 × 60 × 50", material: MATERIAL, optionen: [],
+    preisCent: 990, masse: "60 × 60 × 50", material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
@@ -219,7 +215,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein offener Kürbis-Halter. Das LED-Teelicht kommt von oben hinein, fertig. Der einfachste und günstigste Weg zur Deko.",
     gruppe: "halloween", kategorien: ["halloween"], form: "teelicht", grundfarbe: "#ff8a1f",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 790, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
@@ -229,7 +225,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Drei Untersetzer mit Halloween-Motiv für die Tasse, 90 mm Durchmesser. Auch einzeln erhältlich.",
     gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: korbGruppe(150),
+    preisCent: 1190, masse: null, material: MATERIAL, optionen: korbGruppe(90),
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {
@@ -239,10 +235,10 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein einzelner Untersetzer mit Halloween-Motiv, 90 mm Durchmesser. Wähle das Motiv. Du möchtest mehrere vom selben Motiv? Dann erhöhe die Menge.",
     gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
-    preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL,
+    preisCent: 590, masse: null, material: MATERIAL,
     optionen: [
       { id: "motiv", label: "Motiv", optionen: [{ id: "kuerbis", label: "Kürbis" }, { id: "geister", label: "Geister" }, { id: "spukhaus", label: "Spukhaus" }] },
-      ...korbGruppe(50),
+      ...korbGruppe(30),
     ],
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },

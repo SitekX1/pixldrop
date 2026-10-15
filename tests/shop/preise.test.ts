@@ -231,8 +231,8 @@ test("Wochentags-Set: Box-Aufpreis wird serverseitig addiert", () => {
   const mit = berechneWarenkorb([{ ...set, optionen: { box: "mit", farbkombi: K } }], ctx());
   assert.ok(ohne.ok && mit.ok);
   assert.equal(ohne.wert.positionen[0].einzelpreisCent, 1290);
-  assert.equal(mit.wert.positionen[0].einzelpreisCent, 1690);
-  assert.equal(mit.wert.summeWarenCent, 3380);
+  assert.equal(mit.wert.positionen[0].einzelpreisCent, 1780);
+  assert.equal(mit.wert.summeWarenCent, 3560);
   assert.equal(mit.wert.positionen[0].optionen["Box"], "Mit Box zum Hineinstellen");
 });
 
@@ -246,18 +246,18 @@ test("Kork-Option: Aufpreis kommt vom Server, Box und Kork addieren sich", () =>
   const set = { slug: "wochentags-untersetzer-set", menge: 1, farbeId: "schwarz" };
   const r = berechneWarenkorb([{ ...set, optionen: { box: "mit", kork: "mit", farbkombi: K } }], ctx());
   assert.ok(r.ok);
-  assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 400 + 200);
+  assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 490 + 150);
   assert.ok(!berechneWarenkorb([{ ...set, optionen: { box: "ohne", kork: "gratis", farbkombi: K } }], ctx()).ok);
   const hw = berechneWarenkorb([{ slug: "halloween-untersetzer-einzeln", menge: 2, farbeId: "schwarz", optionen: { motiv: "geister", kork: "mit" } }], ctx());
   assert.ok(hw.ok);
-  assert.equal(hw.wert.summeWarenCent, 2 * (1290 + 50));
+  assert.equal(hw.wert.summeWarenCent, 2 * (1290 + 30));
 });
 
 test("Wochentags-Einzelartikel: Tag Pflicht, Box und Kork als Aufpreis", () => {
   const e = { slug: "wochentags-untersetzer-einzeln", menge: 1, farbeId: "schwarz" };
   const r = berechneWarenkorb([{ ...e, optionen: { tag: "fr", box: "mit", kork: "mit", farbkombi: K } }], ctx());
   assert.ok(r.ok);
-  assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 400 + 50);
+  assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 490 + 30);
   assert.equal(r.wert.positionen[0].optionen["Wochentag"], "Freitag");
   assert.ok(!berechneWarenkorb([{ ...e, optionen: { box: "ohne", farbkombi: K } }], ctx()).ok);
   assert.ok(!berechneWarenkorb([{ ...e, optionen: { tag: "sa", box: "ohne", farbkombi: K } }], ctx()).ok);
@@ -275,7 +275,7 @@ test("Farbkombination: gueltig (ohne farbeId), Preis unveraendert/mit Box, farbe
   assert.equal(p.optionen["Farbkombination"], "Schwarz / Orange / Weiß");
   const mit = berechneWarenkorb([{ ...set, optionen: { box: "mit", farbkombi: "schwarz-violett-tuerkis" } }], ctx());
   assert.ok(mit.ok);
-  assert.equal(mit.wert.positionen[0].einzelpreisCent, 1690);
+  assert.equal(mit.wert.positionen[0].einzelpreisCent, 1780);
   // Lager wird fuer Kombinationen nicht gebraucht
   assert.ok(berechneWarenkorb([{ ...set, optionen: { box: "ohne", farbkombi: K } }], ctx({ farben: [] })).ok);
 });
@@ -316,7 +316,7 @@ test("Alte Warenkorb-Slugs (entfernte Artikel) liefern 'unbekannt'", () => {
 
 // Livegang-Wächter: nur mit SHOP_LIVEGANG_CHECK=1 aktiv (vor dem Merge nach main laufen lassen).
 test("Livegang: keine Testpreise mehr im Katalog", { skip: process.env.SHOP_LIVEGANG_CHECK !== "1" }, () => {
-  const test = PRODUKTE.filter((p) => !p.nurAnfrage && p.preisCent === 990).map((p) => p.slug);
+  const test = PRODUKTE.filter((p) => !p.nurAnfrage && p.preisCent === 990 && p.slug !== "kuerbis-klein-set").map((p) => p.slug);
   assert.deepEqual(test, [], `Noch Testpreis (9,90 EUR): ${test.join(", ")}`);
 });
 
