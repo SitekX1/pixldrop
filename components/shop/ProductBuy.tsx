@@ -2,6 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { formatPreis } from "@/lib/shop/config";
+import { ORIGINALFARBE, ORIGINAL_ABSTAND } from "@/lib/shop/fotos";
+import { farbAbstand } from "./fotoFaerben";
 import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung, umlauteErsetzen } from "@/lib/shop/schriften";
 import { GROESSEN, STANDARD_GROESSE, type GroesseId } from "@/lib/shop/umbruch";
@@ -18,6 +20,12 @@ import { LINIENFARBE_HINWEIS, LINIENFARBE_KEY, TEXTFARBE_HINWEIS, TEXTFARBE_KEY,
 import { standardTeilFarben } from "@/lib/shop/teilfarben";
 import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
 
+/** Lagerfarbe, die der Fotofarbe am nächsten liegt (Voreinstellung = Foto ohne Umfärbung); null, wenn keine nah genug ist. */
+function nahsteFarbe(farben: Farbe[], hex: string): Farbe | undefined {
+  let best: Farbe | undefined, bd = ORIGINAL_ABSTAND;
+  for (const f of farben) { const d = farbAbstand(f.hex, hex); if (d < bd) { best = f; bd = d; } }
+  return best;
+}
 function hell(hex: string) {
   const n = parseInt(hex.slice(1), 16);
   const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -28,7 +36,7 @@ export default function ProductBuy({
   produkt, farben, bestellbar, preisText, wunschPause = false,
 }: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string; wunschPause?: boolean }) {
   const kombis = produkt.kombinationen;
-  const [farbeId, setFarbeId] = useState<string | null>(kombis || produkt.teile ? null : (produkt.linienfarbe || produkt.personalisierung?.flaeche === "becher" ? farben.find((f) => /^schwarz/i.test(f.name.trim())) : undefined)?.id ?? farben[0]?.id ?? null);
+  const [farbeId, setFarbeId] = useState<string | null>(kombis || produkt.teile ? null : (produkt.slug in ORIGINALFARBE ? nahsteFarbe(farben, ORIGINALFARBE[produkt.slug]) : produkt.linienfarbe ? farben.find((f) => /^schwarz/i.test(f.name.trim())) : undefined)?.id ?? farben[0]?.id ?? null);
   const [kombiId, setKombiId] = useState<string | null>(kombis?.[0].id ?? null);
   const kombi = kombis?.find((k) => k.id === kombiId);
   // Mehrteilige Artikel (Kürbis-Laterne): je Teil eine eigene Lagerfarbe, Standard = ähnlichste Farbe zur Referenz (orange / grün).

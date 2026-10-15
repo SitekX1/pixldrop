@@ -105,6 +105,7 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
 /** Fotos ohne Maske, die nie umgefärbt werden (Kork-Rückseite): Slug -> Fotonummern (0-basiert). */
 export const OHNE_UMFAERBEN: Record<string, number[]> = {
   "spruch-untersetzer": [1],
+  "namensschild": [1, 2, 3], // Beispielfotos mit Schrift bleiben Alex' Originale
   "stiftebecher-tasse": [1, 2, 3], // Alex' Originalfotos bleiben unverändert (Beispielstücke)
   "wochentags-untersetzer-set": [5],
   "wochentags-untersetzer-einzeln": [5],
@@ -113,7 +114,21 @@ export const OHNE_UMFAERBEN: Record<string, number[]> = {
 };
 
 /** Foto 1 zeigt diese echte Farbe: Ist sie gewählt (Abstand klein), erscheint das unveränderte Foto statt des umgefärbten Canvas. */
-export const ORIGINALFARBE: Record<string, string> = { "stiftebecher-tasse": "#1c1c1c" };
+export const ORIGINALFARBE: Record<string, string> = {
+  "stiftebecher-tasse": "#1c1c1c", "namensschild": "#1c1c1c", "kuerbis-teelichthalter": "#1c1c1c",
+  "halloween-untersetzer-set": "#1c1c1c", "halloween-untersetzer-einzeln": "#1c1c1c",
+  "geister-set": "#f4f1ea", "geister-set-klein": "#f4f1ea", "kuerbis-klein-set": "#ff8a1f",
+}
+/** Abstand (RGB), bis zu dem die gewählte Farbe als "Farbe des Fotos" gilt: dann Originalfoto statt Umfärbung. */
+export const ORIGINAL_ABSTAND = 55;
+
+/** Welche Fotos beim Farbwechsel umgefärbt werden dürfen: nur Foto 1 (Live-Vorschau); alle weiteren sind Alex' Originale ("Foto: Beispielstück").
+ *  Ausnahme: Einzel-Wochentags-Untersetzer, dort zeigt jedes der 5 Tagesfotos die gewählte Farbkombination. */
+export function darfUmfaerben(slug: string, idx: number): boolean {
+  if (OHNE_UMFAERBEN[slug]?.includes(idx)) return false;
+  if (slug === "wochentags-untersetzer-einzeln") return idx >= 0 && idx < 5;
+  return idx === 0;
+};
 
 /** Artikel, bei denen Foto 1 die Live-Vorschau ist: Farben und Text des Kunden werden direkt aufs Foto gelegt (kein extra „Deine Wahl Live“). */
 export const MIT_AUFDRUCK = ["namensschild", "spruch-untersetzer", "stiftebecher-tasse"];

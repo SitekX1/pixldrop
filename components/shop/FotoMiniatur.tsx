@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { MIT_AUFDRUCK, ORIGINALFARBE, OHNE_UMFAERBEN, UMFAERBEN } from "@/lib/shop/fotos";
+import { MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, darfUmfaerben, UMFAERBEN } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
 import { farbAbstand, vorbereiteFoto } from "./fotoFaerben";
 import type { VorschauWerte } from "./Vorschau";
@@ -13,8 +13,8 @@ const CACHE_MAX = 8;
 
 /** Umfärbemodus von Foto 1: Namensschild/Untersetzer/Becher haben eigene Modi, sonst der Modus des Artikels. */
 export function miniaturModus(slug: string, fotoNr: number): UmfaerbModus | undefined {
-  if (OHNE_UMFAERBEN[slug]?.includes(fotoNr)) return undefined;
-  return slug === "namensschild" ? "farbe" : UMFAERBEN[slug];
+  if (!darfUmfaerben(slug, fotoNr)) return undefined;
+  return slug === "namensschild" ? "becher" : UMFAERBEN[slug];
 }
 
 /** Foto der Warenkorb-/Bon-Position in der gewählten Farbe (kleine Auflösung), bei Wunschtext-Artikeln mit Aufdruck wie in der Galerie. */
@@ -22,7 +22,7 @@ export default function FotoMiniatur({ slug, src, alt, w, fotoNr = 0 }: { slug: 
   const canvas = useRef<HTMLCanvasElement>(null);
   const modus = miniaturModus(slug, fotoNr);
   const orig = ORIGINALFARBE[slug];
-  const original = !!orig && !!w.farbe && farbAbstand(w.farbe, orig) < 45;
+  const original = !!orig && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND;
   const aktiv = !!modus && !original && (!!w.farbe || !!w.farben);
   const [fertig, setFertig] = useState<string | null>(null);
   const schluessel = `${w.farbe}|${w.textfarbe}|${w.linienfarbe}|${(w.farben ?? []).join()}`;

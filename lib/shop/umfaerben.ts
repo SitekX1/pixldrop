@@ -49,7 +49,7 @@ function klassen(modus: UmfaerbModus, r: number, g: number, b: number, l: number
     }
     case "kombi": {
       const bl = klemme((b - r - 0.1) / 0.15);
-      const wh = klemme((l - 0.5) / 0.15) * (1 - bl);
+      const wh = klemme((l - 0.32) / 0.12) * (1 - bl); // Schrift im Foto ist körnig/schattig (l ab ca. 0,4): niedrige Schwelle, sonst dunkle Flecken im Text
       out[1] = bl; out[2] = wh; out[0] = Math.max(0, 1 - bl - wh); return;
     }
   }
@@ -61,6 +61,14 @@ export interface Vorbereitet {
   maske: Float32Array;          // 0..1
   klasseGew: Float32Array[];    // je Klasse Gewicht je Pixel
   schatten: Float32Array[];     // je Klasse normierte Helligkeit 0..1
+}
+
+/** Schattierung einer Klasse (0..1) aus der normierten Helligkeit v. Helle Akzentklassen (Schrift/Linien) bleiben hell (kein Grauschleier),
+ *  die Untersetzerfläche wird flach gehalten (Körnung), flächige Objekte behalten Licht und Schatten. */
+function kurve(modus: UmfaerbModus, c: number, v: number): number {
+  if ((modus === "kombi" || modus === "untersetzer") && c >= 1) return 0.78 + 0.22 * v;
+  if (modus === "untersetzer" || modus === "grund") return 0.6 + 0.3 * v;
+  return 0.18 + 0.76 * Math.pow(v, 0.7);
 }
 
 /** Mittelwert 5 x 5 (getrennt, Rand wird geklemmt). */
@@ -76,7 +84,9 @@ export function bereiten(modus: UmfaerbModus, rgba: Uint8ClampedArray, maskeR: U
   const n = w * h, k = KLASSEN[modus];
   const maske = new Float32Array(n);
   const lum = new Float32Array(n);
-  const becher = modus === "becher";
+  // Alle Modi außer "schild": entrauschte Schattierung und milde Kurve (kein Grauschleier, keine Körnung); "becher"/"farbe" glätten stärker (flächige Objekte)
+  const weich = modus !== "schild";
+  const becher = modus === "becher" || modus === "farbe" || modus === "untersetzer" || modus === "grund";
   const klasseGew = Array.from({ length: k }, () => new Float32Array(n));
   const tmp = new Array<number>(k).fill(0);
   for (let i = 0; i < n; i++) {
@@ -89,8 +99,8 @@ export function bereiten(modus: UmfaerbModus, rgba: Uint8ClampedArray, maskeR: U
     for (let c = 0; c < k; c++) klasseGew[c][i] = tmp[c];
   }
   // Becher: Schattierung aus entrauschter Helligkeit (2 x Mittelwert 5 x 5), damit weiße Pigmente/Körnung nicht mitgefärbt werden
-  const lumS = becher ? glaette(glaette(lum, w, h), w, h) : lum;
-  const pLo = becher ? 0.05 : 0.02, pHi = becher ? 0.95 : 0.98, minB = becher ? 0.14 : MIN_BEREICH;
+  const lumS = becher ? glaette(glaette(lum, w, h), w, h) : weich ? glaette(lum, w, h) : lum;
+  const pLo = weich ? 0.05 : 0.02, pHi = weich ? 0.95 : 0.98, minB = weich ? 0.14 : MIN_BEREICH;
   const schatten: Float32Array[] = [];
   for (let c = 0; c < k; c++) {
     const hist = new Uint32Array(256); let tot = 0;
@@ -105,7 +115,7 @@ export function bereiten(modus: UmfaerbModus, rgba: Uint8ClampedArray, maskeR: U
       hi = Math.max(b / 255, 0.04); lo = Math.min(a / 255, hi - minB);
     }
     const s = new Float32Array(n);
-    for (let i = 0; i < n; i++) { const v = klemme((lumS[i] - lo) / (hi - lo)); s[i] = becher ? 0.1 + 0.72 * Math.pow(v, 0.8) : v; }
+    for (let i = 0; i < n; i++) { const v = klemme((lumS[i] - lo) / (hi - lo)); s[i] = weich ? kurve(modus, c, v) : v; }
     schatten.push(s);
   }
   return { w, h, orig: rgba, maske, klasseGew, schatten };

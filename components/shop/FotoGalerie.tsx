@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Form } from "@/lib/shop/produkte";
-import { MIT_AUFDRUCK, ORIGINALFARBE, OHNE_UMFAERBEN, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
+import { MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, darfUmfaerben, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
 import { vorbereiteFoto, farbAbstand } from "./fotoFaerben";
 import { LiveProductImage, useVorschauWerte } from "./Vorschau";
@@ -21,8 +21,8 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   const w = useVorschauWerte();
   const [idx, setIdx] = useState(0); // -1 = Live-Vorschau
   // Namensschild: Foto 1 = Blanko-Schild (ganzes Objekt in der Schildfarbe, Text kommt als Aufdruck), die übrigen = Beispielfotos mit Schrift
-  const ohneUmfaerben = OHNE_UMFAERBEN[slug]?.includes(idx) === true; // z. B. Kork-Rückseite: Foto bleibt, wie es ist
-  const modus: UmfaerbModus | undefined = ohneUmfaerben ? undefined : slug === "namensschild" ? (idx === 0 ? "farbe" : "schild") : UMFAERBEN[slug];
+  const ohneUmfaerben = !darfUmfaerben(slug, idx); // z. B. Kork-Rückseite: Foto bleibt, wie es ist
+  const modus: UmfaerbModus | undefined = ohneUmfaerben ? undefined : slug === "namensschild" ? "becher" : UMFAERBEN[slug];
   const liveAufFoto = MIT_AUFDRUCK.includes(slug); // Foto 1 ist die Live-Vorschau
   const canvas = useRef<HTMLCanvasElement>(null);
   const [gefaerbtFuer, setGefaerbtFuer] = useState<string | null>(null); // Foto, dessen umgefärbte Pixel im Canvas stehen
@@ -57,7 +57,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   const mitAufdruck = liveAufFoto && idx === 0;
   // Das Foto wird von Anfang an in der gewählten Farbe gezeigt (auch in der Vorauswahl), sobald der Kaufbereich eine Farbe gemeldet hat.
   const orig = ORIGINALFARBE[slug];
-  const istOriginalfarbe = !!orig && idx === 0 && !!w.farbe && farbAbstand(w.farbe, orig) < 45;
+  const istOriginalfarbe = !!orig && idx === 0 && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND;
   const aktiv = !!modus && !istOriginalfarbe && (mitAufdruck || farbKey.replace(/\|/g, "") !== "");
 
   const foto = idx >= 0 ? fotos[idx] : null;
@@ -125,7 +125,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
         {foto
           ? (mitAufdruck
             ? (slug === "namensschild" ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). " : slug === "stiftebecher-tasse" ? "Vorschau: Dein Text und deine Farben auf dem Foto des Bechers (bearbeitet). " : "Vorschau: Dein Text und deine Farben auf dem Foto des Untersetzers (bearbeitet). ")
-            : ohneUmfaerben ? "Foto: Beispielstück mit Kork (Option, siehe Auswahl). "
+            : ohneUmfaerben ? (foto.alt.includes("Kork") ? "Foto: Beispielstück mit Kork (Option, siehe Auswahl). " : "Foto: Beispielstück. ")
             : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). " : "Foto: Beispielstück. ")
           : "Vorschau (gezeichnet, kein Foto). "}
         <strong>Wichtig:</strong> {TEXTE.bildHinweis}
