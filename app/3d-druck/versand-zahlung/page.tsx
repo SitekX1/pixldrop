@@ -51,7 +51,7 @@ export default async function Versand() {
             "Kann das Paket nicht zugestellt werden (falsche Adresse, nicht abgeholt), melde ich mich per E-Mail. Entstehen durch falsche Angaben von dir zusätzliche Kosten, kann ich sie dir berechnen, soweit gesetzlich zulässig.",
           ]} />
           <Abschnitt titel="Verpackung" absaetze={[
-            "Ich verpacke selbst, in Versandkartons bzw. Versandtaschen mit Papier- oder Pappfüllmaterial, damit die Ware den Transport übersteht. Für Verpackungen gelten die Vorgaben des Verpackungsgesetzes (VerpackG); die Registrierung bei LUCID erfolgt vor dem ersten Versand.",
+            "Ich verpacke selbst, in Versandkartons bzw. Versandtaschen mit Papier- oder Pappfüllmaterial, damit die Ware den Transport übersteht.",
           ]} />
         </article>
       </div>

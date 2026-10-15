@@ -10,6 +10,10 @@ export default function Widerrufsrecht() {
         ← Zurück
       </Link>
       <h1>Widerrufsbelehrung</h1>
+      <p>
+        Diese Belehrung gilt nur für personalisierte Grußvideos. Für den 3D-Druck-Shop gilt die
+        Widerrufsbelehrung unter <Link href="/3d-druck/widerruf">pixldrop.de/3d-druck/widerruf</Link>.
+      </p>
 
       <p>
         Diese Widerrufsbelehrung gilt für den Kauf personalisierter Grußvideos (digitale

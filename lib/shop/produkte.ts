@@ -62,13 +62,16 @@ export interface Produkt {
 
 const KEIN_SPIELZEUG = "Kein Spielzeug, nicht für Kinder.";
 /** Hitzehinweis je Material. */
-export function hitzeHinweis(material: string): string {
+export function hitzeHinweis(material: string, untersetzer = false): string {
   const grenze = /petg/i.test(material) ? "ca. 70 °C" : "ca. 50 °C";
-  return `Nicht für Töpfe oder direkt heiße Gefäße; nicht für dauerhaft über ${grenze}.`;
+  const nur = grenze.replace("ca. ", "");
+  return untersetzer
+    ? `Für Tassen und Gläser mit Getränken bis etwa ${nur} Bodentemperatur. Nicht für frisch gekochte Töpfe, Pfannen oder Backofen und nicht dauerhaft über ${grenze}. Wärme verformt den Kunststoff.`
+    : `Nicht für Töpfe, Pfannen oder Backofen und nicht dauerhaft über ${grenze}. Wärme verformt den Kunststoff.`;
 }
 const LED = "Nicht für offene Flammen (nur mit LED-Teelichtern).";
 const MATERIAL = "PLA"; // Alex trägt je Artikel das echte Material ein (PLA oder PETG)
-const HITZE = hitzeHinweis(MATERIAL);
+const HITZE = hitzeHinweis(MATERIAL, true); // alle Artikel mit HITZE sind Untersetzer
 // TESTWERT: Testpreis (9,90 EUR) fuer alle bestellbaren Artikel, damit der Server Bestellungen annimmt.
 // Alex ersetzt ihn je Artikel durch den echten Preis.
 const TESTPREIS_CENT = 990;
@@ -131,7 +134,7 @@ export const PRODUKTE: Produkt[] = [
     name: "Stiftebecher in Tassenform",
     kurz: "Der Stiftebecher fürs Büro, mit Lamellen und Kaffeetassen-Look.",
     beschreibung:
-      "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee. Auf Wunsch mit einer Textzeile in einer von 26 Schriften; änderst du den Text, wird das Stück einzeln für dich gefertigt.",
+      "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee. Auf Wunsch mit einer Textzeile in einer von 25 Schriften; änderst du den Text, wird das Stück einzeln für dich gefertigt.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "tasse", grundfarbe: "#6b4423",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: [],
     personalisierung: { maxLaenge: 14, label: "Text auf der Tasse", beispiel: "Stifte", standardSchrift: "montserrat" },
@@ -142,7 +145,7 @@ export const PRODUKTE: Produkt[] = [
     name: "Spruch-Untersetzer mit deinem Text",
     kurz: "Name oder Spruch frei wählbar, Schrift aus 26 Vorschlägen.",
     beschreibung:
-      "Ein Untersetzer mit deinem Namen oder Spruch, in einer von 26 Schriften. Jedes Stück wird einzeln für dich gedruckt.",
+      "Ein Untersetzer mit deinem Namen oder Spruch, in einer von 25 Schriften. Jedes Stück wird einzeln für dich gedruckt.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#f0bb55",
     preisCent: TESTPREIS_CENT, masse: null, material: MATERIAL, optionen: korbGruppe(100),
     personalisierung: { maxLaenge: 40, label: "Dein Text", beispiel: "Montag" },

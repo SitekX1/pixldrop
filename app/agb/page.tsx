@@ -10,6 +10,11 @@ export default function AGB() {
         ← Zurück
       </Link>
       <h1>Allgemeine Geschäftsbedingungen</h1>
+      <p>
+        Diese Bedingungen gelten nur für personalisierte Grußvideos. Für den 3D-Druck-Shop gelten die
+        AGB und die Widerrufsbelehrung unter <Link href="/3d-druck/agb">pixldrop.de/3d-druck/agb</Link>{" "}
+        bzw. <Link href="/3d-druck/widerruf">/3d-druck/widerruf</Link>.
+      </p>
 
       <h2>1. Geltungsbereich und Anbieter</h2>
       <p>

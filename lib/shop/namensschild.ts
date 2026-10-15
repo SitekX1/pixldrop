@@ -21,7 +21,7 @@ export const NS_STAENDER = { x: 0.5, breite: 189.6, hoehe: 13 } as const;
 export const KAPPE_JE_EM: Record<string, number> = {
   "dancing-script": 0.72, "pacifico": 0.84, "caveat": 0.61, "satisfy": 0.749, "lobster": 0.748, "permanent-marker": 0.7402,
   "bangers": 0.721, "righteous": 0.7002, "playfair": 0.708, "cinzel": 0.7, "montserrat": 0.7, "oswald": 0.81,
-  "artsy-morning": 1.07, "bulbear": 0.714, "montague": 0.7, "oldwest": 0.77, "rosemartin": 0.77, "roundex": 0.7358,
+  "artsy-morning": 1.07, "bulbear": 0.714, "oldwest": 0.77, "rosemartin": 0.77, "roundex": 0.7358,
   "start-story": 0.724, "street-year": 0.714, "the-sally": 0.7, "travellia": 0.7, "vegan-days": 0.7, "welcome-drama": 0.714,
   "winter-draw": 0.724, "wood-dragon": 0.7,
 };

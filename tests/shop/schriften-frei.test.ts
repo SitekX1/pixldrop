@@ -5,7 +5,7 @@ import { SCHRIFTEN, fehlendeZeichen, fehlendeZeichenMeldung, umlauteErsetzen, un
 import { berechneWarenkorb, type Kontext } from "@/lib/shop/server/preise";
 import { versandOptionenFuerKorb } from "@/lib/shop/versand";
 
-const NEU = ["artsy-morning", "bulbear", "montague", "oldwest", "rosemartin", "roundex", "start-story", "street-year", "the-sally", "travellia", "vegan-days", "welcome-drama", "winter-draw", "wood-dragon"];
+const NEU = ["artsy-morning", "bulbear", "oldwest", "rosemartin", "roundex", "start-story", "street-year", "the-sally", "travellia", "vegan-days", "welcome-drama", "winter-draw", "wood-dragon"];
 const OHNE_ALLE = ["artsy-morning", "oldwest", "rosemartin", "start-story", "street-year", "the-sally", "vegan-days", "welcome-drama", "winter-draw", "wood-dragon"];
 const UMLAUTE = "ÄÖÜäöüß";
 const katalog = PRODUKTE.map((p) => ({ ...p, preisCent: 1290 }));
@@ -16,7 +16,7 @@ const bestell = (text: string, schriftId: string, optionen?: Record<string, unkn
   return berechneWarenkorb(korb, ctx(), versandOptionenFuerKorb(korb)[0]?.art ?? "hermes");
 };
 
-test("14 neue Schriften vorhanden, Pflichtfelder gesetzt", () => {
+test("13 neue Schriften vorhanden, Pflichtfelder gesetzt", () => {
   for (const id of NEU) {
     const s = SCHRIFTEN.find((x) => x.id === id);
     assert.ok(s, id);
@@ -25,7 +25,7 @@ test("14 neue Schriften vorhanden, Pflichtfelder gesetzt", () => {
     assert.equal(s.hatFett, false);
     assert.equal(s.hatKursiv, false);
   }
-  assert.equal(SCHRIFTEN.find((x) => x.id === "montague")!.lizenz, "unklar (keine Lizenzdatei)");
+  assert.equal(SCHRIFTEN.find((x) => x.id === "montague"), undefined); // Lizenz unklar, entfernt
   assert.equal(new Set(SCHRIFTEN.map((s) => s.id)).size, SCHRIFTEN.length);
 });
 

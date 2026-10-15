@@ -42,7 +42,7 @@ export const TEXTE = {
   datenschutzHinweis: "Informationen zur Verarbeitung deiner Daten findest du in der",
   versandHinweis: "Versandkosten werden im Warenkorb angezeigt (Lieferung nur innerhalb Deutschlands)",
   lieferzeitHinweis: "Lieferzeit: Druckzeit plus Versand, genaue Angabe in der Bestellbestätigung",
-  bildHinweis: "Bilder sind nur eine Orientierung. Das fertige Stück kann in Farbe, Glanz und Aussehen vom Bild abweichen, auch wegen deines Bildschirms und der Filamentcharge.",
+  bildHinweis: "Die Bilder zeigen Beispielstücke aus meiner Fertigung. Wird ein Foto in deiner gewählten Farbe angezeigt, ist es digital bearbeitet und kein Foto deines fertigen Stücks. Farbton und Glanz können durch Bildschirm, Licht und Filament-Charge leicht abweichen. Maßgeblich ist die Farbbezeichnung, die du im Warenkorb siehst.",
   kleinunternehmer: "Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer",
   keinSpielzeug: "Kein Spielzeug, nicht für Kinder.",
   ledHinweis: "Nicht für offene Flammen (nur mit LED-Teelichtern).",

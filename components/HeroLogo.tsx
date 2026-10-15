@@ -6,10 +6,11 @@ import ChromaKeyVideo from "./ChromaKeyVideo";
 // Plays the Eddie run-in/wave intro once, then crossfades (with a slight
 // zoom-out, since the video ends more zoomed-in on Eddie than the full
 // logo graphic) into the static logo. "Once" means once per browser tab
-// session, not once per mount — navigating to /impressum and back to / is
-// a fresh mount of this component, so without sessionStorage it would
+// page load, not once per mount — navigating to /impressum and back to / is
+// a fresh mount of this component, so without a module-level flag it would
 // replay every time.
-const PLAYED_KEY = "eddie-hero-played";
+// Merker nur im Arbeitsspeicher (kein Browser-Speicher, daher ohne Einwilligung nach § 25 TDDDG): gilt bis zum Neuladen.
+let played = false;
 
 export default function HeroLogo() {
   const [showIntro, setShowIntro] = useState(true);
@@ -19,22 +20,15 @@ export default function HeroLogo() {
   // paints — on a repeat visit within the session the intro video never
   // becomes visible for even a frame, it just skips straight to the logo.
   useLayoutEffect(() => {
-    try {
-      if (sessionStorage.getItem(PLAYED_KEY) === "1") {
-        setShowIntro(false);
-        setVideoEnded(true);
-      }
-    } catch {
-      // sessionStorage can throw in locked-down contexts (e.g. some privacy
-      // modes) — falling back to "play it" is the safe default.
+    if (played) {
+      setShowIntro(false);
+      setVideoEnded(true);
     }
   }, []);
 
   function handleEnded() {
     setVideoEnded(true);
-    try {
-      sessionStorage.setItem(PLAYED_KEY, "1");
-    } catch {}
+    played = true;
   }
 
   return (

@@ -74,7 +74,7 @@ export default async function Produktseite({ params }: Props) {
               <dl className="shop-details">
                 {p.masse && <div><dt>Maße</dt><dd>ca. {p.masse} mm{p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}</dd></div>}
                 <div><dt>Material</dt><dd>{p.material}</dd></div>
-                <div><dt>Modell</dt><dd>Eigenentwurf</dd></div>
+                <div><dt>Modell</dt><dd>Eigene Gestaltung</dd></div>
               </dl>
               {p.masse && !p.toleranzMm && <p className="muted">Maße sind ca.-Angaben, Toleranz im Rahmen des FDM-Verfahrens.</p>}
               <p>Das Stück wird im FDM-Verfahren Schicht für Schicht gedruckt; feine Schichtlinien sind sichtbar und gehören zu diesem Produkt. Die Farbe kann je nach Bildschirm anders aussehen.</p>
@@ -82,9 +82,9 @@ export default async function Produktseite({ params }: Props) {
             <article className="shop-dkarte shop-dkarte--sicher" id="sicherheit" aria-labelledby="gpsr">
               <div className="shop-dkopf"><span className="shop-medaillon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z"/><path d="M12 10v4.5"/><path d="M12 17.2v.1"/></svg></span><h3 id="gpsr">Sicherheit und Hinweise</h3></div>
               <ul>
-                <li>{hitzeHinweis(p.material)}</li>
+                <li>{hitzeHinweis(p.material, p.kategorien.includes("untersetzer"))}</li>
                 <li>{TEXTE.keinSpielzeug}</li>
-                {p.hinweise.filter((h) => h !== TEXTE.keinSpielzeug && h !== hitzeHinweis(p.material)).map((h) => <li key={h}>{h}</li>)}
+                {p.hinweise.filter((h) => h !== TEXTE.keinSpielzeug && h !== hitzeHinweis(p.material, p.kategorien.includes("untersetzer"))).map((h) => <li key={h}>{h}</li>)}
               </ul>
             </article>
             <article className="shop-dkarte" aria-labelledby="versand-widerruf">
@@ -95,7 +95,7 @@ export default async function Produktseite({ params }: Props) {
                 <li>Standardware: 14 Tage Widerruf. Bei individuellem Text besteht kein Widerrufsrecht.</li>
                 <li><Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               </ul>
-              <p className="muted">Hersteller: siehe <Link className="shop-link" style={{ minHeight: 0 }} href="/impressum">Impressum</Link> (Kontakt unten).</p>
+              <p className="muted">Hersteller: Alexander Sitek (PixlDrop), Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: <a className="shop-link" style={{ minHeight: 0 }} href="mailto:as@sitekx.de">as@sitekx.de</a> (<Link className="shop-link" style={{ minHeight: 0 }} href="/impressum">Impressum</Link>). Produkt: {p.name}, Material {p.material}. Die Sicherheitshinweise stehen oben und liegen jeder Lieferung bei.</p>
             </article>
           </div>
         </section>

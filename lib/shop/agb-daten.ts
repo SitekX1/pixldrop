@@ -28,8 +28,8 @@ return [
   ] },
   { titel: "2. Produkte und Beschaffenheit", a: [
     "(1) Ich biete Dekorations- und Gebrauchsgegenstände aus Kunststoff (PLA bzw. PETG, je nach Artikelseite) an, die im Schmelzschichtverfahren (FDM) gedruckt werden. Die genauen Eigenschaften (Material, Maße, Farbe, Verwendung) stehen auf der jeweiligen Artikelseite; sie sind die vereinbarte Beschaffenheit.",
-    "(2) Maßangaben auf der Artikelseite enthalten die dort genannte Toleranz; die Toleranz ist Teil der Maßangabe. Besonderheiten des Druckverfahrens (z. B. die sichtbare Schichtstruktur) und die Farbe beschreibe ich ebenfalls auf der Artikelseite. Bildschirme stellen Farben unterschiedlich dar.",
-    "(3) Artikelfotos mit der Kennzeichnung „Render“ oder „Muster“ sind Illustrationen. Die Kennzeichnung „Foto“ zeigt ein tatsächlich gefertigtes Stück.",
+    "(2) Maßangaben enthalten die genannte Toleranz. Besonderheiten des Druckverfahrens (sichtbare Schichtstruktur, leichte Farb- und Glanzunterschiede zwischen Filament-Chargen) gehören zur Beschaffenheit. Bildschirme stellen Farben unterschiedlich dar; vereinbart ist die von dir gewählte Farbbezeichnung. Wesentliche Abweichungen von ihr sind ein Mangel (Ziffer 11).",
+    "(3) Artikelbilder sind Beispiele. „Foto: Beispielstück“ zeigt ein tatsächlich gefertigtes Stück, „bearbeitet“ ein digital umgefärbtes Foto, „gezeichnet“ eine Illustration ohne Foto. Keines davon ist ein Foto deines Stücks.",
     "(4) Die Artikel sind **kein Spielzeug**, **nicht für Kinder unter 3 Jahren** und **nicht für Lebensmittelkontakt** bestimmt. Teelichthalter und Laternen sind nur für **LED-Teelichter** vorgesehen, **nicht für offene Flamme**. Weitere Hinweise stehen auf der Artikelseite; bitte beachte sie.",
   ] },
   { titel: "3. Vertragsschluss im Shop (Standardartikel, Zahlung sofort per PayPal)", a: [
@@ -100,7 +100,7 @@ return [
   ] },
   { titel: "13. Produkthinweise und Rechte an Modellen", a: [
     "(1) Beachte die Sicherheits- und Pflegehinweise auf der Artikelseite, insbesondere: nur LED-Teelichter, keine offene Flamme, kein Spielzeug, nicht für Lebensmittelkontakt, Hitzegrenze beachten.",
-    "(2) Alle Modelle sind meine eigenen Konstruktionen. Soweit sie urheberrechtlich oder sonst gesetzlich geschützt sind, bleiben die Rechte an Entwürfen und Druckdateien bei mir; das gewerbliche Nachdrucken oder Vervielfältigen ohne meine Zustimmung ist nicht erlaubt. Das gekaufte Stück gehört dir; du darfst es frei nutzen, verschenken und weiterverkaufen. Gesetzlich erlaubte Nutzungen (z. B. private Nutzung) bleiben unberührt. Soweit Modelle Dritter unter Creative-Commons-Lizenz verwendet werden, nenne ich Urheber und Lizenz auf der Artikelseite.",
+    "(2) Die Modelle sind eigene Entwürfe und Gestaltungen von PixlDrop, teils mit Hilfe von Software zur Modellerstellung entstanden. Soweit sie urheberrechtlich oder sonst gesetzlich geschützt sind, bleiben die Rechte an Entwürfen und Druckdateien bei mir; das gewerbliche Nachdrucken oder Vervielfältigen ohne meine Zustimmung ist nicht erlaubt. Das gekaufte Stück gehört dir; du darfst es frei nutzen, verschenken und weiterverkaufen. Gesetzlich erlaubte Nutzungen (z. B. private Nutzung) bleiben unberührt. Soweit Modelle Dritter unter Creative-Commons-Lizenz verwendet werden, nenne ich Urheber und Lizenz auf der Artikelseite.",
   ] },
   { titel: "14. Datenschutz", a: ["Informationen zur Verarbeitung deiner Daten findest du in der Datenschutzerklärung (pixldrop.de/datenschutz)."] },
   { titel: "15. Streitbeilegung", a: [

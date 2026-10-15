@@ -158,6 +158,13 @@ export default function Datenschutz() {
         Angaben können wir nicht liefern (Bereitstellung vertraglich erforderlich).
       </p>
       <p>
+        Nutzt du die Widerrufsfunktion, verarbeite ich Name, Bestell- bzw. Vertragsangabe,
+        betroffene Positionen und E-Mail-Adresse, um den Widerruf zu bearbeiten und dir die
+        Eingangsbestätigung zu senden (<strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. c
+        DSGVO i. V. m. § 356a BGB, im Übrigen lit. b). Der Versand erfolgt über IONOS (siehe 12.5).
+        Speicherdauer wie die zugehörige Bestellung.
+      </p>
+      <p>
         <strong>Automatische Textprüfung:</strong> Wunschtexte werden vor der Bestellung
         automatisch mit Wortlisten auf unzulässige Inhalte (z. B. Beleidigungen, Hass) und
         geschützte Marken abgeglichen. Das geschieht in deinem Browser und beim Absenden
@@ -263,9 +270,13 @@ export default function Datenschutz() {
 
       <h3>12.6 Versand</h3>
       <p>
-        Für die Zustellung geben wir Name und Anschrift (bei Bedarf E-Mail für Sendungsverfolgung)
-        an <strong>DHL (Deutsche Post AG, Charles-de-Gaulle-Straße 20, 53113 Bonn)</strong>{" "}
-        weiter. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO.
+        Für die Zustellung gebe ich Name und Lieferanschrift an das von dir gewählte
+        Versandunternehmen weiter: <strong>Hermes Germany GmbH</strong> (Essener Straße 89, 22419
+        Hamburg), <strong>DHL Paket GmbH</strong> (Sträßchensweg 10, 53113 Bonn) bzw. bei
+        Briefversand <strong>Deutsche Post AG</strong> (Charles-de-Gaulle-Straße 20, 53113 Bonn).
+        Deine E-Mail-Adresse gebe ich nur weiter, wenn dies für die Sendungsverfolgung
+        erforderlich ist. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO. Die
+        Versanddienstleister verarbeiten die Daten in eigener Verantwortung.
       </p>
 
       <h3>12.7 Hosting und Datenbank</h3>
@@ -281,11 +292,14 @@ export default function Datenschutz() {
 
       <h3>12.8 Keine Cookies, kein Tracking</h3>
       <p>
-        Im Shop setzen wir keine Tracking- oder Marketing-Cookies ein und binden keine externen
-        Schriften oder Skripte ein (Schriften lokal). Zur Bestellung speichert dein Browser
-        vorübergehend den Zwischenstand deines Warenkorbs (<code>sessionStorage</code>); das ist
-        technisch erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG) und endet mit dem Schließen des Tabs.
-        Eine Klick-Statistik ist im Shop nicht aktiv.
+        Im Shop setze ich keine Tracking- oder Marketing-Cookies ein und binde keine externen
+        Schriften oder Skripte ein (Schriften lokal). Zur Abwicklung speichert dein Browser
+        vorübergehend im <code>sessionStorage</code> dieses Tabs: den Warenkorb, die gewählte
+        Versandart, deine bereits eingegebenen Lieferdaten (Name, Anschrift, E-Mail, Hinweis) und
+        einen technischen Schlüssel gegen Doppelbestellungen. Das ist erforderlich, damit der
+        Bestellvorgang nach der Rückkehr von PayPal fortgesetzt werden kann (§ 25 Abs. 2 Nr. 2
+        TDDDG); die Daten enden mit dem Schließen des Tabs. Eine Klick-Statistik ist im Shop nicht
+        aktiv.
       </p>
 
       <h3>12.9 Speicherdauer im Shop</h3>
@@ -328,6 +342,19 @@ export default function Datenschutz() {
         besonderen Situation ergeben, widersprechen. Beschwerde: Bayerisches Landesamt für
         Datenschutzaufsicht, Promenade 18, 91522 Ansbach (Art. 77 DSGVO). Es gibt keine
         automatisierte Entscheidungsfindung im Sinne von Art. 22 DSGVO und kein Profiling.
+      </p>
+
+      <h3>12.11 Schutz vor Missbrauch</h3>
+      <p>
+        Zum Schutz der Formulare (Bestellung, Anfrage, Widerruf, Kontakt) vor automatisierten
+        Eingaben setze ich ein verstecktes Zusatzfeld, ein zeitlich begrenztes, signiertes
+        Formular-Token und eine Begrenzung der Anzahl von Absendungen ein. Dazu wird deine
+        IP-Adresse nur als nicht rückrechenbarer Hash (mit geheimem Schlüssel, bei IPv6 nur das
+        Netzpräfix) verarbeitet und mit dem jeweiligen Vorgang gespeichert; die Klartext-IP wird
+        dafür nicht gespeichert. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO
+        (berechtigtes Interesse an sicherem Betrieb und Schutz vor Missbrauch). Speicherdauer: wie
+        der zugehörige Datensatz (siehe 12.9). Dienste Dritter (z. B. Captcha) werden dafür nicht
+        eingesetzt.
       </p>
 
       <LegalFooter />
