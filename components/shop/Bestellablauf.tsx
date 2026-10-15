@@ -236,7 +236,7 @@ export default function Bestellablauf({
             <div className="shop-zus-img"><PositionsBild p={p} a={a} farbeHex={farben.find((f) => f.id === a.farbeId)?.hex} textfarbeHex={a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY])?.hex : undefined} farben={farben} /></div>
             <div className="shop-zus-txt">
               <strong>{p.name}</strong>
-              <span className="muted">{a.menge} × {formatPreis(einzelpreisCent(p, a.optionen))}{p.teile ? ` · ${teilFarbenText(p, a, farben)}` : ""}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}</span>
+              <span className="muted">{a.menge} × {formatPreis(einzelpreisCent(p, a.optionen))}{p.teile ? ` · ${teilFarbenText(p, a, farben)}` : ""}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}{a.text && p.personalisierung ? ` · Schrift ${SCHRIFTEN.find((s) => s.id === (p.personalisierung?.festeSchrift ?? a.schriftId))?.name ?? ""}` : ""}</span>
             </div>
             <span className="shop-zus-sum">{einzelpreisCent(p, a.optionen) != null ? formatPreis(einzelpreisCent(p, a.optionen)! * a.menge) : "auf Anfrage"}</span>
           </li>
