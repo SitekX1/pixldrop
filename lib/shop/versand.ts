@@ -107,6 +107,8 @@ const UNTERSETZER = (anz: number): PackTeil => ({ mm: [90, 90, 3], g: 15, anz })
 /** Stiftebecher innen (aus der STL: Innen-Radius 37,6 mm, Boden 3 mm; abzueglich 1 mm Spiel je Seite). */
 const TASSE_INNEN = { d: 74, h: 95 };
 const BOX_SET: PackTeil[] = [{ mm: [96.8, 40, 54], g: 169, anz: 1 }]; // 5 Untersetzer hochkant in der Box
+/** Breite Box fuer Untersetzer MIT Kork (Alex 2026-10-15): 97 x 47 x 54 mm, Box 95 g + 5 Untersetzer 75 g (Kork-Gewicht vernachlaessigt). */
+const BOX_SET_KORK: PackTeil[] = [{ mm: [97, 47, 54], g: 170, anz: 1 }];
 const ROH: Record<string, Roh> = {
   "wochentags-untersetzer-set": { teile: [UNTERSETZER(5)], teileMitBox: BOX_SET, briefFaehig: true, stueckJeMenge: 5 },
   "wochentags-untersetzer-einzeln": { teile: [UNTERSETZER(1)], teileMitBox: BOX_SET, briefFaehig: true, stueckJeMenge: 1 },
@@ -130,7 +132,8 @@ function stueckVon(t: PackTeil): Stueck {
   const [l, m, k] = [...t.mm].sort((x, y) => y - x);
   return { l, m, k, g: t.g, vol: l * m * k, rund: t.rund, hohl: t.hohl };
 }
-function teileJeStueck(roh: Roh, box: boolean): PackTeil[] {
+function teileJeStueck(roh: Roh, box: boolean, kork = false): PackTeil[] {
+  if (box && roh.teileMitBox && kork) return roh.teileMitBox === BOX_SET ? BOX_SET_KORK : roh.teileMitBox;
   return box && roh.teileMitBox ? roh.teileMitBox : roh.teile;
 }
 const stueckeAusTeilen = (teile: readonly PackTeil[]): Stueck[] =>
@@ -203,7 +206,7 @@ function stueckeAusKorb(positionen: readonly VersandPosition[]): Stueck[] {
   for (const p of positionen) {
     const roh = ROH[p.slug] ?? UNBEKANNT;
     const box = p.optionen?.[BOX_GRUPPE] === BOX_MIT;
-    for (let i = 0, n = Math.min(mengeOk(p.menge), 500); i < n; i++) out.push(...stueckeAusTeilen(teileJeStueck(roh, box)));
+    for (let i = 0, n = Math.min(mengeOk(p.menge), 500); i < n; i++) out.push(...stueckeAusTeilen(teileJeStueck(roh, box, p.optionen?.kork === "mit")));
   }
   return verschachtele(out);
 }
