@@ -23,7 +23,7 @@ export default function ShopPromoCard() {
         </div>
         <span className={`shop-promo-titel ${titel.className}`}>Eddies<br />3D-Druck-Shop</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/shop/eddie-stand.webp" alt="" className="shop-promo-eddie" loading="lazy" decoding="async" />
+        <img src="/shop/eddie-3d.webp" alt="" className="shop-promo-eddie" loading="lazy" decoding="async" />
       </div>
       <div className="eyebrow-small">Individuell &middot; Halloween &middot; selbst gedruckt</div>
       <h3>Eddies 3D-Druck-Shop</h3>
