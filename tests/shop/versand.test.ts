@@ -110,10 +110,22 @@ test("Brief: Box, nicht brieffaehige Artikel und Mischkorb schliessen Brief aus"
   assert.deepEqual(arten(versandOptionen([{ slug: "spruch-untersetzer", menge: 1, optionen: { kork: "mit" } }])), ["brief"]);
 });
 
-test("Set zaehlt mit seinen Stuecken (5 Untersetzer = Maxibrief)", () => {
+test("Set zaehlt mit seinen Stuecken (5 Untersetzer 15 mm + Umschlag = Grossbrief, mit Kork Maxibrief)", () => {
   const o = versandOptionen([{ slug: "wochentags-untersetzer-set", menge: 1, optionen: { box: "ohne" } }]);
   assert.deepEqual(arten(o), ["brief"]);
-  assert.equal(o[0].cent, 290);
+  assert.equal(o[0].cent, 180);
+  const k = versandOptionen([{ slug: "wochentags-untersetzer-set", menge: 1, optionen: { box: "ohne", kork: "mit" } }]);
+  assert.equal(k[0].cent, 290, "5 x (3 + 1 mm Kork) + Umschlag > 20 mm");
+  assert.equal(versandOptionen([{ slug: "wochentags-untersetzer-set", menge: 2, optionen: { box: "ohne" } }])[0].cent, 290, "10 Stueck: Maxibrief");
+});
+
+test("Hohlraum: kleine Artikel reisen in der Tasse mit (kein eigenes Volumen)", () => {
+  const tasse = versandOptionen([{ slug: "stiftebecher-tasse", menge: 1 }]);
+  const mit = versandOptionen([{ slug: "stiftebecher-tasse", menge: 1 }, { slug: "kuerbis-teelichthalter", menge: 1 }, { slug: "geister-set-klein", menge: 1 }]);
+  assert.equal(cent(mit, "hermes"), cent(tasse, "hermes"));
+  // zu grosse Teile (Geister gross, 104 mm) bleiben draussen
+  const gross = versandOptionen([{ slug: "stiftebecher-tasse", menge: 1 }, { slug: "geister-set", menge: 1 }]);
+  assert.ok((cent(gross, "hermes") ?? 0) >= (cent(tasse, "hermes") ?? 0));
 });
 
 test("Leerer Korb und unbekannter Slug", () => {

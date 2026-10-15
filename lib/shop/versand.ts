@@ -42,9 +42,13 @@ export const VERSAND_PREISE: Record<"hermes" | "dhl", Record<VersandStufe, { lab
 
 /** Brief (Deutsche Post), nur fuer flache Untersetzer OHNE Box. VORLAEUFIG: Stueckgrenzen. */
 export const VERSAND_BRIEF = {
-  grossbrief: { label: "Großbrief (Deutsche Post)", cent: 180, maxStueck: 2 }, // 35,3 x 25 x 2 cm, 500 g
-  maxibrief: { label: "Maxibrief (Deutsche Post)", cent: 290, maxStueck: 7 }, //  35,3 x 25 x 5 cm, 1 kg
+  grossbrief: { label: "Großbrief (Deutsche Post)", cent: 180, maxStueck: 5, maxDickeMm: 20 }, // 35,3 x 25 x 2 cm, 500 g
+  maxibrief: { label: "Maxibrief (Deutsche Post)", cent: 290, maxStueck: 11, maxDickeMm: 50 }, //  35,3 x 25 x 5 cm, 1 kg
 } as const;
+/** Brief-Dicke: Untersetzer 3 mm (Ø 90 mm passt flach), selbstklebender Kork +1 mm (Annahme, Alex misst nach), Umschlag/Pappe 3 mm. */
+export const UNTERSETZER_DICKE_MM = 3;
+export const KORK_DICKE_MM = 1;
+export const BRIEF_UMSCHLAG_MM = 3;
 
 /** Kurzname der Versandart fuer Mails/Anzeige. */
 export const VERSANDART_NAME: Record<VersandArt, string> = {
@@ -73,7 +77,13 @@ export const PAKET_MAX_G = 5000;
 export const DHL_KLEIN_MAX_G = 2000;
 
 /** Ein Teil eines Produkts: Masse in mm (Reihenfolge egal), Gewicht in g, Anzahl. */
-export interface PackTeil { mm: [number, number, number]; g: number; anz: number }
+export interface PackTeil {
+  mm: [number, number, number]; g: number; anz: number;
+  /** rotationssymmetrisch (z. B. Geister, Kuerbisse): zaehlt beim Hineinlegen in einen Becher als Kreis mit der groessten Kante */
+  rund?: boolean;
+  /** hohl: nimmt kleine Artikel auf (Innendurchmesser, Innentiefe in mm); die Artikel zaehlen dann nicht extra */
+  hohl?: { d: number; h: number };
+}
 export const BOX_GRUPPE = "box";
 export const BOX_MIT = "mit";
 export interface VersandProdukt {
@@ -89,6 +99,8 @@ export interface VersandProdukt {
 }
 type Roh = Omit<VersandProdukt, "versandStufe">;
 const UNTERSETZER = (anz: number): PackTeil => ({ mm: [90, 90, 3], g: 15, anz });
+/** Stiftebecher innen (aus der STL: Innen-Radius 37,6 mm, Boden 3 mm; abzueglich 1 mm Spiel je Seite). */
+const TASSE_INNEN = { d: 74, h: 95 };
 const BOX_SET: PackTeil[] = [{ mm: [96.8, 40, 54], g: 169, anz: 1 }]; // 5 Untersetzer hochkant in der Box
 const ROH: Record<string, Roh> = {
   "wochentags-untersetzer-set": { teile: [UNTERSETZER(5)], teileMitBox: BOX_SET, briefFaehig: true, stueckJeMenge: 5 },
@@ -96,22 +108,22 @@ const ROH: Record<string, Roh> = {
   "spruch-untersetzer": { teile: [UNTERSETZER(1)], briefFaehig: true, stueckJeMenge: 1 },
   "halloween-untersetzer-set": { teile: [UNTERSETZER(3)], briefFaehig: true, stueckJeMenge: 3 },
   "halloween-untersetzer-einzeln": { teile: [UNTERSETZER(1)], briefFaehig: true, stueckJeMenge: 1 },
-  "stiftebecher-tasse": { teile: [{ mm: [166.3, 85, 100], g: 97, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
+  "stiftebecher-tasse": { teile: [{ mm: [166.3, 85, 100], g: 97, anz: 1, hohl: TASSE_INNEN }], briefFaehig: false, stueckJeMenge: 1 },
   "namensschild": { teile: [{ mm: [196.5, 57.7, 19], g: 67, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Platte 6 + Staender 13, zerlegt
   "kuerbis-laterne": { teile: [{ mm: [108, 111, 120], g: 150, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Gewicht VORLAEUFIG, Alex wiegt nach
-  "geister-set": { teile: [{ mm: [77.2, 86.2, 70], g: 21, anz: 1 }, { mm: [81.5, 84.2, 96], g: 24, anz: 1 }, { mm: [104.5, 104.5, 80], g: 28, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
-  "geister-set-klein": { teile: [{ mm: [46.3, 51.7, 42], g: 6, anz: 1 }, { mm: [48.9, 50.5, 57.6], g: 6, anz: 1 }, { mm: [62.7, 62.7, 48], g: 7, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
-  "kuerbis-klein-set": { teile: [{ mm: [51.1, 50.1, 50], g: 20, anz: 1 }, { mm: [58.7, 58.5, 50], g: 26, anz: 1 }, { mm: [59.9, 59.5, 50], g: 28, anz: 1 }, { mm: [35.4, 35.7, 50], g: 8, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // 4 Kuerbisse = 82 g laut Alex, Masse aus der 3MF
-  "kuerbis-teelichthalter": { teile: [{ mm: [72, 73, 40], g: 38, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
+  "geister-set": { teile: [{ mm: [77.2, 86.2, 70], g: 21, anz: 1, rund: true }, { mm: [81.5, 84.2, 96], g: 24, anz: 1, rund: true }, { mm: [104.5, 104.5, 80], g: 28, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  "geister-set-klein": { teile: [{ mm: [46.3, 51.7, 42], g: 6, anz: 1, rund: true }, { mm: [48.9, 50.5, 57.6], g: 6, anz: 1, rund: true }, { mm: [62.7, 62.7, 48], g: 7, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  "kuerbis-klein-set": { teile: [{ mm: [51.1, 50.1, 50], g: 20, anz: 1, rund: true }, { mm: [58.7, 58.5, 50], g: 26, anz: 1, rund: true }, { mm: [59.9, 59.5, 50], g: 28, anz: 1, rund: true }, { mm: [35.4, 35.7, 50], g: 8, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 }, // 4 Kuerbisse = 82 g laut Alex, Masse aus der 3MF
+  "kuerbis-teelichthalter": { teile: [{ mm: [72, 73, 40], g: 38, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
 };
 /** Unbekannter Slug: grosszuegiger Quader, nie Brief. */
 const UNBEKANNT: Roh = { teile: [{ mm: [200, 150, 100], g: 300, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 };
 
 /** Ein einzelnes Packstueck (Masse sortiert: l >= m >= k). */
-interface Stueck { l: number; m: number; k: number; g: number; vol: number }
+interface Stueck { l: number; m: number; k: number; g: number; vol: number; rund?: boolean; hohl?: { d: number; h: number } }
 function stueckVon(t: PackTeil): Stueck {
   const [l, m, k] = [...t.mm].sort((x, y) => y - x);
-  return { l, m, k, g: t.g, vol: l * m * k };
+  return { l, m, k, g: t.g, vol: l * m * k, rund: t.rund, hohl: t.hohl };
 }
 function teileJeStueck(roh: Roh, box: boolean): PackTeil[] {
   return box && roh.teileMitBox ? roh.teileMitBox : roh.teile;
@@ -157,6 +169,29 @@ function verteileAufPakete(stuecke: readonly Stueck[]): Stueck[][] {
   return pakete;
 }
 
+/** Passt ein Stueck in den Hohlraum? Runde Teile als Kreis (groesste Kante), sonst Diagonale des Querschnitts; Hoehe <= Innentiefe. */
+function passtInHohlraum(x: Stueck, h: { d: number; h: number }): boolean {
+  return x.rund ? x.l <= h.d && x.k <= h.h : Math.hypot(x.m, x.k) <= h.d && x.l <= h.h;
+}
+/**
+ * Kleine Artikel reisen im hohlen Artikel (Stiftebecher) mit: Sie zaehlen kein eigenes Volumen, ihr Gewicht kommt zum Becher.
+ * Je Becher: Summe der Hoehen <= Innentiefe und Summe der Volumina <= Innenvolumen. Die Becher selbst bleiben als Stueck.
+ */
+function verschachtele(stuecke: Stueck[]): Stueck[] {
+  const hohle = stuecke.filter((x) => x.hohl).map((x) => ({ ...x, h: 0, v: 0, hohl: x.hohl }));
+  if (hohle.length === 0) return stuecke;
+  const rest = stuecke.filter((x) => !x.hohl).sort((a, b) => b.vol - a.vol);
+  const uebrig: Stueck[] = [];
+  for (const x of rest) {
+    const b = hohle.find((t) => {
+      const h = t.hohl!;
+      return passtInHohlraum(x, h) && t.h + x.k <= h.h && t.v + x.vol <= Math.PI * (h.d / 2) ** 2 * h.h;
+    });
+    if (b) { b.h += x.k; b.v += x.vol; b.g += x.g; } else uebrig.push(x);
+  }
+  return [...hohle.map(({ h: _h, v: _v, ...t }) => t), ...uebrig];
+}
+
 /** Stuecke eines Warenkorbs (je Menge einzeln, damit sie auf Pakete verteilt werden koennen). */
 function stueckeAusKorb(positionen: readonly VersandPosition[]): Stueck[] {
   const out: Stueck[] = [];
@@ -165,7 +200,7 @@ function stueckeAusKorb(positionen: readonly VersandPosition[]): Stueck[] {
     const box = p.optionen?.[BOX_GRUPPE] === BOX_MIT;
     for (let i = 0, n = Math.min(mengeOk(p.menge), 500); i < n; i++) out.push(...stueckeAusTeilen(teileJeStueck(roh, box)));
   }
-  return out;
+  return verschachtele(out);
 }
 
 export const VERSAND_PRODUKTE: Record<string, VersandProdukt> = Object.fromEntries(
@@ -193,17 +228,20 @@ function mengeOk(m: unknown): number {
 /** Zulaessige Versandoptionen fuer die Positionen. Brief-faehig = NUR Brief (keine Auswahl); sonst Hermes + DHL. */
 export function versandOptionen(positionen: readonly VersandPosition[]): VersandOption[] {
   let stueck = 0;
+  let dicke = BRIEF_UMSCHLAG_MM;
   let alleBrief = positionen.length > 0;
   for (const p of positionen) {
     const k = ROH[p.slug] ?? UNBEKANNT;
     stueck += mengeOk(p.menge) * k.stueckJeMenge;
+    dicke += mengeOk(p.menge) * k.stueckJeMenge * (UNTERSETZER_DICKE_MM + (p.optionen?.kork === "mit" ? KORK_DICKE_MM : 0));
     if (!k.briefFaehig || p.optionen?.[BOX_GRUPPE] === BOX_MIT) alleBrief = false;
   }
   if (positionen.length === 0 || stueck < 1) return [];
 
   if (alleBrief) {
-    const b = stueck <= VERSAND_BRIEF.grossbrief.maxStueck ? VERSAND_BRIEF.grossbrief
-      : stueck <= VERSAND_BRIEF.maxibrief.maxStueck ? VERSAND_BRIEF.maxibrief : null;
+    const passt = (x: { maxStueck: number; maxDickeMm: number }) => stueck <= x.maxStueck && dicke <= x.maxDickeMm;
+    const b = passt(VERSAND_BRIEF.grossbrief) ? VERSAND_BRIEF.grossbrief
+      : passt(VERSAND_BRIEF.maxibrief) ? VERSAND_BRIEF.maxibrief : null;
     if (b) return [{ art: "brief", label: b.label, cent: b.cent, tracking: false }];
   }
 
