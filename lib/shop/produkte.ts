@@ -31,7 +31,7 @@ zeile2". */
   /** Vorbelegter Text bei einzeiligen Artikeln (ohne `zeilen`). Der unveränderte Standardtext bleibt Standardware (Widerruf). */
   standardText?: string;
   /** Freie Textfläche des runden Artikels: Standard = Spruch-/Stiftetassen-Fläche, "untersetzer" = Mitte innerhalb der Zierlinien. */
-  flaeche?: "untersetzer";
+  flaeche?: "untersetzer" | "becher";
 }
 
 /** Fertige Farbkombination (statt Lagerfarb-Wahl). Erweiterbar: einfach einen Eintrag in KOMBI_WOCHENTAG ergaenzen. */
@@ -139,7 +139,7 @@ export const PRODUKTE: Produkt[] = [
       "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee. Auf Wunsch mit einer Textzeile in einer von 25 Schriften; änderst du den Text, wird das Stück einzeln für dich gefertigt.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "tasse", grundfarbe: "#6b4423",
     preisCent: 1290, masse: null, material: MATERIAL, optionen: [],
-    personalisierung: { maxLaenge: 14, label: "Text auf der Tasse", beispiel: "Stifte", standardSchrift: "montserrat" },
+    personalisierung: { maxLaenge: 14, label: "Text auf der Tasse", beispiel: "Stifte", standardSchrift: "montserrat", flaeche: "becher" },
     hinweise: [KEIN_SPIELZEUG],
   },
   {

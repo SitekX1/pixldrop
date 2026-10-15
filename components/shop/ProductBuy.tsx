@@ -28,7 +28,7 @@ export default function ProductBuy({
   produkt, farben, bestellbar, preisText, wunschPause = false,
 }: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string; wunschPause?: boolean }) {
   const kombis = produkt.kombinationen;
-  const [farbeId, setFarbeId] = useState<string | null>(kombis || produkt.teile ? null : (produkt.linienfarbe ? farben.find((f) => /^schwarz/i.test(f.name.trim())) : undefined)?.id ?? farben[0]?.id ?? null);
+  const [farbeId, setFarbeId] = useState<string | null>(kombis || produkt.teile ? null : (produkt.linienfarbe || produkt.personalisierung?.flaeche === "becher" ? farben.find((f) => /^schwarz/i.test(f.name.trim())) : undefined)?.id ?? farben[0]?.id ?? null);
   const [kombiId, setKombiId] = useState<string | null>(kombis?.[0].id ?? null);
   const kombi = kombis?.find((k) => k.id === kombiId);
   // Mehrteilige Artikel (Kürbis-Laterne): je Teil eine eigene Lagerfarbe, Standard = ähnlichste Farbe zur Referenz (orange / grün).

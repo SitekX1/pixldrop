@@ -37,5 +37,5 @@ test("Tasse: Zeile, die die Schaetzung besteht, aber real zu breit ist, wird abg
   assert.equal(echtPasst(tasse, ["Stifte"], schrift, { ...f, groesse: "l" }, breit)?.passt, false);
   assert.equal(echtPasst(tasse, ["Stifte"], schrift, { ...f, groesse: "s" }, breit)?.passt, true);
   const g = groessteDiePasst(tasse, ["Stifte"], schrift, f, (gr) => echtPasst(tasse, ["Stifte"], schrift, { ...f, groesse: gr }, breit)?.passt !== false);
-  assert.equal(g, "s");
+  assert.equal(g, "m");
 });

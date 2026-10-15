@@ -10,7 +10,7 @@ import type { Schrift } from "./schriften";
 import { FETT_FAKTOR } from "./schriften";
 import { NS, NS_BREITE, kappeJeEm } from "./namensschild";
 import {
-  FLAECHE_RUND, FLAECHE_UNTERSETZER, FLAECHE_SCHILD, FLAECHE_SCHILD_KLEIN, GROESSEN, STANDARD_GROESSE, istGroesseId, passtInFlaeche,
+  FLAECHE_RUND, FLAECHE_UNTERSETZER, FLAECHE_BECHER, FLAECHE_SCHILD, FLAECHE_SCHILD_KLEIN, GROESSEN, STANDARD_GROESSE, istGroesseId, passtInFlaeche,
   type Flaeche, type GroesseId,
 } from "./umbruch";
 
@@ -57,7 +57,7 @@ export function zeilenAnzahl(pers: Personalisierung): number {
 
 /** Fläche je Zeile: Tischschild = [klein, groß], sonst [rund]. */
 export function flaechen(pers: Personalisierung): Flaeche[] {
-  return pers.zeilen ? [FLAECHE_SCHILD_KLEIN, FLAECHE_SCHILD] : [pers.flaeche === "untersetzer" ? FLAECHE_UNTERSETZER : FLAECHE_RUND];
+  return pers.zeilen ? [FLAECHE_SCHILD_KLEIN, FLAECHE_SCHILD] : [pers.flaeche === "untersetzer" ? FLAECHE_UNTERSETZER : pers.flaeche === "becher" ? FLAECHE_BECHER : FLAECHE_RUND];
 }
 
 /** Fähigkeiten verletzt? (Fett/Kursiv gewählt, obwohl die Schrift den Schnitt nicht hat.) */

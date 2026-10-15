@@ -1,5 +1,5 @@
 import type { Form } from "@/lib/shop/produkte";
-import { umbrechen, passtInFlaeche, FLAECHE_RUND, FLAECHE_UNTERSETZER, type Flaeche } from "@/lib/shop/umbruch";
+import { umbrechen, passtInFlaeche, FLAECHE_RUND, FLAECHE_UNTERSETZER, FLAECHE_BECHER, type Flaeche } from "@/lib/shop/umbruch";
 import { FETT_FAKTOR } from "@/lib/shop/schriften";
 import type { TextFormat } from "@/lib/shop/textformat";
 import NamensschildSvg from "./NamensschildSvg";
@@ -89,8 +89,8 @@ function Tasse({ c, text, family, format, tc: tcWahl }: { c: string; text?: stri
   const tc = tcWahl ?? textfarbeFuer(c);
   const t = (text ?? "Stifte").replace(/\n/g, " ");
   const fm = format?.fmt;
-  const fit = format && fm ? passtInFlaeche({ text: t, flaeche: FLAECHE_RUND, groesse: fm.groesse, breite: format.breite, fett: fm.fett[0] === true, fettFaktor: FETT_FAKTOR }) : null;
-  const u = fit?.passt ? fit : umbrechen(t, 44, fit ? fit.size : 12, 7, 2, 30);
+  const fit = format && fm ? passtInFlaeche({ text: t, flaeche: FLAECHE_BECHER, groesse: fm.groesse, breite: format.breite, fett: fm.fett[0] === true, fettFaktor: FETT_FAKTOR }) : null;
+  const u = fit?.passt ? fit : umbrechen(t, 44, fit ? fit.size : 9, 5.5, 2, 24);
   return (
     <g>
       <path d="M72 38 H82 a9 9 0 0 1 9 9 v12 a9 9 0 0 1 -9 9 H70" fill="none" stroke={c} strokeWidth="7" strokeLinecap="round" />

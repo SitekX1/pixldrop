@@ -6,6 +6,7 @@ import { bereiten, umfaerben, zielFarben, type UmfaerbModus, type Vorbereitet } 
 import { LiveProductImage, useVorschauWerte } from "./Vorschau";
 import NamensschildAufdruck from "./NamensschildAufdruck";
 import UntersetzerAufdruck from "./UntersetzerAufdruck";
+import BecherAufdruck from "./BecherAufdruck";
 import { TEXTE } from "@/lib/shop/config";
 
 const GROESSE = 720; // Arbeitsauflösung des Umfärbens (Anzeige ca. 480 CSS-Pixel)
@@ -113,7 +114,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
           {aktiv && (
             <canvas ref={canvas} className="shop-foto" width={GROESSE} height={GROESSE} role="img" aria-label={`${foto.alt}, in deiner gewählten Farbe`} style={zeigeCanvas ? undefined : { visibility: "hidden" }} />
           )}
-          {mitAufdruck && (slug === "namensschild" ? <NamensschildAufdruck w={w} /> : <UntersetzerAufdruck w={w} />)}
+          {mitAufdruck && (slug === "namensschild" ? <NamensschildAufdruck w={w} /> : slug === "stiftebecher-tasse" ? <BecherAufdruck w={w} /> : <UntersetzerAufdruck w={w} />)}
         </div>
       ) : (
         <LiveProductImage form={form} grundfarbe={grundfarbe} />
@@ -145,7 +146,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
       <p className="shop-fotohinweis">
         {foto
           ? (mitAufdruck
-            ? (slug === "namensschild" ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). " : "Vorschau: Dein Text und deine Farben auf dem Foto des Untersetzers (bearbeitet). ")
+            ? (slug === "namensschild" ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). " : slug === "stiftebecher-tasse" ? "Vorschau: Dein Text und deine Farben auf dem Foto des Bechers (bearbeitet). " : "Vorschau: Dein Text und deine Farben auf dem Foto des Untersetzers (bearbeitet). ")
             : ohneUmfaerben ? "Foto: Beispielstück mit Kork (Option, siehe Auswahl). "
             : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). " : "Foto: Beispielstück. ")
           : "Vorschau (gezeichnet, kein Foto). "}

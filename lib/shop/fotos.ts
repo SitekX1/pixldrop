@@ -20,8 +20,9 @@ const ALT: Record<string, string[]> = {
     "Untersetzer Freitag: Endlich.",
     "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
   ],
+  // Foto 1 = Becher mit leerem Namensfeld: Farben und Text deiner Wahl werden live daraufgelegt (components/shop/BecherAufdruck.tsx)
   "stiftebecher-tasse": [
-    "Stiftebecher in Tassenform mit Namensfeld, Vorderseite",
+    "Stiftebecher mit gerillter Wand und leerem Namensfeld, darauf dein Text und deine Farben (Vorschau)",
     "Stiftebecher in Tassenform mit Henkel von der Seite",
     "Stiftebecher mit Henkel, Schrägansicht",
     "Stiftebecher von oben",
@@ -111,7 +112,7 @@ export const OHNE_UMFAERBEN: Record<string, number[]> = {
 };
 
 /** Artikel, bei denen Foto 1 die Live-Vorschau ist: Farben und Text des Kunden werden direkt aufs Foto gelegt (kein extra „Deine Wahl Live“). */
-export const MIT_AUFDRUCK = ["namensschild", "spruch-untersetzer"];
+export const MIT_AUFDRUCK = ["namensschild", "spruch-untersetzer", "stiftebecher-tasse"];
 
 /** Einzel-Untersetzer: gewählter Wochentag (Kürzel aus ProductBuy) -> Fotonummer (0-basiert). */
 export const TAG_FOTO: Record<string, number> = { Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4 };
