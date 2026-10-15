@@ -53,7 +53,7 @@ export const TEXTE = {
 // Versand-Pauschale nur fuer Angebote (individueller Druck); Artikelversand rechnet lib/shop/versand.ts.
 // Lieferzeit: Alex 2026-10-15 (im Panel-Reiter Einstellungen aenderbar). Artikelpreise: lib/shop/produkte.ts.
 export const VERSAND_CENT: number | null = 490; // 4,90 EUR
-export const LIEFERZEIT_TEXT: string | null = "3 bis 5 Werktage";
+export const LIEFERZEIT_TEXT: string | null = "3-5 Werktage";
 
 export const VERKAEUFER = {
   name: "Alex Sitek",
