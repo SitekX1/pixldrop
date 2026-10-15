@@ -70,15 +70,12 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
     if (i !== undefined && i < fotos.length) setIdx(i);
   }, [slug, w.tag, fotos.length]);
 
-  // Farbwahl: Das Foto zeigt zuerst das echte Stück; erst wenn der Kunde die Farbe ändert, wird umgefärbt.
+  // Farbwahl: Das Foto wird in der gewählten Farbe gezeigt (Licht und Struktur bleiben).
   const farbKey = modus === "kombi" ? (w.farben ?? []).join() : modus === "schild" ? `${w.farbe ?? ""}|${w.textfarbe ?? ""}` : (w.farbe ?? "");
-  const startFarbe = useRef<Record<string, string>>({});
-  useEffect(() => {
-    if (modus && startFarbe.current[modus] === undefined && farbKey.replace(/\|/g, "")) startFarbe.current[modus] = farbKey;
-  }, [farbKey, modus]);
   // Namensschild: Foto 1 ist das Blanko-Schild, auf das Farbe und Text live gelegt werden (immer umgefärbt, mit Aufdruck).
   const mitAufdruck = slug === "namensschild" && idx === 0;
-  const aktiv = !!modus && (mitAufdruck || (startFarbe.current[modus] !== undefined && farbKey !== startFarbe.current[modus]));
+  // Das Foto wird von Anfang an in der gewählten Farbe gezeigt (auch in der Vorauswahl), sobald der Kaufbereich eine Farbe gemeldet hat.
+  const aktiv = !!modus && (mitAufdruck || farbKey.replace(/\|/g, "") !== "");
 
   const foto = idx >= 0 ? fotos[idx] : null;
   const fotoSrc = foto?.src;
@@ -145,7 +142,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
         <p className="shop-fotohinweis">
           {mitAufdruck
             ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). Echte Farben können am Bildschirm leicht abweichen."
-            : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). Echte Farben können am Bildschirm leicht abweichen." : "Foto: Beispielstück. Ändere die Farbe, dann zeigt das Bild deine Wahl."}
+            : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). Echte Farben können am Bildschirm leicht abweichen." : modus ? "Foto: Beispielstück. Deine Farbe wird gleich eingerechnet." : "Foto: Beispielstück. Die Farbe kann abweichen."}
         </p>
       )}
     </div>
