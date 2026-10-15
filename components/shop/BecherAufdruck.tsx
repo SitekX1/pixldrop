@@ -1,4 +1,5 @@
 "use client";
+import { useId } from "react";
 import type { VorschauWerte } from "./Vorschau";
 import { RundText, textfarbeFuer } from "./ProductImage";
 import { FLAECHE_BECHER } from "@/lib/shop/umbruch";
@@ -13,13 +14,14 @@ const FELD_B = 44, FELD_H = 22.5;
 export default function BecherAufdruck({ w }: { w: VorschauWerte }) {
   const schrift = w.textfarbe ?? textfarbeFuer(w.farbe ?? "#1c1c1c");
   const text = (w.text ?? "").trim();
+  const clipId = `${useId().replace(/:/g, "")}-clip`;
   return (
     <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
       {text !== "" && (
         <svg viewBox="0 0 1100 1100" width="100%" height="100%" style={{ display: "block" }}>
-          <defs><clipPath id="becher-feld"><rect x={50 - FELD_B / 2} y={50 - FELD_H / 2} width={FELD_B} height={FELD_H} /></clipPath></defs>
+          <defs><clipPath id={clipId}><rect x={50 - FELD_B / 2} y={50 - FELD_H / 2} width={FELD_B} height={FELD_H} /></clipPath></defs>
           <g transform={`translate(${CX} ${CY}) scale(${PX_JE_MM}) translate(-50 -50)`}>
-            <g clipPath="url(#becher-feld)">
+            <g clipPath={`url(#${clipId})`}>
               <RundText text={text} family={w.family} format={w.format} tc={schrift} flaeche={FLAECHE_BECHER} />
             </g>
           </g>

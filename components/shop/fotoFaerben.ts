@@ -12,7 +12,9 @@ function pixel(i: HTMLImageElement, g: number) {
   const x = c.getContext("2d", { willReadFrequently: true });
   if (!x) throw new Error("kein Canvas");
   x.drawImage(i, 0, 0, g, g);
-  return x.getImageData(0, 0, g, g).data;
+  const d = x.getImageData(0, 0, g, g).data;
+  c.width = c.height = 0; // Canvas-Speicher sofort freigeben (Handy)
+  return d;
 }
 
 /** Foto + Maske laden und für das Umfärben vorbereiten (einmal je Foto und Auflösung, danach aus dem Cache). */

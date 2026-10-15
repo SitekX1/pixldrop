@@ -10,6 +10,19 @@ export default function SchriftWahl({ legend, schriftId, onChange, beispiel, rad
   const [offen, setOffen] = useState(false);
   const knopf = useRef<HTMLButtonElement>(null);
   const bereich = useId();
+  const schliessen = () => { setOffen(false); requestAnimationFrame(() => knopf.current?.focus()); };
+  // Escape schließt und gibt den Fokus zurück; Pfeiltasten bewegen nur den Fokus, gewählt wird mit Enter oder Leertaste
+  const tasten = (e: React.KeyboardEvent<HTMLFieldSetElement>) => {
+    if (e.key === "Escape") { e.preventDefault(); schliessen(); return; }
+    const felder = Array.from(e.currentTarget.querySelectorAll<HTMLInputElement>('input[type="radio"]'));
+    const i = felder.indexOf(e.target as HTMLInputElement);
+    if (i < 0) return;
+    if (e.key === "Enter") { e.preventDefault(); if (felder[i].checked) schliessen(); else felder[i].click(); return; }
+    const schritt = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+    if (!schritt) return;
+    e.preventDefault();
+    felder[Math.min(felder.length - 1, Math.max(0, i + schritt))].focus();
+  };
   const aktuell = SCHRIFTEN.find((s) => s.id === schriftId);
   return (
     <div className="shop-step shop-schriften">
@@ -24,12 +37,12 @@ export default function SchriftWahl({ legend, schriftId, onChange, beispiel, rad
         </button>
       </div>
       {offen && (
-        <fieldset id={bereich} className="shop-schriften-feld" aria-labelledby={`${bereich}-t`} style={{ border: 0, padding: 0, margin: "10px 0 0" }}>
+        <fieldset id={bereich} className="shop-schriften-feld" aria-labelledby={`${bereich}-t`} style={{ border: 0, padding: 0, margin: "10px 0 0" }} onKeyDown={tasten}>
           <div className="shop-schriften-raster">
             {SCHRIFTEN.map((sf) => (
               <label key={sf.id} className="shop-schrift">
                 <input type="radio" name={radioName} value={sf.id} checked={schriftId === sf.id}
-                  onChange={() => { onChange(sf.id); setOffen(false); requestAnimationFrame(() => knopf.current?.focus()); }} />
+                  onChange={() => { onChange(sf.id); schliessen(); }} />
                 <span className="shop-schrift-bsp" style={{ fontFamily: sf.family }} aria-hidden="true">{beispiel}</span>
                 <span className="shop-schrift-name">{sf.name}{sf.fehlendeZeichen.includes("ä") || sf.fehlendeZeichen.includes("ß") ? <small className="shop-schrift-ohne"> · {sf.fehlendeZeichen.includes("ä") ? "ohne Umlaute" : "ohne ß"}</small> : null}</span>
               </label>
