@@ -54,8 +54,8 @@ export interface Flaeche {
 export const FLAECHE_RUND: Flaeche = { breite: 46, hoehe: 40, maxZeilen: 4, groessen: { s: 6.5, m: 9, l: 11.5, xl: 14 } };
 /** Individueller Untersetzer: freie Mitte innerhalb der Zierlinien (Linien bei ca. 90 % des Radius), bis 3 Zeilen. */
 export const FLAECHE_UNTERSETZER: Flaeche = { breite: 52, hoehe: 34, maxZeilen: 3, groessen: { s: 6.5, m: 9, l: 11.5, xl: 14 } };
-/** Stiftebecher: Namensfeld (Foto: ca. 260 x 135 px, 1 Einheit = 5 px), Text mit Rand darin, bis 2 Zeilen. */
-export const FLAECHE_BECHER: Flaeche = { breite: 48, hoehe: 24, maxZeilen: 2, groessen: { s: 5.5, m: 8, l: 10.5, xl: 13 } };
+/** Stiftebecher (Maße von Alex: Außen-Ø 85 mm, Innen-Ø 75 mm, Namensfeld 40 x 25 mm). Einheit = mm. Textfläche = Namensfeld minus 2 mm Rand rundum = 36 x 21 mm, bis 2 Zeilen; Schriftgrößen in mm. */
+export const FLAECHE_BECHER: Flaeche = { breite: 36, hoehe: 21, maxZeilen: 2, groessen: { s: 4, m: 6, l: 8, xl: 10 } };
 /** Tischschild, große Zeile in der Mitte (bis 3 Zeilen). */
 export const FLAECHE_SCHILD: Flaeche = { breite: 70, hoehe: 30, maxZeilen: 3, groessen: { s: 8, m: 14, l: 17, xl: 20 } };
 /** Tischschild, kleine Zeile oben links: eine Zeile, feste Größe (Format Fett/Kursiv gilt trotzdem). */

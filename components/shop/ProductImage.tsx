@@ -90,13 +90,13 @@ function Tasse({ c, text, family, format, tc: tcWahl }: { c: string; text?: stri
   const t = (text ?? "Stifte").replace(/\n/g, " ");
   const fm = format?.fmt;
   const fit = format && fm ? passtInFlaeche({ text: t, flaeche: FLAECHE_BECHER, groesse: fm.groesse, breite: format.breite, fett: fm.fett[0] === true, fettFaktor: FETT_FAKTOR }) : null;
-  const u = fit?.passt ? fit : umbrechen(t, 44, fit ? fit.size : 9, 5.5, 2, 24);
+  const u = fit?.passt ? fit : umbrechen(t, 36, fit ? fit.size : 6, 4, 2, 21);
   return (
     <g>
       <path d="M72 38 H82 a9 9 0 0 1 9 9 v12 a9 9 0 0 1 -9 9 H70" fill="none" stroke={c} strokeWidth="7" strokeLinecap="round" />
       <path d="M17 26 H73 V70 a14 14 0 0 1 -14 14 H31 a14 14 0 0 1 -14 -14 Z" fill={c} stroke="rgba(0,0,0,.25)" strokeWidth="1.5" />
       <rect x="17" y="26" width="56" height="6" rx="2" fill="rgba(0,0,0,.18)" />
-      <Zeilen zeilen={u.zeilen} size={u.size} x={45} cy={56} fill={tc} family={family ?? "sans-serif"} weight={fm?.fett[0] ? 900 : 700} kursiv={fm?.kursiv[0] === true} />
+      <g transform="translate(45 56) scale(0.66) translate(-45 -56)"><Zeilen zeilen={u.zeilen} size={u.size} x={45} cy={56} fill={tc} family={family ?? "sans-serif"} weight={fm?.fett[0] ? 900 : 700} kursiv={fm?.kursiv[0] === true} /></g>
     </g>
   );
 }

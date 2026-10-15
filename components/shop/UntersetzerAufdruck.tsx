@@ -16,9 +16,11 @@ export default function UntersetzerAufdruck({ w }: { w: VorschauWerte }) {
     <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
       {text !== "" && (
         <svg viewBox="0 0 1100 1100" width="100%" height="100%" style={{ display: "block" }}>
-          <g transform={`translate(${CX} ${CY}) scale(${RX / R_EINHEIT} ${RY / R_EINHEIT}) translate(-50 -50)`}>
+          {/* zu langer Text wird an der Untersetzerkante abgeschnitten (die Passt-Prüfung meldet ihn trotzdem) */}
+          <defs><clipPath id="untersetzer-flaeche"><ellipse cx={CX} cy={CY} rx={RX * 0.92} ry={RY * 0.92} /></clipPath></defs>
+          <g clipPath="url(#untersetzer-flaeche)"><g transform={`translate(${CX} ${CY}) scale(${RX / R_EINHEIT} ${RY / R_EINHEIT}) translate(-50 -50)`}>
             <RundText text={text} family={w.family} format={w.format} tc={schrift} flaeche={FLAECHE_UNTERSETZER} />
-          </g>
+          </g></g>
         </svg>
       )}
     </div>
