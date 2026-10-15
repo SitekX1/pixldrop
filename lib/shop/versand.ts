@@ -42,7 +42,7 @@ export const VERSAND_PREISE: Record<"hermes" | "dhl", Record<VersandStufe, { lab
 
 /** Brief (Deutsche Post), nur fuer flache Untersetzer OHNE Box. VORLAEUFIG: Stueckgrenzen. */
 export const VERSAND_BRIEF = {
-  grossbrief: { label: "Großbrief (Deutsche Post)", cent: 180, maxStueck: 30, maxDickeMm: 20, maxG: 500 }, // 35,3 x 25 x 2 cm, 500 g
+  grossbrief: { label: "Großbrief (Deutsche Post)", cent: 180, maxStueck: 20, maxStueckKork: 25, maxDickeMm: 20, maxG: 500 }, // 35,3 x 25 x 2 cm, 500 g
   maxibrief: { label: "Maxibrief (Deutsche Post)", cent: 290, maxStueck: 63, maxDickeMm: 50, maxG: 1000 }, //  35,3 x 25 x 5 cm, 1 kg
 } as const;
 /** Untersetzer (Ø 90 mm) liegen als Stapel nebeneinander: 3 in der Laenge (35,3 cm) x 2 in der Breite (25 cm) = 6 Stapel. */
@@ -234,10 +234,13 @@ function mengeOk(m: unknown): number {
 export function versandOptionen(positionen: readonly VersandPosition[]): VersandOption[] {
   let stueck = 0;
   let dicke = 0;
+  let stueckOhneKork = 0;
+  let stueckMitKork = 0;
   let alleBrief = positionen.length > 0;
   for (const p of positionen) {
     const k = ROH[p.slug] ?? UNBEKANNT;
     stueck += mengeOk(p.menge) * k.stueckJeMenge;
+    if (p.optionen?.kork === "mit") stueckMitKork += mengeOk(p.menge) * k.stueckJeMenge; else stueckOhneKork += mengeOk(p.menge) * k.stueckJeMenge;
     dicke += mengeOk(p.menge) * k.stueckJeMenge * (UNTERSETZER_DICKE_MM + (p.optionen?.kork === "mit" ? KORK_DICKE_MM : 0));
     if (!k.briefFaehig || p.optionen?.[BOX_GRUPPE] === BOX_MIT) alleBrief = false;
   }
@@ -247,7 +250,9 @@ export function versandOptionen(positionen: readonly VersandPosition[]): Versand
     // Stapel (Dicke je Stueck) nebeneinander: so viele Stapel wie noetig, hoechstens BRIEF_STAPEL; Gewicht inkl. Umschlag
     const passt = (x: { maxDickeMm: number; maxG: number }) =>
       Math.ceil(dicke / (x.maxDickeMm - BRIEF_UMSCHLAG_MM)) <= BRIEF_STAPEL && stueck * UNTERSETZER_G + BRIEF_UMSCHLAG_G <= x.maxG;
-    const b = passt(VERSAND_BRIEF.grossbrief) ? VERSAND_BRIEF.grossbrief
+    // Grossbrief: feste Obergrenze mit Puffer (Alex 2026-10-15): 20 Untersetzer ohne Kork, 25 mit Kork (Kork zaehlt 1/25, sonst 1/20 der Kapazitaet)
+    const gbAnteil = stueckOhneKork / VERSAND_BRIEF.grossbrief.maxStueck + stueckMitKork / VERSAND_BRIEF.grossbrief.maxStueckKork;
+    const b = gbAnteil <= 1 ? VERSAND_BRIEF.grossbrief
       : passt(VERSAND_BRIEF.maxibrief) ? VERSAND_BRIEF.maxibrief : null;
     if (b) return [{ art: "brief", label: b.label, cent: b.cent, tracking: false }];
   }
