@@ -4,7 +4,7 @@ import { SCHRIFTEN } from "@/lib/shop/schriften";
 import { formatAusOptionen, istFormatSchluessel, standardFormat, zeilenAnzahl } from "@/lib/shop/textformat";
 import ProductImage from "./ProductImage";
 import FotoMiniatur, { miniaturModus } from "./FotoMiniatur";
-import { fotosFuer, MIT_AUFDRUCK, TAG_FOTO } from "@/lib/shop/fotos";
+import { fotosFuer, liveIdx, MIT_AUFDRUCK, TAG_FOTO } from "@/lib/shop/fotos";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilHexe } from "@/lib/shop/teilfarben";
 import { LINIENFARBE_KEY } from "@/lib/shop/textfarbe";
@@ -25,7 +25,7 @@ export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Mus
   // Echtes Foto statt Zeichnung: Foto 1 (bzw. Foto des gewählten Wochentags) in gewählter Farbe, bei Wunschtext-Artikeln mit Aufdruck (wie die Galerie)
   const kombiFarben = kombiVon(p, a)?.farben.map((f) => f.hex);
   const tagKurz = p.optionen.find((g) => g.id === "tag")?.optionen.find((o) => o.id === a.optionen.tag)?.label.slice(0, 2);
-  const fotoNr = p.slug === "wochentags-untersetzer-einzeln" && tagKurz ? TAG_FOTO[tagKurz] ?? 0 : 0;
+  const fotoNr = p.slug === "wochentags-untersetzer-einzeln" && tagKurz ? TAG_FOTO[tagKurz] ?? 0 : liveIdx(p.slug);
   const fotos = fotosFuer(p.slug);
   if (fotos[fotoNr] && !p.teile && (MIT_AUFDRUCK.includes(p.slug) || miniaturModus(p.slug, fotoNr)) && (farbeHex || kombiFarben)) {
     const w = {

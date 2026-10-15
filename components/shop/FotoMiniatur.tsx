@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, darfUmfaerben, UMFAERBEN } from "@/lib/shop/fotos";
+import { liveIdx, MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, darfUmfaerben, UMFAERBEN } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
 import { farbAbstand, vorbereiteFoto } from "./fotoFaerben";
 import type { VorschauWerte } from "./Vorschau";
@@ -18,7 +18,7 @@ export function miniaturModus(slug: string, fotoNr: number): UmfaerbModus | unde
 }
 
 /** Foto der Warenkorb-/Bon-Position in der gewählten Farbe (kleine Auflösung), bei Wunschtext-Artikeln mit Aufdruck wie in der Galerie. */
-export default function FotoMiniatur({ slug, src, alt, w, fotoNr = 0 }: { slug: string; src: string; alt: string; w: VorschauWerte & { linienfarbe?: string }; fotoNr?: number }) {
+export default function FotoMiniatur({ slug, src, alt, w, fotoNr = liveIdx(slug) }: { slug: string; src: string; alt: string; w: VorschauWerte & { linienfarbe?: string }; fotoNr?: number }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const modus = miniaturModus(slug, fotoNr);
   const orig = ORIGINALFARBE[slug];
@@ -50,7 +50,7 @@ export default function FotoMiniatur({ slug, src, alt, w, fotoNr = 0 }: { slug: 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="shop-foto" src={src} alt="" width={1100} height={1100} loading="lazy" decoding="async" style={zeigeCanvas ? { visibility: "hidden" } : undefined} />
       {aktiv && <canvas ref={canvas} className="shop-foto" width={GROESSE} height={GROESSE} aria-hidden="true" style={zeigeCanvas ? undefined : { visibility: "hidden" }} />}
-      {fotoNr === 0 && MIT_AUFDRUCK.includes(slug) && (slug === "namensschild" ? <NamensschildAufdruck w={w} /> : slug === "stiftebecher-tasse" ? <BecherAufdruck w={w} /> : <UntersetzerAufdruck w={w} />)}
+      {fotoNr === liveIdx(slug) && MIT_AUFDRUCK.includes(slug) && (slug === "namensschild" ? <NamensschildAufdruck w={w} /> : slug === "stiftebecher-tasse" ? <BecherAufdruck w={w} /> : <UntersetzerAufdruck w={w} />)}
     </div>
   );
 }

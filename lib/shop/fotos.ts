@@ -20,10 +20,10 @@ const ALT: Record<string, string[]> = {
     "Untersetzer Freitag: Endlich.",
     "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
   ],
-  // Foto 1 = Becher mit leerem Namensfeld: Farben und Text deiner Wahl werden live daraufgelegt (components/shop/BecherAufdruck.tsx)
+  // Foto 2 (Datei 1.webp) = Becher mit leerem Namensfeld; das Titelbild ist die Seitenansicht mit Henkel (Datei 2.webp), siehe FOTO_DATEIEN/LIVE_FOTO: Farben und Text deiner Wahl werden live daraufgelegt (components/shop/BecherAufdruck.tsx)
   "stiftebecher-tasse": [
+    "Stiftebecher in Tassenform mit Henkel von der Seite (Beispielstück, Titelbild)",
     "Stiftebecher mit gerillter Wand und leerem Namensfeld, darauf dein Text und deine Farben (Vorschau)",
-    "Stiftebecher in Tassenform mit Henkel von der Seite",
     "Stiftebecher mit Henkel, Schrägansicht",
     "Stiftebecher von oben",
   ],
@@ -82,8 +82,14 @@ const ALT: Record<string, string[]> = {
   ],
 };
 
+/** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Titelbild = Seitenansicht 2.webp, danach die Live-Vorschau 1.webp). */
+export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [2, 1, 3, 4] };
+/** Index (Anzeigereihenfolge) des Fotos, das die Live-Vorschau ist (umgefärbt, mit Aufdruck); Standard 0. */
+export const LIVE_FOTO: Record<string, number> = { "stiftebecher-tasse": 1 };
+export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
+
 export function fotosFuer(slug: string): Foto[] {
-  return (ALT[slug] ?? []).map((alt, i) => ({ src: `/shop/fotos/${slug}/${i + 1}.webp`, alt }));
+  return (ALT[slug] ?? []).map((alt, i) => ({ src: `/shop/fotos/${slug}/${FOTO_DATEIEN[slug]?.[i] ?? i + 1}.webp`, alt }));
 }
 
 /** Welche Fotos beim Farbwechsel umgefärbt werden (Masken liegen als <n>.m.webp daneben), siehe lib/shop/umfaerben.ts. */
@@ -106,7 +112,7 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
 export const OHNE_UMFAERBEN: Record<string, number[]> = {
   "spruch-untersetzer": [1],
   "namensschild": [1, 2, 3], // Beispielfotos mit Schrift bleiben Alex' Originale
-  "stiftebecher-tasse": [1, 2, 3], // Alex' Originalfotos bleiben unverändert (Beispielstücke)
+  "stiftebecher-tasse": [0, 2, 3], // Anzeige-Index: Titelbild und Beispielfotos bleiben Originale, Index 1 ist die Live-Vorschau // Alex' Originalfotos bleiben unverändert (Beispielstücke)
   "wochentags-untersetzer-set": [5],
   "wochentags-untersetzer-einzeln": [5],
   "halloween-untersetzer-set": [5],
@@ -129,7 +135,7 @@ export const ORIGINAL_LINIE: Record<string, string> = { "spruch-untersetzer": "#
 export function darfUmfaerben(slug: string, idx: number): boolean {
   if (OHNE_UMFAERBEN[slug]?.includes(idx)) return false;
   if (slug === "wochentags-untersetzer-einzeln") return idx >= 0 && idx < 5;
-  return idx === 0;
+  return idx === liveIdx(slug);
 };
 
 /** Artikel, bei denen Foto 1 die Live-Vorschau ist: Farben und Text des Kunden werden direkt aufs Foto gelegt (kein extra „Deine Wahl Live“). */
