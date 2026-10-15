@@ -5,6 +5,7 @@ import { TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
 import { bereiten, umfaerben, zielFarben, type UmfaerbModus, type Vorbereitet } from "@/lib/shop/umfaerben";
 import { LiveProductImage, useVorschauWerte } from "./Vorschau";
 import NamensschildAufdruck from "./NamensschildAufdruck";
+import { TEXTE } from "@/lib/shop/config";
 
 const GROESSE = 720; // Arbeitsauflösung des Umfärbens (Anzeige ca. 480 CSS-Pixel)
 // Je Foto ca. 10-16 MB (RGBA, Maske, Klassengewichte): nur die zuletzt benutzten Fotos behalten (Handy-Speicher).
@@ -138,13 +139,14 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
       {foto && textGeaendert && (
         <p className="shop-fotohinweis">Dein Text steht nur in der Live-Vorschau. <button type="button" className="shop-link" style={{ minHeight: 0, background: "none", border: 0, padding: 0, cursor: "pointer", font: "inherit" }} onClick={() => { einmalUmgeschaltet.current = true; setIdx(-1); }}>Mit deinem Text ansehen</button></p>
       )}
-      {foto && (
-        <p className="shop-fotohinweis">
-          {mitAufdruck
-            ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). Echte Farben können am Bildschirm leicht abweichen."
-            : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). Echte Farben können am Bildschirm leicht abweichen." : modus ? "Foto: Beispielstück. Deine Farbe wird gleich eingerechnet." : "Foto: Beispielstück. Die Farbe kann abweichen."}
-        </p>
-      )}
+      <p className="shop-fotohinweis">
+        {foto
+          ? (mitAufdruck
+            ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). "
+            : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). " : "Foto: Beispielstück. ")
+          : "Vorschau (gezeichnet, kein Foto). "}
+        <strong>Wichtig:</strong> {TEXTE.bildHinweis}
+      </p>
     </div>
   );
 }

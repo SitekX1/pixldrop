@@ -247,6 +247,7 @@ export default function Bestellablauf({
         <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div>
       </dl>
       <p className="muted">{TEXTE.kleinunternehmer}</p>
+      <p className="muted">{TEXTE.bildHinweis}</p>
       {individuell ? (
         <p className="shop-note shop-note--warn" role="note"><strong>Kein Widerrufsrecht bei:</strong> {ausgenommen.map(({ p }) => p.name).join(", ")} (nach deinen Vorgaben gefertigt, § 312g Abs. 2 Nr. 1 BGB).{pos.length > ausgenommen.length && " Alle anderen Positionen: 14 Tage Widerruf."}</p>
       ) : (
