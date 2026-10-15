@@ -1113,3 +1113,35 @@ footer {
     transform: rotate(360deg);
   }
 }
+
+/* 3D-Druck-Shop-Karte (Startseite): Bildfläche mit Eddie, Produktfotos und Titel */
+.shop-promo-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #2b1a0f, #4a2c1a);
+  color: #fff;
+  border: none;
+}
+.shop-promo-card .eyebrow-small { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #ffcf8a; font-weight: 700; margin-bottom: 6px; }
+.shop-promo-card h3 { margin: 0 0 6px; font-size: 1.15rem; }
+.shop-promo-card p { margin: 0 0 14px; color: #e8d8c8; font-size: 0.88rem; line-height: 1.4; }
+.shop-promo-card .pill-btn { background: linear-gradient(135deg, #ff9f1c, #f2542d); }
+.shop-promo-bild {
+  position: relative; overflow: hidden;
+  width: calc(100% + 32px); margin: -16px -16px 14px; aspect-ratio: 900 / 500;
+  background: radial-gradient(circle at 78% 30%, #ffb347 0%, #f2542d 38%, #6b2d12 100%);
+  container-type: inline-size;
+}
+.shop-promo-titel {
+  position: absolute; left: 5%; top: 8%; z-index: 3;
+  font-size: 6.6cqw; line-height: 1; font-weight: 800; letter-spacing: -0.01em;
+  color: #fff8ea; text-shadow: 0 3px 0 rgba(107, 45, 18, 0.55), 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+.shop-promo-eddie { position: absolute; left: 4%; bottom: -4%; height: 74%; width: auto; z-index: 2; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35)); }
+.shop-promo-foto {
+  position: absolute; z-index: 1; width: 19%; aspect-ratio: 1; object-fit: cover; border-radius: 50%;
+  border: 3px solid #fff8ea; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+.shop-promo-f1 { left: 60%; top: 8%; transform: rotate(-6deg); }
+.shop-promo-f2 { left: 79%; top: 12%; transform: rotate(5deg); }
+.shop-promo-f3 { left: 79%; top: 54%; transform: rotate(-4deg); }
+.shop-promo-f4 { left: 60%; top: 50%; transform: rotate(6deg); }
