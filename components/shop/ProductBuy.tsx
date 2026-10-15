@@ -14,7 +14,7 @@ import { useKaufRegistrieren, useVorschauSetzen } from "./Vorschau";
 import type { Farbe } from "@/lib/shop/farben";
 import { TEXTE } from "@/lib/shop/config";
 import { pruefeWunschtext } from "@/lib/shop/textfilter";
-import { TEXTFARBE_HINWEIS, TEXTFARBE_KEY, automatischeTextfarbe, textfarbeErlaubt } from "@/lib/shop/textfarbe";
+import { LINIENFARBE_HINWEIS, LINIENFARBE_KEY, TEXTFARBE_HINWEIS, TEXTFARBE_KEY, automatischeLinienfarbe, automatischeTextfarbe, textfarbeErlaubt } from "@/lib/shop/textfarbe";
 import { standardTeilFarben } from "@/lib/shop/teilfarben";
 import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
 
@@ -28,7 +28,7 @@ export default function ProductBuy({
   produkt, farben, bestellbar, preisText, wunschPause = false,
 }: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string; wunschPause?: boolean }) {
   const kombis = produkt.kombinationen;
-  const [farbeId, setFarbeId] = useState<string | null>(kombis || produkt.teile ? null : farben[0]?.id ?? null);
+  const [farbeId, setFarbeId] = useState<string | null>(kombis || produkt.teile ? null : (produkt.linienfarbe ? farben.find((f) => /^schwarz/i.test(f.name.trim())) : undefined)?.id ?? farben[0]?.id ?? null);
   const [kombiId, setKombiId] = useState<string | null>(kombis?.[0].id ?? null);
   const kombi = kombis?.find((k) => k.id === kombiId);
   // Mehrteilige Artikel (Kürbis-Laterne): je Teil eine eigene Lagerfarbe, Standard = ähnlichste Farbe zur Referenz (orange / grün).
@@ -43,7 +43,7 @@ export default function ProductBuy({
   const tagKurz = kombi ? produkt.optionen.find((g) => g.id === "tag")?.optionen.find((o) => o.id === opt.tag)?.label.slice(0, 2) : undefined;
   const [menge, setMenge] = useState(1);
   const pers = produkt.personalisierung;
-  const [zeilen, setZeilen] = useState<string[]>(() => (pers?.zeilen ? pers.zeilen.map((z) => z.standard) : pers ? [""] : []));
+  const [zeilen, setZeilen] = useState<string[]>(() => (pers?.zeilen ? pers.zeilen.map((z) => z.standard) : pers ? [pers.standardText ?? ""] : []));
   const [schriftId, setSchriftId] = useState(pers?.festeSchrift ?? pers?.standardSchrift ?? SCHRIFTEN[0].id);
   const [fmtRoh, setFmtRoh] = useState<TextFormat>(() => standardFormat(pers ? zeilenAnzahl(pers) : 0));
   // null = Kunde hat keine Stufe gewählt: dann gilt automatisch die größte, die noch passt.
@@ -60,6 +60,10 @@ export default function ProductBuy({
   const textGewaehlt = farben.find((f) => f.id === textWahl);
   const textAuto = pers ? automatischeTextfarbe(farbe, farben) : null;
   const textfarbe = textGewaehlt && textfarbeErlaubt(farbe, textGewaehlt) ? textGewaehlt : textAuto;
+  // Linienfarbe (Individueller Untersetzer): wie die Schriftfarbe, Voreinstellung Weiß wie auf dem Foto
+  const [linienWahl, setLinienWahl] = useState<string | null>(null);
+  const linienGewaehlt = farben.find((f) => f.id === linienWahl);
+  const linienfarbe = produkt.linienfarbe ? (linienGewaehlt && textfarbeErlaubt(farbe, linienGewaehlt) ? linienGewaehlt : automatischeLinienfarbe(farbe, farben)) : null;
   const schrift = SCHRIFTEN.find((s) => s.id === (pers?.festeSchrift ?? schriftId));
   const text = zeilen.map((z) => z.trim()).join("\n");
   // Wirksames Format: Schalter, die die gewählte Schrift nicht kann, zählen nicht (Schriftwechsel setzt sie zurück).
@@ -119,11 +123,12 @@ export default function ProductBuy({
   const vorFarbe = (teile ? teilFarbe(teile[0].id)?.hex : farbe?.hex) ?? produkt.grundfarbe;
   const teileKey = JSON.stringify(teileHex ?? {});
   const vorTextfarbe = pers ? textfarbe?.hex : undefined;
+  const vorLinienfarbe = linienfarbe?.hex;
   const vorFamily = schrift?.family;
   useEffect(() => {
-    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: kombi?.label ?? (teile ? teile.map((t) => `${t.label}: ${teilFarbe(t.id)?.name ?? "?"}`).join(" · ") : farbe?.name), teileFarben: teileHex, farben: kombi?.farben.map((f) => f.hex), tag: tagKurz, format: pers && schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
+    setzeVorschau({ preisText: livePreis, farbe: vorFarbe, text: pers ? text : undefined, family: vorFamily, schriftName: pers ? schrift?.name : undefined, farbeName: kombi?.label ?? (teile ? teile.map((t) => `${t.label}: ${teilFarbe(t.id)?.name ?? "?"}`).join(" · ") : farbe?.name), teileFarben: teileHex, farben: kombi?.farben.map((f) => f.hex), tag: tagKurz, format: pers && schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id } : undefined, textfarbe: vorTextfarbe, textfarbeName: pers ? textfarbe?.name : undefined, linienfarbe: vorLinienfarbe, linienfarbeName: linienfarbe?.name, formatKey: pers ? JSON.stringify(formatOpt) + (schrift?.id ?? "") : undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, kombi?.label, teileKey, tagKurz, vorTextfarbe, textfarbe?.name, JSON.stringify(formatOpt)]);
+  }, [setzeVorschau, vorFarbe, livePreis, text, vorFamily, pers, schrift?.name, schrift?.id, schrift?.breite, farbe?.name, kombi?.label, teileKey, tagKurz, vorTextfarbe, textfarbe?.name, vorLinienfarbe, linienfarbe?.name, JSON.stringify(formatOpt)]);
   const kaufReg = useKaufRegistrieren();
   const kaufArt = wunschPause ? "pause" : bestellbar ? "ja" : "nein";
   useEffect(() => { kaufReg?.setzeKauf({ art: kaufArt, gesperrt, bestaetigt }); }, [kaufReg?.setzeKauf, kaufArt, gesperrt, bestaetigt]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -141,7 +146,7 @@ export default function ProductBuy({
       slug: produkt.slug,
       farbeId,
       ...(teile ? { teilFarben: teilWahl } : {}),
-      optionen: { ...opt, ...(kombi ? { [KOMBI_KEY]: kombi.id } : {}), ...formatOpt, ...(pers && textfarbe ? { [TEXTFARBE_KEY]: textfarbe.id } : {}) },
+      optionen: { ...opt, ...(kombi ? { [KOMBI_KEY]: kombi.id } : {}), ...formatOpt, ...(pers && textfarbe ? { [TEXTFARBE_KEY]: textfarbe.id } : {}), ...(linienfarbe ? { [LINIENFARBE_KEY]: linienfarbe.id } : {}) },
       text: pers ? text : "",
       schriftId: pers ? (pers.festeSchrift ?? schriftId) : null,
       menge,
@@ -207,7 +212,7 @@ export default function ProductBuy({
         <fieldset className="shop-step">
           <legend>{pers.label}</legend>
           <div className="shop-textvorschau">
-            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} format={schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id } : undefined} textfarbe={vorTextfarbe} typ="Live-Vorschau" breit />
+            <ProductImage form={produkt.form} farbe={farbe?.hex ?? produkt.grundfarbe} text={text} family={schrift?.family} format={schrift ? { fmt, breite: schrift.breite, schriftId: schrift.id } : undefined} textfarbe={vorTextfarbe} linienfarbe={vorLinienfarbe} typ="Live-Vorschau" breit />
           </div>
           {pers.zeilen ? (
             pers.zeilen.map((z, i) => (
@@ -318,7 +323,7 @@ export default function ProductBuy({
         </>
       ) : farben.length > 0 ? (
         <fieldset className="shop-step">
-          <legend>Farbe</legend>
+          <legend>{produkt.linienfarbe ? "Untersetzerfarbe" : "Farbe"}</legend>
           <div className="shop-swatches">
             {farben.map((f) => (
               <label key={f.id} className="shop-swatch">
@@ -330,7 +335,7 @@ export default function ProductBuy({
             ))}
           </div>
           <p aria-live="polite" style={{ marginTop: 6 }}>
-            <strong>Farbe: {farbe?.name}</strong> · auf Lager
+            <strong>{produkt.linienfarbe ? "Untersetzerfarbe" : "Farbe"}: {farbe?.name}</strong> · auf Lager
           </p>
           <p className="muted">Nur Farben, die gerade im Regal liegen. Bildschirmfarben können leicht abweichen.</p>
         </fieldset>
@@ -339,6 +344,31 @@ export default function ProductBuy({
           <strong>Gerade keine Farbe auf Lager.</strong>
           <p><Link className="shop-link" href="/3d-druck/anfrage">Individuell anfragen</Link></p>
         </div>
+      )}
+
+      {/* Linienfarbe (nur Individueller Untersetzer): Lagerfarben, nie gleich/zu ähnlich wie die Untersetzerfarbe */}
+      {produkt.linienfarbe && farben.length > 0 && (
+        <fieldset className="shop-step shop-textfarbe">
+          <legend>Linienfarbe</legend>
+          <div className="shop-swatches">
+            {farben.map((f) => {
+              const erlaubt = textfarbeErlaubt(farbe, f);
+              return (
+                <label key={f.id} className="shop-swatch" data-gesperrt={erlaubt ? undefined : true}>
+                  <input type="radio" name="linienfarbe" value={f.id} checked={linienfarbe?.id === f.id} disabled={!erlaubt}
+                    onChange={() => setLinienWahl(f.id)} aria-label={erlaubt ? f.name : `${f.name} (nicht wählbar: ${LINIENFARBE_HINWEIS})`} />
+                  <span className="dot" style={{ background: f.hex }}>
+                    <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5l3.5 3.5 7.5-8" fill="none" stroke={hell(f.hex) ? "#2e1c0f" : "#fff"} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+          <p aria-live="polite" style={{ marginTop: 6 }}>
+            <strong>Linienfarbe: {linienfarbe?.name ?? "keine passende Farbe"}</strong>{linienfarbe ? " · auf Lager" : ""}
+          </p>
+          <p className="muted">Die dünnen Zierlinien am Rand. {LINIENFARBE_HINWEIS}: ausgegraute Farben passen nicht zur gewählten Untersetzerfarbe. Die Linienfarbe ändert weder Preis noch Widerrufsrecht.</p>
+        </fieldset>
       )}
 
       {/* Schriftfarbe (nur Wunschtext-Artikel): Lagerfarben, nie gleich/zu ähnlich wie die Grundfarbe */}

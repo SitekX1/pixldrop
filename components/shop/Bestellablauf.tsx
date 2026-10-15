@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
-import { TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
+import { LINIENFARBE_KEY, TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilFarbenVon, teilFarbenText } from "@/lib/shop/teilfarben";
@@ -318,8 +318,10 @@ export default function Bestellablauf({
                 {pos.map(({ a, p }, i) => {
                   const farbe = farben.find((f) => f.id === a.farbeId);
                   const tfarbe = p.personalisierung && a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY]) : undefined;
+                  const lfarbe = p.linienfarbe ? farben.find((f) => f.id === a.optionen[LINIENFARBE_KEY]) : undefined;
                   const optText = [
                     ...p.optionen.map((g) => [g.label, g.optionen.find((o) => o.id === (a.optionen[g.id] ?? (g.optional ? g.optionen[0].id : undefined)))?.label ?? ""] as const),
+                    ...(lfarbe ? [["Linienfarbe", lfarbe.name] as const] : []),
                     ...(tfarbe ? [["Schriftfarbe", tfarbe.name] as const] : []),
                     ...formatAnzeigeAusOptionen(p.personalisierung, a.optionen),
                   ];

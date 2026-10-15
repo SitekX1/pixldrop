@@ -51,3 +51,24 @@ test("kombi: blauer Bereich wird zur Akzentfarbe, dunkler zur Grundfarbe", () =>
   assert.ok(out[blau] > out[blau + 2], "Akzent wird orange (R > B)");
   assert.ok(out[dunkel] < 80, "Grund bleibt dunkel");
 });
+
+test("Modus untersetzer: Linien aus dem G-Kanal der Maske, Untersetzer aus R", async () => {
+  const { bereiten, umfaerben, zielFarben } = await import("@/lib/shop/umfaerben");
+  const w = 8, h = 8, n = w * h;
+  const rgba = new Uint8ClampedArray(n * 4), maske = new Uint8ClampedArray(n * 4);
+  for (let i = 0; i < n; i++) {
+    const linie = i % w === 3;
+    rgba.set(linie ? [200, 200, 200, 255] : [30, 30, 30, 255], i * 4);
+    maske.set([255, linie ? 255 : 0, 0, 255], i * 4);
+  }
+  const v = bereiten("untersetzer", rgba, maske, w, h);
+  assert.equal(v.klasseGew.length, 2);
+  assert.equal(v.klasseGew[1][3], 1);
+  assert.equal(v.klasseGew[0][3], 0);
+  const ziele = zielFarben("untersetzer", { farbe: "#0000ff", linienfarbe: "#ff0000" });
+  assert.deepEqual(ziele, [[0, 0, 255], [255, 0, 0]]);
+  const out = new Uint8ClampedArray(n * 4);
+  umfaerben(v, ziele, out);
+  assert.ok(out[3 * 4] > out[3 * 4 + 2] * 2, "Linie rot");
+  assert.ok(out[0 * 4 + 2] > out[0 * 4] * 2, "Untersetzer blau");
+});

@@ -7,6 +7,8 @@ import type { Farbe } from "./farben";
 export const TEXTFARBE_KEY = "textfarbe";
 /** Mindestkontrast (WCAG-Verhältnis, 1,5 seit 14.10.) zwischen Schrift- und Grundfarbe; darunter ist die Schrift schlecht lesbar. */
 export const MIN_KONTRAST = 1.5;
+export const LINIENFARBE_KEY = "linienfarbe";
+export const LINIENFARBE_HINWEIS = "Linien müssen sich von der Untersetzerfarbe abheben";
 export const TEXTFARBE_HINWEIS = "Schrift muss sich von der Grundfarbe abheben";
 
 function leuchtdichte(hex: string): number {
@@ -39,4 +41,10 @@ export function automatischeTextfarbe(grund: Farbe | undefined, farben: Farbe[])
     if (k > bestK) { best = f; bestK = k; }
   }
   return best;
+}
+
+/** Voreinstellung der Linienfarbe: bevorzugt Weiß (wie auf dem Foto), sonst die kontrastreichste erlaubte Lagerfarbe. */
+export function automatischeLinienfarbe(grund: Farbe | undefined, farben: Farbe[]): Farbe | null {
+  const weiss = farben.find((f) => /^wei(ß|ss)/i.test(f.name.trim()) && textfarbeErlaubt(grund, f));
+  return weiss ?? automatischeTextfarbe(grund, farben);
 }

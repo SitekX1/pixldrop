@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Form } from "@/lib/shop/produkte";
-import { TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
+import { MIT_AUFDRUCK, OHNE_UMFAERBEN, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
 import { bereiten, umfaerben, zielFarben, type UmfaerbModus, type Vorbereitet } from "@/lib/shop/umfaerben";
 import { LiveProductImage, useVorschauWerte } from "./Vorschau";
 import NamensschildAufdruck from "./NamensschildAufdruck";
+import UntersetzerAufdruck from "./UntersetzerAufdruck";
 import { TEXTE } from "@/lib/shop/config";
 
 const GROESSE = 720; // Arbeitsauflösung des Umfärbens (Anzeige ca. 480 CSS-Pixel)
@@ -43,7 +44,9 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   const w = useVorschauWerte();
   const [idx, setIdx] = useState(0); // -1 = Live-Vorschau
   // Namensschild: Foto 1 = Blanko-Schild (ganzes Objekt in der Schildfarbe, Text kommt als Aufdruck), die übrigen = Beispielfotos mit Schrift
-  const modus: UmfaerbModus | undefined = slug === "namensschild" ? (idx === 0 ? "farbe" : "schild") : UMFAERBEN[slug];
+  const ohneUmfaerben = OHNE_UMFAERBEN[slug]?.includes(idx) === true; // z. B. Kork-Rückseite: Foto bleibt, wie es ist
+  const modus: UmfaerbModus | undefined = ohneUmfaerben ? undefined : slug === "namensschild" ? (idx === 0 ? "farbe" : "schild") : UMFAERBEN[slug];
+  const liveAufFoto = MIT_AUFDRUCK.includes(slug); // Foto 1 ist die Live-Vorschau
   const canvas = useRef<HTMLCanvasElement>(null);
   const [gefaerbtFuer, setGefaerbtFuer] = useState<string | null>(null); // Foto, dessen umgefärbte Pixel im Canvas stehen
 
@@ -54,7 +57,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   const einmalUmgeschaltet = useRef(false);
   const [textGeaendert, setTextGeaendert] = useState(false);
   useEffect(() => {
-    if (slug === "namensschild" || w.preisText === undefined) return; // preisText fehlt, solange der Kaufbereich noch nichts gemeldet hat
+    if (liveAufFoto || w.preisText === undefined) return; // preisText fehlt, solange der Kaufbereich noch nichts gemeldet hat
     const text = w.text ?? "";
     if (startText.current === undefined) { startText.current = text; return; } // Standardtext (auch leer) = Ausgangswert
     if (text === startText.current) { setTextGeaendert(false); return; }
@@ -62,7 +65,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
     if (einmalUmgeschaltet.current) return;
     const t = setTimeout(() => { einmalUmgeschaltet.current = true; setIdx(-1); }, 1500);
     return () => clearTimeout(t);
-  }, [w.text, w.preisText, slug]);
+  }, [w.text, w.preisText, liveAufFoto]);
 
   // Einzel-Untersetzer: gewählter Wochentag zeigt das passende Foto.
   useEffect(() => {
@@ -72,22 +75,22 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
   }, [slug, w.tag, fotos.length]);
 
   // Farbwahl: Das Foto wird in der gewählten Farbe gezeigt (Licht und Struktur bleiben).
-  const farbKey = modus === "kombi" ? (w.farben ?? []).join() : modus === "schild" ? `${w.farbe ?? ""}|${w.textfarbe ?? ""}` : (w.farbe ?? "");
+  const farbKey = modus === "kombi" ? (w.farben ?? []).join() : modus === "schild" ? `${w.farbe ?? ""}|${w.textfarbe ?? ""}` : modus === "untersetzer" ? `${w.farbe ?? ""}|${w.linienfarbe ?? ""}` : (w.farbe ?? "");
   // Namensschild: Foto 1 ist das Blanko-Schild, auf das Farbe und Text live gelegt werden (immer umgefärbt, mit Aufdruck).
-  const mitAufdruck = slug === "namensschild" && idx === 0;
+  const mitAufdruck = liveAufFoto && idx === 0;
   // Das Foto wird von Anfang an in der gewählten Farbe gezeigt (auch in der Vorauswahl), sobald der Kaufbereich eine Farbe gemeldet hat.
   const aktiv = !!modus && (mitAufdruck || farbKey.replace(/\|/g, "") !== "");
 
   const foto = idx >= 0 ? fotos[idx] : null;
   const fotoSrc = foto?.src;
-  const farbeSchluessel = `${w.farbe}|${w.textfarbe}|${(w.farben ?? []).join()}`;
+  const farbeSchluessel = `${w.farbe}|${w.textfarbe}|${w.linienfarbe}|${(w.farben ?? []).join()}`;
   useEffect(() => {
     let abgebrochen = false;
     if (!aktiv || !fotoSrc || !modus) { setGefaerbtFuer(null); return; }
     vorbereiten(fotoSrc, modus).then((v) => {
       const c = canvas.current;
       if (abgebrochen || !v || !c) return;
-      const ziele = zielFarben(modus, { farbe: w.farbe, farben: w.farben, textfarbe: w.textfarbe });
+      const ziele = zielFarben(modus, { farbe: w.farbe, farben: w.farben, textfarbe: w.textfarbe, linienfarbe: w.linienfarbe });
       if (ziele.every((z) => z === null)) { setGefaerbtFuer(null); return; }
       const ctx = c.getContext("2d");
       if (!ctx) return;
@@ -110,7 +113,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
           {aktiv && (
             <canvas ref={canvas} className="shop-foto" width={GROESSE} height={GROESSE} role="img" aria-label={`${foto.alt}, in deiner gewählten Farbe`} style={zeigeCanvas ? undefined : { visibility: "hidden" }} />
           )}
-          {mitAufdruck && <NamensschildAufdruck w={w} />}
+          {mitAufdruck && (slug === "namensschild" ? <NamensschildAufdruck w={w} /> : <UntersetzerAufdruck w={w} />)}
         </div>
       ) : (
         <LiveProductImage form={form} grundfarbe={grundfarbe} />
@@ -134,7 +137,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
             <img src={f.src} alt="" width={96} height={96} loading="lazy" decoding="async" />
           </button>
         ))}
-        {slug !== "namensschild" && <button type="button" className="shop-fotoleiste-live" aria-pressed={idx === -1} onClick={() => setIdx(-1)}>Deine Wahl<br />Live</button>}
+        {!liveAufFoto && <button type="button" className="shop-fotoleiste-live" aria-pressed={idx === -1} onClick={() => setIdx(-1)}>Deine Wahl<br />Live</button>}
       </div>
       {foto && textGeaendert && (
         <p className="shop-fotohinweis">Dein Text steht nur in der Live-Vorschau. <button type="button" className="shop-link" style={{ minHeight: 0, background: "none", border: 0, padding: 0, cursor: "pointer", font: "inherit" }} onClick={() => { einmalUmgeschaltet.current = true; setIdx(-1); }}>Mit deinem Text ansehen</button></p>
@@ -142,7 +145,8 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name }: { s
       <p className="shop-fotohinweis">
         {foto
           ? (mitAufdruck
-            ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). "
+            ? (slug === "namensschild" ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). " : "Vorschau: Dein Text und deine Farben auf dem Foto des Untersetzers (bearbeitet). ")
+            : ohneUmfaerben ? "Foto: Beispielstück mit Kork (Option, siehe Auswahl). "
             : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). " : "Foto: Beispielstück. ")
           : "Vorschau (gezeichnet, kein Foto). "}
         <strong>Wichtig:</strong> {TEXTE.bildHinweis}

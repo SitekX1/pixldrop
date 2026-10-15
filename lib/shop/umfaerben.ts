@@ -5,10 +5,12 @@
 //  "farbe"  : das ganze Objekt bekommt die gewählte Farbe (Geister, Kürbisse, Becher, Halter)
 //  "kombi"  : Wochentags-Untersetzer, drei Bereiche (Grund dunkel / Akzent blau / Schrift weiß) -> farben[0..2]
 //  "schild" : Namensschild, zwei Bereiche (Platte dunkel / Schrift blau) -> Plattenfarbe, Schriftfarbe
+//  "untersetzer": Individueller Untersetzer, zwei Bereiche (Untersetzer dunkel / Zierlinien hell). Die Linien kommen aus dem
+//                 G-Kanal der Maske (R = Untersetzer-Freisteller), nicht aus der Farbe -> Untersetzerfarbe, Linienfarbe
 //  "grund"  : Halloween-Untersetzer: nur der dunkle Grund wird umgefärbt, das Motiv bleibt
-export type UmfaerbModus = "farbe" | "kombi" | "schild" | "grund";
+export type UmfaerbModus = "farbe" | "kombi" | "schild" | "grund" | "untersetzer";
 
-export interface UmfaerbZiel { farbe?: string; farben?: string[]; textfarbe?: string }
+export interface UmfaerbZiel { farbe?: string; farben?: string[]; textfarbe?: string; linienfarbe?: string }
 
 export function hexZuRgb(hex: string): [number, number, number] | null {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
@@ -17,7 +19,7 @@ export function hexZuRgb(hex: string): [number, number, number] | null {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-const KLASSEN: Record<UmfaerbModus, number> = { farbe: 1, kombi: 3, schild: 2, grund: 1 };
+const KLASSEN: Record<UmfaerbModus, number> = { farbe: 1, kombi: 3, schild: 2, grund: 1, untersetzer: 2 };
 const MIN_BEREICH = 0.24;
 const klemme = (x: number, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
 
@@ -28,15 +30,17 @@ export function zielFarben(modus: UmfaerbModus, z: UmfaerbZiel): ([number, numbe
     case "farbe": return [h(z.farbe)];
     case "grund": return [h(z.farbe)];
     case "schild": return [h(z.farbe), h(z.textfarbe)];
+    case "untersetzer": return [h(z.farbe), h(z.linienfarbe)];
     case "kombi": return [h(z.farben?.[0]), h(z.farben?.[1]), h(z.farben?.[2])];
   }
 }
 
 /** Gewichte je Klasse aus der Originalfarbe (0..1 je Kanal). Summe der Gewichte <= 1. */
-function klassen(modus: UmfaerbModus, r: number, g: number, b: number, l: number, out: number[]) {
+function klassen(modus: UmfaerbModus, r: number, g: number, b: number, l: number, out: number[], lin = 0) {
   switch (modus) {
     case "farbe": out[0] = 1; return;
     case "grund": out[0] = klemme((0.3 - l) / 0.12); return;
+    case "untersetzer": out[1] = lin; out[0] = 1 - lin; return;
     case "schild": {
       const bl = klemme((b - r - 0.1) / 0.15);
       out[1] = bl; out[0] = 1 - bl; return;
@@ -70,7 +74,7 @@ export function bereiten(modus: UmfaerbModus, rgba: Uint8ClampedArray, maskeR: U
     const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
     lum[i] = l;
     tmp.fill(0);
-    klassen(modus, r, g, b, l, tmp);
+    klassen(modus, r, g, b, l, tmp, maskeR[i * 4 + 1] / 255);
     for (let c = 0; c < k; c++) klasseGew[c][i] = tmp[c];
   }
   const schatten: Float32Array[] = [];

@@ -10,6 +10,7 @@ const ALT: Record<string, string[]> = {
     "Box mit eingestellten Untersetzern von vorn",
     "Box mit eingestellten Untersetzern von der Seite",
     "Leere Box für die Wochentags-Untersetzer",
+    "Wochentags-Untersetzer mit selbstklebender Korkunterseite (Option „Mit selbstklebendem Kork“), davor der Montag-Untersetzer",
   ],
   "wochentags-untersetzer-einzeln": [
     "Untersetzer Montag: Noch nicht.",
@@ -17,6 +18,7 @@ const ALT: Record<string, string[]> = {
     "Untersetzer Mittwoch: Halbzeit.",
     "Untersetzer Donnerstag: Fast geschafft.",
     "Untersetzer Freitag: Endlich.",
+    "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
   ],
   "stiftebecher-tasse": [
     "Stiftebecher in Tassenform mit Namensfeld, Vorderseite",
@@ -30,6 +32,11 @@ const ALT: Record<string, string[]> = {
     "Namensschild mit Ständer, Beispieltext",
     "Namensschild von schräg vorn, Beispieltext",
     "Namensschild von hinten",
+  ],
+  // Foto 1 = Untersetzer von oben ohne Text: Farben und Text deiner Wahl werden live daraufgelegt (components/shop/UntersetzerAufdruck.tsx)
+  "spruch-untersetzer": [
+    "Individueller Untersetzer von oben mit deinem Text und deinen Farben (Vorschau)",
+    "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
   ],
   "geister-set": [
     "Drei große Geister nebeneinander",
@@ -55,11 +62,13 @@ const ALT: Record<string, string[]> = {
     "Halloween-Untersetzer mit Kürbis",
     "Halloween-Untersetzer mit Geistern",
     "Halloween-Untersetzer mit Spukhaus",
+    "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
   ],
   "halloween-untersetzer-einzeln": [
     "Halloween-Untersetzer mit Kürbis",
     "Halloween-Untersetzer mit Geistern",
     "Halloween-Untersetzer mit Spukhaus",
+    "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
   ],
   "kuerbis-klein-set": [
     "Vier kleine Kürbisse mit Gesicht nebeneinander",
@@ -83,6 +92,7 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "wochentags-untersetzer-einzeln": "kombi",
   "stiftebecher-tasse": "farbe",
   "namensschild": "schild",
+  "spruch-untersetzer": "untersetzer",
   "geister-set": "farbe",
   "geister-set-klein": "farbe",
   "kuerbis-teelichthalter": "farbe",
@@ -90,6 +100,18 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "halloween-untersetzer-set": "grund",
   "halloween-untersetzer-einzeln": "grund",
 };
+
+/** Fotos ohne Maske, die nie umgefärbt werden (Kork-Rückseite): Slug -> Fotonummern (0-basiert). */
+export const OHNE_UMFAERBEN: Record<string, number[]> = {
+  "spruch-untersetzer": [1],
+  "wochentags-untersetzer-set": [5],
+  "wochentags-untersetzer-einzeln": [5],
+  "halloween-untersetzer-set": [5],
+  "halloween-untersetzer-einzeln": [3],
+};
+
+/** Artikel, bei denen Foto 1 die Live-Vorschau ist: Farben und Text des Kunden werden direkt aufs Foto gelegt (kein extra „Deine Wahl Live“). */
+export const MIT_AUFDRUCK = ["namensschild", "spruch-untersetzer"];
 
 /** Einzel-Untersetzer: gewählter Wochentag (Kürzel aus ProductBuy) -> Fotonummer (0-basiert). */
 export const TAG_FOTO: Record<string, number> = { Mo: 0, Di: 1, Mi: 2, Do: 3, Fr: 4 };

@@ -28,6 +28,10 @@ zeile2". */
   standardSchrift?: string;
   /** Schrift füllt die Zeile (Namensschild): keine Größenstufen, der Name wird so groß wie möglich (lib/shop/namensschild.ts). */
   fuellt?: boolean;
+  /** Vorbelegter Text bei einzeiligen Artikeln (ohne `zeilen`). Der unveränderte Standardtext bleibt Standardware (Widerruf). */
+  standardText?: string;
+  /** Freie Textfläche des runden Artikels: Standard = Spruch-/Stiftetassen-Fläche, "untersetzer" = Mitte innerhalb der Zierlinien. */
+  flaeche?: "untersetzer";
 }
 
 /** Fertige Farbkombination (statt Lagerfarb-Wahl). Erweiterbar: einfach einen Eintrag in KOMBI_WOCHENTAG ergaenzen. */
@@ -53,6 +57,8 @@ export interface Produkt {
   /** Mehrteilige Artikel: je Teil eine Lagerfarbe (Auswahl.teilFarben: teilId -> farbeId). */
   teile?: { id: string; label: string }[];
   personalisierung: null | Personalisierung;
+  /** Zusätzlich wählbare Linienfarbe (Zierlinien am Rand, Individueller Untersetzer): Lagerfarbe, hebt sich vom Untergrund ab. */
+  linienfarbe?: boolean;
   nurMitText?: boolean;
   /** Nur über „Individueller Druck“ (Preis nach Anfrage), nie im Warenkorb (Variante B). */
   nurAnfrage?: boolean;
@@ -138,13 +144,14 @@ export const PRODUKTE: Produkt[] = [
   },
   {
     slug: "spruch-untersetzer",
-    name: "Spruch-Untersetzer mit deinem Text",
-    kurz: "Name oder Spruch frei wählbar, Schrift aus 26 Vorschlägen.",
+    name: "Individueller Untersetzer mit deinem Text",
+    kurz: "Dein Text in der Mitte, Untersetzer-, Linien- und Textfarbe wählst du selbst.",
     beschreibung:
-      "Ein Untersetzer mit deinem Namen oder Spruch, in einer von 25 Schriften. Jedes Stück wird einzeln für dich gedruckt.",
-    gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#f0bb55",
+      "Ein Untersetzer mit deinem Text in der Mitte, 90 mm Durchmesser. Vorbelegt ist „PixlDrop“, du schreibst stattdessen deinen Namen, ein Wort oder einen kurzen Spruch. Du wählst Schrift, Untersetzerfarbe, Linienfarbe (die dünnen Zierlinien am Rand) und Textfarbe. Die Vorschau zeigt deine Wahl auf dem Foto, jedes Stück wird einzeln für dich gedruckt. Auf Wunsch mit selbstklebendem Kork auf der Unterseite.",
+    gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#1c1c1c",
     preisCent: 590, masse: null, material: MATERIAL, optionen: korbGruppe(30),
-    personalisierung: { maxLaenge: 40, label: "Dein Text", beispiel: "Montag" },
+    personalisierung: { maxLaenge: 40, label: "Dein Text", beispiel: "PixlDrop", standardText: "PixlDrop", flaeche: "untersetzer", standardSchrift: "montserrat" },
+    linienfarbe: true,
     nurMitText: true, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {
@@ -274,7 +281,7 @@ export function istBestellbar(p: Produkt): boolean {
 /** Der vorbelegte Standardtext (mehrzeilig, mit "\n" verbunden) oder null, wenn der Artikel keinen hat. */
 export function standardText(p: Produkt): string | null {
   const z = p.personalisierung?.zeilen;
-  return z ? z.map((x) => x.standard).join("\n") : null;
+  return z ? z.map((x) => x.standard).join("\n") : p.personalisierung?.standardText ?? null;
 }
 
 /**

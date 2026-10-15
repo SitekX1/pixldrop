@@ -5,6 +5,7 @@ import { formatAusOptionen, istFormatSchluessel, standardFormat, zeilenAnzahl } 
 import ProductImage from "./ProductImage";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilHexe } from "@/lib/shop/teilfarben";
+import { LINIENFARBE_KEY } from "@/lib/shop/textfarbe";
 
 export function kombiVon(p: Produkt, a: Auswahl) {
   return p.kombinationen?.find((k) => k.id === a.optionen[KOMBI_KEY]);
@@ -19,5 +20,5 @@ export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Mus
     const nur = Object.fromEntries(Object.entries(a.optionen).filter(([k]) => istFormatSchluessel(k)));
     format = { fmt: formatAusOptionen(nur, zeilenAnzahl(pers)) ?? standardFormat(zeilenAnzahl(pers)), breite: schrift.breite, schriftId: schrift.id };
   }
-  return <ProductImage form={p.form} farbe={farbeHex ?? p.grundfarbe} text={a.text || undefined} family={schrift?.family} format={format} textfarbe={textfarbeHex} typ={typ} farben={kombiVon(p, a)?.farben.map((f) => f.hex)} teileFarben={farben ? teilHexe(p, a, farben) : undefined} />;
+  return <ProductImage form={p.form} farbe={farbeHex ?? p.grundfarbe} text={a.text || undefined} family={schrift?.family} format={format} textfarbe={textfarbeHex} linienfarbe={p.linienfarbe ? farben?.find((f) => f.id === a.optionen[LINIENFARBE_KEY])?.hex : undefined} typ={typ} farben={kombiVon(p, a)?.farben.map((f) => f.hex)} teileFarben={farben ? teilHexe(p, a, farben) : undefined} />;
 }

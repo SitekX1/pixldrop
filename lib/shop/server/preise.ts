@@ -9,7 +9,7 @@ import { SCHRIFTEN, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung }
 import {
   formatAnzeige, formatAusOptionen, formatUnerlaubt, istFormatSchluessel, pruefePasst, zeilenAnzahl,
 } from "../textformat";
-import { TEXTFARBE_HINWEIS, TEXTFARBE_KEY, textfarbeErlaubt } from "../textfarbe";
+import { LINIENFARBE_HINWEIS, LINIENFARBE_KEY, TEXTFARBE_HINWEIS, TEXTFARBE_KEY, automatischeLinienfarbe, textfarbeErlaubt } from "../textfarbe";
 import { istVersandArt, versandOptionen, type VersandArt, type VersandPosition } from "../versand";
 
 export const MAX_MENGE = 20;
@@ -34,6 +34,7 @@ export type FehlerCode =
   | "versandart_ungueltig"
   | "farbe_ungueltig"
   | "textfarbe_ungueltig"
+  | "linienfarbe_ungueltig"
   | "lager_nicht_lesbar"
   | "text_ungueltig"
   | "text_unzulaessig"
@@ -157,7 +158,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
 
     // Optionen: jede Gruppe des Artikels braucht eine gueltige Auswahl, nichts darueber hinaus
     // Textformat-Schluessel (fett_i, kursiv_i, groesse) gehoeren nicht zu den Optionsgruppen und werden unten geprueft.
-    const { [TEXTFARBE_KEY]: textfarbeRoh, [KOMBI_KEY]: _kombiRoh, ...optAlle } = istObjekt(roh.optionen) ? roh.optionen : ({} as Record<string, unknown>);
+    const { [TEXTFARBE_KEY]: textfarbeRoh, [LINIENFARBE_KEY]: linienRoh, [KOMBI_KEY]: _kombiRoh, ...optAlle } = istObjekt(roh.optionen) ? roh.optionen : ({} as Record<string, unknown>);
     if (!produkt.kombinationen && istObjekt(roh.optionen) && KOMBI_KEY in roh.optionen) return fehler("option_ungueltig", "Ungültige Auswahl.");
     const optIn: Record<string, unknown> = {};
     const formatIn: Record<string, unknown> = {};
@@ -173,6 +174,16 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       const o = typeof gewaehlt === "string" ? g.optionen.find((x) => x.id === gewaehlt) : undefined;
       if (!o) return fehler("option_ungueltig", `Bitte wähle bei „${g.label}“ eine Option.`);
       optionen[g.label] = o.label;
+    }
+
+    // Linienfarbe (nur Artikel mit Zierlinien): vorrätige Lagerfarbe, die sich vom Untersetzer abhebt; fehlt sie, gilt die automatische (Weiß bzw. kontrastreichste)
+    if (linienRoh !== undefined && !produkt.linienfarbe) return fehler("option_ungueltig", "Ungültige Auswahl.");
+    if (produkt.linienfarbe) {
+      const lf = linienRoh === undefined ? automatischeLinienfarbe(farbe, ctx.farben)
+        : typeof linienRoh === "string" ? ctx.farben.find((f) => f.id === linienRoh) : undefined;
+      if (!lf && linienRoh !== undefined) return fehler("linienfarbe_ungueltig", "Diese Linienfarbe ist nicht (mehr) vorrätig. Bitte wähle eine andere.");
+      if (lf && farbe && linienRoh !== undefined && !textfarbeErlaubt(farbe, lf)) return fehler("linienfarbe_ungueltig", `${LINIENFARBE_HINWEIS}. Bitte wähle eine andere Linienfarbe.`);
+      if (lf) optionen["Linienfarbe"] = lf.name; // ohne Wahl und ohne passende Lagerfarbe: keine Linienfarbe festgelegt (Alex entscheidet)
     }
 
     if (kombi) optionen["Farbkombination"] = kombi.label;

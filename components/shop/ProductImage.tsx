@@ -1,5 +1,5 @@
 import type { Form } from "@/lib/shop/produkte";
-import { umbrechen, passtInFlaeche, FLAECHE_RUND } from "@/lib/shop/umbruch";
+import { umbrechen, passtInFlaeche, FLAECHE_RUND, FLAECHE_UNTERSETZER, type Flaeche } from "@/lib/shop/umbruch";
 import { FETT_FAKTOR } from "@/lib/shop/schriften";
 import type { TextFormat } from "@/lib/shop/textformat";
 import NamensschildSvg from "./NamensschildSvg";
@@ -124,7 +124,23 @@ function KombiUntersetzer({ x, y, r, kf, label, size }: { x: number; y: number; 
   );
 }
 
-function Motiv({ form, c, text, family, format, tc: tcWahl, kf, tag, teileFarben }: { form: Form; tag?: string; teileFarben?: Record<string, string>; c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string; kf?: string[] }) {
+/** Wunschtext der runden Fläche (Untersetzer), mittig bei (50|50) in einer 100er-Zeichnung; Größe und Umbruch wie die Passt-Prüfung (FLAECHE_RUND). */
+export function RundText({ text, family, format, tc, flaeche = FLAECHE_RUND }: { flaeche?: Flaeche; text: string; family?: string; format?: VorschauFormat; tc: string }) {
+  const t = text.replace(/\n/g, " ");
+  const fm = format?.fmt;
+  const fit = format && fm ? passtInFlaeche({ text: t, flaeche, groesse: fm.groesse, breite: format.breite, fett: fm.fett[0] === true, fettFaktor: FETT_FAKTOR }) : null;
+  const u = fit?.passt ? fit : umbrechen(t, flaeche.breite, fit ? fit.size : 11, 6.5, 4, 40);
+  return <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={50} fill={tc} family={family ?? "sans-serif"} weight={fm?.fett[0] ? 900 : 700} kursiv={fm?.kursiv[0] === true} />;
+}
+
+// Zierlinien am Rand des Individuellen Untersetzers (Winkel in Grad, 0 = rechts, im Uhrzeigersinn), wie auf dem Foto: oben und unten lang, an den Seiten kurze Stücke.
+const LINIEN_BOGEN: [number, number][] = [[226, 347], [-4, 16], [36, 142], [162, 188], [196, 208]];
+export function linienPfad(cx: number, cy: number, r: number): string {
+  const pt = (w: number) => `${(cx + r * Math.cos((w * Math.PI) / 180)).toFixed(2)} ${(cy + r * Math.sin((w * Math.PI) / 180)).toFixed(2)}`;
+  return LINIEN_BOGEN.map(([a, b]) => `M${pt(a)} A${r} ${r} 0 ${((b - a + 360) % 360) > 180 ? 1 : 0} 1 ${pt(b)}`).join(" ");
+}
+
+function Motiv({ form, c, text, family, format, tc: tcWahl, lc, kf, tag, teileFarben }: { lc?: string; form: Form; tag?: string; teileFarben?: Record<string, string>; c: string; text?: string; family?: string; format?: VorschauFormat; tc?: string; kf?: string[] }) {
   const tc = tcWahl ?? textfarbeFuer(c);
   if (kf && kf.length >= 3 && form === "rund") return <KombiUntersetzer x={50} y={50} r={35} kf={kf} label={tag ?? "Mo"} size={20} />;
   if (kf && kf.length >= 3 && form === "set") {
@@ -139,14 +155,10 @@ function Motiv({ form, c, text, family, format, tc: tcWahl, kf, tag, teileFarben
       return (
         <g>
           <circle cx="50" cy="50" r="35" fill={c} stroke="rgba(0,0,0,.2)" strokeWidth="1.5" />
-          <circle cx="50" cy="50" r="27" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" />
-          {text ? (() => {
-            const t = text.replace(/\n/g, " ");
-            const fm = format?.fmt;
-            const fit = format && fm ? passtInFlaeche({ text: t, flaeche: FLAECHE_RUND, groesse: fm.groesse, breite: format.breite, fett: fm.fett[0] === true, fettFaktor: FETT_FAKTOR }) : null;
-            const u = fit?.passt ? fit : umbrechen(t, 46, fit ? fit.size : 11, 6.5, 4, 40);
-            return <Zeilen zeilen={u.zeilen} size={u.size} x={50} cy={50} fill={tc} family={family ?? "sans-serif"} weight={fm?.fett[0] ? 900 : 700} kursiv={fm?.kursiv[0] === true} />;
-          })() : (
+          {lc
+            ? <path d={linienPfad(50, 50, 31.5)} fill="none" stroke={lc} strokeWidth="0.9" strokeLinecap="round" />
+            : <circle cx="50" cy="50" r="27" fill="none" stroke="rgba(0,0,0,.18)" strokeWidth="1.5" />}
+          {text ? <RundText text={text} family={family} format={format} tc={tc} flaeche={lc ? FLAECHE_UNTERSETZER : FLAECHE_RUND} /> : (
             <rect x="30" y="46" width="40" height="8" rx="4" fill="rgba(0,0,0,.22)" />
           )}
         </g>
@@ -198,13 +210,13 @@ function Motiv({ form, c, text, family, format, tc: tcWahl, kf, tag, teileFarben
 }
 
 export default function ProductImage({
-  form, farbe, typ = "Illustration", breit = false, text, family, format, textfarbe, farben, tag, teileFarben,
-}: { form: Form; tag?: string; /** Mehrteilige Artikel: teilId -> Hex (z. B. koerper, stiel) */ teileFarben?: Record<string, string>; /** Farbkombination (Grund, Akzent, Schrift) fuer Wochentags-Untersetzer */ farben?: string[]; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat; /** gewählte Schriftfarbe (Hex); ohne Angabe automatisch kontrastreich */ textfarbe?: string }) {
+  form, farbe, typ = "Illustration", breit = false, text, family, format, textfarbe, linienfarbe, farben, tag, teileFarben,
+}: { /** Linienfarbe (Hex) der Zierlinien, nur Individueller Untersetzer */ linienfarbe?: string; form: Form; tag?: string; /** Mehrteilige Artikel: teilId -> Hex (z. B. koerper, stiel) */ teileFarben?: Record<string, string>; /** Farbkombination (Grund, Akzent, Schrift) fuer Wochentags-Untersetzer */ farben?: string[]; farbe: string; typ?: string; breit?: boolean; text?: string; family?: string; format?: VorschauFormat; /** gewählte Schriftfarbe (Hex); ohne Angabe automatisch kontrastreich */ textfarbe?: string }) {
   return (
     <div className={`shop-img ${breit ? "shop-img--wide" : ""}`} role="img" aria-label={`Produktillustration: ${typ}`}>
       <svg className="motiv" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <path d="M70 92C86 86 96 70 94 54" fill="none" stroke="rgba(107,68,35,.28)" strokeWidth="5" strokeLinecap="round" />
-        <Motiv form={form} c={farbe} text={text} family={family} format={format} tc={textfarbe} kf={farben} tag={tag} teileFarben={teileFarben} />
+        <Motiv form={form} c={farbe} text={text} family={family} format={format} tc={textfarbe} lc={linienfarbe} kf={farben} tag={tag} teileFarben={teileFarben} />
       </svg>
       <span className="shop-placeholder-tag">{typ}</span>
     </div>

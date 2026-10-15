@@ -390,8 +390,8 @@ test("Kurzliste der Wunschtexte: gekuerzt, mit Schrift/Format, ohne Kundendaten;
   const { wunschtextKurzliste, telegramFreigabe, alexMailFreigabe } = await import("@/lib/shop/server/freigabe-texte");
   const lang = "A".repeat(100);
   const kl = wunschtextKurzliste([
-    { name: "Spruch-Untersetzer mit deinem Text", menge: 2, text: lang, schrift: "Oswald", optionen: { fett_0: "1", groesse: "l" } },
-    { name: "Spruch-Untersetzer mit deinem Text", menge: 1, text: null, schrift: null, optionen: {} },
+    { name: "Individueller Untersetzer mit deinem Text", menge: 2, text: lang, schrift: "Oswald", optionen: { fett_0: "1", groesse: "l" } },
+    { name: "Individueller Untersetzer mit deinem Text", menge: 1, text: null, schrift: null, optionen: {} },
   ]);
   assert.equal(kl.length, 1);
   assert.ok(kl[0].includes("Oswald") && kl[0].includes("Fett") && kl[0].includes("Größe Groß"), kl[0]);

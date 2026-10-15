@@ -386,3 +386,30 @@ test("Auswahl: teilFarben unterscheidet Positionen, alte Eintraege ohne Feld ble
   assert.ok(gleichePosition(basis, { ...basis, teilFarben: {} }));
   assert.ok(!gleichePosition(basis, { ...basis, teilFarben: { stiel: "gruen" } }));
 });
+
+test("Individueller Untersetzer: Standardtext, Linienfarbe (Lager, Kontrast, nur dieser Artikel), Preis", async () => {
+  const { standardText, istIndividuell, einzelpreisCent } = await import("@/lib/shop/produkte");
+  const p = katalog.find((x) => x.slug === "spruch-untersetzer")!;
+  assert.equal(standardText(p), "PixlDrop");
+  assert.equal(istIndividuell(p, "PixlDrop"), false, "Standardtext bleibt Standardware");
+  assert.equal(istIndividuell(p, "Anna"), true);
+  const weiss = { id: "weiss", name: "Weiß", hex: "#f4f1ea" };
+  const c = ctx({ farben: [...farben, weiss] });
+  const basis = { slug: "spruch-untersetzer", menge: 1, farbeId: "schwarz", text: "PixlDrop", schriftId: "montserrat" };
+  const ok = berechneWarenkorb([{ ...basis, optionen: { linienfarbe: "weiss", textfarbe: "honiggold" } }], c);
+  assert.ok(ok.ok, JSON.stringify((ok as any).fehler));
+  assert.equal(ok.wert.positionen[0].optionen["Linienfarbe"], "Weiß");
+  assert.equal(ok.wert.positionen[0].optionen["Schriftfarbe"], "Honiggold");
+  assert.equal(ok.wert.individuell, false);
+  const auto = berechneWarenkorb([{ ...basis }], c);
+  assert.ok(auto.ok && auto.wert.positionen[0].optionen["Linienfarbe"] === "Weiß", "ohne Wahl: automatisch Weiß");
+  const gleich = berechneWarenkorb([{ ...basis, optionen: { linienfarbe: "schwarz" } }], c);
+  assert.ok(!gleich.ok && gleich.fehler.code === "linienfarbe_ungueltig", "Linie wie Untergrund gesperrt");
+  const fremd = berechneWarenkorb([{ ...basis, optionen: { linienfarbe: "neon-pink" } }], c);
+  assert.ok(!fremd.ok && fremd.fehler.code === "linienfarbe_ungueltig", "nicht im Lager");
+  const anders = berechneWarenkorb([{ slug: "namensschild", menge: 1, farbeId: "schwarz", optionen: { linienfarbe: "weiss" } }], c);
+  assert.ok(!anders.ok, "Linienfarbe nur beim Untersetzer");
+  const echt = PRODUKTE.find((x) => x.slug === "spruch-untersetzer")!;
+  assert.equal(einzelpreisCent(echt, {}), 590);
+  assert.equal(einzelpreisCent(echt, { kork: "mit" }), 620);
+});
