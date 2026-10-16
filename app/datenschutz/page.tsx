@@ -55,10 +55,29 @@ export default function Datenschutz() {
 
       <h2>5. Affiliate-Links</h2>
       <p>
-        Diese Seite enthält einen Affiliate-Link zu aicut.pro. Beim Klick auf diesen Link wird
+        Die Link-in-Bio-Seite enthält einen Affiliate-Link zu aicut.pro. Beim Klick auf diesen Link wird
         ggf. ein Tracking-Parameter an den Anbieter übermittelt, damit dieser eine Vermittlung
         durch uns nachvollziehen kann. Es werden dabei keine personenbezogenen Daten von uns
         weitergegeben.
+      </p>
+      <p>
+        <strong>Amazon-Partnerprogramm:</strong> Auf einigen Produktseiten im Shop (3D-Druck)
+        findest du einen als Werbung gekennzeichneten Partnerlink zu Amazon.de. Ich nehme am
+        Partnerprogramm von Amazon EU S.à r.l. teil. Der Link enthält eine Partner-Kennung
+        (Tracking-ID), damit Amazon einen Kauf mir zuordnen kann. Der Link wird erst
+        aufgerufen, wenn du ihn anklickst; vorher fließen keine Daten an Amazon, und ich setze
+        selbst keine Cookies ein und übermittle keine Daten von dir an Amazon. Mit dem Klick
+        verlässt du diese Website: Beim Aufruf und bei einem Kauf verarbeitet Amazon Daten (z. B.
+        IP-Adresse, Cookies, Kaufdaten) in eigener Verantwortung, ggf. auch zur Provisionsabrechnung. Ich
+        erhalte von Amazon nur Auswertungen ohne direkten Personenbezug (z. B. Zahl der Käufe und
+        Provision). Dazu gelten die{" "}
+        <a href="https://www.amazon.de/gp/help/customer/display.html?nodeId=201909010" target="_blank" rel="noopener noreferrer">
+          Datenschutzhinweise von Amazon
+        </a>
+        . Rechtsgrundlage für das Einbinden des Links ist Art. 6 Abs. 1 lit. f DSGVO
+        (berechtigtes Interesse an der Finanzierung des Angebots durch Provisionen). Mit
+        deinem Klick und Kauf bei Amazon hat die Datenverarbeitung durch Amazon nichts mehr mit
+        diesem Shop zu tun.
       </p>
 
       <h2>6. Minispiel &quot;Eddie&apos;s Café&quot;</h2>

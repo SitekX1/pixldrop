@@ -10,6 +10,7 @@ import { VorschauProvider, LiveProductImage } from "@/components/shop/Vorschau";
 import PauseBanner from "@/components/shop/PauseBanner";
 import ProductBuy from "@/components/shop/ProductBuy";
 import { holeProdukt, istBestellbar, hitzeHinweis, artikelnummer, TEELICHTFACH, PRODUKTE } from "@/lib/shop/produkte";
+import { ledPartnerlink } from "@/lib/shop/affiliate";
 import { holeFarben } from "@/lib/shop/farben";
 import { formatPreis, halloweenModus, TEXTE } from "@/lib/shop/config";
 import { VERSAND_BRIEF, VERSAND_PREISE, VERSAND_PRODUKTE } from "@/lib/shop/versand";
@@ -99,6 +100,14 @@ export default async function Produktseite({ params }: Props) {
                 {p.personalisierung && <li>Der Text wird so gedruckt, wie du ihn eingibst; prüfe Schreibweise und Vorschau. Die Position darf um bis zu 3 mm abweichen (AGB Ziffer 9). Bei geändertem Text besteht kein Widerrufsrecht (Widerrufsbelehrung, Abschnitt B).</li>}
               </ul>
             </article>
+            {ledPartnerlink(p.slug) && (
+              <article className="shop-dkarte" aria-labelledby="led-partner">
+                <div className="shop-dkopf"><h3 id="led-partner">Passende LED-Teelichter <span className="muted">(Werbung)</span></h3></div>
+                <p>Du brauchst noch LED-Teelichter? Dieses Set mit 24 Stück (Durchmesser ca. 38 mm) habe ich selbst gekauft. Ob sie zu deinem Artikel passen, prüfe bitte selbst anhand der Maße.</p>
+                <p><a className="shop-link" href={ledPartnerlink(p.slug)!} target="_blank" rel="sponsored noopener noreferrer">LED-Teelichter bei Amazon ansehen (Werbung, Partnerlink)</a></p>
+                <p className="muted">Wenn du über diesen Link bei Amazon kaufst, erhalte ich eine kleine Provision. Für dich ändert sich am Preis nichts. Als Amazon-Partner verdiene ich an qualifizierten Verkäufen. Der Kauf bei Amazon ist ein eigener Vertrag mit dem dortigen Verkäufer; der Link verlässt diesen Shop.</p>
+              </article>
+            )}
             <article className="shop-dkarte" aria-labelledby="versand-widerruf">
               <div className="shop-dkopf"><span className="shop-medaillon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.8 3.5 7.3v9.4l8.5 4.5 8.5-4.5V7.3L12 2.8Z"/><path d="m3.5 7.3 8.5 4.5 8.5-4.5"/><path d="M12 11.8v9.4"/><path d="m7.8 5 8.4 4.4"/></svg></span><h3 id="versand-widerruf">Versand, Lieferzeit, Widerruf</h3></div>
               <ul>
