@@ -87,6 +87,7 @@ export default async function Produktseite({ params }: Props) {
               </dl>
               {p.masse && !p.toleranzMm && <p className="muted">Maße sind ca.-Angaben, Toleranz im Rahmen des FDM-Verfahrens.</p>}
               <p>Das Stück wird im FDM-Verfahren Schicht für Schicht gedruckt; feine Schichtlinien sind sichtbar und gehören zu diesem Produkt. Die Farbe kann je nach Bildschirm anders aussehen.</p>
+              {p.slug === "kuerbis-laterne" && <p className="muted">Oben an der Spitze können feine Ringe oder Stützspuren zu sehen sein. Das gehört zum Druckverfahren.</p>}
             </article>
             <article className="shop-dkarte shop-dkarte--sicher" id="sicherheit" aria-labelledby="gpsr">
               <div className="shop-dkopf"><span className="shop-medaillon"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z"/><path d="M12 10v4.5"/><path d="M12 17.2v.1"/></svg></span><h3 id="gpsr">Sicherheit und Hinweise</h3></div>
