@@ -25,7 +25,7 @@ export interface Benachrichtiger {
   /** Kurze Push-Nachricht an Alex (nur Nummer/Art + Hinweis, nie Links/Texte/Kundendaten!). true = zugestellt. */
   telegram(text: string): Promise<boolean>;
   /** Mail an Alex (Nummer + Link ins Panel; Wunschtext-Flow: Freigabe-Links + Kurzliste). true = zugestellt. */
-  mailAlex(betreff: string, text: string, replyTo?: string): Promise<boolean>;
+  mailAlex(betreff: string, text: string, replyTo?: string, html?: string): Promise<boolean>;
   /** Mail an den Kunden (Bestellbestaetigung). true = zugestellt. */
   mailKunde(an: string, betreff: string, text: string, anhaenge?: MailAnhang[], html?: string): Promise<boolean>;
 }
@@ -128,14 +128,14 @@ export function erzeugeBenachrichtiger(
       }
       return telegramSenden(text);
     },
-    async mailAlex(betreff, text, replyTo) {
+    async mailAlex(betreff, text, replyTo, html) {
       if (!env.alexMail) return false;
       const b = bremsePruefen("mailAlex");
       if (b !== "ja") {
         if (b === "warnen") await senden(env.alexMail, "Shop: ungewöhnlich viele Meldungen", "Mehr als " + BREMSE_MAX.mailAlex + " Mails an dich in 10 Minuten. Weitere werden vorübergehend nicht gesendet. Bitte im Panel nachsehen.");
         return false;
       }
-      return senden(env.alexMail, betreff, text, replyTo);
+      return senden(env.alexMail, betreff, text, replyTo, html ? logoAnhaengeFuer(html) : undefined, html);
     },
     async mailKunde(an, betreff, text, anhaenge, html) {
       // Kundenmails immer multipart (Text + HTML im Shop-Rahmen); ohne eigenes HTML wird der Text umgesetzt.

@@ -20,6 +20,7 @@ import {
   FREIGABE_GRUENDE,
   absageMail,
   alexMailFreigabe,
+  alexMailErstattungOffen,
   wunschtextKurzliste,
   eingangsMail,
   istFreigabeGrund,
@@ -122,18 +123,19 @@ export async function benachrichtigeAlexFreigabe(
   }
   // Kurzliste der Wunschtexte aus shop_freigabe_daten; schlaegt das fehl, geht die Benachrichtigung trotzdem raus.
   let pos: ReturnType<typeof mappePositionen> = [];
+  let bezahltAm: string | null = null;
   if (deps.db) {
     try {
-      const d = await deps.db.rpc<{ ok: boolean; positionen?: unknown[] }>("shop_freigabe_daten", { p_id: id });
-      if (d.ok) pos = mappePositionen(d.positionen);
+      const d = await deps.db.rpc<{ ok: boolean; positionen?: unknown[]; angefordert_am?: string | null }>("shop_freigabe_daten", { p_id: id });
+      if (d.ok) { pos = mappePositionen(d.positionen); bezahltAm = d.angefordert_am ?? null; }
     } catch { /* ohne Kurzliste weiter */ }
   }
   const kurz = wunschtextKurzliste(pos);
-  const mail = alexMailFreigabe(nummer, links, art, kurz);
+  const mail = alexMailFreigabe(nummer, links, art, kurz, { positionen: pos, bezahltAm });
   const text = art === "neu" ? telegramFreigabe(nummer) : telegramFreigabeErinnerung(nummer, ERINNERUNG_NACH_STUNDEN);
   await deps.notifier.telegram(text);
   // Erfolg zaehlt nur, wenn die MAIL raus ist: nur sie enthaelt die Freigabe-Links (Telegram kennt sie nicht mehr).
-  return deps.notifier.mailAlex(mail.betreff, mail.text);
+  return deps.notifier.mailAlex(mail.betreff, mail.text, undefined, mail.html);
 }
 
 /** Eingangsbestaetigung (kein Vertragsschluss), nur einmal. */
@@ -212,7 +214,8 @@ async function erstatte(deps: Deps, id: string, nummer: string): Promise<Erstatt
   }
   if (!erfolg) {
     await deps.notifier.telegram(telegramErstattungOffen(nummer));
-    await deps.notifier.mailAlex(`Erstattung offen: ${nummer}`, `Die automatische PayPal-Erstattung für ${nummer} ist fehlgeschlagen. Bitte in PayPal erstatten.`);
+    const m = alexMailErstattungOffen(nummer);
+    await deps.notifier.mailAlex(m.betreff, m.text, undefined, m.html);
   }
   return status;
 }

@@ -397,13 +397,13 @@ export class FakePayPal implements PayPalClient {
 
 export class FakeNotifier implements Benachrichtiger {
   telegrams: string[] = [];
-  alexMails: { betreff: string; text: string }[] = [];
+  alexMails: { betreff: string; text: string; html?: string; replyTo?: string }[] = [];
   kundenMails: { an: string; betreff: string; text: string; html?: string; anhaenge?: { filename: string; content: Buffer; contentType: string }[] }[] = [];
   kundenMailOk = true;
   telegramOk = true;
   alexMailOk = true;
   async telegram(text: string) { if (this.telegramOk) this.telegrams.push(text); return this.telegramOk; }
-  async mailAlex(betreff: string, text: string) { if (this.alexMailOk) this.alexMails.push({ betreff, text }); return this.alexMailOk; }
+  async mailAlex(betreff: string, text: string, replyTo?: string, html?: string) { if (this.alexMailOk) this.alexMails.push({ betreff, text, html, replyTo }); return this.alexMailOk; }
   async mailKunde(an: string, betreff: string, text: string, anhaenge?: { filename: string; content: Buffer; contentType: string }[], html?: string) { if (!this.kundenMailOk) return false; this.kundenMails.push({ an, betreff, text, html, anhaenge }); return true; }
 }
 

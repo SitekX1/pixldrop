@@ -12,6 +12,7 @@ import { ANGEBOT_TEXTE } from "../angebot-texte";
 import { SCHRIFTEN } from "../schriften";
 import { VERSANDART_NAME, istVersandArt } from "../versand";
 import type { RechtsDokument } from "./pdf";
+import { htmlNeueBestellungOderAnfrage, htmlWiderruf } from "./mail-alex";
 import { FARBE, absatz, esc, hinweisBox, inline, mailRahmen, textZuHtml, ueberschrift } from "./mail-layout";
 
 export const PFLICHTANGABEN_FREIGEGEBEN = false;
@@ -466,9 +467,10 @@ export const telegramPruefen = (nummer: string, grund: string) => `Zahlung prüf
 export const telegramWiderruf = (nummer: string, passt: boolean) =>
   `Neuer Widerruf ${nummer} (Zuordnung: ${passt ? "passt" : "bitte prüfen"}). ${TELEGRAM_HINWEIS}`;
 
-export function alexMail(art: "Bestellung" | "Anfrage", nummer: string, adminUrl?: string): { betreff: string; text: string } {
+export function alexMail(art: "Bestellung" | "Anfrage", nummer: string, adminUrl?: string): { betreff: string; text: string; html: string } {
   return {
     betreff: `Neue ${art} ${nummer}`,
+    html: htmlNeueBestellungOderAnfrage(art, nummer, adminUrl),
     text: [
       `Neue ${art === "Bestellung" ? "bezahlte Bestellung" : "Anfrage"}: ${nummer}`,
       "",
@@ -487,9 +489,10 @@ export function alexMailWiderruf(
   abgleich: string,
   bestaetigungOk: boolean,
   adminUrl?: string,
-): { betreff: string; text: string } {
+): { betreff: string; text: string; html: string } {
   return {
     betreff: `Neuer Widerruf ${nummer}`,
+    html: htmlWiderruf(nummer, bestellnummer, abgleich, bestaetigungOk, adminUrl),
     text: [
       `Neuer Widerruf über die Widerrufsfunktion: ${nummer}`,
       bestellnummer ? `Angegebene Bestellnummer: ${bestellnummer}` : "Keine Bestellnummer angegeben (siehe Vertragsangabe im Admin Panel).",

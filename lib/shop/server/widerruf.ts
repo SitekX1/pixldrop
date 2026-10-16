@@ -137,7 +137,7 @@ export async function verarbeiteWiderruf(
     // Telegram und Mail an Alex gleichzeitig senden (statt nacheinander), damit der Besucher nicht auf beide warten muss.
     const [t, m] = await Promise.all([
       deps.notifier.telegram(telegramWiderruf(nummer, abgleich === "passt") + (bestaetigt ? "" : limitErreicht ? " - keine Bestätigungsmail (Limit je Adresse erreicht)" : " - Eingangsbestätigung FEHLGESCHLAGEN")),
-      deps.notifier.mailAlex(mail.betreff, mail.text),
+      deps.notifier.mailAlex(mail.betreff, mail.text, undefined, mail.html),
     ]);
     if (t || m) await deps.db.rpc("shop_widerruf_markiere", { p_id: id, p_art: "benachrichtigt" }).catch(() => undefined);
     else console.error("Shop: Widerruf gespeichert, aber Alex nicht benachrichtigt:", nummer);

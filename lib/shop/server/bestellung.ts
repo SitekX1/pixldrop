@@ -434,7 +434,7 @@ async function nachBezahlt(
     } else {
       const mail = alexMail("Bestellung", nummer, deps.env.adminUrl);
       const t = await deps.notifier.telegram(telegramBestellung(nummer));
-      const m = await deps.notifier.mailAlex(mail.betreff, mail.text);
+      const m = await deps.notifier.mailAlex(mail.betreff, mail.text, undefined, mail.html);
       gesendet = t || m;
     }
     if (gesendet) {

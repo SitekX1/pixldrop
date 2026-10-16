@@ -6,6 +6,7 @@ import { DbFehler } from "./db";
 import type { Benachrichtiger } from "./benachrichtigung";
 import type { Antwort } from "./bestellung";
 import { pruefeKontakt } from "./validierung";
+import { htmlKontakt } from "./mail-alex";
 
 export interface KontaktDeps {
   db: Db;
@@ -53,9 +54,10 @@ export async function verarbeiteKontakt(
     "Antworten geht direkt per Reply an den Absender.",
   ].join("\n");
 
+  const html = htmlKontakt(d.name, d.email, d.nachricht);
   let gesendet = false;
   for (let versuch = 0; versuch < 2 && !gesendet; versuch++) {
-    gesendet = await deps.notifier.mailAlex("Neue Kontaktanfrage (3D-Druck-Shop)", text, d.email).catch(() => false);
+    gesendet = await deps.notifier.mailAlex("Neue Kontaktanfrage (3D-Druck-Shop)", text, d.email, html).catch(() => false);
   }
   if (!gesendet) {
     console.error("Shop: Kontakt-Mail an Alex fehlgeschlagen");

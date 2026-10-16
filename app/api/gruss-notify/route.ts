@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { leseEnv } from "@/lib/shop/server/env";
 import { erzeugeBenachrichtiger } from "@/lib/shop/server/benachrichtigung";
+import { htmlGrussAnfrage } from "@/lib/shop/server/mail-alex";
 
 // Benachrichtigt Alex per Telegram über eine neue Grußvideo-Anfrage.
 // Braucht TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID als Env-Vars (Vercel) —
@@ -92,6 +93,8 @@ export async function POST(request: Request) {
         `Kontakt: ${contact}`,
         `Nachricht: ${message ?? "-"}`,
       ].join("\n"),
+      undefined,
+      htmlGrussAnfrage({ anlass, variante: tone, textart: textMode ?? "-", name, kontakt: contact, nachricht: message ?? "-" }),
     );
   } catch {
     mailOk = false;

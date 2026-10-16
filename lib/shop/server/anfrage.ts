@@ -125,7 +125,7 @@ export async function legeAnfrageAn(
   // Alex benachrichtigen: nur Nummer + Art, nie Namen/Texte/Bilder
   const mail = alexMail("Anfrage", nummer, deps.env.adminUrl);
   const t = await deps.notifier.telegram(telegramAnfrage(nummer));
-  const m = await deps.notifier.mailAlex(mail.betreff, mail.text);
+  const m = await deps.notifier.mailAlex(mail.betreff, mail.text, undefined, mail.html);
   if (t || m) await deps.db.rpc("shop_markiere", { p_art: "anfrage_benachrichtigt", p_id: id }).catch(() => undefined);
 
   return { status: 200, body: { ok: true, anfragenummer: nummer, bilderFehlgeschlagen: uploadFehler } };

@@ -6,6 +6,18 @@ import { KONTAKT_ALEX, TELEGRAM_HINWEIS, eur } from "./vorlagen";
 import { PRODUKTE } from "../produkte";
 import { GROESSEN, istGroesseId, STANDARD_GROESSE } from "../umbruch";
 import { formatAnzeigeAusOptionen } from "../textformat";
+import { SCHRIFTEN } from "../schriften";
+import { FARBE, absatz, esc, hinweisBox, mailRahmen, ueberschrift } from "./mail-layout";
+import { GRUEN, ROT, htmlErstattungOffen, klein, knopf, mehrzeilig } from "./mail-alex";
+
+/** Mail "Erstattung offen" an Alex (Text unveraendert, dazu HTML). */
+export function alexMailErstattungOffen(nummer: string): { betreff: string; text: string; html: string } {
+  return {
+    betreff: `Erstattung offen: ${nummer}`,
+    text: `Die automatische PayPal-Erstattung für ${nummer} ist fehlgeschlagen. Bitte in PayPal erstatten.`,
+    html: htmlErstattungOffen(nummer),
+  };
+}
 
 /** Feste Grund-Textbausteine fuer die Ablehnung (Schluessel = DB-Check shop_bestellungen_freigabe_grund_chk). */
 export const FREIGABE_GRUENDE = [
@@ -36,12 +48,20 @@ export interface FreigabeLinks {
 }
 
 /** Position aus shop_freigabe_daten (nur die Felder, die die Kurzliste braucht; keine Kundendaten). */
+/** Schrift-ID -> lesbarer Name (unbekannte IDs bleiben unverändert). */
+const schriftName = (id: string): string => SCHRIFTEN.find((x) => x.id === id)?.name ?? id;
+
 export interface KurzPosition { name: string; menge: number; text: string | null; schrift: string | null; optionen: Record<string, unknown> }
 
 const kuerze = (t: string, max = 60) => (t.length > max ? `${t.slice(0, max - 1).trimEnd()}…` : t);
 
 /** Kurzliste der Wunschtext-Positionen fuer die Mail an Alex: Text (auf 60 Zeichen gekuerzt), Schrift, Format/Groesse. */
 export function wunschtextKurzliste(positionen: KurzPosition[]): string[] {
+  return wunschtextDetails(positionen).map((d) => `- ${d.menge} × ${d.name}: „${kuerze(d.text)}“ (${d.teile.join(", ")})`);
+}
+
+/** Strukturierte Wunschtext-Positionen (Basis fuer Kurzliste und HTML-Tabelle). */
+export function wunschtextDetails(positionen: KurzPosition[]): { menge: number; name: string; text: string; teile: string[]; details: { label: string; wert: string }[] }[] {
   return positionen.filter((p) => p.text).map((p) => {
     const pers = PRODUKTE.find((pr) => pr.name === p.name)?.personalisierung ?? null;
     const opt = Object.fromEntries(Object.entries(p.optionen).filter(([, v]) => typeof v === "string")) as Record<string, string>;
@@ -51,9 +71,58 @@ export function wunschtextKurzliste(positionen: KurzPosition[]): string[] {
     const sf = typeof p.optionen.Schriftfarbe === "string" ? `Schriftfarbe ${p.optionen.Schriftfarbe}` : null;
     const lf = typeof p.optionen.Linienfarbe === "string" ? `Linienfarbe ${p.optionen.Linienfarbe}` : null;
     const sn = typeof p.optionen["Schrift Name"] === "string" ? `Schrift Name ${p.optionen["Schrift Name"]}, Schrift Titel ${p.optionen["Schrift Titel"]}` : null;
-    const teile = [sn ?? (p.schrift ? `Schrift ${p.schrift}` : null), sf, lf, ...format, groesse].filter(Boolean);
-    return `- ${p.menge} × ${p.name}: „${kuerze(p.text as string)}“ (${teile.join(", ")})`;
+    const teile = [sn ?? (p.schrift ? `Schrift ${schriftName(p.schrift)}` : null), sf, lf, ...format, groesse].filter(Boolean) as string[];
+    const details: { label: string; wert: string }[] = [];
+    if (sn) details.push({ label: "Schrift", wert: `Name ${p.optionen["Schrift Name"]}, Titel ${p.optionen["Schrift Titel"]}` });
+    else if (p.schrift) details.push({ label: "Schrift", wert: schriftName(p.schrift) });
+    if (sf) details.push({ label: "Schriftfarbe", wert: String(p.optionen.Schriftfarbe) });
+    if (lf) details.push({ label: "Linienfarbe", wert: String(p.optionen.Linienfarbe) });
+    for (const [k, v] of formatAnzeigeAusOptionen(pers, opt).filter(([k2]) => k2 !== "Schriftgröße")) details.push({ label: k, wert: v });
+    details.push({ label: "Größe", wert: groesse.replace(/^Größe /, "") });
+    return { menge: p.menge, name: p.name, text: p.text as string, teile, details };
   });
+}
+
+/** Frist-Zeitpunkt: Zahlungszeitpunkt + 24 h, "16.10.2026, 14:03 Uhr" in deutscher Zeit; null bei fehlendem/ungueltigem Datum. */
+export function fristText(bezahltIso: string | null | undefined): string | null {
+  if (!bezahltIso) return null;
+  const t = Date.parse(bezahltIso);
+  if (!Number.isFinite(t)) return null;
+  const s = new Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(t + 24 * 3_600_000));
+  return `${s} Uhr`;
+}
+
+const NEIN_HINWEIS = "Absage-Mail an den Kunden, automatische PayPal-Erstattung des vollen Betrags";
+
+function alexFreigabeHtml(nummer: string, links: FreigabeLinks, art: "neu" | "erinnerung", positionen: KurzPosition[], frist: string | null): string {
+  const zeilen = wunschtextDetails(positionen).map((d) => {
+    const det = d.details.map((x) => `<span class="gedimmt" style="color:${FARBE.gedimmt};">${esc(x.label)}:</span> ${esc(x.wert)}`).join("<br>");
+    return `<tr><td class="zelle" valign="top" style="padding:12px 0;border-top:1px solid ${FARBE.linie};font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:${FARBE.text};">` +
+      `<div class="txt" style="font-weight:bold;">${d.menge} × ${esc(d.name)}</div>` +
+      `<div class="hl" style="margin:6px 0;padding:8px 12px;background:${FARBE.tint};color:${FARBE.tinte};font-size:16px;line-height:23px;font-weight:bold;border-radius:6px;">${mehrzeilig(kuerze(d.text, 160))}</div>` +
+      `<div class="txt" style="font-size:13px;line-height:20px;">${det}</div></td></tr>`;
+  }).join("");
+  const tabelle = zeilen ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px 0;">${zeilen}</table>` : "";
+  const inhalt = [
+    absatz(esc(art === "erinnerung"
+      ? `Erinnerung: Bestellung ${nummer} wartet noch auf deine Entscheidung. Der Kunde hat nur eine Eingangsbestätigung bekommen.`
+      : `Bestellung ${nummer} ist bezahlt und enthält einen Wunschtext. Der Kunde hat nur eine Eingangsbestätigung bekommen.`), "font-size:16px;line-height:24px;"),
+    hinweisBox(frist
+      ? `<strong>Entscheide bis ${esc(frist)}</strong><br>Zugesagt ist die Entscheidung innerhalb von 24 Stunden nach Zahlungseingang. Danach wird automatisch abgesagt und erstattet.`
+      : "<strong>Entscheide innerhalb von 24 Stunden nach Zahlungseingang.</strong>"),
+    ueberschrift("Wunschtexte (gekürzt, Details auf der Freigabe-Seite)"),
+    tabelle,
+    `<div style="height:8px;line-height:8px;font-size:0;">&nbsp;</div>`,
+    knopf(links.ok, "Freigeben", GRUEN),
+    klein("Vertragsschluss, die Bestätigung mit PDFs geht an den Kunden."),
+    `<div style="height:14px;line-height:14px;font-size:0;">&nbsp;</div>`,
+    knopf(links.nein, "Ablehnen und erstatten", ROT),
+    klein(`${esc(NEIN_HINWEIS)}.`),
+    klein("Die Buttons führen auf eine Seite mit Bestätigungsschritt. Die Links sind 7 Tage gültig.", "margin-top:20px;"),
+    klein(`Falls ein Button nicht funktioniert:<br>Freigeben: <span style="word-break:break-all;">${esc(links.ok)}</span><br>Ablehnen: <span style="word-break:break-all;">${esc(links.nein)}</span>`, "font-size:11px;line-height:16px;"),
+    klein(esc("Aus Datenschutzgründen stehen hier keine Kundendaten.")),
+  ].join("\n");
+  return mailRahmen({ titel: `Wunschtext prüfen: ${nummer}`, vorschau: frist ? `Entscheide bis ${frist}` : `Bestellung ${nummer}: Wunschtext prüfen`, inhalt, ohneKachel: true });
 }
 
 /** Telegram: nur Nummer + Art (keine Links, keine Wunschtexte, keine Anzahl). Links und Texte stehen in der Mail an Alex. */
@@ -74,12 +143,15 @@ export function alexMailFreigabe(
   links: FreigabeLinks,
   art: "neu" | "erinnerung",
   kurzliste: string[] = [],
-): { betreff: string; text: string } {
+  extra: { positionen?: KurzPosition[]; bezahltAm?: string | null } = {},
+): { betreff: string; text: string; html: string } {
+  const frist = fristText(extra.bezahltAm);
   return {
     betreff: art === "neu" ? `Wunschtext prüfen: Bestellung ${nummer}` : `Erinnerung: Wunschtext prüfen, Bestellung ${nummer}`,
+    html: alexFreigabeHtml(nummer, links, art, extra.positionen ?? [], frist),
     text: [
       `Bestellung ${nummer} ist bezahlt und enthält einen Wunschtext. Der Kunde hat nur eine Eingangsbestätigung bekommen.`,
-      "Die Entscheidung ist innerhalb von 24 Stunden nach Zahlungseingang zugesagt.",
+      frist ? `Entscheide bis ${frist} (24 Stunden nach Zahlungseingang zugesagt).` : "Die Entscheidung ist innerhalb von 24 Stunden nach Zahlungseingang zugesagt.",
       ...(kurzliste.length ? ["", "Wunschtexte (gekürzt, Details auf der Freigabe-Seite):", ...kurzliste] : []),
       "",
       `Freigeben (Vertragsschluss, Bestätigung mit PDFs geht an den Kunden): ${links.ok}`,

@@ -111,6 +111,8 @@ export interface RahmenOpt {
   siteUrl?: string;
   /** Inhalt (bereits HTML, Nutzerdaten escaped) */
   inhalt: string;
+  /** true = ohne Kontaktkachel (interne Mails an Alex) */
+  ohneKachel?: boolean;
 }
 
 /** Vollstaendiges HTML-Dokument im PixlDrop-Look. */
@@ -127,6 +129,9 @@ export function mailRahmen(o: RahmenOpt): string {
       .kachel{background:#241631!important;border-color:#4a3560!important}
       .linie{border-color:#4a3560!important}
       a{color:#f0bb55!important}
+      a.knopf{color:#ffffff!important}
+      .zelle{border-color:#4a3560!important}
+      .hl{background:#3a2749!important;color:#fff1dc!important}
     }`;
   return `<!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><title>${esc(o.titel)}</title><style>${css}</style></head>
@@ -142,7 +147,7 @@ ${o.vorschau ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;
 </tr></table>
 <div style="height:20px;line-height:20px;font-size:0;">&nbsp;</div>
 ${o.inhalt}
-${kontaktKachel({ siteUrl: site })}
+${o.ohneKachel ? "" : kontaktKachel({ siteUrl: site })}
 </td></tr>
 </table>
 </td></tr></table>
