@@ -39,6 +39,9 @@ export interface FakeBestellung {
   sendungsnummer?: string | null;
   versandmail?: boolean;
   erstattetCent?: number;
+  /** Erstattung aus dem Panel (Migration 16) */
+  anonymisiert?: boolean;
+  angewendeteEreignisse?: string[];
 }
 
 export class FakeDb implements Db {
@@ -314,6 +317,16 @@ export class FakeDb implements Db {
         return {
           ok: true, nummer: b.nummer, name: b.kunde.name, email: b.kunde.email, strasse: b.kunde.strasse, plz: b.kunde.plz, ort: b.kunde.ort,
           versandart: b.versandart ?? null, sendungsnummer: b.sendungsnummer ?? null, status: b.status, mail_schon: b.versandmail === true,
+        };
+      }
+      case "shop_erstattung_daten": {
+        const b = this.find({ id: p.p_id });
+        if (!b) return { ok: false, grund: "nicht_gefunden" };
+        return {
+          ok: true, nummer: b.nummer, zahlungsstatus: b.zahlungsstatus, bezahlt: b.zahlungsstatus === "bezahlt",
+          paypal_capture_id: b.paypal_capture_id, gesamt_cent: b.gesamt_cent, erstattet_cent: b.erstattetCent ?? 0,
+          anonymisiert: b.anonymisiert === true,
+          ereignis_angewendet: (b.angewendeteEreignisse ?? []).includes(p.p_ereignis_id as string),
         };
       }
       case "shop_versandmail_claim": {
