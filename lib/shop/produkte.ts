@@ -79,7 +79,7 @@ export function hitzeHinweis(material: string, untersetzer = false): string {
     : `Nicht für Töpfe, Pfannen oder Backofen und nicht dauerhaft über ${grenze}. Wärme verformt den Kunststoff.`;
 }
 const LED = TEXTE_LED; // Wortlaut zentral in lib/shop/config.ts (GPSR Art. 19, Justus 2026-10-16)
-const MATERIAL = "PLA"; // Alex trägt je Artikel das echte Material ein (PLA oder PETG)
+const MATERIAL = "PLA"; // alle Shop-Artikel sind PLA (Alex 16.10.); PETG nur bei individuellen Anfragen auf Angebot
 const HITZE = hitzeHinweis(MATERIAL, true); // alle Artikel mit HITZE sind Untersetzer
 // Preise (Alex, 2026-10-15, Karla-Kalkulation): je Artikel direkt bei preisCent. Kork: 30 Cent je Untersetzer, nicht im Grundpreis.
 const AUFPREIS_BOX_CENT = 490; // Box: Set 14,90 -> 19,80 EUR, Einzel 5,90 -> 10,80 EUR
