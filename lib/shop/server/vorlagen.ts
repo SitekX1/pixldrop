@@ -15,7 +15,7 @@ import type { RechtsDokument } from "./pdf";
 import { htmlNeueBestellungOderAnfrage, htmlWiderruf } from "./mail-alex";
 import { FARBE, absatz, esc, hinweisBox, inline, mailRahmen, textZuHtml, ueberschrift } from "./mail-layout";
 
-export const PFLICHTANGABEN_FREIGEGEBEN = false;
+export const PFLICHTANGABEN_FREIGEGEBEN = true; // Alex-Go Livegang 2026-10-16
 
 /** Wunschtext-Zeile der Bestellbestätigung: Schrift als Name statt ID; beim Namensschild stehen die Schriften schon in den Optionen. */
 function wunschtextZeile(p: { text?: string | null; schrift?: string | null; optionen?: Record<string, unknown> | null }): string | null {

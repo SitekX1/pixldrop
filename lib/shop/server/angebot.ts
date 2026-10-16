@@ -19,7 +19,7 @@ import { PFLICHTANGABEN_FREIGEGEBEN, PLATZHALTER_MARKER, datumKurz, eur } from "
 import { absatz, esc, FARBE, hinweisBox, inline, mailRahmen, ueberschrift } from "./mail-layout";
 
 export const ANGEBOT_GUELTIG_TAGE = 14;
-const AGB_VERSION = "entwurf-2026-10-08";
+const AGB_VERSION = "2026-10-16";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 export const ANGEBOT_TOKEN = /^[A-Za-z0-9_-]{43}$/;
 /** Nur zum Wiederverwenden von pruefeKunde: die echte Mail-Adresse kommt in der DB aus der Anfrage. */
