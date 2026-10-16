@@ -20,7 +20,7 @@ export const PFLICHTANGABEN_FREIGEGEBEN = false;
 /** Wunschtext-Zeile der Bestellbestätigung: Schrift als Name statt ID; beim Namensschild stehen die Schriften schon in den Optionen. */
 function wunschtextZeile(p: { text?: string | null; schrift?: string | null; optionen?: Record<string, unknown> | null }): string | null {
   if (!p.text) return null;
-  const hatSchriftOpt = Object.keys(p.optionen ?? {}).some((k) => k.startsWith("Schrift"));
+  const hatSchriftOpt = Object.keys(p.optionen ?? {}).some((k) => k.startsWith("Schrift "));
   const name = !hatSchriftOpt && p.schrift ? (SCHRIFTEN.find((x) => x.id === p.schrift)?.name ?? null) : null;
   return `Wunschtext: „${p.text.replace(/\n/g, " / ")}“${name ? ` (${name})` : ""}`;
 }
@@ -243,7 +243,7 @@ export function bestaetigungsMail(
   const block = blockOverride ?? pflichtangabenText(b.individuell, opt.siteUrl, mitStandardware);
   const zeilen = b.positionen.map((p) => {
     const extras = [
-      p.farbe ? `Farbe: ${p.farbe}` : null,
+      p.farbe && !(p.optionen && "Farbkombination" in p.optionen) ? `Farbe: ${p.farbe}` : null,
       ...Object.entries(p.optionen ?? {}).map(([k, v]) => `${k}: ${v}`),
       wunschtextZeile(p),
     ].filter(Boolean);
@@ -359,7 +359,7 @@ const TD = `font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:15px;lin
 function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
   const zeilen = b.positionen.map((p) => {
     const extras = [
-      p.farbe ? `Farbe: ${p.farbe}` : null,
+      p.farbe && !(p.optionen && "Farbkombination" in p.optionen) ? `Farbe: ${p.farbe}` : null,
       ...Object.entries(p.optionen ?? {}).map(([k, v]) => `${k}: ${v}`),
       wunschtextZeile(p),
     ].filter((x): x is string => Boolean(x));
