@@ -661,7 +661,7 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-gallery-info { display: none; }
 .shop-gallery[data-gross="true"] .shop-gallery-track { grid-column: 1 / -1; grid-row: 2; width: auto; display: block; }
 .shop-gallery[data-gross="true"] .shop-gallery-track > * { flex: 0 0 100%; max-width: 100%; }
-.shop-gallery[data-gross="true"] { overflow: auto; max-height: calc(100dvh - var(--shop-pause-h, 0px) - 16px); }
+.shop-gallery[data-gross="true"] { overflow: auto; max-height: calc(100svh - var(--shop-pause-h, 0px) - 16px); }
 .shop-product .shop-textvorschau { display: none; }
 .shop-buy { gap: 16px; }
 .shop-step { padding: var(--shop-pad) !important; border: 1px solid var(--shop-line) !important; border-radius: var(--shop-r-card) !important; background: var(--shop-card); box-shadow: var(--shop-e2); gap: 16px; overflow: visible; }
@@ -970,12 +970,14 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 /* Handy, große Vorschau ausgeklappt: kompakte angeheftete Leiste (Bild ca. 30 vh), damit Optionen und Vorschau gleichzeitig sichtbar bleiben.
    Beim Tippen (Tastatur offen) noch kleiner; Hinweistext ist in der Leiste ausgeblendet (steht unten im Bereich "Wichtig"). */
 @media (max-width: 1023.98px) {
-  .shop-gallery[data-gross="true"] .shop-gallery-track .shop-img { width: min(100%, 30dvh); margin-inline: auto; }
+  /* svh statt dvh: dvh ändert sich mit der Browser-Adressleiste beim Scrollen und verschiebt dann das Layout unter dem Finger (Tap geht ins Leere) */
+  .shop-gallery[data-gross="true"] .shop-gallery-track .shop-img { width: min(100%, 30svh); margin-inline: auto; }
   .shop-gallery[data-gross="true"] .shop-fotohinweis { display: none; }
   .shop-gallery[data-gross="true"] .shop-fotoleiste { margin-top: 6px; gap: 6px; }
   .shop-gallery[data-gross="true"] .shop-fotoleiste button { width: 44px; height: 44px; }
   .shop-gallery[data-gross="true"] { overflow: hidden; row-gap: 6px; }
-  .shop:has(input:focus, textarea:focus) .shop-gallery[data-gross="true"] .shop-gallery-track .shop-img { width: min(100%, 18dvh); }
-  .shop:has(input:focus, textarea:focus) .shop-gallery[data-gross="true"] .shop-fotoleiste { display: none; }
+  /* nur bei Texteingabe verkleinern, NICHT bei Radio/Checkbox (Schrift-/Farbwahl): sonst springt das Layout beim Tippen und der Tap wird verschluckt */
+  .shop:has(textarea:focus, input:is([type="text"], [type="search"], [type="email"], [type="tel"], [type="number"], :not([type])):focus) .shop-gallery[data-gross="true"] .shop-gallery-track .shop-img { width: min(100%, 18svh); }
+  .shop:has(textarea:focus, input:is([type="text"], [type="search"], [type="email"], [type="tel"], [type="number"], :not([type])):focus) .shop-gallery[data-gross="true"] .shop-fotoleiste { display: none; }
 }
 @media (max-width: 1023.98px) { .shop-gallery[data-gross="true"] ~ * .shop-input, .shop-buy .shop-input { scroll-margin-top: 250px; } }
