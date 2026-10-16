@@ -116,7 +116,7 @@ export async function erstatteBestellung(deps: ErstattungDeps, body: unknown): P
       if (err.httpStatus === 422 && (issue === "CAPTURE_FULLY_REFUNDED" || issue === "REFUND_AMOUNT_EXCEEDED")) {
         return fehler(409, "nicht_moeglich", "PayPal meldet: Die Zahlung ist bereits (teilweise) erstattet. Bitte in PayPal prüfen.", { grund: "paypal_schon_erstattet", issue });
       }
-      return fehler(502, "paypal_fehler", "PayPal hat die Erstattung nicht ausgeführt. Es wurde nichts gebucht.", issue ? { issue } : {});
+      return fehler(502, "paypal_fehler", "PayPal hat die Erstattung nicht ausgeführt. Es wurde nichts gebucht.", issue && err.httpStatus !== undefined && err.httpStatus < 500 ? { issue } : {}); // issue nur bei sicherer PayPal-4xx-Ablehnung: bei 5xx/keiner Antwort ist unklar, ob erstattet wurde (Panel behält dann die Absicht)
     }
     console.error("Shop Erstattung: unerwarteter Fehler", err instanceof Error ? err.message : "unbekannt");
     return fehler(502, "paypal_fehler", "PayPal hat die Erstattung nicht ausgeführt. Es wurde nichts gebucht.");
