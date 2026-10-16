@@ -53,7 +53,7 @@ export interface AlexMailOpt {
 export function alexMailHtml(o: AlexMailOpt): string {
   const teile: string[] = [];
   if (o.lead) teile.push(absatz(esc(o.lead), "font-size:16px;line-height:24px;"));
-  if (o.warnung) teile.push(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;"><tr><td width="4" style="background:${ROT};font-size:0;line-height:0;">&nbsp;</td><td class="tint" style="background:#fbe3e0;padding:12px 16px;font-family:${SCHRIFT_TEXT};font-size:14px;line-height:21px;color:#5c1410;"><strong>Achtung:</strong> ${mehrzeilig(o.warnung)}</td></tr></table>`);
+  if (o.warnung) teile.push(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;"><tr><td class="tint" style="background:#fbe3e0;border-left:4px solid ${ROT};padding:12px 16px;font-family:${SCHRIFT_TEXT};font-size:14px;line-height:21px;color:#5c1410;"><strong>Achtung:</strong> ${mehrzeilig(o.warnung)}</td></tr></table>`);
   if (o.zeilen?.length) teile.push(infoTabelle(o.zeilen));
   if (o.extra) teile.push(o.extra);
   if (o.button) teile.push(knopf(o.button.url, o.button.label, FARBE.link));
