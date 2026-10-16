@@ -12,6 +12,7 @@ const NAMEN: Record<Feld, string> = { name: "Name", email: "E-Mail", nachricht: 
 export default function KontaktDialog({ label = "Schreib mir" }: { label?: string }) {
   const dlg = useRef<HTMLDialogElement>(null);
   const alertRef = useRef<HTMLDivElement>(null);
+  const hintergrundGedrueckt = useRef(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const [daten, setDaten] = useState<KontaktEingabe>(LEER);
   const [fehler, setFehler] = useState<Partial<Record<Feld, string>>>({});
@@ -80,7 +81,9 @@ export default function KontaktDialog({ label = "Schreib mir" }: { label?: strin
         className="shop-dialog"
         aria-labelledby="kd-titel"
         onClose={() => { setOffen(false); if (fertig) { setFertig(false); } }}
-        onClick={(e) => { if (e.target === dlg.current) schliessen(); }}
+        // Nur schliessen, wenn der Druck UND das Loslassen auf dem Hintergrund waren (Text markieren und ausserhalb loslassen darf den Dialog nicht schliessen).
+        onPointerDown={(e) => { hintergrundGedrueckt.current = e.target === dlg.current; }}
+        onClick={(e) => { const zu = e.target === dlg.current && hintergrundGedrueckt.current; hintergrundGedrueckt.current = false; if (zu) schliessen(); }}
       >
         <div className="shop-dialog-head">
           <h2 id="kd-titel" style={{ fontSize: "1.375rem" }}>{fertig ? "Nachricht angekommen." : "Schreib mir"}</h2>
