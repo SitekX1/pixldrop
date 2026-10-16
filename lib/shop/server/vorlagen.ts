@@ -24,6 +24,15 @@ function wunschtextZeile(p: { text?: string | null; schrift?: string | null; opt
   return `Wunschtext: „${p.text.replace(/\n/g, " / ")}“${name ? ` (${name})` : ""}`;
 }
 
+/** Sicherheits- und Pflegehinweise (GPSR) in der Bestellbestätigung; ergänzt die gedruckte Dankeskarte (Hersteller + Kurzhinweise). */
+const SICHERHEIT_TITEL = "Sicherheits- und Pflegehinweise";
+const SICHERHEIT_ZEILEN = [
+  "Dekoartikel, kein Spielzeug. Kleinteile: nicht für Kinder unter 3 Jahren.",
+  "Aus Kunststoff aus dem 3D-Druck: nicht hitzebeständig, nicht spülmaschinenfest, nicht für Lebensmittel. Untersetzer nur für Getränke bis etwa 50 °C.",
+  "Teelichthalter und Laternen nur mit LED-Teelichtern, keine offene Flamme.",
+  "Material und weitere Hinweise zu deinem Artikel stehen auf der Artikelseite im Abschnitt „Sicherheit“.",
+];
+
 const UNTERNEHMER = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: as@sitekx.de";
 const UNTERNEHMER_ANSCHRIFT = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim";
 const STANDARD_SITE = "https://pixldrop.de";
@@ -267,6 +276,9 @@ export function bestaetigungsMail(
     `Lieferzeit: ${lieferzeit} ab heute`,
     b.individuell ? `\n${b.anfrage_id ? ANGEBOT_TEXTE.bestaetigungAbsatz : "Hinweis: Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB)."}` : "",
     "",
+    SICHERHEIT_TITEL + ":",
+    ...SICHERHEIT_ZEILEN.map((z) => "- " + z),
+    "",
     `Verkäufer: ${KONTAKT_ALEX}`,
   ];
   const anhangHinweisVolltext =
@@ -369,6 +381,7 @@ function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
   if (b.individuell) hinweise.push(hinweisBox(esc(b.anfrage_id ? ANGEBOT_TEXTE.bestaetigungAbsatz.replace(/^Hinweis: /, "") : "Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB).")));
   if (t.hinweisWiderruf && !t.hinweisWiderruf.startsWith("Hinweis zum Widerruf")) hinweise.push(textZuHtml(t.hinweisWiderruf));
   else if (t.hinweisWiderruf) hinweise.push(hinweisBox(esc(t.hinweisWiderruf)));
+  hinweise.push(`${ueberschrift(SICHERHEIT_TITEL)}<ul style="margin:0 0 12px 0;padding:0 0 0 20px;${TD}">${SICHERHEIT_ZEILEN.map((z) => `<li class="txt" style="margin:0 0 3px 0;">${esc(z)}</li>`).join("")}</ul>`);
   const anhang = `${ueberschrift("Im Anhang (zum Aufbewahren)")}<ul style="margin:0 0 12px 0;padding:0 0 0 20px;${TD}">${t.anhangListe.map((a) => `<li class="txt" style="margin:0 0 3px 0;">${esc(a)} (PDF)</li>`).join("")}</ul>` +
     absatz(`Diese Bestätigung dient als Beleg für deine Bestellung. Die AGB kannst du auch online abrufen: ${inline(t.agbLink)}` +
       (t.widerrufLink ? `<br>Du kannst deinen Vertrag auch online widerrufen: ${inline(t.widerrufLink)}` : ""), "font-size:14px;");
