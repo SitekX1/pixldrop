@@ -63,7 +63,7 @@ export default function Datenschutz() {
       <p>
         <strong>Amazon-Partnerprogramm:</strong> Auf einigen Produktseiten im Shop (3D-Druck)
         findest du einen als Werbung gekennzeichneten Partnerlink zu Amazon.de. Ich nehme am
-        Partnerprogramm von Amazon EU S.à r.l. teil. Der Link enthält eine Partner-Kennung
+        Partnerprogramm von Amazon (Amazon.de) teil. Der Link enthält eine Partner-Kennung
         (Tracking-ID), damit Amazon einen Kauf mir zuordnen kann. Der Link wird erst
         aufgerufen, wenn du ihn anklickst; vorher fließen keine Daten an Amazon, und ich setze
         selbst keine Cookies ein und übermittle keine Daten von dir an Amazon. Mit dem Klick

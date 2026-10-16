@@ -981,3 +981,7 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
   .shop:has(textarea:focus, input:is([type="text"], [type="search"], [type="email"], [type="tel"], [type="number"], :not([type])):focus) .shop-gallery[data-gross="true"] .shop-fotoleiste { display: none; }
 }
 @media (max-width: 1023.98px) { .shop-gallery[data-gross="true"] ~ * .shop-input, .shop-buy .shop-input { scroll-margin-top: 250px; } }
+
+/* Kachel: Farbpunkte + "+N" duerfen nie aus der Karte ragen: bei wenig Platz unter den Preis umbrechen */
+.shop-card-price { flex-wrap: wrap; row-gap: 6px; column-gap: 10px; min-width: 0; }
+.shop-card-price .shop-dots { max-width: 100%; }
