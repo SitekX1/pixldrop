@@ -134,8 +134,7 @@ export function angebotsMail(d: AngebotMailDaten, link: string, siteUrl?: string
     `</table>`;
   const anfrageBox =
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 14px 0;"><tr>` +
-    `<td width="3" style="background:${FARBE.linie};font-size:0;line-height:0;">&nbsp;</td>` +
-    `<td class="txt" style="padding:4px 0 4px 14px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:${FARBE.gedimmt};">${esc(d.beschreibung).replace(/\r\n|\r|\n/g, "<br>")}${d.farbe ? `<br><br>Wunschfarbe: ${esc(d.farbe)}` : ""}</td></tr></table>`;
+    `<td class="txt" style="border-left:3px solid ${FARBE.linie};padding:4px 0 4px 14px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:${FARBE.gedimmt};">${esc(d.beschreibung).replace(/\r\n|\r|\n/g, "<br>")}${d.farbe ? `<br><br>Wunschfarbe: ${esc(d.farbe)}` : ""}</td></tr></table>`;
   // Annahme-Button: gross, volle Breite auf dem Handy (class="knopf-hell": dunkle Schrift auf Honig-Knopf, auch im Dunkelmodus (sonst greift a{color:honig} und der Text ist unsichtbar)).
   const knopf =
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 8px 0;"><tr>` +

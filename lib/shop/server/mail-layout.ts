@@ -58,8 +58,8 @@ export const ueberschrift = (text: string): string =>
 /** Hinweisbox (Honig-Tint, linker Balken). */
 export const hinweisBox = (html: string): string =>
   `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0 0 0;"><tr>` +
-  `<td width="4" style="background:${FARBE.honig};font-size:0;line-height:0;">&nbsp;</td>` +
-  `<td class="tint" style="background:${FARBE.tint};padding:12px 16px;font-family:${SCHRIFT_TEXT};font-size:14px;line-height:21px;color:${FARBE.tinte};">${html}</td></tr></table>`;
+  // Balken als Rand der Zelle (eine Zelle): eine schmale Extra-Zelle mit &nbsp; wird in Outlook versetzt/kuerzer dargestellt.
+  `<td class="tint" style="background:${FARBE.tint};border-left:4px solid ${FARBE.honig};padding:12px 16px;font-family:${SCHRIFT_TEXT};font-size:14px;line-height:21px;color:${FARBE.tinte};">${html}</td></tr></table>`;
 
 /**
  * Klartext (wie bisher als text/plain gesendet) -> HTML-Absaetze. Leerzeile = Absatz, Zeilen mit "- " = Liste,
