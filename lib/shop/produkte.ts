@@ -176,10 +176,10 @@ export const PRODUKTE: Produkt[] = [
   },
   {
     slug: "kuerbis-laterne",
-    name: "Kürbis-Laterne mit Gesicht",
-    kurz: "Mit Gesicht, Teelicht-Öffnung unten, ca. 11 cm hoch.",
+    name: "Kürbis",
+    kurz: "Kürbis mit Gesicht und Teelicht-Öffnung unten, ca. 11 cm hoch.",
     beschreibung:
-      "Eine ausgehöhlte Kürbis-Laterne für ein LED-Teelicht. Das Licht scheint durch das Gesicht. Das LED-Teelicht setzt du unten durch die Öffnung ein, ganz ohne Werkzeug.",
+      "Ein ausgehöhlter Kürbis für ein LED-Teelicht. Das Licht scheint durch das Gesicht. Das LED-Teelicht setzt du unten durch die Öffnung ein, ganz ohne Werkzeug.",
     gruppe: "halloween", kategorien: ["halloween"], form: "laterne", grundfarbe: "#ff8a1f",
     preisCent: 1690, masse: null, material: MATERIAL,
     teile: [{ id: "koerper", label: "Kürbis" }, { id: "stiel", label: "Stiel" }],

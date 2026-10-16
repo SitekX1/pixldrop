@@ -72,3 +72,25 @@ test("Modus untersetzer: Linien aus dem G-Kanal der Maske, Untersetzer aus R", a
   assert.ok(out[3 * 4] > out[3 * 4 + 2] * 2, "Linie rot");
   assert.ok(out[0 * 4 + 2] > out[0 * 4] * 2, "Untersetzer blau");
 });
+
+test("Modus teile: Koerper und Stiel getrennt gefaerbt (G-Kanal der Maske = Stiel), Oeffnung bleibt", async () => {
+  const { bereiten, umfaerben, zielFarben } = await import("@/lib/shop/umfaerben");
+  const w = 6, h = 1;
+  // Pixel 0: Koerper (orange), 1: Stiel (schwarz), 2: Gesichtsoeffnung (ausserhalb der Maske)
+  const rgba = new Uint8ClampedArray([240, 130, 40, 255, 20, 20, 20, 255, 120, 0, 10, 255, 240, 130, 40, 255, 20, 20, 20, 255, 240, 130, 40, 255]);
+  const maske = new Uint8ClampedArray([255, 0, 0, 255, 255, 255, 0, 255, 0, 0, 0, 255, 255, 0, 0, 255, 255, 255, 0, 255, 255, 0, 0, 255]);
+  const v = bereiten("teile", rgba, maske, w, h);
+  const out = new Uint8ClampedArray(w * h * 4);
+  umfaerben(v, zielFarben("teile", { teile: { koerper: "#0000ff", stiel: "#00ff00" } }), out);
+  assert.ok(out[2] > out[0] && out[2] > out[1], "Koerper blau");
+  assert.ok(out[5] > out[4] && out[5] > out[6], "Stiel gruen");
+  assert.deepEqual([out[8], out[9], out[10]], [120, 0, 10], "Oeffnung unveraendert");
+});
+
+test("Teile-Foto: Originalfarben (orange/schwarz) zeigen das unveraenderte Foto", async () => {
+  const { istOriginalTeile } = await import("@/lib/shop/fotos");
+  assert.equal(istOriginalTeile("kuerbis-laterne", { koerper: "#f57c1a", stiel: "#1c1c1c" }), true);
+  assert.equal(istOriginalTeile("kuerbis-laterne", { koerper: "#f4f1ea", stiel: "#1c1c1c" }), false);
+  assert.equal(istOriginalTeile("kuerbis-laterne", { koerper: "#f57c1a", stiel: "#2f6b2a" }), false);
+  assert.equal(istOriginalTeile("kuerbis-laterne", undefined), false);
+});

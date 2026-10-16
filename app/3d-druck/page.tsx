@@ -38,7 +38,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
             <p className="shop-overline" style={{ color: "#ff8a1f" }}>Halloween-Kollektion</p>
             <h1 id="titel">Bis Anfang November dürfen sie spuken.</h1>
             <p className="lead">
-              Laternen, Geister und Untersetzer für den Herbst.
+              Kürbisse, Geister und Untersetzer für den Herbst.
               {modus === "preview" && " Noch nicht bestellbar: stöbern ist erlaubt, der Verkauf startet später."}
             </p>
           </section>

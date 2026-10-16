@@ -25,13 +25,14 @@ export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Mus
     format = { fmt: formatAusOptionen(nur, zeilenAnzahl(pers)) ?? standardFormat(zeilenAnzahl(pers)), breite: schrift.breite, schriftId: schrift.id, ...(titelSchrift ? { titel: { schriftId: titelSchrift.id, breite: titelSchrift.breite, family: titelSchrift.family } } : {}) };
   }
   // Echtes Foto statt Zeichnung: Foto 1 (bzw. Foto des gewählten Wochentags) in gewählter Farbe, bei Wunschtext-Artikeln mit Aufdruck (wie die Galerie)
+  const teileFarben = farben ? teilHexe(p, a, farben) : undefined;
   const kombiFarben = kombiVon(p, a)?.farben.map((f) => f.hex);
   const tagKurz = p.optionen.find((g) => g.id === "tag")?.optionen.find((o) => o.id === a.optionen.tag)?.label.slice(0, 2);
   const fotoNr = p.slug === "wochentags-untersetzer-einzeln" && tagKurz ? TAG_FOTO[tagKurz] ?? 0 : liveIdx(p.slug);
   const fotos = fotosFuer(p.slug);
-  if (fotos[fotoNr] && !p.teile && (MIT_AUFDRUCK.includes(p.slug) || miniaturModus(p.slug, fotoNr)) && (farbeHex || kombiFarben)) {
+  if (fotos[fotoNr] && (!p.teile || teileFarben) && (MIT_AUFDRUCK.includes(p.slug) || miniaturModus(p.slug, fotoNr)) && (farbeHex || kombiFarben || teileFarben)) {
     const w = {
-      farbe: farbeHex, text: a.text || undefined, family: schrift?.family, format, textfarbe: textfarbeHex, farben: kombiFarben,
+      farbe: farbeHex, text: a.text || undefined, family: schrift?.family, format, textfarbe: textfarbeHex, farben: kombiFarben, teileFarben,
       linienfarbe: p.linienfarbe ? farben?.find((f) => f.id === a.optionen[LINIENFARBE_KEY])?.hex : undefined,
     };
     return <FotoMiniatur slug={p.slug} src={fotos[fotoNr].src} alt={`${p.name}, Vorschau deiner Auswahl`} w={w} fotoNr={fotoNr} />;

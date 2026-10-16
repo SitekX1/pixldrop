@@ -8,10 +8,11 @@
 //  "untersetzer": Individueller Untersetzer, zwei Bereiche (Untersetzer dunkel / Zierlinien hell). Die Linien kommen aus dem
 //                 G-Kanal der Maske (R = Untersetzer-Freisteller), nicht aus der Farbe -> Untersetzerfarbe, Linienfarbe
 //  "grund"  : Halloween-Untersetzer: nur der dunkle Grund wird umgefärbt, das Motiv bleibt
+//  "teile"  : Kürbis: zwei Teile (Körper orange / Stiel schwarz), getrennt über den G-Kanal der Maske (R = Freisteller ohne Gesichtsöffnungen, G = Stiel) -> Körperfarbe, Stielfarbe
 //  "becher" : wie "farbe", aber fürs dunkle Becherfoto: Schattierung aus entrauschter Helligkeit (kein Körnungs-/Pigment-Rauschen), 5. bis 95. Perzentil, leicht aufgehellt (kein Grauschleier)
-export type UmfaerbModus = "farbe" | "kombi" | "schild" | "grund" | "untersetzer" | "becher";
+export type UmfaerbModus = "farbe" | "kombi" | "schild" | "grund" | "untersetzer" | "becher" | "teile";
 
-export interface UmfaerbZiel { farbe?: string; farben?: string[]; textfarbe?: string; linienfarbe?: string }
+export interface UmfaerbZiel { farbe?: string; farben?: string[]; textfarbe?: string; linienfarbe?: string; /** teilId -> Hex (koerper, stiel) */ teile?: Record<string, string> }
 
 export function hexZuRgb(hex: string): [number, number, number] | null {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
@@ -20,7 +21,7 @@ export function hexZuRgb(hex: string): [number, number, number] | null {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-const KLASSEN: Record<UmfaerbModus, number> = { farbe: 1, kombi: 3, schild: 2, grund: 1, untersetzer: 2, becher: 1 };
+const KLASSEN: Record<UmfaerbModus, number> = { farbe: 1, kombi: 3, schild: 2, grund: 1, untersetzer: 2, becher: 1, teile: 2 };
 const MIN_BEREICH = 0.24;
 const klemme = (x: number, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
 
@@ -33,6 +34,7 @@ export function zielFarben(modus: UmfaerbModus, z: UmfaerbZiel): ([number, numbe
     case "becher": return [h(z.farbe)];
     case "schild": return [h(z.farbe), h(z.textfarbe)];
     case "untersetzer": return [h(z.farbe), h(z.linienfarbe)];
+    case "teile": return [h(z.teile?.koerper ?? z.farbe), h(z.teile?.stiel)];
     case "kombi": return [h(z.farben?.[0]), h(z.farben?.[1]), h(z.farben?.[2])];
   }
 }
@@ -46,7 +48,7 @@ function klassen(modus: UmfaerbModus, r: number, g: number, b: number, l: number
       const mx = Math.max(r, g, b), sat = ((mx - Math.min(r, g, b)) / (mx + 0.02)) * klemme((l - 0.08) / 0.1); // sehr dunkle Pixel: Farbrauschen ignorieren
       out[0] = klemme((0.3 - l) / 0.12) * (1 - klemme((sat - 0.22) / 0.18)); return;
     }
-    case "untersetzer": out[1] = lin; out[0] = 1 - lin; return;
+    case "untersetzer": case "teile": out[1] = lin; out[0] = 1 - lin; return;
     case "schild": {
       const bl = klemme((b - r - 0.1) / 0.15);
       out[1] = bl; out[0] = 1 - bl; return;
@@ -90,7 +92,7 @@ export function bereiten(modus: UmfaerbModus, rgba: Uint8ClampedArray, maskeR: U
   const lum = new Float32Array(n);
   // Alle Modi außer "schild": entrauschte Schattierung und milde Kurve (kein Grauschleier, keine Körnung); "becher"/"farbe" glätten stärker (flächige Objekte)
   const weich = modus !== "schild";
-  const becher = modus === "becher" || modus === "farbe" || modus === "untersetzer" || modus === "grund";
+  const becher = modus === "becher" || modus === "farbe" || modus === "untersetzer" || modus === "grund" || modus === "teile";
   const klasseGew = Array.from({ length: k }, () => new Float32Array(n));
   const tmp = new Array<number>(k).fill(0);
   for (let i = 0; i < n; i++) {

@@ -52,6 +52,11 @@ const ALT: Record<string, string[]> = {
     "Kleiner Geist, leicht seitlich",
     "Kleiner Geist mit schiefem Kopf",
   ],
+  // Foto 1 = Tageslicht (orange Körper, schwarzer Stiel): Körper- und Stielfarbe deiner Wahl werden live eingefärbt (Maske 1.m.webp); Foto 2 = leuchtend im Dunkeln, immer Originalfarben
+  "kuerbis-laterne": [
+    "Kürbis mit Gesicht bei Tageslicht, orange mit schwarzem Stiel",
+    "Kürbis mit Gesicht leuchtet im Dunkeln mit LED-Teelicht (Foto in Originalfarben)",
+  ],
   "kuerbis-teelichthalter": [
     "Kürbis-Teelichthalter mit brennendem LED-Teelicht",
     "Kürbis-Teelichthalter von oben schräg",
@@ -103,6 +108,7 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "geister-set": "farbe",
   "geister-set-klein": "farbe",
   "kuerbis-teelichthalter": "farbe",
+  "kuerbis-laterne": "teile",
   "kuerbis-klein-set": "farbe",
   "halloween-untersetzer-set": "grund",
   "halloween-untersetzer-einzeln": "grund",
@@ -113,6 +119,7 @@ export const OHNE_UMFAERBEN: Record<string, number[]> = {
   "spruch-untersetzer": [1],
   "namensschild": [1, 2, 3], // Beispielfotos mit Schrift bleiben Alex' Originale
   "stiftebecher-tasse": [0, 2, 3], // Anzeige-Index: Titelbild und Beispielfotos bleiben Originale, Index 1 ist die Live-Vorschau // Alex' Originalfotos bleiben unverändert (Beispielstücke)
+  "kuerbis-laterne": [1], // Dunkel-Foto mit LED-Teelicht: Originalfarben
   "wochentags-untersetzer-set": [5],
   "wochentags-untersetzer-einzeln": [5],
   "halloween-untersetzer-set": [5],
@@ -124,6 +131,13 @@ export const ORIGINALFARBE: Record<string, string> = {
   "stiftebecher-tasse": "#1c1c1c", "namensschild": "#1c1c1c", "kuerbis-teelichthalter": "#1c1c1c",
   "spruch-untersetzer": "#1c1c1c", "halloween-untersetzer-set": "#1c1c1c", "halloween-untersetzer-einzeln": "#1c1c1c",
   "geister-set": "#f4f1ea", "geister-set-klein": "#f4f1ea", "kuerbis-klein-set": "#ff8a1f",
+}
+/** Mehrteilige Fotos: echte Farben der Teile im Foto. Sind alle Teile in dieser Farbe gewählt (Abstand klein), erscheint das unveränderte Foto. */
+export const ORIGINAL_TEILE: Record<string, Record<string, string>> = { "kuerbis-laterne": { koerper: "#ff8a1f", stiel: "#1c1c1c" } };
+export function istOriginalTeile(slug: string, teile?: Record<string, string>): boolean {
+  const o = ORIGINAL_TEILE[slug];
+  if (!o || !teile) return false;
+  return Object.entries(o).every(([id, hex]) => { const g = teile[id]; if (!g) return false; const n = (h: string) => { const v = parseInt(h.slice(1), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255]; }; const [a, b] = [n(g), n(hex)]; return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) < ORIGINAL_ABSTAND; });
 }
 /** Abstand (RGB), bis zu dem die gewählte Farbe als "Farbe des Fotos" gilt: dann Originalfoto statt Umfärbung. */
 export const ORIGINAL_ABSTAND = 55;

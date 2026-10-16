@@ -20,7 +20,7 @@ export default function HalloweenBanner({ modus }: { modus: HalloweenModus }) {
         <p className="shop-overline">Happy Halloween</p>
         <h2 id="hw-titel">Bis Anfang November dürfen sie spuken.</h2>
         <p>
-          Laternen, Geister und Untersetzer für den Herbst, {HALLOWEEN_ENDE_TEXT}.
+          Kürbisse, Geister und Untersetzer für den Herbst, {HALLOWEEN_ENDE_TEXT}.
           {modus === "preview" && " Noch nicht bestellbar: Du kannst schon stöbern, der Verkauf startet später."}
         </p>
         <Link className="shop-btn" href="/3d-druck?kategorie=halloween" scroll>Spuk ansehen</Link>

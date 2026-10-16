@@ -107,14 +107,14 @@ test("Farbe muss im Lager sein", () => {
   assert.ok(!berechneWarenkorb([{ slug: "stiftebecher-tasse", menge: 1 }], ctx()).ok);
 });
 
-test("Optionen: nur gueltige IDs, fremde Schluessel werden abgelehnt (Laterne hat keine Optionsgruppe mehr)", () => {
+test("Optionen: nur gueltige IDs, fremde Schluessel werden abgelehnt (Kürbis hat keine Optionsgruppe)", () => {
   const falsch = berechneWarenkorb([pos({ slug: "kuerbis-laterne", optionen: { gesicht: "x" } })], ctx());
   assert.ok(!falsch.ok);
   const fremd = berechneWarenkorb([pos({ slug: "kuerbis-laterne", optionen: { preis: "0" } })], ctx());
   assert.ok(!fremd.ok);
   const ok = berechneWarenkorb([pos({ slug: "kuerbis-laterne" })], ctx());
   assert.ok(ok.ok);
-  assert.deepEqual(ok.wert.positionen[0].optionen, { "Kürbis": "Honiggold", Stiel: "Honiggold" }, "Teile ohne Wahl: Standardfarbe");
+  assert.deepEqual(ok.wert.positionen[0].optionen, { "Kürbis": "Honiggold", Stiel: "Schwarz" }, "Teile ohne Wahl: Standardfarbe");
 });
 
 test("Personalisierung: Laenge, Zeichen, Schrift, individuell-Flag", () => {
@@ -317,7 +317,7 @@ test("Livegang: keine Testpreise mehr im Katalog", { skip: process.env.SHOP_LIVE
   assert.deepEqual(test, [], `Noch Testpreis (9,90 EUR): ${test.join(", ")}`);
 });
 
-// --- Teile (mehrfarbige Artikel, z. B. Kuerbis-Laterne) ---
+// --- Teile (mehrfarbige Artikel, z. B. Kuerbis) ---
 const tfarben = [
   { id: "orange", name: "Orange", hex: "#ff8a1f" },
   { id: "gruen", name: "Grün", hex: "#00aa00" },
@@ -354,11 +354,11 @@ test("Teile: unbekannte/nicht vorraetige/PETG-Farbe wird abgelehnt", () => {
   assert.ok(!ohne.ok && ohne.fehler.code === "farbe_ungueltig", "Produkt ohne Teile");
 });
 
-test("Teile: alter Warenkorb ohne teilFarben -> Standardfarbe (erste vorraetige)", () => {
-  const r = berechneWarenkorb([lat()], ctx({ farben: tfarben }));
+test("Teile: alter Warenkorb ohne teilFarben -> Standardfarbe (aehnlichste zur Foto-Referenz: Koerper orange, Stiel schwarz)", () => {
+  const r = berechneWarenkorb([lat()], ctx({ farben: [...tfarben, { id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }] }));
   assert.ok(r.ok);
   assert.equal(r.wert.positionen[0].optionen["Kürbis"], "Orange");
-  assert.equal(r.wert.positionen[0].optionen["Stiel"], "Orange");
+  assert.equal(r.wert.positionen[0].optionen["Stiel"], "Schwarz");
   const teil = berechneWarenkorb([lat({ teilFarben: { stiel: "gruen" } })], ctx({ farben: tfarben }));
   assert.ok(teil.ok && teil.wert.positionen[0].optionen["Kürbis"] === "Orange" && teil.wert.positionen[0].optionen["Stiel"] === "Grün");
 });

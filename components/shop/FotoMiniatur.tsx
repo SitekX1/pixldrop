@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { liveIdx, MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, darfUmfaerben, UMFAERBEN } from "@/lib/shop/fotos";
+import { liveIdx, MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, istOriginalTeile, darfUmfaerben, UMFAERBEN } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
 import { teelichtFaerben } from "./teelichtFaerben";
 import { farbAbstand, vorbereiteFoto } from "./fotoFaerben";
@@ -23,17 +23,17 @@ export default function FotoMiniatur({ slug, src, alt, w, fotoNr = liveIdx(slug)
   const canvas = useRef<HTMLCanvasElement>(null);
   const modus = miniaturModus(slug, fotoNr);
   const orig = ORIGINALFARBE[slug];
-  const original = !!orig && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND && (!ORIGINAL_LINIE[slug] || (!!w.linienfarbe && farbAbstand(w.linienfarbe, ORIGINAL_LINIE[slug]) < ORIGINAL_ABSTAND));
-  const aktiv = !!modus && !original && (!!w.farbe || !!w.farben);
+  const original = modus === "teile" ? istOriginalTeile(slug, w.teileFarben) : !!orig && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND && (!ORIGINAL_LINIE[slug] || (!!w.linienfarbe && farbAbstand(w.linienfarbe, ORIGINAL_LINIE[slug]) < ORIGINAL_ABSTAND));
+  const aktiv = !!modus && !original && (!!w.farbe || !!w.farben || !!w.teileFarben);
   const [fertig, setFertig] = useState<string | null>(null);
-  const schluessel = `${w.farbe}|${w.textfarbe}|${w.linienfarbe}|${(w.farben ?? []).join()}`;
+  const schluessel = `${JSON.stringify(w.teileFarben ?? {})}|${w.farbe}|${w.textfarbe}|${w.linienfarbe}|${(w.farben ?? []).join()}`;
   useEffect(() => {
     let abgebrochen = false;
     if (!aktiv || !modus) { setFertig(null); return; }
     vorbereiteFoto(src, modus, GROESSE, CACHE_MAX).then((v) => {
       const c = canvas.current;
       if (abgebrochen || !v || !c) return;
-      const ziele = zielFarben(modus, { farbe: w.farbe, farben: w.farben, textfarbe: w.textfarbe, linienfarbe: w.linienfarbe });
+      const ziele = zielFarben(modus, { farbe: w.farbe, farben: w.farben, textfarbe: w.textfarbe, linienfarbe: w.linienfarbe, teile: w.teileFarben });
       if (ziele.every((z) => z === null)) { setFertig(null); return; }
       const ctx = c.getContext("2d");
       if (!ctx) return;

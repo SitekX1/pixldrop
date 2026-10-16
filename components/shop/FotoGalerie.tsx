@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Form } from "@/lib/shop/produkte";
-import { liveIdx, MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, darfUmfaerben, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
+import { liveIdx, MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, istOriginalTeile, darfUmfaerben, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
 import { teelichtFaerben } from "./teelichtFaerben";
 import { vorbereiteFoto, farbAbstand } from "./fotoFaerben";
@@ -48,24 +48,24 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorTe
   }, [slug, w.tag, fotos.length]);
 
   // Farbwahl: Das Foto wird in der gewählten Farbe gezeigt (Licht und Struktur bleiben).
-  const farbKey = modus === "kombi" ? (w.farben ?? []).join() : modus === "schild" ? `${w.farbe ?? ""}|${w.textfarbe ?? ""}` : modus === "untersetzer" ? `${w.farbe ?? ""}|${w.linienfarbe ?? ""}` : (w.farbe ?? "");
+  const farbKey = modus === "kombi" ? (w.farben ?? []).join() : modus === "schild" ? `${w.farbe ?? ""}|${w.textfarbe ?? ""}` : modus === "untersetzer" ? `${w.farbe ?? ""}|${w.linienfarbe ?? ""}` : (modus === "teile" ? JSON.stringify(w.teileFarben ?? {}) : (w.farbe ?? ""));
   // Namensschild: Foto 1 ist das Blanko-Schild, auf das Farbe und Text live gelegt werden (immer umgefärbt, mit Aufdruck).
   const mitAufdruck = liveAufFoto && idx === liveIdx(slug);
   // Das Foto wird von Anfang an in der gewählten Farbe gezeigt (auch in der Vorauswahl), sobald der Kaufbereich eine Farbe gemeldet hat.
   const orig = ORIGINALFARBE[slug];
-  const istOriginalfarbe = !!orig && idx === liveIdx(slug) && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND && (!ORIGINAL_LINIE[slug] || (!!w.linienfarbe && farbAbstand(w.linienfarbe, ORIGINAL_LINIE[slug]) < ORIGINAL_ABSTAND));
+  const istOriginalfarbe = modus === "teile" ? istOriginalTeile(slug, w.teileFarben) : !!orig && idx === liveIdx(slug) && !!w.farbe && farbAbstand(w.farbe, orig) < ORIGINAL_ABSTAND && (!ORIGINAL_LINIE[slug] || (!!w.linienfarbe && farbAbstand(w.linienfarbe, ORIGINAL_LINIE[slug]) < ORIGINAL_ABSTAND));
   const aktiv = !!modus && !istOriginalfarbe && (mitAufdruck || farbKey.replace(/\|/g, "") !== "");
 
   const foto = idx >= 0 ? fotos[idx] : null;
   const fotoSrc = foto?.src;
-  const farbeSchluessel = `${w.farbe}|${w.textfarbe}|${w.linienfarbe}|${(w.farben ?? []).join()}`;
+  const farbeSchluessel = `${JSON.stringify(w.teileFarben ?? {})}|${w.farbe}|${w.textfarbe}|${w.linienfarbe}|${(w.farben ?? []).join()}`;
   useEffect(() => {
     let abgebrochen = false;
     if (!aktiv || !fotoSrc || !modus) { setGefaerbtFuer(null); return; }
     vorbereiten(fotoSrc, modus).then((v) => {
       const c = canvas.current;
       if (abgebrochen || !v || !c) return;
-      const ziele = zielFarben(modus, { farbe: w.farbe, farben: w.farben, textfarbe: w.textfarbe, linienfarbe: w.linienfarbe });
+      const ziele = zielFarben(modus, { farbe: w.farbe, farben: w.farben, textfarbe: w.textfarbe, linienfarbe: w.linienfarbe, teile: w.teileFarben });
       if (ziele.every((z) => z === null)) { setGefaerbtFuer(null); return; }
       const ctx = c.getContext("2d");
       if (!ctx) return;
@@ -118,6 +118,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorTe
           ? (mitAufdruck
             ? (slug === "namensschild" ? "Vorschau: Dein Text und deine Farben auf dem Foto des Blanko-Schilds (bearbeitet). " : slug === "stiftebecher-tasse" ? "Vorschau: Dein Text und deine Farben auf dem Foto des Bechers (bearbeitet). " : "Vorschau: Dein Text und deine Farben auf dem Foto des Untersetzers (bearbeitet). ")
             : ohneUmfaerben && liveIdx(slug) !== 0 && idx !== liveIdx(slug) && !foto.alt.includes("Kork") && idx === 0 ? "Titelbild: Beispielstück, nicht in deiner Farbe. Dein Text und deine Farben erscheinen im 2. Bild (Vorschau). "
+            : ohneUmfaerben && slug === "kuerbis-laterne" ? "Foto in Original-Farben (orange mit schwarzem Stiel, mit LED-Teelicht), nicht in deiner Farbwahl. "
             : ohneUmfaerben ? (foto.alt.includes("Kork") ? "Foto: Beispielstück mit Kork (Option, siehe Auswahl). " : "Foto: Beispielstück. ")
             : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). " : "Foto: Beispielstück. ")
           : "Vorschau (gezeichnet, kein Foto). "}

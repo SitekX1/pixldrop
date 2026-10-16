@@ -40,7 +40,7 @@ export default function ProductBuy({
   const [farbeId, setFarbeId] = useState<string | null>(kombis || produkt.teile ? null : (produkt.slug in ORIGINALFARBE ? nahsteFarbe(farben, ORIGINALFARBE[produkt.slug]) : produkt.linienfarbe ? farben.find((f) => /^schwarz/i.test(f.name.trim())) : undefined)?.id ?? farben[0]?.id ?? null);
   const [kombiId, setKombiId] = useState<string | null>(kombis?.[0].id ?? null);
   const kombi = kombis?.find((k) => k.id === kombiId);
-  // Mehrteilige Artikel (Kürbis-Laterne): je Teil eine eigene Lagerfarbe, Standard = ähnlichste Farbe zur Referenz (orange / grün).
+  // Mehrteilige Artikel (Kürbis): je Teil eine eigene Lagerfarbe, Standard = ähnlichste Farbe zur Referenz (orange / schwarz).
   const teile = produkt.teile;
   const [teilWahl, setTeilWahl] = useState<Record<string, string>>(() => (teile ? standardTeilFarben(teile, farben) : {}));
   const teilFarbe = (id: string) => farben.find((f) => f.id === teilWahl[id]);

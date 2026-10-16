@@ -30,7 +30,7 @@ const SICHERHEIT_TITEL = "Sicherheits- und Pflegehinweise";
 const sicherheitZeilen = (nachAngebot: boolean) => [
   "Dekoartikel, kein Spielzeug. Kleinteile: nicht für Kinder unter 3 Jahren.",
   `${nachAngebot ? "Aus Kunststoff aus dem 3D-Druck (Material wie im Angebot genannt)" : "Aus PLA (3D-Druck)"}: nicht hitzebeständig, nicht spülmaschinenfest, nicht für Lebensmittel. Untersetzer nur für Getränke bis etwa 50 °C.`,
-  "Teelichthalter und Laternen nur mit LED-Teelichtern, keine offene Flamme.",
+  "Teelichthalter und Kürbisse nur mit LED-Teelichtern, keine offene Flamme.",
   "Weitere Hinweise zu deinem Artikel stehen auf der Artikelseite im Abschnitt „Sicherheit“.",
 ];
 

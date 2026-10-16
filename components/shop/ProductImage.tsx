@@ -50,7 +50,7 @@ function Schild({ c, text, family, format, tc: tcWahl }: { c: string; text?: str
   );
 }
 
-const STIEL = "#3f5a2a";
+const STIEL = "#1c1c1c";
 
 /**
  * EINSTIEGSPUNKT für echte Produktfotos mit Teile-Masken (noch nicht gebaut):

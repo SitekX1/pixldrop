@@ -15,8 +15,8 @@ const laterne = holeProdukt("kuerbis-laterne")!;
 const ctx: Kontext = { produkte: PRODUKTE.map((p) => ({ ...p, preisCent: 1290 })), farben, bestellbar: () => true };
 const opt = {};
 
-test("Standardfarben: Körper orange-ähnlich, Stiel grün-ähnlich", () => {
-  assert.deepEqual(standardTeilFarben(laterne.teile!, farben), { koerper: "orange", stiel: "gruen" });
+test("Standardfarben: Körper orange-ähnlich, Stiel schwarz-ähnlich (wie im Foto)", () => {
+  assert.deepEqual(standardTeilFarben(laterne.teile!, farben), { koerper: "orange", stiel: "schwarz" });
 });
 test("Standardfarben ohne passende Farbe: ähnlichste vorhandene, nie leer", () => {
   const r = standardTeilFarben(laterne.teile!, [farben[0], farben[1]]);
@@ -26,14 +26,14 @@ test("Anzeigetext und Hex je Teil, alte Warenkörbe ohne teilFarben bekommen Sta
   const a = { teilFarben: { koerper: "weiss", stiel: "schwarz" } };
   assert.equal(teilFarbenText(laterne, a, farben), "Kürbis: Weiß · Stiel: Schwarz");
   assert.deepEqual(teilHexe(laterne, a, farben), { koerper: "#f4f1ea", stiel: "#1c1c1c" });
-  assert.equal(teilFarbenText(laterne, {}, farben), "Kürbis: Orange · Stiel: Grün");
+  assert.equal(teilFarbenText(laterne, {}, farben), "Kürbis: Orange · Stiel: Schwarz");
 });
 test("gleichePosition unterscheidet Teilfarben", () => {
   const b = { slug: "x", farbeId: null, optionen: {}, text: "", schriftId: null, menge: 1 };
   assert.equal(gleichePosition({ ...b, teilFarben: { koerper: "a" } }, { ...b, teilFarben: { koerper: "b" } }), false);
   assert.equal(gleichePosition({ ...b, teilFarben: { koerper: "a" } }, { ...b, teilFarben: { koerper: "a" } }), true);
 });
-test("Server: Laterne mit gültigen Teilfarben ok, unbekannte Farbe -> farbe_ungueltig", () => {
+test("Server: Kürbis mit gültigen Teilfarben ok, unbekannte Farbe -> farbe_ungueltig", () => {
   const ok = berechneWarenkorb([{ slug: "kuerbis-laterne", menge: 1, farbeId: null, optionen: opt, teilFarben: { koerper: "orange", stiel: "gruen" } }], ctx, "hermes");
   assert.ok(ok.ok);
   const bad = berechneWarenkorb([{ slug: "kuerbis-laterne", menge: 1, farbeId: null, optionen: opt, teilFarben: { koerper: "pink", stiel: "gruen" } }], ctx, "hermes");
