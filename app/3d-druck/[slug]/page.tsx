@@ -81,7 +81,7 @@ export default async function Produktseite({ params }: Props) {
               <dl className="shop-details">
                 {p.masse && <div><dt>Maße</dt><dd>ca. {p.masse} mm{p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}</dd></div>}
                 <div><dt>Material</dt><dd>{p.material}</dd></div>
-                {TEELICHTFACH[p.slug] && <div><dt>Teelichtfach</dt><dd>{TEELICHTFACH[p.slug]} (passt für gängige LED-Teelichter)</dd></div>}
+                {TEELICHTFACH[p.slug] && <div><dt>Teelichtfach</dt><dd>{TEELICHTFACH[p.slug]} (passend für LED-Teelichter mit ca. 38 mm Durchmesser)</dd></div>}
                 {artikelnummer(p.slug) && <div><dt>Artikelnummer</dt><dd>{artikelnummer(p.slug)}</dd></div>}
                 <div><dt>Modell</dt><dd>Eigene Gestaltung</dd></div>
               </dl>
@@ -103,7 +103,7 @@ export default async function Produktseite({ params }: Props) {
             {ledPartnerlink(p.slug) && (
               <article className="shop-dkarte" aria-labelledby="led-partner">
                 <div className="shop-dkopf"><h3 id="led-partner">Passende LED-Teelichter <span className="muted">(Werbung)</span></h3></div>
-                <p>Du brauchst noch LED-Teelichter? Dieses Set mit 24 Stück (Durchmesser ca. 38 mm) habe ich selbst gekauft. Ob sie zu deinem Artikel passen, prüfe bitte selbst anhand der Maße.</p>
+                <p>Du brauchst noch LED-Teelichter? Dieses Set mit 24 Stück (Durchmesser ca. 38 mm) habe ich selbst gekauft und mit diesem Artikel ausprobiert: Es passt. Bei anderen Teelichtern können die Maße abweichen.</p>
                 <p><a className="shop-link" href={ledPartnerlink(p.slug)!} target="_blank" rel="sponsored noopener noreferrer">LED-Teelichter bei Amazon ansehen (Werbung, Partnerlink)</a></p>
                 <p className="muted">Wenn du über diesen Link bei Amazon kaufst, erhalte ich eine kleine Provision. Für dich ändert sich am Preis nichts. Als Amazon-Partner verdiene ich an qualifizierten Verkäufen. Der Kauf bei Amazon ist ein eigener Vertrag mit dem dortigen Verkäufer; der Link verlässt diesen Shop.</p>
               </article>
