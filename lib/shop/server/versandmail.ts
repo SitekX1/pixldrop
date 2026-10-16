@@ -52,6 +52,11 @@ export function trackingLink(versandart: string | null | undefined, nr: string |
   if (!nr || !NUMMER_FORM.test(nr)) return null;
   if (versandart === "dhl") return `https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=${encodeURIComponent(nr)}`;
   if (versandart === "hermes") return `https://www.myhermes.de/empfangen/sendungsverfolgung/sendungsinformation/#${encodeURIComponent(nr)}`;
+  if (versandart === "brief") return null;
+  // Versandart nicht festgelegt (z. B. Bestellung aus einem Angebot, Standard "paket"): Anbieter am Nummernformat erkennen.
+  // DHL: JD.../JJD... oder 12/20 Ziffern; Hermes: 14 Ziffern. Sonst kein Link (die Nummer steht immer auch als Text in der Mail).
+  if (/^(JJD|JD)\d{6,}[A-Z]{0,3}$/.test(nr) || /^(\d{12}|\d{20})$/.test(nr)) return `https://www.dhl.de/de/privatkunden/pakete-empfangen/verfolgen.html?piececode=${encodeURIComponent(nr)}`;
+  if (/^\d{14}$/.test(nr)) return `https://www.myhermes.de/empfangen/sendungsverfolgung/sendungsinformation/#${encodeURIComponent(nr)}`;
   return null;
 }
 

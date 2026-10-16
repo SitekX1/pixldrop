@@ -39,6 +39,12 @@ test("Tracking-Link: DHL und Hermes mit Nummer, Brief/ohne Nummer keiner", () =>
   assert.equal(trackingLink("hermes", "12345678901234"), "https://www.myhermes.de/empfangen/sendungsverfolgung/sendungsinformation/#12345678901234");
   assert.equal(trackingLink("brief", "12345678901234"), null);
   assert.equal(trackingLink("dhl", null), null);
+  // Versandart nicht festgelegt (Bestellung aus Angebot): Anbieter am Nummernformat erkennen
+  assert.match(trackingLink("paket", "JD014600003SD") ?? "", /dhl\.de.*JD014600003SD/);
+  assert.match(trackingLink(null, "003404567890123456") ?? "x", /^x$/);
+  assert.match(trackingLink("paket", "12345678901234") ?? "", /myhermes\.de/);
+  assert.equal(trackingLink("paket", "ABC123XYZ"), null);
+  assert.equal(trackingLink("brief", "JD014600003SD"), null);
   assert.equal(trackingLink("dhl", "a b&c=1"), null);
 });
 
