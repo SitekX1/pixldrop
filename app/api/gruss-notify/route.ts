@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
+import { leseEnv } from "@/lib/shop/server/env";
+import { erzeugeBenachrichtiger } from "@/lib/shop/server/benachrichtigung";
 
 // Benachrichtigt Alex per Telegram über eine neue Grußvideo-Anfrage.
 // Braucht TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID als Env-Vars (Vercel) —
 // ohne die wird der Aufruf einfach übersprungen, statt die Bestellung
 // scheitern zu lassen (die Anfrage steht ja schon sicher in Supabase).
+
+const ANLAESSE = ["Geburtstag", "Einladung"];
 
 const MAX_LENGTHS: Record<string, number> = {
   name: 100,
@@ -70,14 +74,37 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Pflichtfelder fehlen" }, { status: 400 });
   }
 
+  // Details (Name, Kontakt, Nachricht) gehen NUR per Mail an Alex (eigene Mailbox) und stehen in der Datenbank, nie nach Telegram.
+  const message = clean(raw.message, "message");
+  const textMode = clean(raw.textMode, "textMode");
+  const anlass = ANLAESSE.includes(occasion) ? occasion : "unbekannt";
+  let mailOk = false;
+  try {
+    const n = erzeugeBenachrichtiger(leseEnv());
+    mailOk = await n.mailAlex(
+      `Neue Grußvideo-Anfrage (${anlass})`,
+      [
+        "Neue Grußvideo-Anfrage über pixldrop.de",
+        `Anlass: ${anlass}`,
+        `Variante: ${tone}`,
+        `Textart: ${textMode ?? "-"}`,
+        `Name: ${name}`,
+        `Kontakt: ${contact}`,
+        `Nachricht: ${message ?? "-"}`,
+      ].join("\n"),
+    );
+  } catch {
+    mailOk = false;
+  }
+
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) {
-    return NextResponse.json({ skipped: true }, { status: 200 });
+    return NextResponse.json({ skipped: true, mail: mailOk }, { status: 200 });
   }
 
-  // DATENSCHUTZ: Telegram bekommt NUR die Art (keine Namen, Kontaktdaten, Nachrichtentexte). Details stehen in der Datenbank (Panel).
-  const text = `🎬 Neue Grußvideo-Anfrage (Anlass: ${occasion}). Details in deiner Mail / im Panel.`;
+  // DATENSCHUTZ: Telegram bekommt NUR die Art (keine Namen, Kontaktdaten, Nachrichtentexte). Details: Mail an Alex und Datenbank.
+  const text = `🎬 Neue Grußvideo-Anfrage (Anlass: ${anlass}). ${mailOk ? "Details in deiner Mail." : "Details in der Datenbank (Mail nicht zugestellt)."}`;
 
   const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",

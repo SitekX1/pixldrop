@@ -390,7 +390,17 @@
 .shop-bon dl > div::before { content: ""; order: 1; flex: 1 1 12px; border-bottom: 1px dotted var(--shop-control); min-width: 12px; }
 .shop-bon dt { order: 0; } .shop-bon dd { order: 2; flex: 0 1 auto; min-width: 0; max-width: 60%; }
 .shop-bon dl > div { min-width: 0; }
-@media (max-width: 480px) { .shop-bon dl > div::before { min-width: 6px; flex-basis: 6px; } }
+@media (max-width: 480px) {
+  .shop-bon dl > div::before { min-width: 6px; flex-basis: 6px; }
+  /* schmale Handys: Bezeichnung oben, Wert darunter, nie mitten im Wort umbrechen */
+  .shop-bon-pos dl > div { flex-wrap: wrap; }
+  .shop-bon-pos dl > div::before { display: none; }
+  .shop-bon-pos dt, .shop-bon-pos dd { max-width: 100%; flex: 1 1 100%; text-align: left; overflow-wrap: break-word; word-break: normal; }
+  .shop-bon-pos dl { gap: 8px; }
+  .shop-bon-pos dl > div { gap: 0; }
+  .shop-bon-pos dt { font-size: 0.8125rem; opacity: 0.75; }
+  .shop-bon-pos dd { font-weight: 600; }
+}
 .shop-bon .gesamt { border-top: 2px solid var(--shop-ink); padding-top: 10px; font: 800 1.375rem/1.2 var(--shop-display); color: var(--shop-ink); }
 .shop-bon .gesamt dd, .shop-bon .gesamt dt { font: inherit; }
 .shop-bon .kleinteil { font-size: 0.9375rem; color: var(--shop-text); display: grid; gap: 4px; }
