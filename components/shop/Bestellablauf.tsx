@@ -294,7 +294,7 @@ export default function Bestellablauf({
             {feld("email", "E-Mail", { type: "email", autoComplete: "email", spellCheck: false })}
             <div className="shop-field">
               <label htmlFor="f-hinweis">Hinweise <span className="opt">(optional)</span></label>
-              <textarea id="f-hinweis" name="hinweis" className="shop-input" value={daten.hinweis} onChange={upd("hinweis")} placeholder="z. B. Hinweis zur Lieferung (Ablageort, Klingel) oder eine Frage zu deiner Bestellung…" />
+              <textarea id="f-hinweis" name="hinweis" className="shop-input" value={daten.hinweis} onChange={upd("hinweis")} placeholder="z. B. Wird für einen bestimmten Termin gebraucht (Halloween, Geburtstag)…" />
             </div>
             <div className="shop-actions" style={{ marginTop: 0 }}>
               <button type="submit" className="shop-btn">Weiter</button>
