@@ -21,6 +21,7 @@ export default function ShopPromoCard() {
           <Kuerbis className="spw-kuerbis spw-kuerbis--2" />
           <span className={`shop-promo-hallotext ${titel.className}`}>Halloween</span>
         </div>
+        <span className={`shop-promo-neu ${titel.className}`}>NEU</span>
         <span className={`shop-promo-titel ${titel.className}`}>Eddies<br />3D-Druck-Shop</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/shop/eddie-3d.webp" alt="" className="shop-promo-eddie" loading="lazy" decoding="async" />
