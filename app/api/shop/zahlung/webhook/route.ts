@@ -28,5 +28,7 @@ export async function POST(request: Request) {
   const roh = await request.text();
   if (roh.length > 200_000) return NextResponse.json({ ok: false, error: "Zu groß" }, { status: 413 });
   const a = await verarbeiteWebhook(deps, request.headers, roh);
+  // Nur Status und Fehlercode ins Log (keine Daten), damit sich die Zustellung von PayPal nachvollziehen laesst.
+  console.info("Shop-Webhook:", a.status, (a.body as { code?: string }).code ?? "ok");
   return NextResponse.json(a.body, { status: a.status, headers: { "Cache-Control": "no-store" } });
 }
