@@ -27,12 +27,17 @@ function wunschtextZeile(p: { text?: string | null; schrift?: string | null; opt
 
 /** Sicherheits- und Pflegehinweise (GPSR) in der Bestellbestätigung; ergänzt die gedruckte Dankeskarte (Hersteller + Kurzhinweise). */
 const SICHERHEIT_TITEL = "Sicherheits- und Pflegehinweise";
-const sicherheitZeilen = (nachAngebot: boolean) => [
-  "Dekoartikel, kein Spielzeug. Kleinteile: nicht für Kinder unter 3 Jahren.",
-  `${nachAngebot ? "Aus Kunststoff aus dem 3D-Druck (Material wie im Angebot genannt)" : "Aus PLA (3D-Druck)"}: nicht hitzebeständig, nicht spülmaschinenfest, nicht für Lebensmittel. Untersetzer nur für Getränke bis etwa 50 °C.`,
-  "Teelichthalter und Kürbisse nur mit LED-Teelichtern, keine offene Flamme.",
-  "Weitere Hinweise zu deinem Artikel stehen auf der Artikelseite im Abschnitt „Sicherheit“.",
-];
+// Je nach Artikel: LED-Hinweis nur bei Teelichthalter/Kuerbis/Geister, Untersetzer-Satz nur bei Untersetzern. Bei Angeboten (Artikel unbekannt) nur die allgemeinen Zeilen.
+const sicherheitZeilen = (nachAngebot: boolean, namen: string[] = []) => {
+  const untersetzer = namen.some((n) => /untersetzer/i.test(n));
+  const led = namen.some((n) => /teelicht|kürbis|geister|laterne/i.test(n));
+  return [
+    "Dekoartikel, kein Spielzeug. Kleinteile: nicht für Kinder unter 3 Jahren.",
+    `${nachAngebot ? "Aus Kunststoff aus dem 3D-Druck (Material wie im Angebot genannt)" : "Aus PLA (3D-Druck)"}: nicht hitzebeständig, nicht spülmaschinenfest, nicht für Lebensmittel.${untersetzer ? " Untersetzer nur für Getränke bis etwa 50 °C." : ""}`,
+    ...(led ? ["Teelichthalter und Kürbisse nur mit LED-Teelichtern, keine offene Flamme."] : []),
+    "Weitere Hinweise zu deinem Artikel stehen auf der Artikelseite im Abschnitt „Sicherheit“.",
+  ];
+};
 
 const UNTERNEHMER = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: as@sitekx.de";
 const UNTERNEHMER_ANSCHRIFT = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim";
@@ -170,7 +175,7 @@ export interface MailBestellung {
 /** "Versand (Deutschland, Hermes)"; ohne bekannte Versandart (Altbestellung) wie bisher "Versand (Deutschland)". */
 function versandZeile(b: { versandart?: string | null }): string {
   const name = b.versandart && istVersandArt(b.versandart) ? VERSANDART_NAME[b.versandart] : null;
-  return name ? `Versand (Deutschland, ${name})` : "Versand (Deutschland)";
+  return name ? `Versand (Deutschland, ${name.replace(/ \((.*)\)$/, " der $1").replace("der Deutsche Post", "der Deutschen Post")})` : "Versand (Deutschland)";
 }
 
 /** Deckt "[[PLATZHALTER" (Code) und "[PLATZHALTER" (AGB-Text) ab. */
@@ -295,7 +300,7 @@ export function bestaetigungsMail(
     b.individuell ? `\n${hinweisIndividuell(b, mitStandardware, belehrungOrt)}` : "",
     "",
     SICHERHEIT_TITEL + ":",
-    ...sicherheitZeilen(!!b.anfrage_id).map((z) => "- " + z),
+    ...sicherheitZeilen(!!b.anfrage_id, b.positionen.map((p) => p.name)).map((z) => "- " + z),
     "",
     `Verkäufer: ${KONTAKT_ALEX}`,
   ];
@@ -390,15 +395,19 @@ function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
   const tabelle = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${zeilen}</table>` +
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;">${summe("Zwischensumme", eur(b.summe_waren_cent))}${summe(versandZeile(b), eur(b.versand_cent))}${summe("Gesamtpreis", eur(b.gesamt_cent), true)}</table>` +
     absatz("Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer.", `font-size:12px;line-height:18px;color:${FARBE.gedimmt};margin:8px 0 0 0;text-align:right;`);
-  const feld = (kopf: string, inhalt: string) =>
-    `<td valign="top" width="50%" class="txt" style="padding:0 12px 0 0;"><div class="kopf" style="font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:${FARBE.link};font-weight:bold;margin:0 0 6px 0;">${kopf}</div>${inhalt}</td>`;
+  // Kopfzeilen in EINER Tabellenzeile, Inhalte in der naechsten: die Ueberschriften stehen damit immer auf gleicher Hoehe (Outlook setzte sie versetzt).
+  const kopfZelle = (kopf: string) =>
+    `<td valign="top" width="50%" class="kopf" style="padding:0 12px 6px 0;font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:12px;line-height:16px;letter-spacing:1.4px;text-transform:uppercase;color:${FARBE.link};font-weight:bold;">${kopf}</td>`;
+  const inhaltZelle = (inhalt: string) => `<td valign="top" width="50%" class="txt" style="padding:0 12px 0 0;">${inhalt}</td>`;
   const anschrift = absatz(`${esc(b.name)}<br>${esc(b.strasse)}<br>${esc(b.plz)} ${esc(b.ort)}`, "margin:0;");
   const zahlungLieferzeit = absatz(`${inline(t.zahlung)}<br>Lieferzeit: ${esc(t.lieferzeit)} ab heute`, "margin:0;");
-  const info = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;"><tr>${feld("Lieferanschrift", anschrift)}${feld("Zahlung und Lieferung", zahlungLieferzeit)}</tr></table>`;
+  const info = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td colspan="2" height="22" style="font-size:0;line-height:22px;">&nbsp;</td></tr>` +
+    `<tr>${kopfZelle("Lieferanschrift")}${kopfZelle("Zahlung und Lieferung")}</tr>` +
+    `<tr>${inhaltZelle(anschrift)}${inhaltZelle(zahlungLieferzeit)}</tr></table>`;
   const hinweise: string[] = [];
   if (b.individuell) hinweise.push(hinweisBox(esc(hinweisIndividuell(b, enthaeltStandardware(b), "die beigefügte Widerrufsbelehrung").replace(/^Hinweis: /, ""))));
   if (t.hinweisWiderruf) hinweise.push(textZuHtml(t.hinweisWiderruf));
-  hinweise.push(`${ueberschrift(SICHERHEIT_TITEL)}<ul style="margin:0 0 12px 0;padding:0 0 0 20px;${TD}">${sicherheitZeilen(!!b.anfrage_id).map((z) => `<li class="txt" style="margin:0 0 3px 0;">${esc(z)}</li>`).join("")}</ul>`);
+  hinweise.push(`${ueberschrift(SICHERHEIT_TITEL)}<ul style="margin:0 0 12px 0;padding:0 0 0 20px;${TD}">${sicherheitZeilen(!!b.anfrage_id, b.positionen.map((p) => p.name)).map((z) => `<li class="txt" style="margin:0 0 3px 0;">${esc(z)}</li>`).join("")}</ul>`);
   const anhang = `${ueberschrift("Im Anhang (zum Aufbewahren)")}<ul style="margin:0 0 12px 0;padding:0 0 0 20px;${TD}">${t.anhangListe.map((a) => `<li class="txt" style="margin:0 0 3px 0;">${esc(a)} (PDF)</li>`).join("")}</ul>` +
     absatz(`Diese Bestätigung dient als Beleg für deine Bestellung. Die AGB kannst du auch online abrufen: ${inline(t.agbLink)}` +
       (t.widerrufLink ? `<br>Du kannst deinen Vertrag auch online widerrufen: ${inline(t.widerrufLink)}` : ""), "font-size:14px;");
