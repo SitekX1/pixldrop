@@ -5,8 +5,9 @@ export default function LegalFooter() {
     <div className="footer-links">
       <a href="/impressum">Impressum</a>
       <a href="/datenschutz">Datenschutz</a>
-      <a href="/agb">AGB</a>
-      <a href="/widerrufsrecht">Widerrufsrecht</a>
+      <a href="/agb">AGB Grußvideos</a>
+      <a href="/3d-druck/agb">AGB 3D-Druck-Shop</a>
+      <a href="/widerrufsrecht">Widerrufsrecht Grußvideos</a>
     </div>
   );
 }

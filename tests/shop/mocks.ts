@@ -35,6 +35,10 @@ export interface FakeBestellung {
   erinnert?: boolean;
   erstattung?: "erstattet" | "erstattung_offen" | null;
   angefordertVorH?: number;
+  /** Versandmail (Migration 15) */
+  sendungsnummer?: string | null;
+  versandmail?: boolean;
+  erstattetCent?: number;
 }
 
 export class FakeDb implements Db {
@@ -294,6 +298,32 @@ export class FakeDb implements Db {
       case "shop_bereinigen_extern":
         this.bereinigtMit = p.p_bild_ids as string[];
         return { ok: true, ergebnis: { anfragen_geloescht: this.bereinigtMit.length } };
+      case "shop_versand_markieren": {
+        const b = this.find({ id: p.p_id });
+        if (!b) return { ok: false, grund: "nicht_gefunden" };
+        const nr = p.p_sendungsnummer as string | null;
+        if (nr != null && !/^[A-Za-z0-9]{6,40}$/.test(nr)) return { ok: false, grund: "ungueltige_eingabe" };
+        if (b.zahlungsstatus !== "bezahlt") return { ok: false, grund: "nicht_bezahlt" };
+        if (b.status === "storniert" || b.freigabe === "abgelehnt") return { ok: false, grund: "storniert" };
+        if (b.freigabe === "offen") return { ok: false, grund: "freigabe_offen" };
+        if ((b.erstattetCent ?? 0) >= b.gesamt_cent) return { ok: false, grund: "erstattet" };
+        if (!b.versandmail) {
+          if (["neu", "bezahlt", "in_arbeit", "gedruckt"].includes(b.status)) b.status = "versendet";
+          if (nr) b.sendungsnummer = nr;
+        }
+        return {
+          ok: true, nummer: b.nummer, name: b.kunde.name, email: b.kunde.email, strasse: b.kunde.strasse, plz: b.kunde.plz, ort: b.kunde.ort,
+          versandart: b.versandart ?? null, sendungsnummer: b.sendungsnummer ?? null, status: b.status, mail_schon: b.versandmail === true,
+        };
+      }
+      case "shop_versandmail_claim": {
+        const b = this.find({ id: p.p_id });
+        if (!b) return { ok: true, neu: false };
+        if (p.p_zurueck === true) { b.versandmail = false; return { ok: true }; }
+        if (b.versandmail || b.status !== "versendet") return { ok: true, neu: false };
+        b.versandmail = true;
+        return { ok: true, neu: true };
+      }
       default:
         throw new Error("Fake-DB: unbekannte Funktion " + name);
     }

@@ -27,6 +27,8 @@ export interface ShopEnv {
   smtp: { host?: string; port: number; user?: string; pass?: string };
   alexMail?: string;
   cronSecret?: string;
+  /** Geheimnis fuer Panel -> Shop-Admin-Routen (z. B. /api/shop/admin/versendet), Header x-shop-admin-secret. Mind. 32 Zeichen, sonst gesperrt. */
+  adminSecret?: string;
 }
 
 type EnvQuelle = Record<string, string | undefined>;
@@ -57,6 +59,7 @@ export function leseEnv(env: EnvQuelle = process.env): ShopEnv {
     smtp: { host: nichtLeer(env.SMTP_HOST), port: Number(env.SMTP_PORT) || 587, user: smtpUser, pass: nichtLeer(env.SMTP_PASS) },
     alexMail: nichtLeer(env.SHOP_ALEX_MAIL) ?? smtpUser,
     cronSecret: nichtLeer(env.CRON_SECRET),
+    adminSecret: nichtLeer(env.SHOP_ADMIN_SECRET),
   };
 }
 

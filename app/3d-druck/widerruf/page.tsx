@@ -7,8 +7,8 @@ import WiderrufForm from "@/components/shop/WiderrufForm";
 export const metadata = { title: entwurfTitel("Widerrufsbelehrung") };
 
 // Wortlaut: Muster-Widerrufsbelehrung (Anlage 1) und Muster-Widerrufsformular (Anlage 2) zu Art. 246a EGBGB,
-// Kaufvertrag über Waren, Lieferung in einer Sendung (Textbaustein b), Rücksendekosten trägt der Verbraucher,
-// keine Abholung angeboten. Widerrufsfunktion § 356a BGB: Abschnitt D (Online-Satz steht nach Gestaltungshinweis 3 hinter dem Absatz "Um Ihr Widerrufsrecht auszuüben").
+// Kaufvertrag über mehrere Waren in einheitlicher Bestellung, getrennte Lieferung möglich (Textbaustein c, "die letzte Ware"; AGB Ziffer 6 Abs. 4 lässt zumutbare Teillieferungen zu; Entscheidung Magnus/Orchestrator 2026-10-16), Rücksendekosten trägt der Verbraucher,
+// keine Abholung angeboten, keine Telefonnummer des Unternehmers (Entscheidung Alex 2026-10-16: E-Mail + Kontaktformular; Anlage 1 nennt die Telefonnummer im Gestaltungshinweis ohne "ggf.", Restrisiko niedrig bis mittel laut Justus). Widerrufsfunktion § 356a BGB: Abschnitt D (Online-Satz steht nach Gestaltungshinweis 3 hinter dem Absatz "Um Ihr Widerrufsrecht auszuüben").
 const UNTERNEHMER = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: as@sitekx.de";
 const UNTERNEHMER_ANSCHRIFT = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim";
 

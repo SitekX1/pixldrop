@@ -1,7 +1,7 @@
 import "server-only";
 // Mail- und Nachrichtentexte. Reiner Text (kein HTML), damit Kundeneingaben nichts einschleusen.
 // Rechtsblock der Bestellbestaetigung (Dr. Justus, Stand 2026-10-09, Endpruefung Magnus offen): Widerrufsbelehrung und Muster-Widerrufsformular
-// WOERTLICH nach Anlage 1 und 2 zu Art. 246a EGBGB (Kaufvertrag, eine Sendung, Textbaustein b), bzw. Hinweis W2 bei
+// WOERTLICH nach Anlage 1 und 2 zu Art. 246a EGBGB (Kaufvertrag über mehrere Waren, getrennte Lieferung möglich = Textbaustein c "die letzte Ware", AGB Ziffer 6 Abs. 4; Entscheidung 2026-10-16; ohne Telefonnummer des Unternehmers), bzw. Hinweis W2 bei
 // individueller Ware. PFLICHTANGABEN_FREIGEGEBEN bleibt false bis Alex' Go. Solange false, weigert sich der Shop,
 // mit PAYPAL_ENV=live Bestellungen anzunehmen (siehe bestellung.ts).
 // Vorlage: D:\Apps\3D-Druck\shop\recht-texte\bestellbestaetigung-mail.md (Variante B).
@@ -442,12 +442,16 @@ export function widerrufEingangsMail(w: WiderrufMail): { betreff: string; text: 
   };
 }
 
-/** Telegram: NUR Nummer und Art, nie Namen/Anschrift/Texte. */
-export const telegramBestellung = (nummer: string) => `Neue Bestellung ${nummer} (bezahlt)`;
-export const telegramAnfrage = (nummer: string) => `Neue Anfrage ${nummer} (individueller Druck)`;
-export const telegramPruefen = (nummer: string, grund: string) => `Zahlung prüfen: ${nummer} (${grund})`;
+/**
+ * Telegram: NUR Nummer, Art und der Hinweis auf Mail/Panel. Nie Namen, Anschriften, Wunschtexte, Bilder, Freigabe-Links
+ * (der Telegram-Chat liegt bei einem Drittanbieter und wird auf mehreren Geraeten synchronisiert; Details nur in der Mail an Alex).
+ */
+export const TELEGRAM_HINWEIS = "Details in deiner Mail / im Panel.";
+export const telegramBestellung = (nummer: string) => `Neue Bestellung ${nummer} (bezahlt). ${TELEGRAM_HINWEIS}`;
+export const telegramAnfrage = (nummer: string) => `Neue Anfrage ${nummer} (individueller Druck). ${TELEGRAM_HINWEIS}`;
+export const telegramPruefen = (nummer: string, grund: string) => `Zahlung prüfen: ${nummer} (${grund}). ${TELEGRAM_HINWEIS}`;
 export const telegramWiderruf = (nummer: string, passt: boolean) =>
-  `Neuer Widerruf ${nummer} (Zuordnung: ${passt ? "passt" : "bitte prüfen"})`;
+  `Neuer Widerruf ${nummer} (Zuordnung: ${passt ? "passt" : "bitte prüfen"}). ${TELEGRAM_HINWEIS}`;
 
 export function alexMail(art: "Bestellung" | "Anfrage", nummer: string, adminUrl?: string): { betreff: string; text: string } {
   return {

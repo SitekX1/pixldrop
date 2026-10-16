@@ -4,8 +4,9 @@ import "server-only";
 // Mailbox, kostenlos, kein zusaetzlicher Dienst). Wer das aendern will, ersetzt nur
 // erzeugeBenachrichtiger() oder reicht ein eigenes Objekt mit diesem Interface ein.
 //
-// DATENSCHUTZ: Telegram bekommt NUR Bestellnummer und Art (keine Namen, Anschriften,
-// Texte, Bilder). Die Mail an Alex enthaelt nur Nummer + Link ins Admin Panel.
+// DATENSCHUTZ: Telegram bekommt NUR Bestellnummer, Art und den Hinweis "Details in deiner Mail / im Panel"
+// (keine Namen, Anschriften, Wunschtexte, Bilder und KEINE Freigabe-Links). Die Mail an Alex (eigene Mailbox) enthaelt
+// Nummer + Link ins Admin Panel; beim Wunschtext-Flow zusaetzlich die Freigabe-Links und die gekuerzte Wunschtext-Liste.
 import type { ShopEnv } from "./env";
 import type { FetchFn } from "./db";
 import { einfacheMailHtml, logoAnhaengeFuer } from "./mail-layout";
@@ -21,9 +22,9 @@ export interface MailAnhang {
 }
 
 export interface Benachrichtiger {
-  /** Kurze Push-Nachricht an Alex (nur Nummer/Art!). true = zugestellt. */
+  /** Kurze Push-Nachricht an Alex (nur Nummer/Art + Hinweis, nie Links/Texte/Kundendaten!). true = zugestellt. */
   telegram(text: string): Promise<boolean>;
-  /** Mail an Alex (nur Nummer + Link). true = zugestellt. */
+  /** Mail an Alex (Nummer + Link ins Panel; Wunschtext-Flow: Freigabe-Links + Kurzliste). true = zugestellt. */
   mailAlex(betreff: string, text: string, replyTo?: string): Promise<boolean>;
   /** Mail an den Kunden (Bestellbestaetigung). true = zugestellt. */
   mailKunde(an: string, betreff: string, text: string, anhaenge?: MailAnhang[], html?: string): Promise<boolean>;

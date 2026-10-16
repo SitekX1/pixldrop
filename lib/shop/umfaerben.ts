@@ -127,7 +127,11 @@ export function bereiten(modus: UmfaerbModus, rgba: Uint8ClampedArray, maskeR: U
 
 /** Zielfarbe mit Schattierung s (0..1): dunkel bis leicht aufgehellte Lichter. */
 function faerbe(t: [number, number, number], s: number, out: [number, number, number]) {
-  const b = 0.32 + 0.8 * s;
+  // Helle Zielfarben (Weiß): Mitteltöne anheben, sonst wirkt Weiß auf dem dunklen Ausgangsfoto nur hellgrau. Dunkle Farben bleiben unverändert.
+  const lt = (0.2126 * t[0] + 0.7152 * t[1] + 0.0722 * t[2]) / 255;
+  const lift = klemme((lt - 0.6) / 0.25);
+  const s2 = s + lift * (1 - s) * 0.5;
+  const b = 0.32 + 0.8 * s2;
   const f = b < 1 ? b : 1;
   const hl = b > 1 ? klemme((b - 1) / 0.12) * 0.35 : 0;
   for (let c = 0; c < 3; c++) out[c] = (t[c] * f * (1 - hl) + 255 * hl);

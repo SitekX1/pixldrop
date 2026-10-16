@@ -1,7 +1,7 @@
 import Link from "next/link";
 import LegalFooter from "@/components/LegalFooter";
 
-export const metadata = { title: "AGB — PixlDrop" };
+export const metadata = { title: "AGB Grußvideos — PixlDrop" };
 
 export default function AGB() {
   return (
@@ -9,11 +9,13 @@ export default function AGB() {
       <Link href="/" className="back">
         ← Zurück
       </Link>
-      <h1>Allgemeine Geschäftsbedingungen</h1>
+      <h1>Allgemeine Geschäftsbedingungen für personalisierte Grußvideos</h1>
       <p>
-        Diese Bedingungen gelten nur für personalisierte Grußvideos. Für den 3D-Druck-Shop gelten die
-        AGB und die Widerrufsbelehrung unter <Link href="/3d-druck/agb">pixldrop.de/3d-druck/agb</Link>{" "}
-        bzw. <Link href="/3d-druck/widerruf">/3d-druck/widerruf</Link>.
+        Diese Bedingungen gelten nur für personalisierte Grußvideos. Für den{" "}
+        <strong>3D-Druck-Shop</strong> (gedruckte Artikel) gelten ausschließlich die{" "}
+        <Link href="/3d-druck/agb">AGB 3D-Druck-Shop</Link> und die{" "}
+        <Link href="/3d-druck/widerruf">Widerrufsbelehrung 3D-Druck-Shop</Link>. Für Bestellungen im
+        Shop gelten diese Bedingungen nicht.
       </p>
 
       <h2>1. Geltungsbereich und Anbieter</h2>
@@ -100,7 +102,7 @@ export default function AGB() {
         die Wirksamkeit der übrigen Bestimmungen unberührt.
       </p>
 
-      <p className="legal-updated">Stand: September 2026</p>
+      <p className="legal-updated">Stand: Oktober 2026</p>
 
       <LegalFooter />
     </div>

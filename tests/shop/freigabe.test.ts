@@ -41,10 +41,11 @@ async function bezahlteWunschBestellung() {
   return t;
 }
 
-function linksAusTelegram(text: string) {
-  const ok = /Freigeben: (\S+)/.exec(text)?.[1];
-  const nein = /Ablehnen: (\S+)/.exec(text)?.[1];
-  assert.ok(ok && nein, "Telegram enthaelt beide Links");
+// Die Freigabe-Links stehen NUR in der Mail an Alex (Telegram hat sie nicht mehr, siehe Test "Telegram ohne Links").
+function linksAusMail(text: string) {
+  const ok = /Freigeben \([^)]*\): (\S+)/.exec(text)?.[1];
+  const nein = /Ablehnen \([^)]*\): (\S+)/.exec(text)?.[1];
+  assert.ok(ok && nein, "Mail an Alex enthaelt beide Links");
   return { ok: ok!, nein: nein! };
 }
 const param = (url: string, name: string) => new URL(url).searchParams.get(name)!;
@@ -81,7 +82,7 @@ test("Links: eigener Schluessel hat Vorrang, ohne Schluessel keine Links", () =>
   assert.equal(pruefeFreigabeToken(SCHLUESSEL, UUID_A, "ok", param(eigen.ok, "t")), "ungueltig");
 });
 
-test("Wunschtext bezahlt: nur Eingangsbestaetigung ohne Anhaenge, Telegram mit zwei Links ohne Kundendaten", async () => {
+test("Wunschtext bezahlt: nur Eingangsbestaetigung ohne Anhaenge, Telegram ohne Links/Kundendaten, Links nur in der Mail an Alex", async () => {
   const { db, notifier, nummer } = await bezahlteWunschBestellung();
   assert.equal(db.bestellungen[0].freigabe, "offen");
   assert.equal(notifier.kundenMails.length, 1);
@@ -94,9 +95,11 @@ test("Wunschtext bezahlt: nur Eingangsbestaetigung ohne Anhaenge, Telegram mit z
   assert.equal(db.bestellungen[0].bestaetigt, false);
   assert.equal(notifier.telegrams.length, 1);
   const tg = notifier.telegrams[0];
-  assert.match(tg, new RegExp(`^Wunschtext prüfen und freigeben: ${nummer}`));
-  assert.doesNotMatch(tg, /Erika|Teststraße|Montag|@/);
-  const l = linksAusTelegram(tg);
+  assert.match(tg, new RegExp(`^Wunschtext prüfen: ${nummer}`));
+  assert.match(tg, /Details in deiner Mail \/ im Panel\./);
+  assert.doesNotMatch(tg, /Erika|Teststraße|Montag|@|https?:|Freigeben|Ablehnen|[?&]t=/);
+  assert.equal(notifier.alexMails.length, 1);
+  const l = linksAusMail(notifier.alexMails[0].text);
   assert.equal(pruefeFreigabeToken(SCHLUESSEL, param(l.ok, "b"), "ok", param(l.ok, "t")), "ok");
   assert.equal(pruefeFreigabeToken(SCHLUESSEL, param(l.nein, "b"), "nein", param(l.nein, "t")), "ok");
 });
@@ -301,8 +304,9 @@ test("Erinnerung: nur > 20 h, einmalig, mit Links; fehlende Migration bricht nic
   db.bestellungen[0].angefordertVorH = ERINNERUNG_NACH_STUNDEN + 1;
   assert.equal(await erinnereOffeneFreigaben(deps), 1);
   const tg = notifier.telegrams[notifier.telegrams.length - 1];
-  assert.match(tg, new RegExp(`Erinnerung: Bestellung ${nummer}`));
-  linksAusTelegram(tg);
+  assert.match(tg, new RegExp(`Erinnerung: Wunschtext prüfen, Bestellung ${nummer}`));
+  assert.doesNotMatch(tg, /https?:|Freigeben|Ablehnen/);
+  linksAusMail(notifier.alexMails[notifier.alexMails.length - 1].text);
   assert.equal(await erinnereOffeneFreigaben(deps), 0);
   assert.equal(notifier.telegrams.length, vorher + 1);
   db.ohneFreigabeMigration = true;
@@ -386,7 +390,7 @@ test("Parallel: Capture und Webhook gleichzeitig -> genau eine Eingangsmail; Sen
   assert.equal(f.notifier.kundenMails.length, 1);
 });
 
-test("Kurzliste der Wunschtexte: gekuerzt, mit Schrift/Format, ohne Kundendaten; Telegram nur Anzahl", async () => {
+test("Kurzliste der Wunschtexte: gekuerzt, mit Schrift/Format, ohne Kundendaten; Telegram ohne Links und ohne Texte", async () => {
   const { wunschtextKurzliste, telegramFreigabe, alexMailFreigabe } = await import("@/lib/shop/server/freigabe-texte");
   const lang = "A".repeat(100);
   const kl = wunschtextKurzliste([
@@ -397,8 +401,8 @@ test("Kurzliste der Wunschtexte: gekuerzt, mit Schrift/Format, ohne Kundendaten;
   assert.ok(kl[0].includes("Oswald") && kl[0].includes("Fett") && kl[0].includes("Größe Groß"), kl[0]);
   assert.ok(!kl[0].includes("A".repeat(61)));
   const links = { ok: "https://x/ok", nein: "https://x/nein" };
-  const tg = telegramFreigabe("PD-1", links, 2);
-  assert.ok(tg.includes("2 Wunschtexte") && !tg.includes("AAAA"));
+  const tg = telegramFreigabe("PD-1");
+  assert.ok(tg.includes("PD-1") && tg.includes("Details in deiner Mail / im Panel.") && !tg.includes("AAAA") && !tg.includes("http") && !/Wunschtexte/.test(tg));
   assert.ok(alexMailFreigabe("PD-1", links, "neu", kl).text.includes("Wunschtexte (gekürzt"));
 });
 

@@ -23,7 +23,7 @@ test("Anfrage ohne Bilder: gespeichert, nur Nummer in Telegram und Alex-Mail", a
   assert.equal(a.status, 200);
   assert.equal(a.body.anfragenummer, "PA-2026-0001");
   assert.equal(db.anfragen[0].args.p_farbe, "Schwarz");
-  assert.deepEqual(notifier.telegrams, ["Neue Anfrage PA-2026-0001 (individueller Druck)"]);
+  assert.deepEqual(notifier.telegrams, ["Neue Anfrage PA-2026-0001 (individueller Druck). Details in deiner Mail / im Panel."]);
   const alles = notifier.telegrams.join() + notifier.alexMails.map((m) => m.betreff + m.text).join();
   assert.ok(!alles.includes("Erika") && !alles.includes("erika@") && !alles.includes("Kaffeekapseln"));
   assert.ok(db.anfragen[0].benachrichtigt);

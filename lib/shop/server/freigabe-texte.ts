@@ -1,7 +1,8 @@
 import "server-only";
 // Texte des Freigabe-Flows (Wunschtext-Bestellungen). Entwurf von Ben; die Endformulierung liegt bei Justus.
-// Telegram bekommt NUR Bestellnummer + Art + die zwei Links (keine Namen, Anschriften, Wunschtexte).
-import { KONTAKT_ALEX, eur } from "./vorlagen";
+// DATENSCHUTZ: Telegram bekommt NUR Bestellnummer + Art + Hinweis "Details in deiner Mail / im Panel" (keine Namen, Anschriften,
+// Wunschtexte, KEINE Freigabe-Links). Links und Wunschtext-Kurzliste stehen ausschliesslich in der Mail an Alex (eigene Mailbox).
+import { KONTAKT_ALEX, TELEGRAM_HINWEIS, eur } from "./vorlagen";
 import { PRODUKTE } from "../produkte";
 import { GROESSEN, istGroesseId, STANDARD_GROESSE } from "../umbruch";
 import { formatAnzeigeAusOptionen } from "../textformat";
@@ -55,20 +56,18 @@ export function wunschtextKurzliste(positionen: KurzPosition[]): string[] {
   });
 }
 
-/** Telegram: nur Nummer, Anzahl der Wunschtext-Positionen und die Links (Details nur in der Mail). */
-export const telegramFreigabe = (nummer: string, links: FreigabeLinks, anzahl?: number): string =>
-  `Wunschtext prüfen und freigeben: ${nummer}${anzahl ? ` (${anzahl} ${anzahl === 1 ? "Wunschtext" : "Wunschtexte"})` : ""} (Frist 24 h nach Zahlung)
-Freigeben: ${links.ok}
-Ablehnen: ${links.nein}`;
+/** Telegram: nur Nummer + Art (keine Links, keine Wunschtexte, keine Anzahl). Links und Texte stehen in der Mail an Alex. */
+export const telegramFreigabe = (nummer: string): string =>
+  `Wunschtext prüfen: ${nummer} (Frist 24 h nach Zahlung). ${TELEGRAM_HINWEIS}`;
 
-export const telegramFreigabeErinnerung = (nummer: string, stunden: number, links: FreigabeLinks): string =>
-  `Erinnerung: Bestellung ${nummer} wartet seit über ${stunden} Stunden auf die Prüfung des Wunschtexts (Frist 24 Stunden)\nFreigeben: ${links.ok}\nAblehnen: ${links.nein}`;
+export const telegramFreigabeErinnerung = (nummer: string, stunden: number): string =>
+  `Erinnerung: Wunschtext prüfen, Bestellung ${nummer} wartet seit über ${stunden} Stunden (Frist 24 Stunden). ${TELEGRAM_HINWEIS}`;
 
 export const telegramFristAbgesagt = (nummer: string): string =>
-  `Frist abgelaufen, automatisch abgesagt: ${nummer} (Erstattung wird veranlasst)`;
+  `Frist abgelaufen, automatisch abgesagt: ${nummer} (Erstattung wird veranlasst). ${TELEGRAM_HINWEIS}`;
 
 export const telegramErstattungOffen = (nummer: string): string =>
-  `Erstattung fehlgeschlagen: ${nummer} - bitte in PayPal erstatten`;
+  `Erstattung fehlgeschlagen: ${nummer} - bitte in PayPal erstatten. ${TELEGRAM_HINWEIS}`;
 
 export function alexMailFreigabe(
   nummer: string,

@@ -1,6 +1,7 @@
 // Produktdaten. Später durch DB/Supabase ersetzbar, die Typen bleiben gleich.
 // Keine erfundenen Maße, Gewichte oder Bewertungen: masse null = Maßblock wird nicht angezeigt.
-import { halloweenModus } from "./config";
+import { halloweenModus, TEXTE } from "./config";
+const TEXTE_LED = TEXTE.ledHinweis;
 
 export type Kategorie = "halloween" | "untersetzer" | "sonstiges";
 export type Form = "rund" | "set" | "pegel" | "schild" | "laterne" | "tasse" | "geister" | "teelicht" | "untersetzer-kuerbis";
@@ -77,7 +78,7 @@ export function hitzeHinweis(material: string, untersetzer = false): string {
     ? `Für Tassen und Gläser bis etwa ${nur} Bodentemperatur. Nicht für frisch aufgebrühte heiße Getränke (Tasse kurz abkühlen lassen), nicht für Töpfe, Pfannen oder Backofen und nicht dauerhaft über ${grenze}. Wärme verformt den Kunststoff; eine Verformung durch Hitze ist kein Mangel (AGB Ziffer 11 Abs. 4).`
     : `Nicht für Töpfe, Pfannen oder Backofen und nicht dauerhaft über ${grenze}. Wärme verformt den Kunststoff.`;
 }
-const LED = "Nicht für offene Flammen (nur mit LED-Teelichtern). LED-Teelichter gehören nicht zum Lieferumfang und enthalten oft Knopfzellen: außerhalb der Reichweite von Kindern halten.";
+const LED = TEXTE_LED; // Wortlaut zentral in lib/shop/config.ts (GPSR Art. 19, Justus 2026-10-16)
 const MATERIAL = "PLA"; // Alex trägt je Artikel das echte Material ein (PLA oder PETG)
 const HITZE = hitzeHinweis(MATERIAL, true); // alle Artikel mit HITZE sind Untersetzer
 // Preise (Alex, 2026-10-15, Karla-Kalkulation): je Artikel direkt bei preisCent. Kork: 30 Cent je Untersetzer, nicht im Grundpreis.

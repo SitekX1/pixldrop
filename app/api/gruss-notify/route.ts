@@ -65,8 +65,6 @@ export async function POST(request: Request) {
   const contact = clean(raw.contact, "contact");
   const occasion = clean(raw.occasion, "occasion");
   const tone = clean(raw.tone, "tone");
-  const message = clean(raw.message, "message");
-  const textMode = clean(raw.textMode, "textMode");
 
   if (!name || !contact || !occasion || !tone) {
     return NextResponse.json({ error: "Pflichtfelder fehlen" }, { status: 400 });
@@ -78,17 +76,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ skipped: true }, { status: 200 });
   }
 
-  const text = [
-    "🎬 Neue Grußvideo-Anfrage!",
-    `Name: ${name}`,
-    `Kontakt: ${contact}`,
-    `Anlass: ${occasion}`,
-    `Variante: ${tone}`,
-    textMode ? `Text-Modus: ${textMode === "exact_text" ? "genauer Text vorgegeben" : "nur Stichpunkte"}` : null,
-    message ? `Nachricht: ${message}` : null,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  // DATENSCHUTZ: Telegram bekommt NUR die Art (keine Namen, Kontaktdaten, Nachrichtentexte). Details stehen in der Datenbank (Panel).
+  const text = `🎬 Neue Grußvideo-Anfrage (Anlass: ${occasion}). Details in deiner Mail / im Panel.`;
 
   const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",

@@ -42,11 +42,11 @@ export const TEXTE = {
   datenschutzHinweis: "Informationen zur Verarbeitung deiner Daten findest du in der",
   versandHinweis: "Versandkosten werden im Warenkorb angezeigt (Lieferung nur innerhalb Deutschlands)",
   lieferzeitHinweis: "Lieferzeit: Druckzeit plus Versand, genaue Angabe in der Bestellbestätigung",
-  schriftHinweis: "Die Vorschau ist eine Annäherung. Die Position deiner Schrift wird beim Druck bei Bedarf um wenige Millimeter angepasst, zum Beispiel damit sie mittig auf dem Stück sitzt. Text, Schrift, Farben und Größenstufe bleiben wie in der Vorschau.",
+  schriftHinweis: "Die Vorschau ist eine Annäherung. Die Position deiner Schrift darf beim Druck um bis zu 3 mm verschoben werden, zum Beispiel damit sie mittig auf dem Stück sitzt, soweit das für dich zumutbar ist. Text, Schrift, Farben und Größenstufe bleiben wie in der Vorschau.",
   bildHinweis: "Die Bilder zeigen Beispielstücke aus meiner Fertigung. Wird ein Foto in deiner gewählten Farbe angezeigt, ist es digital bearbeitet und kein Foto deines fertigen Stücks. Farbton und Glanz können durch Bildschirm, Licht und Filament-Charge leicht abweichen. Maßgeblich ist die Farbbezeichnung, die du im Warenkorb siehst.",
   kleinunternehmer: "Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer",
   keinSpielzeug: "Kein Spielzeug. Enthält Kleinteile bzw. kann zerbrechen: von Kleinkindern fernhalten.",
-  ledHinweis: "Nicht für offene Flammen (nur mit LED-Teelichtern). LED-Teelichter gehören nicht zum Lieferumfang und enthalten oft Knopfzellen: außerhalb der Reichweite von Kindern halten.",
+  ledHinweis: "Nur mit LED-Teelichtern verwenden. Nicht für Kerzen oder offene Flamme (Brand- und Verformungsgefahr). LED-Teelichter gehören nicht zum Lieferumfang; passende Modelle unterscheiden sich je nach Hersteller. Batterien (Knopfzellen) der LED-Teelichter von Kindern fernhalten.",
   widerrufAusschluss: "Individuell gefertigt: vom Widerruf ausgeschlossen.",
   widerrufNormal: "14 Tage Widerruf, Rücksendekosten trägt der Kunde.",
 } as const;

@@ -403,7 +403,7 @@ export default function ProductBuy({
         </fieldset>
       )}
 
-      {produkt.optionen.map((g) => (
+      {produkt.optionen.map((g, gi) => (
         <fieldset key={g.id} className="shop-step">
           <legend>{g.label}</legend>
           <div className="shop-options">
@@ -414,7 +414,7 @@ export default function ProductBuy({
               </label>
             ))}
           </div>
-          {hatAufpreis && <p aria-live="polite" style={{ marginTop: 6 }}><strong>Preis: {livePreis}</strong> pro Set</p>}
+          {hatAufpreis && gi === produkt.optionen.length - 1 && <p aria-live="polite" style={{ marginTop: 6 }}><strong>Dein Preis: {livePreis}</strong> {produkt.form === "set" || /set/i.test(produkt.name) ? "pro Set" : "pro Stück"}</p>}
         </fieldset>
       ))}
 

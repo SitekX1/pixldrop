@@ -91,18 +91,16 @@ export default function Datenschutz() {
 
       <h2>8. Benachrichtigung über Telegram</h2>
       <p>
-        Damit wir neue Anfragen zeitnah bemerken, senden wir uns bei jeder eingehenden
-        Grußvideo-Anfrage eine interne Benachrichtigung über den Messenger-Dienst Telegram. Dabei
-        werden die von dir im Formular gemachten Angaben (Name, Kontaktdaten, Anlass, Ton,
-        Freitext) an Telegram übermittelt. Anbieter ist die Telegram Messenger Inc. bzw. Telegram
-        FZ-LLC (Dubai, Vereinigte Arabische Emirate); es findet somit eine Übermittlung in ein
-        Drittland außerhalb der EU statt, für das kein Angemessenheitsbeschluss der EU-Kommission
-        vorliegt. Rechtsgrundlage für die Verarbeitung ist Art. 6 Abs. 1 lit. f DSGVO
-        (berechtigtes Interesse an einer zeitnahen Bearbeitung deiner Anfrage); Rechtsgrundlage
-        für die Drittlandübermittlung selbst ist Art. 49 Abs. 1 lit. b DSGVO, da die
-        Übermittlung zur Durchführung vorvertraglicher Maßnahmen auf deine Anfrage hin
-        erforderlich ist. Wenn du diese Übermittlung nicht wünschst, kannst du uns deine Anfrage
-        stattdessen direkt per E-Mail an die oben genannte Adresse senden.
+        Damit ich neue Anfragen zeitnah bemerke, sende ich mir bei jeder eingehenden
+        Grußvideo-Anfrage eine kurze interne Benachrichtigung über den Messenger-Dienst Telegram.
+        Die Nachricht enthält <strong>nur den Hinweis auf eine neue Grußvideo-Anfrage und den
+        gewählten Anlass</strong> (z. B. Geburtstag). Name, Kontaktdaten, Ton und Freitext aus
+        deinem Formular werden <strong>nicht</strong> an Telegram übermittelt; die Einzelheiten
+        sehe ich erst in meinem E-Mail-Postfach bzw. in meinem geschützten Verwaltungsbereich.
+        Anbieter ist die Telegram FZ-LLC (Dubai, Vereinigte Arabische Emirate), ein Drittland ohne
+        Angemessenheitsbeschluss der EU-Kommission; da keine Angaben zu deiner Person
+        übermittelt werden, ist das Risiko für dich gering. Rechtsgrundlage ist Art. 6 Abs. 1
+        lit. f DSGVO (berechtigtes Interesse an einer zeitnahen Bearbeitung deiner Anfrage).
       </p>
 
       <h2 id="kontaktformular">9. Kontaktformular im Impressum</h2>
@@ -225,37 +223,43 @@ export default function Datenschutz() {
       <h3>12.3 Zahlung (PayPal)</h3>
       <p>
         Du zahlst sofort bei der Bestellung: Nach dem Klick auf &bdquo;Zahlungspflichtig
-        bestellen&ldquo; leiten wir dich zu PayPal weiter (PayPal (Europe) S.à r.l. et Cie, S.C.A.,
-        22-24 Boulevard Royal, L-2449 Luxemburg). Dabei werden Bestellnummer, Betrag, Artikelbezeichnungen sowie Name und Lieferanschrift an PayPal
-        übergeben (damit PayPal die Lieferadresse anzeigen kann); Wunschtexte übergebe ich nicht; deine Zahlungsdaten gibst du nur bei PayPal ein. Nach bestätigter Zahlung
-        senden wir dir die Bestellbestätigung, bei geändertem Wunschtext zunächst eine
-        Eingangsbestätigung und die Bestellbestätigung erst nach meiner Textfreigabe. Lehne ich
-        eine bezahlte Bestellung ab, veranlasse ich die vollständige Erstattung (einschließlich
-        Versand) über PayPal; dafür übergebe ich PayPal die Transaktions-ID und den Betrag. Bei Angeboten (individuelle Anfragen) zahlst du
-        ebenfalls per PayPal. PayPal ist für die Zahlungsabwicklung{" "}
+        bestellen&ldquo; leite ich dich zu PayPal weiter (PayPal (Europe) S.à r.l. et Cie, S.C.A.,
+        22-24 Boulevard Royal, L-2449 Luxemburg). Dabei übergebe ich Bestellnummer, Betrag,
+        Artikelbezeichnungen sowie Name und Lieferanschrift an PayPal (damit PayPal die
+        Lieferadresse anzeigen kann); Wunschtexte übergebe ich nicht. Deine Zahlungsdaten gibst du
+        nur bei PayPal ein. Nach bestätigter Zahlung sende ich dir die Bestellbestätigung, bei
+        geändertem Wunschtext zunächst eine Eingangsbestätigung und die Bestellbestätigung erst
+        nach meiner Textfreigabe. Lehne ich eine bezahlte Bestellung ab, veranlasse ich die
+        vollständige Erstattung (einschließlich Versand) über PayPal; dafür übergebe ich PayPal die
+        Transaktions-ID und den Betrag. Bei Angeboten (individuelle Anfragen) zahlst du ebenfalls
+        per PayPal. PayPal ist für die Zahlungsabwicklung{" "}
         <strong>eigenständig verantwortlich</strong>; dort gelten die{" "}
         <a href="https://www.paypal.com/de/legalhub/paypal/privacy-full" target="_blank" rel="noopener noreferrer">
           Datenschutzbestimmungen von PayPal
         </a>
-        . Wir erhalten von PayPal die Zahlungsbestätigung (Betrag, Transaktions-ID, Name, ggf.
+        . Ich erhalte von PayPal die Zahlungsbestätigung (Betrag, Transaktions-ID, Name, ggf.
         E-Mail). <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO. Zahlungsdaten
-        (Karte/Konto) erhalten wir nicht.
+        (Karte/Konto) erhalte ich nicht. Transaktions-ID und Betrag speichere ich als Buchungsbeleg
+        8 Jahre (siehe 12.9).
       </p>
 
       <h3>12.4 Benachrichtigung über neue Bestellungen (E-Mail und Telegram)</h3>
       <p>
-        Bei einer Bestellung oder Anfrage erhalten wir eine E-Mail und eine Telegram-Nachricht.
-        <strong> Der Wunschtext wird nicht über Telegram übertragen;</strong> Telegram erhält nur
-        die Bestellnummer (und die Art, z. B. Bestellung/Anfrage), bei Bestellungen mit
-        geändertem Wunschtext zusätzlich die Anzahl der Wunschtexte und einen{" "}
-        <strong>geheimen Link</strong> zu einer nicht öffentlichen Seite dieses Shops, auf der
-        ich den Text sehe und freigebe oder ablehne. Zugriff auf diese Seite besteht nur über den
-        geheimen Link. Namen, Anschriften, Texte und Bilder enthält die Nachricht nicht. Anbieter: Telegram FZ-LLC (Dubai,
-        Vereinigte Arabische Emirate), ein Drittland ohne Angemessenheitsbeschluss.{" "}
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (zeitnahe Bearbeitung). Die
-        übermittelte Bestellnummer ist pseudonym. Die
-        Benachrichtigung bei Grußvideo-Anfragen (Abschnitt 8) funktioniert anders und bleibt davon
-        unberührt.
+        Bei jeder Bestellung, Anfrage oder jedem Widerruf erhalte ich eine E-Mail und eine kurze
+        Nachricht über den Messenger-Dienst Telegram. Die Telegram-Nachricht enthält{" "}
+        <strong>nur die Bestellnummer und die Art des Vorgangs</strong> (z. B. Bestellung,
+        Anfrage, Widerruf) sowie den Hinweis, dass die Einzelheiten in meiner E-Mail bzw. im
+        Verwaltungsbereich stehen. Namen, Anschriften, E-Mail-Adressen, Wunschtexte, Bilder und
+        Links zu Bestelldaten werden <strong>nicht</strong> über Telegram übermittelt. Die
+        Einzelheiten sehe ich erst in meinem E-Mail-Postfach (siehe 12.5) bzw. nachdem ich mich in
+        meinem geschützten Verwaltungsbereich angemeldet habe. Die Bestellnummer allein lässt für
+        Dritte keinen Rückschluss auf deine Person zu (pseudonym). Anbieter von Telegram ist die
+        Telegram FZ-LLC (Dubai, Vereinigte Arabische Emirate), ein Drittland ohne
+        Angemessenheitsbeschluss der EU-Kommission; da keine Angaben zu deiner Person übermittelt
+        werden, ist das Risiko für dich gering. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1
+        lit. f DSGVO (berechtigtes Interesse an zeitnaher Bearbeitung, damit Lieferzeit und die
+        24-Stunden-Prüfung von Wunschtexten eingehalten werden). Die Benachrichtigung bei
+        Grußvideo-Anfragen ist in Abschnitt 8 beschrieben.
       </p>
 
       <h3>12.5 E-Mail-Versand</h3>
@@ -293,7 +297,9 @@ export default function Datenschutz() {
       <h3>12.8 Keine Cookies, kein Tracking</h3>
       <p>
         Im Shop setze ich keine Tracking- oder Marketing-Cookies ein und binde keine externen
-        Schriften oder Skripte ein (Schriften lokal). Zur Abwicklung speichert dein Browser
+        Schriften oder Skripte ein (Schriften lokal). Auch PayPal wird nicht als Skript in die
+        Seite geladen, sondern nur durch eine Weiterleitung auf die Seite von PayPal erreicht
+        (siehe 12.3); erst dort gelten dessen Bestimmungen. Zur Abwicklung speichert dein Browser
         vorübergehend im <code>sessionStorage</code> dieses Tabs: den Warenkorb, die gewählte
         Versandart, deine bereits eingegebenen Lieferdaten (Name, Anschrift, E-Mail, Hinweis) und
         einen technischen Schlüssel gegen Doppelbestellungen. Das ist erforderlich, damit der
@@ -311,12 +317,12 @@ export default function Datenschutz() {
         <li>
           Abgelehnte (auch automatisch abgelehnte) und stornierte Bestellungen: <strong>30 Tage</strong>
           nach Ablehnung bzw. Stornierung, danach anonymisiert; die Erstattung bleibt als
-          Buchungsbeleg ohne Namen erhalten (siehe unten).
+          Buchungsbeleg erhalten (siehe unten).
         </li>
         <li>Bilder zu Anfragen: <strong>30 Tage</strong> nach Ende der Anfrage.</li>
         <li>Anfragen ohne Vertrag: <strong>30 Tage</strong> nach Beendigung der Anfrage.</li>
         <li>
-          Buchungsbelege (Betrag, Datum, Artikel, Transaktions-ID, ohne Namen): 8 Jahre (§ 147 AO,
+          Buchungsbelege (Betrag, Datum, Artikel, Transaktions-ID): 8 Jahre (§ 147 AO,
           Art. 6 Abs. 1 lit. c DSGVO).
         </li>
         <li>
@@ -328,6 +334,19 @@ export default function Datenschutz() {
           Abs. 1 lit. b/c DSGVO).
         </li>
       </ul>
+      <p>
+        <strong>Sicherungskopien:</strong> Zum Schutz vor Datenverlust sichere ich die
+        Shop-Datenbank regelmäßig auf einem lokalen Datenträger in meinem Besitz, der nicht mit
+        einem Cloud-Dienst synchronisiert wird. Von den Shop-Kundendaten werden nur die{" "}
+        <strong>drei jeweils neuesten Sicherungsstände</strong> aufbewahrt (etwa 90 Tage); ältere
+        Stände werden gelöscht. Einnahmen- und Belegdaten sichere ich davon getrennt und
+        entsprechend der Aufbewahrungsfrist für Buchungsbelege 8 Jahre. Hochgeladene Kundenbilder
+        sind nicht Teil dieser Stände; sie werden nach Ablauf der 30 Tage bei der nächsten
+        Sicherung auch aus der lokalen Kopie entfernt. Daten, die im Shop gelöscht oder
+        anonymisiert wurden, können deshalb noch bis zu etwa 90 Tage in den Sicherungen
+        verbleiben. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (berechtigtes
+        Interesse an Datensicherheit und Wiederherstellbarkeit, Art. 32 DSGVO).
+      </p>
       <p>
         Nach der Löschung können wir Reklamationen nur anhand deiner Bestellbestätigung
         nachvollziehen. Bitte bewahre sie auf.

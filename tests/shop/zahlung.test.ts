@@ -135,7 +135,7 @@ test("Rueckkehr: Capture, bezahlt, genau eine Telegram-Nachricht NUR mit Nummer"
   assert.equal(db.bestellungen[0].zahlungsstatus, "bezahlt");
   assert.equal(db.bestellungen[0].status, "bezahlt");
   assert.equal(paypal.captures, 1);
-  assert.deepEqual(notifier.telegrams, [`Neue Bestellung ${r.nummer} (bezahlt)`]);
+  assert.deepEqual(notifier.telegrams, [`Neue Bestellung ${r.nummer} (bezahlt). Details in deiner Mail / im Panel.`]);
   // Datenschutz: weder Telegram noch Alex-Mail enthalten Kundendaten
   const alles = [...notifier.telegrams, ...notifier.alexMails.map((m) => m.betreff + m.text)].join("\n");
   for (const geheim of [KUNDE.name, KUNDE.strasse, KUNDE.email, KUNDE.ort]) assert.ok(!alles.includes(geheim), `enthaelt ${geheim}`);
@@ -232,7 +232,7 @@ test("Betragsabweichung: NICHT als bezahlt gebucht, Alex wird zur Pruefung gewar
   assert.equal(r.ziel, "pruefen");
   assert.notEqual(db.bestellungen[0].zahlungsstatus, "bezahlt");
   assert.ok(db.ereignisse.some((e) => e.art === "betrag_abweichung"));
-  assert.match(notifier.telegrams[0], /^Zahlung prüfen: PD-2026-0001 \(betrag_abweichung\)$/);
+  assert.match(notifier.telegrams[0], /^Zahlung prüfen: PD-2026-0001 \(betrag_abweichung\)\. Details in deiner Mail \/ im Panel\.$/);
   assert.equal(notifier.kundenMails.length, 0);
 });
 

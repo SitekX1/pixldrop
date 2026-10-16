@@ -9,13 +9,18 @@ import { fotosFuer } from "@/lib/shop/fotos";
 import { VorschauProvider, LiveProductImage } from "@/components/shop/Vorschau";
 import PauseBanner from "@/components/shop/PauseBanner";
 import ProductBuy from "@/components/shop/ProductBuy";
-import { holeProdukt, istBestellbar, hitzeHinweis } from "@/lib/shop/produkte";
+import { holeProdukt, istBestellbar, hitzeHinweis, PRODUKTE } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
 import { formatPreis, halloweenModus, TEXTE } from "@/lib/shop/config";
 import { VERSAND_BRIEF, VERSAND_PREISE, VERSAND_PRODUKTE } from "@/lib/shop/versand";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
 export const dynamic = "force-dynamic";
+// Unbekannte Slugs liefern einen echten 404 (Statuscode), nicht 200 + Fehlerseite (loading.tsx streamt sonst vorab).
+export const dynamicParams = false;
+export function generateStaticParams() {
+  return PRODUKTE.map((p) => ({ slug: p.slug }));
+}
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -85,7 +90,11 @@ export default async function Produktseite({ params }: Props) {
               <ul>
                 <li>{hitzeHinweis(p.material, p.kategorien.includes("untersetzer"))}</li>
                 <li>{TEXTE.keinSpielzeug}</li>
+                <li>Nicht lebensmittelecht, nicht spülmaschinenfest.{p.kategorien.includes("untersetzer") ? " Keine Speisen direkt darauflegen." : ""}</li>
                 {p.hinweise.filter((h) => h !== TEXTE.keinSpielzeug && h !== hitzeHinweis(p.material, p.kategorien.includes("untersetzer"))).map((h) => <li key={h}>{h}</li>)}
+                {p.slug === "stiftebecher-tasse" && <li>Zur Aufbewahrung von Stiften und kleinen Dingen; nicht für Getränke oder Lebensmittel.</li>}
+                {p.optionen.some((g) => g.id === "kork") && <li>Selbstklebender Kork (falls gewählt): nicht mit Flüssigkeit tränken.</li>}
+                {p.personalisierung && <li>Der Text wird so gedruckt, wie du ihn eingibst; prüfe Schreibweise und Vorschau. Die Position darf um bis zu 3 mm abweichen (AGB Ziffer 9). Bei geändertem Text besteht kein Widerrufsrecht (Widerrufsbelehrung, Abschnitt B).</li>}
               </ul>
             </article>
             <article className="shop-dkarte" aria-labelledby="versand-widerruf">

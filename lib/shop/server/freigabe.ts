@@ -1,7 +1,7 @@
 import "server-only";
 // Freigabe-Flow fuer Bestellungen mit Wunschtext (shop_bestellungen.enthaelt_individuell = true).
-//   Nach der Zahlung: Eingangsbestaetigung an den Kunden (KEIN Vertragsschluss) + Telegram/Mail an Alex mit zwei
-//   signierten Links. Entscheidung ueber POST (entscheideFreigabe): freigeben -> Vertragsbestaetigung mit PDFs,
+//   Nach der Zahlung: Eingangsbestaetigung an den Kunden (KEIN Vertragsschluss) + Mail an Alex mit zwei signierten Links
+//   (Telegram bekommt nur Nummer + Art, nie die Links). Entscheidung ueber POST (entscheideFreigabe): freigeben -> Vertragsbestaetigung mit PDFs,
 //   ablehnen -> Absage-Mail + automatische PayPal-Erstattung (Fehlerfall: Telegram "bitte in PayPal erstatten").
 // Sicherheit: Token = HMAC-SHA256(bestellId|aktion|ablauf), 7 Tage gueltig, Vergleich in konstanter Zeit; die
 // Einmaligkeit erzwingt die DB (shop_freigabe_setzen, nur bei freigabe_status = 'offen'). GET aendert nie etwas
@@ -108,7 +108,7 @@ function obj(v: unknown): Record<string, unknown> {
 // ---------------------------------------------------------------------------
 // Benachrichtigungen (Alex) und Eingangsbestaetigung (Kunde)
 // ---------------------------------------------------------------------------
-/** Telegram + Mail an Alex mit den zwei Links. true = mindestens ein Kanal erreicht. */
+/** Telegram (nur Nummer + Art) + Mail an Alex (mit den zwei Links und der Wunschtext-Kurzliste). true = Mail mit den Links zugestellt (nur sie traegt die Links). */
 export async function benachrichtigeAlexFreigabe(
   deps: { env: ShopEnv; notifier: Benachrichtiger; db?: Db },
   id: string,
@@ -130,10 +130,10 @@ export async function benachrichtigeAlexFreigabe(
   }
   const kurz = wunschtextKurzliste(pos);
   const mail = alexMailFreigabe(nummer, links, art, kurz);
-  const text = art === "neu" ? telegramFreigabe(nummer, links, kurz.length) : telegramFreigabeErinnerung(nummer, ERINNERUNG_NACH_STUNDEN, links);
-  const t = await deps.notifier.telegram(text);
-  const m = await deps.notifier.mailAlex(mail.betreff, mail.text);
-  return t || m;
+  const text = art === "neu" ? telegramFreigabe(nummer) : telegramFreigabeErinnerung(nummer, ERINNERUNG_NACH_STUNDEN);
+  await deps.notifier.telegram(text);
+  // Erfolg zaehlt nur, wenn die MAIL raus ist: nur sie enthaelt die Freigabe-Links (Telegram kennt sie nicht mehr).
+  return deps.notifier.mailAlex(mail.betreff, mail.text);
 }
 
 /** Eingangsbestaetigung (kein Vertragsschluss), nur einmal. */
