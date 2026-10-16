@@ -760,6 +760,9 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 @media (min-width: 1024px) {
   .shop-wrap--kasse { max-width: 1180px; }
   .shop-zwei { grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; align-items: start; }
+  /* Fortschrittsleiste nur über der linken Spalte (Breite = Gesamtbreite minus rechte Spalte 380 px minus Abstand 32 px) */
+  .shop-wrap--kasse .shop-progress { max-width: calc(100% - 412px); margin-bottom: 28px; }
+  .shop-wrap--kasse .shop-zwei-l > h1 { margin-top: 0; }
   .shop-zwei-r { position: sticky; top: 24px; align-self: start; }
   .shop-zus { display: grid; gap: 14px; background: var(--shop-card); border: 1px solid var(--shop-line); border-radius: var(--shop-r-card, var(--shop-r-l)); padding: 20px; box-shadow: var(--shop-e1, var(--shop-sh-card)); }
   .shop-zus h2 { font-size: 1.25rem; }
@@ -938,6 +941,8 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-fotoleiste button:focus-visible { outline: 2px solid var(--shop-ink); outline-offset: 2px; }
 .shop-fotoleiste .shop-fotoleiste-live { width: auto; min-width: 72px; padding: 0 10px; font: 600 0.75rem/1.2 var(--shop-display); color: var(--shop-ink); }
 .shop-fotohinweis { margin: 8px 0 0; font-size: 0.8125rem; opacity: .8; }
+.shop-bildkurz { display: none; margin: 8px 0 0; font-size: 0.8125rem; }
+@media (max-width: 1023.98px) { .shop-bildkurz { display: block; } }
 @media (max-width: 1023.98px) {
   .shop-gallery:not([data-gross="true"]) .shop-fotoleiste, .shop-gallery:not([data-gross="true"]) .shop-fotohinweis { display: none; }
 }
@@ -947,6 +952,8 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 
 /* Ausklappbare Schriftwahl: eingeklappt aktuelle Schrift + Knopf */
 .shop-schrift-kopf { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; }
-.shop-schriften-titel { grid-column: 1 / -1; font: 600 0.9375rem var(--shop-display); color: var(--shop-ink); }
+.shop-schriften-titel::before { content: counter(schritt); flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--shop-ink); color: var(--shop-on-ink); display: grid; place-items: center; font: 800 0.875rem var(--shop-display); }
+.shop-schriften-titel { display: flex; align-items: center; gap: 10px; grid-column: 1 / -1; font: 600 0.9375rem var(--shop-display); color: var(--shop-ink); }
 .shop-schrift-aktuell { display: grid; gap: 2px; min-width: 0; padding: 8px 10px; background: #fff; border: 1.5px solid var(--shop-line, #e6d9b8); border-radius: var(--shop-r-s); }
 .shop-schrift-aktuell .shop-schrift-bsp { font-size: 1.5rem; }
+@media (max-width: 480px) { .shop-schrift-kopf { grid-template-columns: minmax(0, 1fr); } .shop-schrift-kopf .shop-btn { justify-self: start; } }

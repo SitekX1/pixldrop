@@ -105,7 +105,7 @@ export default function Datenschutz() {
         stattdessen direkt per E-Mail an die oben genannte Adresse senden.
       </p>
 
-      <h2>9. Kontaktformular im Impressum</h2>
+      <h2 id="kontaktformular">9. Kontaktformular im Impressum</h2>
       <p>
         Über das Kontaktformular im <Link href="/impressum">Impressum</Link> kannst du uns
         unabhängig von einer Grußvideo-Anfrage direkt erreichen. Dabei verarbeiten wir deinen
@@ -226,8 +226,8 @@ export default function Datenschutz() {
       <p>
         Du zahlst sofort bei der Bestellung: Nach dem Klick auf &bdquo;Zahlungspflichtig
         bestellen&ldquo; leiten wir dich zu PayPal weiter (PayPal (Europe) S.à r.l. et Cie, S.C.A.,
-        22-24 Boulevard Royal, L-2449 Luxemburg). Dabei werden Bestellnummer und Betrag an PayPal
-        übergeben; deine Zahlungsdaten gibst du nur bei PayPal ein. Nach bestätigter Zahlung
+        22-24 Boulevard Royal, L-2449 Luxemburg). Dabei werden Bestellnummer, Betrag, Artikelbezeichnungen sowie Name und Lieferanschrift an PayPal
+        übergeben (damit PayPal die Lieferadresse anzeigen kann); Wunschtexte übergebe ich nicht; deine Zahlungsdaten gibst du nur bei PayPal ein. Nach bestätigter Zahlung
         senden wir dir die Bestellbestätigung, bei geändertem Wunschtext zunächst eine
         Eingangsbestätigung und die Bestellbestätigung erst nach meiner Textfreigabe. Lehne ich
         eine bezahlte Bestellung ab, veranlasse ich die vollständige Erstattung (einschließlich

@@ -68,16 +68,16 @@ export interface Produkt {
   bestseller?: boolean;
 }
 
-const KEIN_SPIELZEUG = "Kein Spielzeug, nicht für Kinder.";
+const KEIN_SPIELZEUG = "Kein Spielzeug. Enthält Kleinteile bzw. kann zerbrechen: von Kleinkindern fernhalten.";
 /** Hitzehinweis je Material. */
 export function hitzeHinweis(material: string, untersetzer = false): string {
   const grenze = /petg/i.test(material) ? "ca. 70 °C" : "ca. 50 °C";
   const nur = grenze.replace("ca. ", "");
   return untersetzer
-    ? `Für Tassen und Gläser mit Getränken bis etwa ${nur} Bodentemperatur. Nicht für frisch gekochte Töpfe, Pfannen oder Backofen und nicht dauerhaft über ${grenze}. Wärme verformt den Kunststoff.`
+    ? `Für Tassen und Gläser bis etwa ${nur} Bodentemperatur. Nicht für frisch aufgebrühte heiße Getränke (Tasse kurz abkühlen lassen), nicht für Töpfe, Pfannen oder Backofen und nicht dauerhaft über ${grenze}. Wärme verformt den Kunststoff; eine Verformung durch Hitze ist kein Mangel (AGB Ziffer 11 Abs. 4).`
     : `Nicht für Töpfe, Pfannen oder Backofen und nicht dauerhaft über ${grenze}. Wärme verformt den Kunststoff.`;
 }
-const LED = "Nicht für offene Flammen (nur mit LED-Teelichtern).";
+const LED = "Nicht für offene Flammen (nur mit LED-Teelichtern). LED-Teelichter gehören nicht zum Lieferumfang und enthalten oft Knopfzellen: außerhalb der Reichweite von Kindern halten.";
 const MATERIAL = "PLA"; // Alex trägt je Artikel das echte Material ein (PLA oder PETG)
 const HITZE = hitzeHinweis(MATERIAL, true); // alle Artikel mit HITZE sind Untersetzer
 // Preise (Alex, 2026-10-15, Karla-Kalkulation): je Artikel direkt bei preisCent. Kork: 30 Cent je Untersetzer, nicht im Grundpreis.
@@ -107,7 +107,7 @@ export const PRODUKTE: Produkt[] = [
     name: "Wochentags-Untersetzer-Set Mo–Fr",
     kurz: "Fünf Untersetzer für Montag bis Freitag, auf Wunsch mit Box.",
     beschreibung:
-      "Fünf Untersetzer für Montag bis Freitag, damit der Tisch sauber bleibt, auch wenn der Kaffee es nicht ist. Auf Wunsch mit passender Box, in die du die Untersetzer hineinstellst. Auf der Unterseite der Box sitzt ein QR-Code zu meinen Songs auf Spotify.",
+      "Fünf Untersetzer für Montag bis Freitag, damit der Tisch sauber bleibt. Auf Wunsch mit passender Box, in die du die Untersetzer hineinstellst. Auf der Unterseite der Box sitzt ein QR-Code zu meinen Songs auf Spotify.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "set", grundfarbe: "#4fb894",
     preisCent: 1490, masse: null, material: MATERIAL,
     optionen: [
@@ -161,7 +161,7 @@ export const PRODUKTE: Produkt[] = [
     name: "Namensschild für den Schreibtisch",
     kurz: "Dein Name groß, darunter dein Titel. Schrift und Farben wählst du selbst.",
     beschreibung:
-      "Ein Namensschild mit Ständer für den Schreibtisch: Dein Name steht groß in der Mitte, darunter dein Titel (vorbelegt sind „Eddie Pixldrop“ und „Content Creator“). Die Schrift ist bündig ins Schild eingelegt. Du wählst Schrift, Schildfarbe und Schriftfarbe, die Vorschau zeigt das fertige Schild genau so, wie es gedruckt wird.",
+      "Ein Namensschild mit Ständer für den Schreibtisch: Dein Name steht groß in der Mitte, darunter dein Titel (vorbelegt sind „Eddie Pixldrop“ und „Content Creator“). Die Schrift ist bündig ins Schild eingelegt. Du wählst Schrift, Schildfarbe und Schriftfarbe, die Vorschau zeigt das Schild nahezu genau so; die Position der Schrift wird beim Druck bei Bedarf um wenige Millimeter angepasst.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1c1c1c",
     preisCent: 1690, masse: null, material: MATERIAL, optionen: [],
     personalisierung: {

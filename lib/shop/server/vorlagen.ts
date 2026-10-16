@@ -9,11 +9,20 @@ import "server-only";
 import { LIEFERZEIT_TEXT } from "../config";
 import { AGB_TEXT } from "./agb-text";
 import { ANGEBOT_TEXTE } from "../angebot-texte";
+import { SCHRIFTEN } from "../schriften";
 import { VERSANDART_NAME, istVersandArt } from "../versand";
 import type { RechtsDokument } from "./pdf";
 import { FARBE, absatz, esc, hinweisBox, inline, mailRahmen, textZuHtml, ueberschrift } from "./mail-layout";
 
 export const PFLICHTANGABEN_FREIGEGEBEN = false;
+
+/** Wunschtext-Zeile der Bestellbestätigung: Schrift als Name statt ID; beim Namensschild stehen die Schriften schon in den Optionen. */
+function wunschtextZeile(p: { text?: string | null; schrift?: string | null; optionen?: Record<string, unknown> | null }): string | null {
+  if (!p.text) return null;
+  const hatSchriftOpt = Object.keys(p.optionen ?? {}).some((k) => k.startsWith("Schrift"));
+  const name = !hatSchriftOpt && p.schrift ? (SCHRIFTEN.find((x) => x.id === p.schrift)?.name ?? null) : null;
+  return `Wunschtext: „${p.text.replace(/\n/g, " / ")}“${name ? ` (${name})` : ""}`;
+}
 
 const UNTERNEHMER = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: as@sitekx.de";
 const UNTERNEHMER_ANSCHRIFT = "Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim";
@@ -226,7 +235,7 @@ export function bestaetigungsMail(
     const extras = [
       p.farbe ? `Farbe: ${p.farbe}` : null,
       ...Object.entries(p.optionen ?? {}).map(([k, v]) => `${k}: ${v}`),
-      p.text ? `Wunschtext: „${p.text.replace(/\n/g, " / ")}“${p.schrift ? ` (${p.schrift})` : ""}` : null,
+      wunschtextZeile(p),
     ].filter(Boolean);
     return `- ${p.menge} x ${p.name} à ${eur(p.einzelpreis_cent)}${extras.length ? `\n    ${extras.join(", ")}` : ""}`;
   });
@@ -339,7 +348,7 @@ function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
     const extras = [
       p.farbe ? `Farbe: ${p.farbe}` : null,
       ...Object.entries(p.optionen ?? {}).map(([k, v]) => `${k}: ${v}`),
-      p.text ? `Wunschtext: „${p.text.replace(/\n/g, " / ")}“${p.schrift ? ` (${p.schrift})` : ""}` : null,
+      wunschtextZeile(p),
     ].filter((x): x is string => Boolean(x));
     const sub = extras.map((e) => `<div class="gedimmt" style="font-size:13px;line-height:19px;color:${FARBE.gedimmt};padding-left:14px;">${esc(e)}</div>`).join("");
     const einzel = p.menge > 1 ? `<div class="gedimmt" style="font-size:12px;line-height:18px;color:${FARBE.gedimmt};">${p.menge} × ${esc(eur(p.einzelpreis_cent))}</div>` : "";

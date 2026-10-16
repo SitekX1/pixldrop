@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 
 export default function KontaktForm() {
@@ -67,6 +68,11 @@ export default function KontaktForm() {
           required
         />
       </label>
+
+      <p className="gruss-hinweis" style={{ fontSize: "0.875rem", margin: 0 }}>
+        Hinweise zur Verarbeitung deiner Angaben findest du in der{" "}
+        <Link href="/datenschutz#kontaktformular">Datenschutzerklärung, Abschnitt 9</Link>.
+      </p>
 
       <button
         type="submit"

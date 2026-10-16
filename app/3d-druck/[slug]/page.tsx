@@ -62,6 +62,7 @@ export default async function Produktseite({ params }: Props) {
               </ul>
             </div>
             <ProductBuy produkt={p} farben={farben} bestellbar={bestellbar} preisText={preis} wunschPause={wunschtextPausiert && !!p.personalisierung} />
+            <p className="shop-bildkurz muted">Fotos sind Beispielstücke. Maßgeblich ist die Farbbezeichnung, die du im Warenkorb siehst.</p>
             <p className="shop-sicher-kurz">Kein Spielzeug, hitzeempfindlich: <a className="shop-link" style={{ minHeight: 0 }} href="#sicherheit">Sicherheitshinweise</a></p>
           </div>
         </div>
@@ -95,7 +96,7 @@ export default async function Produktseite({ params }: Props) {
                 <li>Standardware: 14 Tage Widerruf. Bei individuellem Text besteht kein Widerrufsrecht.</li>
                 <li><Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               </ul>
-              <p className="muted">Hersteller: Alexander Sitek (PixlDrop), Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: <a className="shop-link" style={{ minHeight: 0 }} href="mailto:as@sitekx.de">as@sitekx.de</a> (<Link className="shop-link" style={{ minHeight: 0 }} href="/impressum">Impressum</Link>). Produkt: {p.name}, Material {p.material}. Die Sicherheitshinweise stehen oben und liegen jeder Lieferung bei.</p>
+              <p className="muted">Hersteller: Alexander Sitek (PixlDrop), Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: <a className="shop-link" style={{ minHeight: 0 }} href="mailto:as@sitekx.de">as@sitekx.de</a> (<Link className="shop-link" style={{ minHeight: 0 }} href="/impressum">Impressum</Link>). Produkt: {p.name}, Material {p.material}. Die Sicherheitshinweise stehen auf dieser Seite (Abschnitt „Sicherheit“) und in den AGB (Ziffer 2 Abs. 4).</p>
             </article>
           </div>
         </section>

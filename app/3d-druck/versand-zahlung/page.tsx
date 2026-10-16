@@ -45,7 +45,7 @@ export default async function Versand() {
             "**Brief ohne Sendungsverfolgung:** Beim Versand als Brief kann ein Verlust nicht ausgeschlossen werden. Auch dann trage **ich** das Risiko bis zur Übergabe an dich (§ 475 Abs. 2 BGB). Kommt dein Brief nicht an, melde dich bitte per E-Mail unter as@sitekx.de; ich sende die Ware erneut oder erstatte den Kaufpreis. Du musst den Verlust nicht beweisen.",
           ]} />
           <Abschnitt titel="Widerruf und Rücksendung" absaetze={[
-            "Widerrufst du, kannst du die Ware als Paket oder, wenn sie flach ist, als Brief zurücksenden. Die unmittelbaren Kosten der Rücksendung trägst du; die Gefahr der Rücksendung trage ich (§ 357 Abs. 5 BGB). Ich empfehle einen Versandweg mit Einlieferungsbeleg, damit du die rechtzeitige Rücksendung belegen kannst; Pflicht ist das nicht. Einzelheiten stehen in der Widerrufsbelehrung.",
+            "Widerrufst du, kannst du die Ware als Paket oder, wenn sie flach ist, als Brief zurücksenden. Die unmittelbaren Kosten der Rücksendung trägst du (§ 357 Abs. 5 BGB); die Gefahr der Rücksendung trage ich. Bei Widerruf erstatte ich die Versandkosten bis zur Höhe der günstigsten von mir angebotenen Standardlieferung. Ich empfehle einen Versandweg mit Einlieferungsbeleg, damit du die rechtzeitige Rücksendung belegen kannst; Pflicht ist das nicht. Einzelheiten stehen in der Widerrufsbelehrung.",
           ]} />
           <Abschnitt titel="Zustellprobleme" absaetze={[
             "Kann das Paket nicht zugestellt werden (falsche Adresse, nicht abgeholt), melde ich mich per E-Mail. Entstehen durch falsche Angaben von dir zusätzliche Kosten, kann ich sie dir berechnen, soweit gesetzlich zulässig.",

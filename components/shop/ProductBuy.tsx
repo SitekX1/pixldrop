@@ -246,6 +246,7 @@ export default function ProductBuy({
             </div>
           )}
           {pers.fuellt && <p className="muted" style={{ margin: "6px 0 0" }}>Die Schriftgröße passt sich automatisch an: Der Name füllt das Schild, bis zur größten möglichen Höhe.</p>}
+          {!pers.fuellt && groesseWahl === null && <p className="muted shop-autogroesse" role="status" style={{ margin: "6px 0 0" }}>Schriftgröße automatisch angepasst: „{GROESSEN.find((g) => g.id === autoGroesse)?.label}“, die größte Stufe, die für deinen Text noch passt. Du kannst die Stufe unten selbst wählen.</p>}
           {!pers.fuellt && <fieldset className="shop-groesse">
             <legend>Schriftgröße{pers.zeilen ? " der großen Zeile" : ""}</legend>
             <div className="shop-options">
@@ -282,8 +283,8 @@ export default function ProductBuy({
 
       {pers && !pers.festeSchrift && (
         <>
-          <SchriftWahl legend={pers.schriftJeZeile ? "Schrift für den Namen (große Zeile)" : "Schrift wählen"} schriftId={schriftId} onChange={setSchriftId} beispiel={pers.schriftJeZeile ? (zeilen[0] || "Name").trim().slice(0, 14) : beispielText} radioName="t-schrift" hinweis={!pers.schriftJeZeile} />
-          {pers.schriftJeZeile && <SchriftWahl legend="Schrift für den Titel (kleine Zeile)" schriftId={schriftTitelId} onChange={setSchriftTitelId} beispiel={(zeilen[1] || "Titel").trim().slice(0, 14)} radioName="t-schrift-titel" />}
+          <SchriftWahl legend={pers.schriftJeZeile ? "Schrift für den Namen (große Zeile)" : "Schrift wählen"} schriftId={schriftId} onChange={setSchriftId} beispiel={pers.schriftJeZeile ? (zeilen[0] || "Name").trim().slice(0, 20) : beispielText} radioName="t-schrift" hinweis={!pers.schriftJeZeile} />
+          {pers.schriftJeZeile && <SchriftWahl legend="Schrift für den Titel (kleine Zeile)" schriftId={schriftTitelId} onChange={setSchriftTitelId} beispiel={(zeilen[1] || "Titel").trim().slice(0, 28)} radioName="t-schrift-titel" />}
         </>
       )}
 
