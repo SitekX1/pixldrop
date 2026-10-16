@@ -9,7 +9,7 @@ import { fotosFuer } from "@/lib/shop/fotos";
 import { VorschauProvider, LiveProductImage } from "@/components/shop/Vorschau";
 import PauseBanner from "@/components/shop/PauseBanner";
 import ProductBuy from "@/components/shop/ProductBuy";
-import { holeProdukt, istBestellbar, hitzeHinweis, PRODUKTE } from "@/lib/shop/produkte";
+import { holeProdukt, istBestellbar, hitzeHinweis, artikelnummer, TEELICHTFACH, PRODUKTE } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
 import { formatPreis, halloweenModus, TEXTE } from "@/lib/shop/config";
 import { VERSAND_BRIEF, VERSAND_PREISE, VERSAND_PRODUKTE } from "@/lib/shop/versand";
@@ -80,6 +80,8 @@ export default async function Produktseite({ params }: Props) {
               <dl className="shop-details">
                 {p.masse && <div><dt>Maße</dt><dd>ca. {p.masse} mm{p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}</dd></div>}
                 <div><dt>Material</dt><dd>{p.material}</dd></div>
+                {TEELICHTFACH[p.slug] && <div><dt>Teelichtfach</dt><dd>{TEELICHTFACH[p.slug]} (passt für gängige LED-Teelichter)</dd></div>}
+                {artikelnummer(p.slug) && <div><dt>Artikelnummer</dt><dd>{artikelnummer(p.slug)}</dd></div>}
                 <div><dt>Modell</dt><dd>Eigene Gestaltung</dd></div>
               </dl>
               {p.masse && !p.toleranzMm && <p className="muted">Maße sind ca.-Angaben, Toleranz im Rahmen des FDM-Verfahrens.</p>}
@@ -105,7 +107,7 @@ export default async function Produktseite({ params }: Props) {
                 <li>Standardware: 14 Tage Widerruf. Bei individuellem Text besteht kein Widerrufsrecht.</li>
                 <li><Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               </ul>
-              <p className="muted">Hersteller: Alexander Sitek (PixlDrop), Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: <a className="shop-link" style={{ minHeight: 0 }} href="mailto:as@sitekx.de">as@sitekx.de</a> (<Link className="shop-link" style={{ minHeight: 0 }} href="/impressum">Impressum</Link>). Produkt: {p.name}, Material {p.material}. Die Sicherheitshinweise stehen auf dieser Seite (Abschnitt „Sicherheit“) und in den AGB (Ziffer 2 Abs. 4).</p>
+              <p className="muted">Hersteller: Alexander Sitek (PixlDrop), Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: <a className="shop-link" style={{ minHeight: 0 }} href="mailto:as@sitekx.de">as@sitekx.de</a> (<Link className="shop-link" style={{ minHeight: 0 }} href="/impressum">Impressum</Link>). Produkt: {p.name}{artikelnummer(p.slug) ? ` (Artikelnummer ${artikelnummer(p.slug)})` : ""}, Material {p.material}. Die Sicherheitshinweise stehen auf dieser Seite (Abschnitt „Sicherheit“) und in den AGB (Ziffer 2 Abs. 4).</p>
             </article>
           </div>
         </section>

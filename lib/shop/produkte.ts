@@ -267,6 +267,25 @@ export function sichtbareProdukte(): Produkt[] {
   return PRODUKTE.filter((p) => !(aus && p.gruppe === "halloween"));
 }
 
+/** Artikelnummern (Produktidentifikation nach GPSR); stabil halten, nie umnummerieren. */
+const ARTIKELNR: Record<string, string> = {
+  "wochentags-untersetzer-set": "PD-001",
+  "wochentags-untersetzer-einzeln": "PD-002",
+  "stiftebecher-tasse": "PD-003",
+  "spruch-untersetzer": "PD-004",
+  "namensschild": "PD-005",
+  "kuerbis-laterne": "PD-006",
+  "geister-set": "PD-007",
+  "geister-set-klein": "PD-008",
+  "kuerbis-klein-set": "PD-009",
+  "kuerbis-teelichthalter": "PD-010",
+  "halloween-untersetzer-set": "PD-011",
+  "halloween-untersetzer-einzeln": "PD-012",
+};
+export function artikelnummer(slug: string): string | null { return ARTIKELNR[slug] ?? null; }
+/** Teelichtfach (aus dem Modell gemessen): nur Artikel mit offenem Fach. */
+export const TEELICHTFACH: Record<string, string> = { "kuerbis-teelichthalter": "Durchmesser ca. 42 mm, Tiefe ca. 20 mm" };
+
 export function holeProdukt(slug: string): Produkt | undefined {
   return sichtbareProdukte().find((p) => p.slug === slug);
 }
