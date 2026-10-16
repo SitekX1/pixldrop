@@ -43,6 +43,28 @@ export interface PayPalOrder {
   links: { rel: string; href: string }[];
 }
 
+/** Gebuehren-Auszug einer Zahlung (nur aufbereitete, geprueft geparste Werte; nie die PayPal-Rohantwort). */
+export interface CaptureGebuehr {
+  status: string;
+  /** Brutto laut PayPal in Cent (null = nicht lesbar) */
+  bruttoCent: number | null;
+  waehrung: string;
+  /** PayPal-Gebuehr in Cent (null = PayPal liefert keine) */
+  gebuehrCent: number | null;
+  /** Netto (net_amount) in Cent (null = nicht geliefert) */
+  nettoCent: number | null;
+}
+
+/** Obergrenze fuer eine plausible Gebuehr in Cent (100 EUR). */
+export const MAX_GEBUEHR_CENT = 10_000;
+
+/** Strikt: nur "12" oder "12.34" bis 5 Vorkommastellen, EUR. Sonst null. */
+function strengEuroCent(m: unknown): number | null {
+  if (!istObjekt(m) || m.currency_code !== "EUR" || typeof m.value !== "string" || !/^\d{1,5}(\.\d{1,2})?$/.test(m.value)) return null;
+  const [euro, rest = ""] = m.value.split(".");
+  return Number(euro) * 100 + Number(rest.padEnd(2, "0"));
+}
+
 export class PayPalFehler extends Error {
   constructor(public readonly stufe: string, public readonly httpStatus?: number, public readonly issue?: string) {
     super(`PayPal-Fehler (${stufe}${httpStatus ? " " + httpStatus : ""}${issue ? " " + issue : ""})`);
@@ -60,6 +82,11 @@ export interface PayPalClient {
    * (PayPal-Request-Id), ein Wiederholen bucht nie doppelt. Wirft PayPalFehler (z. B. 422 CAPTURE_FULLY_REFUNDED).
    */
   erstatte(captureId: string, betragCent: number, requestId: string): Promise<{ refundId: string; status: string; betragCent?: number | null }>;
+  /**
+   * Liest eine Zahlung (GET /v2/payments/captures/{id}) und gibt nur Brutto/Gebuehr/Netto zurueck.
+   * Wirft PayPalFehler bei Netz-/HTTP-Fehler, ungueltiger Antwort, falscher Waehrung oder unplausibler Gebuehr.
+   */
+  holeCaptureGebuehr(captureId: string): Promise<CaptureGebuehr>;
   /** Freigabe-URL einer bestehenden Order (zum Wiederverwenden bei erneutem Versuch). */
   approveUrl(orderId: string): string;
 }
@@ -299,6 +326,25 @@ export function erzeugePayPal(cfg: PayPalConfig, fetchImpl: FetchFn = fetch): Pa
       // Betrag, den PayPal tatsaechlich erstattet hat (null = nicht geliefert): Aufrufer vergleicht mit dem angefragten Betrag
       const betrag = istObjekt(antwort.amount) ? payPalZuCent(antwort.amount.value) : null;
       return { refundId: antwort.id, status: antwort.status, betragCent: betrag };
+    },
+
+    async holeCaptureGebuehr(captureId) {
+      if (!/^[A-Za-z0-9_-]{5,64}$/.test(captureId)) throw new PayPalFehler("gebuehr_eingabe");
+      const antwort = await aufruf("gebuehr", "GET", `/v2/payments/captures/${encodeURIComponent(captureId)}`);
+      if (!istObjekt(antwort) || typeof antwort.status !== "string" || !istObjekt(antwort.amount)) throw new PayPalFehler("gebuehr_antwort");
+      if (antwort.amount.currency_code !== "EUR") throw new PayPalFehler("gebuehr_waehrung");
+      const brutto = strengEuroCent(antwort.amount);
+      const teile = istObjekt(antwort.seller_receivable_breakdown) ? antwort.seller_receivable_breakdown : null;
+      let gebuehr: number | null = null;
+      let netto: number | null = null;
+      if (teile) {
+        if (teile.paypal_fee !== undefined) {
+          gebuehr = strengEuroCent(teile.paypal_fee);
+          if (gebuehr === null || gebuehr > MAX_GEBUEHR_CENT) throw new PayPalFehler("gebuehr_unplausibel");
+        }
+        if (teile.net_amount !== undefined) netto = strengEuroCent(teile.net_amount);
+      }
+      return { status: antwort.status, bruttoCent: brutto, waehrung: "EUR", gebuehrCent: gebuehr, nettoCent: netto };
     },
 
     async pruefeWebhook(headers, event) {

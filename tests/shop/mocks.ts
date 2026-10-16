@@ -4,7 +4,7 @@
 import { versandOptionenFuerKorb } from "@/lib/shop/versand";
 import type { Db } from "@/lib/shop/server/db";
 import type { Benachrichtiger } from "@/lib/shop/server/benachrichtigung";
-import { PayPalFehler, type OrderEingabe, type PayPalClient, type PayPalOrder } from "@/lib/shop/server/paypal";
+import { PayPalFehler, type CaptureGebuehr, type OrderEingabe, type PayPalClient, type PayPalOrder } from "@/lib/shop/server/paypal";
 import { leseEnv, type ShopEnv } from "@/lib/shop/server/env";
 import { PRODUKTE } from "@/lib/shop/produkte";
 import type { Kontext } from "@/lib/shop/server/preise";
@@ -367,6 +367,10 @@ export class FakePayPal implements PayPalClient {
   /** Test: PayPal meldet einen anderen Betrag als angefragt */
   erstattungBetragFest: number | null = null;
   statusAufHolen = "CREATED";
+  /** Gebuehren-Abfrage: Antwort bzw. Fehler steuerbar; gebuehrAbfragen = angefragte Capture-IDs */
+  gebuehrAbfragen: string[] = [];
+  gebuehrFehler: PayPalFehler | null = null;
+  gebuehrAntwort: CaptureGebuehr | null = null;
   private n = 0;
 
   approveUrl(id: string) {
@@ -406,6 +410,12 @@ export class FakePayPal implements PayPalClient {
     this.erstattungen.push({ captureId, betragCent, requestId });
     if (this.erstattungFehler) throw this.erstattungFehler;
     return { refundId: `REFUND-${this.erstattungen.length}`, status: this.erstattungStatus, betragCent: this.erstattungBetragFest ?? betragCent };
+  }
+
+  async holeCaptureGebuehr(captureId: string): Promise<CaptureGebuehr> {
+    this.gebuehrAbfragen.push(captureId);
+    if (this.gebuehrFehler) throw this.gebuehrFehler;
+    return this.gebuehrAntwort ?? { status: "COMPLETED", bruttoCent: null, waehrung: "EUR", gebuehrCent: 134, nettoCent: null };
   }
 
   async pruefeWebhook() {
