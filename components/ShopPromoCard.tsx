@@ -1,8 +1,7 @@
-import { Bricolage_Grotesque, Creepster } from "next/font/google";
+import { Bricolage_Grotesque } from "next/font/google";
 import TrackedLink from "@/components/TrackedLink";
 import { Fledermaus, Netz, Kuerbis, Geist } from "@/components/shop/HalloweenSvgs";
 
-const gruselig = Creepster({ subsets: ["latin"], weight: "400", display: "swap" });
 const titel = Bricolage_Grotesque({ subsets: ["latin", "latin-ext"], weight: ["800"], display: "swap" });
 
 // Startseiten-Karte für den 3D-Druck-Shop (gleiche Rolle wie Minigame-/aicut-Karte).
@@ -11,7 +10,8 @@ export default function ShopPromoCard() {
   return (
     <TrackedLink href="/3d-druck" className="card shop-promo-card" event="shop-click">
       <div className="card-glow" />
-      <span className={`shop-promo-neu ${gruselig.className}`}>Neu!</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/shop/neu-gruselig.webp" alt="Neu" className="shop-promo-neu" width={1024} height={559} decoding="async" />
       <div className="shop-promo-bild" aria-hidden="true">
         <div className="shop-promo-halloween">
           <Netz className="spw-netz spw-netz--tr" />
