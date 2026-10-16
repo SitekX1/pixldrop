@@ -9,6 +9,7 @@ import "server-only";
 import type { Db } from "./db";
 import type { Antwort } from "./bestellung";
 import { PayPalFehler, type PayPalClient } from "./paypal";
+import { adminSecretOk } from "./versandmail";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ERLAUBT = ["id", "betrag_cent", "ereignis_id", "grund"];
@@ -26,6 +27,7 @@ interface Daten {
   bezahlt?: boolean;
   paypal_capture_id?: string | null;
   gesamt_cent?: number;
+  einnahme_id?: string | null;
   erstattet_cent?: number;
   anonymisiert?: boolean;
   ereignis_angewendet?: boolean;
@@ -38,6 +40,13 @@ const fehler = (status: number, code: string, error: string, extra: Record<strin
 
 /** Nur kurze PayPal-Fehlercodes (z. B. INSTRUMENT_DECLINED) weitergeben, nie freien Text. */
 const sauberesIssue = (i: string | undefined) => (i && /^[A-Z0-9_]{3,64}$/.test(i) ? i : undefined);
+
+/** Secret-Pruefung der Route (testbar): null = erlaubt, sonst die fertige Fehlerantwort (503 nicht eingerichtet / 401 nicht berechtigt). */
+export function pruefeAdminZugriff(erwartet: string | undefined, geliefert: string | null | undefined): Antwort | null {
+  if (!erwartet) return fehler(503, "nicht_eingerichtet", "Die Erstattung ist nicht eingerichtet.");
+  if (!adminSecretOk(erwartet, geliefert)) return fehler(401, "nicht_berechtigt", "Nicht berechtigt.");
+  return null;
+}
 
 /** Body: { id:<Bestell-UUID>, betrag_cent:1..noch erstattbar, ereignis_id:<UUID>, grund:3..200 Zeichen }. */
 export async function erstatteBestellung(deps: ErstattungDeps, body: unknown): Promise<Antwort> {
@@ -79,6 +88,8 @@ export async function erstatteBestellung(deps: ErstattungDeps, body: unknown): P
   if (d.anonymisiert === true) return fehler(409, "nicht_moeglich", "Die Bestellung ist anonymisiert.", { grund: "anonymisiert" });
   if (d.bezahlt !== true) return fehler(409, "nicht_moeglich", "Die Bestellung ist nicht bezahlt.", { grund: "nicht_bezahlt" });
   if (!d.paypal_capture_id) return fehler(409, "nicht_moeglich", "Zu dieser Bestellung gibt es keine PayPal-Zahlung.", { grund: "keine_capture" });
+  // Ohne verbuchte Einnahme scheitert die Panel-Buchung NACH der PayPal-Erstattung: deshalb vorher abbrechen
+  if (!d.einnahme_id) return fehler(409, "nicht_moeglich", "Die Einnahme ist noch nicht verbucht. Bitte zuerst „Als Einnahme verbuchen“.", { grund: "keine_einnahme" });
   const rest = d.gesamt_cent - d.erstattet_cent;
   if (betrag > rest) {
     return fehler(409, "nicht_moeglich", "Der Betrag ist höher als der noch erstattbare Rest.", { grund: "betrag_zu_hoch", noch_erstattbar_cent: Math.max(rest, 0) });
@@ -89,6 +100,11 @@ export async function erstatteBestellung(deps: ErstattungDeps, body: unknown): P
     if (r.status !== "COMPLETED" && r.status !== "PENDING") {
       console.error("Shop Erstattung: PayPal-Status", r.status, d.nummer);
       return fehler(502, "paypal_fehler", "PayPal hat die Erstattung nicht ausgeführt.", { issue: sauberesIssue(r.status) });
+    }
+    // PayPal meldet einen anderen Betrag als angefragt (z. B. alte Antwort derselben Request-Id mit anderem Betrag): nichts buchen
+    if (typeof r.betragCent === "number" && r.betragCent !== betrag) {
+      console.error("Shop Erstattung: Betragsabweichung", d.nummer, r.refundId, r.betragCent, betrag);
+      return fehler(502, "betrag_abweichung", "PayPal meldet für diese Erstattung einen anderen Betrag. Bitte in PayPal prüfen und nichts buchen.", { paypal_betrag_cent: r.betragCent, refund_id: r.refundId });
     }
     console.info("Shop Erstattung ausgelöst:", d.nummer, r.refundId, betrag);
     return { status: 200, body: { ok: true, bereits_erstattet: false, refund_id: r.refundId, status: r.status, erstattet_cent: d.erstattet_cent + betrag } };

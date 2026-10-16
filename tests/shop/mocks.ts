@@ -41,6 +41,8 @@ export interface FakeBestellung {
   erstattetCent?: number;
   /** Erstattung aus dem Panel (Migration 16) */
   anonymisiert?: boolean;
+  /** null = Einnahme noch nicht verbucht; undefined = verbucht */
+  einnahmeId?: string | null;
   angewendeteEreignisse?: string[];
 }
 
@@ -326,6 +328,7 @@ export class FakeDb implements Db {
           ok: true, nummer: b.nummer, zahlungsstatus: b.zahlungsstatus, bezahlt: b.zahlungsstatus === "bezahlt",
           paypal_capture_id: b.paypal_capture_id, gesamt_cent: b.gesamt_cent, erstattet_cent: b.erstattetCent ?? 0,
           anonymisiert: b.anonymisiert === true,
+          einnahme_id: b.einnahmeId === null ? null : (b.einnahmeId ?? "00000000-0000-4000-8000-0000000000e1"),
           ereignis_angewendet: (b.angewendeteEreignisse ?? []).includes(p.p_ereignis_id as string),
         };
       }
@@ -361,6 +364,8 @@ export class FakePayPal implements PayPalClient {
   erstattungen: { captureId: string; betragCent: number; requestId: string }[] = [];
   erstattungFehler: PayPalFehler | null = null;
   erstattungStatus = "COMPLETED";
+  /** Test: PayPal meldet einen anderen Betrag als angefragt */
+  erstattungBetragFest: number | null = null;
   statusAufHolen = "CREATED";
   private n = 0;
 
@@ -400,7 +405,7 @@ export class FakePayPal implements PayPalClient {
   async erstatte(captureId: string, betragCent: number, requestId: string) {
     this.erstattungen.push({ captureId, betragCent, requestId });
     if (this.erstattungFehler) throw this.erstattungFehler;
-    return { refundId: `REFUND-${this.erstattungen.length}`, status: this.erstattungStatus };
+    return { refundId: `REFUND-${this.erstattungen.length}`, status: this.erstattungStatus, betragCent: this.erstattungBetragFest ?? betragCent };
   }
 
   async pruefeWebhook() {

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { legeBestellungAn, schliesseZahlungAb } from "@/lib/shop/server/bestellung";
-import { erstatteBestellung } from "@/lib/shop/server/erstattung";
+import { erstatteBestellung, pruefeAdminZugriff } from "@/lib/shop/server/erstattung";
 import { PayPalFehler } from "@/lib/shop/server/paypal";
 import { bestellEingabe, kontext, neueDeps } from "./mocks";
 
@@ -136,4 +136,48 @@ test("Erstattung: DB nicht erreichbar / Migration 16 fehlt = 503, nichts erstatt
   const a = await erstatteBestellung(kaputt as never, ok(t));
   assert.equal(a.status, 503);
   assert.equal(t.paypal.erstattungen.length, 0);
+});
+
+test("Erstattung: Einnahme nicht verbucht (einnahme_id null) = 409 keine_einnahme, KEIN PayPal-Aufruf", async () => {
+  const t = await bezahlt();
+  t.b.einnahmeId = null;
+  const a = await los(t, ok(t));
+  assert.equal(a.status, 409);
+  assert.equal(a.body.grund, "keine_einnahme");
+  assert.equal(t.paypal.erstattungen.length, 0);
+});
+
+test("Erstattung: PayPal meldet anderen Betrag (z. B. alte Antwort gleicher Request-Id) = 502 betrag_abweichung, nichts gebucht", async () => {
+  const t = await bezahlt();
+  t.paypal.erstattungBetragFest = 900;
+  const a = await los(t, ok(t, { betrag_cent: 500 }));
+  assert.equal(a.status, 502);
+  assert.equal(a.body.code, "betrag_abweichung");
+  assert.equal(a.body.paypal_betrag_cent, 900);
+  assert.notEqual(a.body.ok, true);
+});
+
+test("Erstattung: PENDING gilt als ausgeloest, FAILED/CANCELLED nicht", async () => {
+  const t = await bezahlt();
+  t.paypal.erstattungStatus = "PENDING";
+  const p = await los(t, ok(t));
+  assert.equal(p.status, 200);
+  assert.equal(p.body.status, "PENDING");
+  for (const st of ["FAILED", "CANCELLED"]) {
+    t.paypal.erstattungStatus = st;
+    const f = await los(t, ok(t));
+    assert.equal(f.status, 502, st);
+    assert.equal(f.body.code, "paypal_fehler");
+  }
+});
+
+test("Erstattung-Route: ohne/falsches/zu kurzes Secret 401, ohne eingerichtetes Secret 503, richtiges Secret erlaubt", () => {
+  const s = "x".repeat(40);
+  assert.equal(pruefeAdminZugriff(s, null)?.status, 401);
+  assert.equal(pruefeAdminZugriff(s, "falsch")?.status, 401);
+  assert.equal(pruefeAdminZugriff(s, s + "y")?.status, 401);
+  assert.equal(pruefeAdminZugriff("kurz", "kurz")?.status, 401, "unter 32 Zeichen gesperrt");
+  assert.equal(pruefeAdminZugriff(undefined, s)?.status, 503);
+  assert.equal(pruefeAdminZugriff(s, s), null);
+  assert.equal(pruefeAdminZugriff(s, null)?.body.code, "nicht_berechtigt");
 });

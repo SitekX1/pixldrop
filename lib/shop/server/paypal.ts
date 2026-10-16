@@ -59,7 +59,7 @@ export interface PayPalClient {
    * Volle Erstattung einer Zahlung (POST /v2/payments/captures/{id}/refund). Gleiche requestId = gleiche Erstattung
    * (PayPal-Request-Id), ein Wiederholen bucht nie doppelt. Wirft PayPalFehler (z. B. 422 CAPTURE_FULLY_REFUNDED).
    */
-  erstatte(captureId: string, betragCent: number, requestId: string): Promise<{ refundId: string; status: string }>;
+  erstatte(captureId: string, betragCent: number, requestId: string): Promise<{ refundId: string; status: string; betragCent?: number | null }>;
   /** Freigabe-URL einer bestehenden Order (zum Wiederverwenden bei erneutem Versuch). */
   approveUrl(orderId: string): string;
 }
@@ -296,7 +296,9 @@ export function erzeugePayPal(cfg: PayPalConfig, fetchImpl: FetchFn = fetch): Pa
       if (!istObjekt(antwort) || typeof antwort.id !== "string" || typeof antwort.status !== "string") {
         throw new PayPalFehler("erstattung_antwort");
       }
-      return { refundId: antwort.id, status: antwort.status };
+      // Betrag, den PayPal tatsaechlich erstattet hat (null = nicht geliefert): Aufrufer vergleicht mit dem angefragten Betrag
+      const betrag = istObjekt(antwort.amount) ? payPalZuCent(antwort.amount.value) : null;
+      return { refundId: antwort.id, status: antwort.status, betragCent: betrag };
     },
 
     async pruefeWebhook(headers, event) {

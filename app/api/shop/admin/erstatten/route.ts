@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { leseEnv } from "@/lib/shop/server/env";
 import { bestellDeps, NichtEingerichtet } from "@/lib/shop/server/deps";
-import { adminSecretOk } from "@/lib/shop/server/versandmail";
-import { erstatteBestellung } from "@/lib/shop/server/erstattung";
+import { erstatteBestellung, pruefeAdminZugriff } from "@/lib/shop/server/erstattung";
 import { clientIp, erzeugeBremse, ipHash, leseBegrenzt } from "@/lib/shop/server/spam";
 
 // POST /api/shop/admin/erstatten  (JSON)  Request: { id:<Bestell-UUID>, betrag_cent:int, ereignis_id:<UUID>, grund:string(3..200) }
@@ -23,13 +22,9 @@ export async function POST(request: Request) {
   const env = leseEnv();
   const hash = ipHash(clientIp(request.headers) ?? "unbekannt", env.ipSalt ?? "erstatten") ?? "unbekannt";
   if (bremse(hash)) return antwort(429, { ok: false, code: "zu_viele", error: "Zu viele Anfragen. Bitte warte kurz." });
-  if (!env.adminSecret) {
-    console.error("Shop Erstattung nicht eingerichtet, es fehlt: SHOP_ADMIN_SECRET");
-    return antwort(503, { ok: false, code: "nicht_eingerichtet", error: "Die Erstattung ist nicht eingerichtet." });
-  }
-  if (!adminSecretOk(env.adminSecret, request.headers.get("x-shop-admin-secret"))) {
-    return antwort(401, { ok: false, code: "nicht_berechtigt", error: "Nicht berechtigt." });
-  }
+  if (!env.adminSecret) console.error("Shop Erstattung nicht eingerichtet, es fehlt: SHOP_ADMIN_SECRET");
+  const zugriff = pruefeAdminZugriff(env.adminSecret, request.headers.get("x-shop-admin-secret"));
+  if (zugriff) return antwort(zugriff.status, zugriff.body);
   let deps;
   try {
     deps = bestellDeps(env);
