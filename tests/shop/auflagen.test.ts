@@ -208,3 +208,16 @@ test("E-Mail mit Komma oder Semikolon wird abgelehnt", () => {
   assert.ok(!pruefeKunde({ ...k, email: "a@b.de;c@d.de" }).ok);
   assert.ok(pruefeKunde({ ...k, email: "a@b.de" }).ok);
 });
+
+test("Bestaetigungsmail: Sicherheitshinweise passen zu den Artikeln, Info-Block mit gleicher Kopfzeile, Versandzeile ohne verschachtelte Klammern", () => {
+  const basis = { nummer: "PD-2026-0001", name: "E", strasse: "S 1", plz: "86663", ort: "O", gesamt_cent: 770, summe_waren_cent: 590, versand_cent: 180, individuell: false, versandart: "brief" };
+  const pos = (name: string) => ({ name, menge: 1, einzelpreis_cent: 590, extras: [] }) as unknown as MailBestellung["positionen"][number];
+  const frei = { lieferzeit: "3-5 Werktage", agbText: "Echte AGB" };
+  const untersetzer = bestaetigungsMail({ ...basis, positionen: [pos("Wochentags-Untersetzer einzeln")] } as MailBestellung, "Echter Rechtstext", true, frei);
+  assert.ok(untersetzer.text.includes("Untersetzer nur für Getränke") && !untersetzer.text.includes("LED-Teelichtern"));
+  assert.ok(untersetzer.text.includes("Brief der Deutschen Post") && !untersetzer.text.includes("(Deutsche Post))"));
+  const kuerbis = bestaetigungsMail({ ...basis, positionen: [pos("Kürbis")] } as MailBestellung, "Echter Rechtstext", true, frei);
+  assert.ok(kuerbis.text.includes("LED-Teelichtern") && !kuerbis.text.includes("Untersetzer nur für Getränke"));
+  // Info-Block: beide Überschriften in EINER Zeile
+  assert.match(untersetzer.html, /LIEFERANSCHRIFT|Lieferanschrift<\/td><td[^>]*>Zahlung und Lieferung<\/td><\/tr>/);
+});
