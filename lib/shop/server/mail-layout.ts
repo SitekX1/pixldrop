@@ -130,6 +130,7 @@ export function mailRahmen(o: RahmenOpt): string {
       .linie{border-color:#4a3560!important}
       a{color:#f0bb55!important}
       a.knopf{color:#ffffff!important}
+      a.knopf-hell{color:#2e1c0f!important}
       .zelle{border-color:#4a3560!important}
       .hl{background:#3a2749!important;color:#fff1dc!important}
     }`;
