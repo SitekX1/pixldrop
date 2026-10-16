@@ -103,7 +103,7 @@ export default async function Produktseite({ params }: Props) {
             {ledPartnerlink(p.slug) && (
               <article className="shop-dkarte" aria-labelledby="led-partner">
                 <div className="shop-dkopf"><h3 id="led-partner">Passende LED-Teelichter <span className="muted">(Werbung)</span></h3></div>
-                <p>Du brauchst noch LED-Teelichter? Dieses Set mit 24 Stück (Durchmesser ca. 38 mm) habe ich selbst gekauft. {p.slug === "kuerbis-laterne" ? "Die Laterne ist für LED-Teelichter dieser Größe konstruiert." : "Ich habe es mit diesem Artikel ausprobiert: Es passt."} Bei anderen Teelichtern können die Maße abweichen.</p>
+                <p>Du brauchst noch LED-Teelichter? Dieses Set mit 24 Stück (Durchmesser ca. 38 mm) habe ich selbst gekauft. Ich habe es mit diesem Artikel ausprobiert: Es passt. Bei anderen Teelichtern können die Maße abweichen.</p>
                 <p><a className="shop-link" href={ledPartnerlink(p.slug)!} target="_blank" rel="sponsored noopener noreferrer">LED-Teelichter bei Amazon ansehen (Werbung, Partnerlink)</a></p>
                 <p className="muted">Wenn du über diesen Link bei Amazon kaufst, erhalte ich eine kleine Provision. Für dich ändert sich am Preis nichts. Als Amazon-Partner verdiene ich an qualifizierten Verkäufen. Der Kauf bei Amazon ist ein eigener Vertrag mit dem dortigen Verkäufer; der Link verlässt diesen Shop.</p>
               </article>

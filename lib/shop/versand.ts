@@ -117,7 +117,7 @@ const ROH: Record<string, Roh> = {
   "halloween-untersetzer-einzeln": { teile: [UNTERSETZER(1)], briefFaehig: true, stueckJeMenge: 1 },
   "stiftebecher-tasse": { teile: [{ mm: [166.3, 85, 100], g: 97, anz: 1, hohl: TASSE_INNEN }], briefFaehig: false, stueckJeMenge: 1 },
   "namensschild": { teile: [{ mm: [196.5, 57.7, 19], g: 67, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Platte 6 + Staender 13, zerlegt
-  "kuerbis-laterne": { teile: [{ mm: [108, 111, 120], g: 150, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Gewicht VORLAEUFIG, Alex wiegt nach
+  "kuerbis-laterne": { teile: [{ mm: [108, 111, 122], g: 90, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 }, // Version 5: Körper 107,6x110,7x78 + Stiel 37,5x35,4x44,1, Höhe zusammengesteckt vorsichtig 122; 90 g gewogen von Alex 16.10.
   "geister-set": { teile: [{ mm: [77.2, 86.2, 70], g: 21, anz: 1, rund: true }, { mm: [81.5, 84.2, 96], g: 24, anz: 1, rund: true }, { mm: [104.5, 104.5, 80], g: 28, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   "geister-set-klein": { teile: [{ mm: [46.3, 51.7, 42], g: 6, anz: 1, rund: true }, { mm: [48.9, 50.5, 57.6], g: 6, anz: 1, rund: true }, { mm: [62.7, 62.7, 48], g: 7, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   "kuerbis-klein-set": { teile: [{ mm: [51.1, 50.1, 50], g: 20, anz: 1, rund: true }, { mm: [58.7, 58.5, 50], g: 26, anz: 1, rund: true }, { mm: [59.9, 59.5, 50], g: 28, anz: 1, rund: true }, { mm: [35.4, 35.7, 50], g: 8, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 }, // 4 Kuerbisse = 82 g laut Alex, Masse aus der 3MF
