@@ -29,7 +29,8 @@ export default function Impressum() {
         E-Mail: <a href="mailto:as@sitekx.de">as@sitekx.de</a>
         <br />
         Für eine schnelle direkte Kontaktaufnahme nutze bitte alternativ das
-        Kontaktformular unten.
+        Kontaktformular unten. Ich antworte in der Regel innerhalb von zwei
+        Werktagen.
       </p>
 
       <h2>Kontaktformular</h2>
