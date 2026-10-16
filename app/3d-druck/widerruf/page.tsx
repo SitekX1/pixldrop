@@ -24,7 +24,7 @@ export default function Widerruf() {
           <Abschnitt titel="A. Widerrufsbelehrung (Standardartikel aus dem Shop)">
             <h3>Widerrufsrecht</h3>
             <p>Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.</p>
-            <p>Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die Waren in Besitz genommen haben bzw. hat.</p>
+            <p>Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die letzte Ware in Besitz genommen haben bzw. hat.</p>
             <p>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns ({UNTERNEHMER}) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.</p>
             {/* Stelle laut Gestaltungshinweis 3 zu Anlage 1: am Ende des Absatzes "Um Ihr Widerrufsrecht auszuüben ..." */}
             <p>Sie können Ihr Widerrufsrecht auch online über die Widerrufsfunktion unten auf dieser Seite (Abschnitt D) ausüben. Wenn Sie diese Online-Funktion nutzen, übermitteln wir Ihnen auf einem dauerhaften Datenträger (z. B. durch eine E-Mail) unverzüglich eine Eingangsbestätigung mit Informationen zum Inhalt der Widerrufserklärung sowie dem Datum und der Uhrzeit ihres Eingangs.</p>

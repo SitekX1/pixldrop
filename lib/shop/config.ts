@@ -57,7 +57,7 @@ export const VERSAND_CENT: number | null = 490; // 4,90 EUR
 export const LIEFERZEIT_TEXT: string | null = "3-5 Werktage";
 
 export const VERKAEUFER = {
-  name: "Alex Sitek",
+  name: "Alexander Sitek",
   anschrift: "Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim",
   mail: "as@sitekx.de",
 } as const;
