@@ -5,7 +5,7 @@ import SongGrid from "@/components/SongGrid";
 import TrackedLink from "@/components/TrackedLink";
 import LegalFooter from "@/components/LegalFooter";
 import SpotifyLinkButton from "@/components/SpotifyLinkButton";
-import { SHOP_AKTIV, ENTWURF_MODUS } from "@/lib/shop/config";
+import { SHOP_SICHTBAR } from "@/lib/shop/config";
 import ShopPromoCard from "@/components/ShopPromoCard";
 import {
   TikTokIcon,
@@ -103,8 +103,8 @@ export default async function Home({
         </div>
 
         <section className="bento">
-          {/* 3D-Druck-Shop: ganz oben, erscheint erst beim Livegang (NEXT_PUBLIC_SHOP_AKTIV=true und ENTWURF=false), ohne Codeänderung */}
-          {SHOP_AKTIV && !ENTWURF_MODUS && <ShopPromoCard />}
+          {/* 3D-Druck-Shop: ganz oben, erscheint erst, wenn der Shop öffentlich ist (NEXT_PUBLIC_SHOP_AKTIV=true, ENTWURF=false, OEFFENTLICH=true), ohne Codeänderung */}
+          {SHOP_SICHTBAR && <ShopPromoCard />}
 
           <div className="section-label">🎮 Minigame</div>
           <TrackedLink

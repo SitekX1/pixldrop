@@ -14,6 +14,14 @@ export const entwurfTitel = (titel: string): string => (ENTWURF_MODUS ? `${titel
 
 export const SHOP_AKTIV: boolean = process.env.NEXT_PUBLIC_SHOP_AKTIV === "true";
 
+/**
+ * Sichtbarkeit des Shops auf pixldrop.de: Standard aus. Ist der Shop aktiv (Bestellen/Bezahlen geht), aber dieser
+ * Schalter nicht "true", bleibt er nur über den direkten Link erreichbar: keine Karte auf der Startseite, kein Footer-Link,
+ * nicht in der Sitemap, noindex und von robots gesperrt. Beim öffentlichen Start NEXT_PUBLIC_SHOP_OEFFENTLICH=true setzen und neu deployen.
+ */
+export const SHOP_OEFFENTLICH: boolean = process.env.NEXT_PUBLIC_SHOP_OEFFENTLICH === "true";
+export const SHOP_SICHTBAR: boolean = SHOP_AKTIV && !ENTWURF_MODUS && SHOP_OEFFENTLICH;
+
 export type HalloweenModus = "off" | "preview" | "sale";
 
 /** Ab diesem Datum (UTC, exklusiv) ist die Halloween-Kollektion automatisch aus. */
