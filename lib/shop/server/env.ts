@@ -54,7 +54,7 @@ export function leseEnv(env: EnvQuelle = process.env): ShopEnv {
     freigabeSecret: nichtLeer(env.SHOP_FREIGABE_SECRET),
     siteUrl: (nichtLeer(env.SHOP_SITE_URL) ?? "https://pixldrop.de").replace(/\/+$/, ""),
     adminUrl: nichtLeer(env.SHOP_ADMIN_URL),
-    telegramToken: nichtLeer(env.TELEGRAM_BOT_TOKEN),
+    telegramToken: nichtLeer(env.SHOP_TELEGRAM_BOT_TOKEN) ?? nichtLeer(env.TELEGRAM_BOT_TOKEN),
     // 3D-Druck-Meldungen gehen in den eigenen Telegram-Chat (SHOP_TELEGRAM_CHAT_ID); ohne diese Variable Rueckfall auf den bisherigen Chat.
     telegramChatId: nichtLeer(env.SHOP_TELEGRAM_CHAT_ID) ?? nichtLeer(env.TELEGRAM_CHAT_ID),
     smtp: { host: nichtLeer(env.SMTP_HOST), port: Number(env.SMTP_PORT) || 587, user: smtpUser, pass: nichtLeer(env.SMTP_PASS) },

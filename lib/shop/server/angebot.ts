@@ -139,8 +139,8 @@ export function angebotsMail(d: AngebotMailDaten, link: string, siteUrl?: string
   // Annahme-Button: gross, volle Breite auf dem Handy (class="knopf-hell": dunkle Schrift auf Honig-Knopf, auch im Dunkelmodus (sonst greift a{color:honig} und der Text ist unsichtbar)).
   const knopf =
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 8px 0;"><tr>` +
-    `<td align="center" bgcolor="${FARBE.honig}" style="background:${FARBE.honig};border-radius:12px;border:2px solid ${FARBE.tinte};">` +
-    `<a class="knopf-hell" href="${esc(link)}" style="display:block;padding:16px 20px;font-family:'Trebuchet MS','Segoe UI',Helvetica,Arial,sans-serif;font-size:17px;line-height:22px;font-weight:bold;color:${FARBE.tinte};text-decoration:none;">Angebot ansehen und annehmen</a>` +
+    `<td align="center" bgcolor="${FARBE.honig}" style="background:${FARBE.honig};border-radius:12px;border:2px solid ${FARBE.tinte};padding:16px 20px;">` +
+    `<a class="knopf-hell" href="${esc(link)}" style="display:block;font-family:'Trebuchet MS','Segoe UI',Helvetica,Arial,sans-serif;font-size:17px;line-height:24px;font-weight:bold;color:${FARBE.tinte};text-decoration:none;">Angebot ansehen und annehmen</a>` +
     `</td></tr></table>` +
     `<p class="gedimmt" style="margin:0 0 6px 0;text-align:center;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:19px;color:${FARBE.gedimmt};"><strong>Gültig bis ${esc(bis)}</strong> · danach läuft der Link ab</p>` +
     absatz(`Falls der Knopf nicht funktioniert: <a href="${esc(link)}" style="color:${FARBE.link};text-decoration:underline;word-break:break-all;">${esc(link)}</a>`, "font-size:12px;line-height:18px;text-align:center;margin-top:10px;");

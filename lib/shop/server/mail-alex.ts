@@ -14,8 +14,9 @@ export const mehrzeilig = (s: string): string => esc(s).replace(/\r\n|\r|\n/g, "
 /** Grosser Button (volle Breite, auch am Handy gut treffbar). `url` wird escaped. */
 export function knopf(url: string, label: string, bg: string): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:10px 0 0 0;"><tr>` +
-    `<td align="center" bgcolor="${bg}" style="background:${bg};border-radius:12px;">` +
-    `<a class="knopf" href="${esc(url)}" style="display:block;padding:16px 20px;font-family:${SCHRIFT_KOPF};font-size:17px;line-height:22px;font-weight:bold;color:#ffffff;text-decoration:none;">${esc(label)}</a>` +
+    // Polster auf der Zelle (nicht am Link): Outlook ignoriert Polster an <a>, dann wird die Schrift unten abgeschnitten.
+    `<td align="center" bgcolor="${bg}" style="background:${bg};border-radius:12px;padding:16px 20px;">` +
+    `<a class="knopf" href="${esc(url)}" style="display:block;font-family:${SCHRIFT_KOPF};font-size:17px;line-height:24px;font-weight:bold;color:#ffffff;text-decoration:none;">${esc(label)}</a>` +
     `</td></tr></table>`;
 }
 
