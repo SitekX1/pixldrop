@@ -138,7 +138,7 @@ export function darfUmfaerben(slug: string, idx: number): boolean {
   return idx === liveIdx(slug);
 };
 
-/** Artikel, bei denen Foto 1 die Live-Vorschau ist: Farben und Text des Kunden werden direkt aufs Foto gelegt (kein extra „Deine Wahl Live“). */
+/** Artikel, bei denen Foto 1 die Live-Vorschau ist: Farben und Text des Kunden werden direkt aufs Foto gelegt (es gibt nirgends mehr einen extra „Deine Wahl Live“-Knopf, Alex 2026-10-16). */
 export const MIT_AUFDRUCK = ["namensschild", "spruch-untersetzer", "stiftebecher-tasse"];
 
 /** Einzel-Untersetzer: gewählter Wochentag (Kürzel aus ProductBuy) -> Fotonummer (0-basiert). */

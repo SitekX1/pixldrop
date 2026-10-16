@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { liveIdx, MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, darfUmfaerben, UMFAERBEN } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
+import { teelichtFaerben } from "./teelichtFaerben";
 import { farbAbstand, vorbereiteFoto } from "./fotoFaerben";
 import type { VorschauWerte } from "./Vorschau";
 import NamensschildAufdruck from "./NamensschildAufdruck";
@@ -37,7 +38,7 @@ export default function FotoMiniatur({ slug, src, alt, w, fotoNr = liveIdx(slug)
       const ctx = c.getContext("2d");
       if (!ctx) return;
       const bild = ctx.createImageData(v.w, v.h);
-      umfaerben(v, ziele, bild.data);
+      if (slug === "kuerbis-teelichthalter" && modus === "farbe") teelichtFaerben(v, ziele[0] ?? null, bild.data); else umfaerben(v, ziele, bild.data);
       ctx.putImageData(bild, 0, 0);
       setFertig(src);
     });

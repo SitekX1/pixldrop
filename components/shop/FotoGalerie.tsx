@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Form } from "@/lib/shop/produkte";
 import { liveIdx, MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, darfUmfaerben, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
+import { teelichtFaerben } from "./teelichtFaerben";
 import { vorbereiteFoto, farbAbstand } from "./fotoFaerben";
 import { LiveProductImage, useVorschauWerte } from "./Vorschau";
 import NamensschildAufdruck from "./NamensschildAufdruck";
@@ -16,7 +17,7 @@ const vorbereiten = (src: string, modus: UmfaerbModus) => vorbereiteFoto(src, mo
 
 // Galerie-Hauptbild: echte Fotos als Blättergalerie, dazu die Live-Vorschau ("Deine Wahl").
 // Ändert der Kunde die Farbe, wird das Foto in dieser Farbe gezeigt (Licht und Struktur bleiben).
-// Ändert er den Wunschtext, springt die Anzeige auf die Live-Vorschau (Text lässt sich nicht ins Foto setzen).
+// Artikel mit Wunschtext (MIT_AUFDRUCK) zeigen Text und Farben direkt auf dem Foto; ein extra "Deine Wahl Live"-Knopf entfällt überall.
 export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorText }: { /** Standardtext: erscheint sofort als Aufdruck, bevor der Kaufbereich geladen ist (Handy, langsames Netz) */ vorText?: string; slug: string; form: Form; grundfarbe: string; fotos: Foto[]; name: string }) {
   const wRoh = useVorschauWerte();
   const w = wRoh.text === undefined && vorText ? { ...wRoh, text: vorText, family: wRoh.family ?? "var(--font-sf-montserrat), sans-serif" } : wRoh;
@@ -38,23 +39,6 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorTe
   }, [wahlKey, wRoh.preisText, slug]);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [gefaerbtFuer, setGefaerbtFuer] = useState<string | null>(null); // Foto, dessen umgefärbte Pixel im Canvas stehen
-
-  // Wunschtext: Der Standardtext (z. B. "Eddie Pixldrop") zählt nicht. Hat der Kunde den Text geändert und eine Weile nicht getippt,
-  // springt die Anzeige EINMAL auf die Live-Vorschau; danach nie wieder von selbst. Wer die Fotos ansehen will, wird nicht zurückgeworfen,
-  // und der Knopf unter dem Bild bringt jederzeit zur Live-Vorschau.
-  const startText = useRef<string | undefined>(undefined);
-  const einmalUmgeschaltet = useRef(false);
-  const [textGeaendert, setTextGeaendert] = useState(false);
-  useEffect(() => {
-    if (liveAufFoto || w.preisText === undefined) return; // preisText fehlt, solange der Kaufbereich noch nichts gemeldet hat
-    const text = w.text ?? "";
-    if (startText.current === undefined) { startText.current = text; return; } // Standardtext (auch leer) = Ausgangswert
-    if (text === startText.current) { setTextGeaendert(false); return; }
-    setTextGeaendert(true);
-    if (einmalUmgeschaltet.current) return;
-    const t = setTimeout(() => { einmalUmgeschaltet.current = true; setIdx(-1); }, 1500);
-    return () => clearTimeout(t);
-  }, [w.text, w.preisText, liveAufFoto]);
 
   // Einzel-Untersetzer: gewählter Wochentag zeigt das passende Foto.
   useEffect(() => {
@@ -86,7 +70,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorTe
       const ctx = c.getContext("2d");
       if (!ctx) return;
       const bild = ctx.createImageData(v.w, v.h);
-      umfaerben(v, ziele, bild.data);
+      if (slug === "kuerbis-teelichthalter" && modus === "farbe") teelichtFaerben(v, ziele[0] ?? null, bild.data); else umfaerben(v, ziele, bild.data);
       ctx.putImageData(bild, 0, 0);
       setGefaerbtFuer(fotoSrc);
     });
@@ -128,11 +112,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorTe
             <img src={f.src} alt="" width={96} height={96} loading="lazy" decoding="async" />
           </button>
         ))}
-        {!liveAufFoto && <button type="button" className="shop-fotoleiste-live" aria-pressed={idx === -1} onClick={() => setIdx(-1)}>Deine Wahl<br />Live</button>}
       </div>
-      {foto && textGeaendert && (
-        <p className="shop-fotohinweis">Dein Text steht nur in der Live-Vorschau. <button type="button" className="shop-link" style={{ minHeight: 0, background: "none", border: 0, padding: 0, cursor: "pointer", font: "inherit" }} onClick={() => { einmalUmgeschaltet.current = true; setIdx(-1); }}>Mit deinem Text ansehen</button></p>
-      )}
       <p className="shop-fotohinweis">
         {foto
           ? (mitAufdruck

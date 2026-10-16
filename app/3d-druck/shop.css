@@ -949,7 +949,6 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-fotoleiste button img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .shop-fotoleiste button[aria-pressed="true"] { border-color: var(--shop-ink); }
 .shop-fotoleiste button:focus-visible { outline: 2px solid var(--shop-ink); outline-offset: 2px; }
-.shop-fotoleiste .shop-fotoleiste-live { width: auto; min-width: 72px; padding: 0 10px; font: 600 0.75rem/1.2 var(--shop-display); color: var(--shop-ink); }
 .shop-fotohinweis { margin: 8px 0 0; font-size: 0.8125rem; opacity: .8; }
 .shop-bildkurz { display: none; margin: 8px 0 0; font-size: 0.8125rem; }
 @media (max-width: 1023.98px) { .shop-bildkurz { display: block; } }
@@ -967,3 +966,16 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 .shop-schrift-aktuell { display: grid; gap: 2px; min-width: 0; padding: 8px 10px; background: #fff; border: 1.5px solid var(--shop-line, #e6d9b8); border-radius: var(--shop-r-s); }
 .shop-schrift-aktuell .shop-schrift-bsp { font-size: 1.5rem; }
 @media (max-width: 480px) { .shop-schrift-kopf { grid-template-columns: minmax(0, 1fr); } .shop-schrift-kopf .shop-btn { justify-self: start; } }
+
+/* Handy, große Vorschau ausgeklappt: kompakte angeheftete Leiste (Bild ca. 30 vh), damit Optionen und Vorschau gleichzeitig sichtbar bleiben.
+   Beim Tippen (Tastatur offen) noch kleiner; Hinweistext ist in der Leiste ausgeblendet (steht unten im Bereich "Wichtig"). */
+@media (max-width: 1023.98px) {
+  .shop-gallery[data-gross="true"] .shop-gallery-track .shop-img { width: min(100%, 30dvh); margin-inline: auto; }
+  .shop-gallery[data-gross="true"] .shop-fotohinweis { display: none; }
+  .shop-gallery[data-gross="true"] .shop-fotoleiste { margin-top: 6px; gap: 6px; }
+  .shop-gallery[data-gross="true"] .shop-fotoleiste button { width: 44px; height: 44px; }
+  .shop-gallery[data-gross="true"] { overflow: hidden; row-gap: 6px; }
+  .shop:has(input:focus, textarea:focus) .shop-gallery[data-gross="true"] .shop-gallery-track .shop-img { width: min(100%, 18dvh); }
+  .shop:has(input:focus, textarea:focus) .shop-gallery[data-gross="true"] .shop-fotoleiste { display: none; }
+}
+@media (max-width: 1023.98px) { .shop-gallery[data-gross="true"] ~ * .shop-input, .shop-buy .shop-input { scroll-margin-top: 250px; } }
