@@ -244,6 +244,21 @@ test("Individuelle Bestellung: Standard-Belehrung nur, wenn Standardware enthalt
   assert.ok(gemischt.includes("MUSTER-WIDERRUFSFORMULAR"));
 });
 
+test("Gemischte Bestellung: genau EIN Hinweis zum Widerrufsausschluss in Text, Volltext und HTML", () => {
+  const pos = (individuell?: boolean) => ({ name: "X", menge: 1, einzelpreis_cent: 990, individuell });
+  const b = { ...bestellung, individuell: true, positionen: [pos(true), pos(false)] };
+  const m =bestaetigungsMail(b, undefined, false, { siteUrl: "https://pixldrop.de" });
+  const zaehl = (s: string, re: RegExp) => (s.match(re) ?? []).length;
+  for (const [name, s] of [["text", m.text], ["html", m.html]] as const) {
+    assert.equal(zaehl(s, /§ 312g Abs\. 2 Nr\. 1 BGB/g), 1, `${name}: Ausschluss genau einmal`);
+    assert.match(s, /übrigen Artikel/, `${name}: Verweis auf Belehrung`);
+    assert.match(s, /Wunschtext wurde von mir geprüft/, `${name}: Freigabe-Bestätigung`);
+  }
+  assert.match(m.text, /die beigefügte Widerrufsbelehrung/);
+  assert.match(m.volltext, /die unten stehende Widerrufsbelehrung/);
+  assert.ok(m.volltext.includes("WIDERRUFSBELEHRUNG") && m.volltext.includes("MUSTER-WIDERRUFSFORMULAR"));
+});
+
 test("Ablehnungs- und Widerrufsmail: Inhalt", () => {
   const a = ablehnungsMail({ nummer: "PD-2026-0001", name: "Erika", gesamt_cent: 1780 }, "Farbe vergriffen");
   assert.match(a.text, /kein Kaufvertrag|Kaufvertrag ist dadurch nicht zustande gekommen/);

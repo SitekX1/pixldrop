@@ -228,6 +228,23 @@ export interface MailOptionen {
 }
 
 /**
+ * Ein gebuendelter Hinweis zum Widerrufsausschluss in der Bestaetigungsmail (nur bei individuell = true).
+ * Nur individuell: Freigabe + Ausschluss (§ 312g Abs. 2 Nr. 1 BGB); die volle Info steht zusaetzlich im Rechtsblock.
+ * Gemischt (mitStandardware): zusaetzlich Verweis auf die Belehrung fuer die uebrigen Artikel (Art. 246a EGBGB).
+ * Anfrage-Flow: Wortlaut aus ANGEBOT_TEXTE.bestaetigungAbsatz (+ Verweis bei gemischter Bestellung).
+ */
+function hinweisIndividuell(b: MailBestellung, mitStandardware: boolean, belehrungOrt: string): string {
+  if (b.anfrage_id) {
+    return mitStandardware
+      ? `${ANGEBOT_TEXTE.bestaetigungAbsatz} Für alle übrigen Artikel deiner Bestellung gilt ${belehrungOrt}.`
+      : ANGEBOT_TEXTE.bestaetigungAbsatz;
+  }
+  return mitStandardware
+    ? `Hinweis: Dein Wunschtext wurde von mir geprüft und freigegeben. Das Stück mit geändertem Wunschtext wird nach deinen Vorgaben gefertigt, dafür besteht kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB). Für alle übrigen Artikel deiner Bestellung gilt ${belehrungOrt}.`
+    : "Hinweis: Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB).";
+}
+
+/**
  * Mail 1 = Bestellbestaetigung = Annahme (Variante B): wird erst nach bestaetigter PayPal-Zahlung gesendet.
  * `block` = Rechtsblock der Mail (Widerrufsbelehrung/Formular/AGB; Standard: Platzhalter). Ist `freigegeben`
  * true, darf KEIN Platzhalter mehr im Text stehen (weder im Block noch bei der Lieferzeit): dann wird geworfen
@@ -258,7 +275,7 @@ export function bestaetigungsMail(
     (b.capture_id ? ` (Transaktion ${b.capture_id})` : "");
   const widerrufLink = opt.siteUrl ? `${opt.siteUrl.replace(/\/+$/, "")}/3d-druck/widerruf` : null;
 
-  const kopf = [
+  const kopfMit = (belehrungOrt: string) => [
     `Hallo ${b.name},`,
     "",
     `danke für deine Bestellung ${b.nummer}${bestelltAm ? ` vom ${bestelltAm}` : ""}. ${b.anfrage_id ? ANGEBOT_TEXTE.bestaetigungEinleitung : "Ich habe deine Zahlung erhalten und nehme deine Bestellung hiermit an. Damit ist der Kaufvertrag zustande gekommen."}`,
@@ -275,20 +292,22 @@ export function bestaetigungsMail(
     `${b.name}, ${b.strasse}, ${b.plz} ${b.ort}`,
     zahlung,
     `Lieferzeit: ${lieferzeit} ab heute`,
-    b.individuell ? `\n${b.anfrage_id ? ANGEBOT_TEXTE.bestaetigungAbsatz : "Hinweis: Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB)."}` : "",
+    b.individuell ? `\n${hinweisIndividuell(b, mitStandardware, belehrungOrt)}` : "",
     "",
     SICHERHEIT_TITEL + ":",
     ...sicherheitZeilen(!!b.anfrage_id).map((z) => "- " + z),
     "",
     `Verkäufer: ${KONTAKT_ALEX}`,
   ];
+  const kopf = kopfMit("die beigefügte Widerrufsbelehrung");
+  const kopfVoll = kopfMit("die unten stehende Widerrufsbelehrung");
   const anhangHinweisVolltext =
     b.individuell && !mitStandardware
       ? "Diese Bestätigung dient als Beleg für deine Bestellung. Der Hinweis zum Widerruf und der Link zu den AGB stehen unten."
       : "Diese Bestätigung dient als Beleg für deine Bestellung. Widerrufsbelehrung, Muster-Widerrufsformular und der Link zu den AGB stehen unten.";
   // Volltext (Fallback, wenn die PDF-Erzeugung scheitert): kompletter Rechtsblock + AGB im Mailkoerper.
   const volltext = [
-    ...kopf,
+    ...kopfVoll,
     "",
     anhangHinweisVolltext,
     widerrufLink && (!b.individuell || mitStandardware) ? `Du kannst deinen Vertrag auch online widerrufen: ${widerrufLink}` : "",
@@ -319,9 +338,7 @@ export function bestaetigungsMail(
   const hinweisWiderruf =
     b.individuell && !mitStandardware
       ? pflichtangabenText(true, opt.siteUrl, false).split("\n").filter((z) => !z.startsWith("Allgemeine Geschäftsbedingungen (")).join("\n").trim()
-      : b.individuell
-        ? "Hinweis zum Widerruf: Für Stücke mit geändertem Wunschtext besteht kein Widerrufsrecht (§ 312g Abs. 2 Nr. 1 BGB). Für alle übrigen Artikel deiner Bestellung gilt die beigefügte Widerrufsbelehrung."
-        : "";
+      : ""; // gemischt: Ausschluss + Verweis auf die Belehrung stehen gebündelt im Hinweis im Kopf (hinweisIndividuell)
   const kurz = [
     ...kopf,
     ...(hinweisWiderruf ? ["", hinweisWiderruf] : []),
@@ -379,9 +396,8 @@ function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
   const zahlungLieferzeit = absatz(`${inline(t.zahlung)}<br>Lieferzeit: ${esc(t.lieferzeit)} ab heute`, "margin:0;");
   const info = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;"><tr>${feld("Lieferanschrift", anschrift)}${feld("Zahlung und Lieferung", zahlungLieferzeit)}</tr></table>`;
   const hinweise: string[] = [];
-  if (b.individuell) hinweise.push(hinweisBox(esc(b.anfrage_id ? ANGEBOT_TEXTE.bestaetigungAbsatz.replace(/^Hinweis: /, "") : "Dein Wunschtext wurde von mir geprüft und freigegeben. Dein Stück wird nach deinen Vorgaben gefertigt, ein Widerrufsrecht besteht dafür nicht (§ 312g Abs. 2 Nr. 1 BGB).")));
-  if (t.hinweisWiderruf && !t.hinweisWiderruf.startsWith("Hinweis zum Widerruf")) hinweise.push(textZuHtml(t.hinweisWiderruf));
-  else if (t.hinweisWiderruf) hinweise.push(hinweisBox(esc(t.hinweisWiderruf)));
+  if (b.individuell) hinweise.push(hinweisBox(esc(hinweisIndividuell(b, enthaeltStandardware(b), "die beigefügte Widerrufsbelehrung").replace(/^Hinweis: /, ""))));
+  if (t.hinweisWiderruf) hinweise.push(textZuHtml(t.hinweisWiderruf));
   hinweise.push(`${ueberschrift(SICHERHEIT_TITEL)}<ul style="margin:0 0 12px 0;padding:0 0 0 20px;${TD}">${sicherheitZeilen(!!b.anfrage_id).map((z) => `<li class="txt" style="margin:0 0 3px 0;">${esc(z)}</li>`).join("")}</ul>`);
   const anhang = `${ueberschrift("Im Anhang (zum Aufbewahren)")}<ul style="margin:0 0 12px 0;padding:0 0 0 20px;${TD}">${t.anhangListe.map((a) => `<li class="txt" style="margin:0 0 3px 0;">${esc(a)} (PDF)</li>`).join("")}</ul>` +
     absatz(`Diese Bestätigung dient als Beleg für deine Bestellung. Die AGB kannst du auch online abrufen: ${inline(t.agbLink)}` +
