@@ -201,7 +201,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein kleines Skelett zum Aufstellen, Hinsetzen oder Aufhängen, ca. 19 cm groß. Arme, Beine, Hals und Taille sind mit kleinen Kettengliedern verbunden und lassen sich bewegen, sodass du es in jede Pose setzen kannst. Es wird in einem Stück gedruckt, du musst nichts zusammenbauen. Am Kopf sitzt eine kleine Öse zum Aufhängen mit Schnur oder Faden (Schnur nicht dabei). Du wählst Weiß, Violett oder Orange; die Fotos zeigen die weiße Ausführung. Die Gelenke sind filigran, bitte bewege sie vorsichtig.",
     gruppe: "halloween", kategorien: ["halloween"], form: "geister", grundfarbe: "#f4f1ea",
-    preisCent: 1190, masse: "75 × 37 × 187", material: MATERIAL, optionen: [],
+    preisCent: 999, masse: "75 × 37 × 187", material: MATERIAL, optionen: [],
     kombinationen: FARBEN_SKELETT,
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
