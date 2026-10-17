@@ -1118,3 +1118,36 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 @keyframes hwd-schweb { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10px, -10px); } }
 @keyframes hwd-flatter { from { transform: scaleY(1); } to { transform: scaleY(0.62); } }
 @keyframes hwd-abseilen { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(18px); } }
+
+/* Schwebende Kuerbisse und Geister (dunkler Halloween-Look): in Rand-/Zwischenraeumen, hinter dem Inhalt, mobil weniger */
+.hwd .hwd-fl { height: auto; }
+.hwd .hw-pumpkin.hwd-fl { filter: drop-shadow(0 0 14px rgba(255, 138, 31, 0.55)); opacity: 0.8; }
+.hwd .hw-ghost.hwd-fl { opacity: 0.4; filter: drop-shadow(0 0 14px rgba(150, 255, 230, 0.5)); }
+/* Mobil: je 2 kleine Elemente in den Raendern, der Rest aus */
+.hwd-k1 { width: 46px; left: -8px; top: 560px; }
+.hwd-k2 { width: 40px; right: -6px; top: 1500px; }
+.hwd-k3, .hwd-k4, .hwd-g3, .hwd-g4 { display: none; }
+.hwd-g1 { width: 34px; right: 4px; top: 330px; }
+.hwd-g2 { width: 32px; left: 2px; top: 1900px; }
+@media (min-width: 900px) {
+  .hwd-k1 { width: 92px; left: 3vw; top: 640px; }
+  .hwd-k2 { width: 78px; right: 3vw; top: 1250px; }
+  .hwd-k3, .hwd-k4, .hwd-g3, .hwd-g4 { display: block; }
+  .hwd-k3 { width: 70px; left: 6vw; top: 1900px; }
+  .hwd-k4 { width: 96px; right: 5vw; top: 2150px; }
+  .hwd-g1 { width: 64px; right: 4vw; top: 760px; }
+  .hwd-g2 { width: 58px; left: 4vw; top: 1250px; }
+  .hwd-g3 { width: 70px; left: 3vw; top: 2500px; }
+  .hwd-g4 { width: 54px; right: 6vw; top: 1650px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hwd-k1 { animation: hwd-treib 13s ease-in-out infinite; }
+  .hwd-k2 { animation: hwd-treib 17s ease-in-out -5s infinite; }
+  .hwd-k3 { animation: hwd-treib 15s ease-in-out -9s infinite; }
+  .hwd-k4 { animation: hwd-treib 19s ease-in-out -3s infinite; }
+  .hwd-g1 { animation: hwd-treib 11s ease-in-out -2s infinite; }
+  .hwd-g2 { animation: hwd-treib 16s ease-in-out -7s infinite; }
+  .hwd-g3 { animation: hwd-treib 12s ease-in-out -4s infinite; }
+  .hwd-g4 { animation: hwd-treib 18s ease-in-out -10s infinite; }
+}
+@keyframes hwd-treib { 0%, 100% { transform: translate(0, 0) rotate(-3deg); } 33% { transform: translate(8px, -16px) rotate(2deg); } 66% { transform: translate(-6px, -6px) rotate(-1deg); } }

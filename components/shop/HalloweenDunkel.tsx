@@ -1,3 +1,5 @@
+import { Kuerbis, Geist } from "./HalloweenSvgs";
+
 // Dunkler Halloween-Look fuer die Shop-Hauptseite (data-saison="halloween-dark"): eigene SVG-/CSS-Grafiken, kein Bild.
 // Dekorativ: aria-hidden, pointer-events:none, hinter dem Inhalt. Bewegung nur transform/opacity, bei prefers-reduced-motion statisch (shop.css "hwd-").
 
@@ -55,6 +57,14 @@ export default function HalloweenDunkel() {
       <Fledermaus className="hwd-bat--1" />
       <Fledermaus className="hwd-bat--2" />
       <Fledermaus className="hwd-bat--3" />
+      <Kuerbis className="hwd-fl hwd-k1" />
+      <Kuerbis className="hwd-fl hwd-k2" />
+      <Kuerbis className="hwd-fl hwd-k3" />
+      <Kuerbis className="hwd-fl hwd-k4" />
+      <Geist className="hwd-fl hwd-g1" />
+      <Geist className="hwd-fl hwd-g2" />
+      <Geist className="hwd-fl hwd-g3" />
+      <Geist className="hwd-fl hwd-g4" />
     </div>
   );
 }
