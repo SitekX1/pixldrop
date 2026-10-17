@@ -17,7 +17,7 @@ const pacifico = Pacifico({ subsets: ["latin"], weight: ["400"], variable: "--fo
 const caveat = Caveat({ subsets: ["latin"], weight: ["700"], variable: "--font-sf-caveat", display: "swap", preload: false });
 const satisfy = Satisfy({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-satisfy", display: "swap", preload: false });
 const lobster = Lobster({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-lobster", display: "swap", preload: false });
-// Creepster (Halloween-Ueberschriften Hauptseite): SIL OFL 1.1 (laut Google Fonts; vor Livegang auf fonts.google.com/specimen/Creepster belegen).
+// Creepster (Halloween-Ueberschriften Hauptseite): SIL OFL 1.1 (belegt 2026-10-17: OFL.txt im Repo google/fonts, ofl/creepster, Copyright 2011 Font Diner, Inc).
 const creepster = Creepster({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-creepster", display: "swap", preload: false });
 const marker = Permanent_Marker({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-marker", display: "swap", preload: false });
 const bangers = Bangers({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-bangers", display: "swap", preload: false });
