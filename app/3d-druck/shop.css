@@ -1151,3 +1151,41 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
   .hwd-g4 { animation: hwd-treib 18s ease-in-out -10s infinite; }
 }
 @keyframes hwd-treib { 0%, 100% { transform: translate(0, 0) rotate(-3deg); } 33% { transform: translate(8px, -16px) rotate(2deg); } 66% { transform: translate(-6px, -6px) rotate(-1deg); } }
+
+/* ---------- Szenerie: echter Mond, Friedhof, Gluehwuermchen, Bodennebel, Blitz (dunkler Halloween-Look) ---------- */
+.hwd .hwd-moon { background: none; box-shadow: none; border-radius: 0; }
+.hwd .hwd-moon::before { content: ""; position: absolute; inset: -45%; border-radius: 50%; background: radial-gradient(closest-side, rgba(110, 235, 210, 0.3) 0%, rgba(63, 224, 188, 0.12) 55%, transparent 100%); }
+.hwd .hwd-moon-svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 10px rgba(120, 240, 215, 0.35)); }
+.hwd-wolke { position: absolute; left: -30%; width: 150%; height: 24%; border-radius: 50%; filter: blur(10px); background: radial-gradient(closest-side, rgba(8, 34, 33, 0.5), transparent); }
+.hwd-wolke--1 { top: 22%; }
+.hwd-wolke--2 { top: 56%; height: 18%; opacity: 0.8; }
+.hwd-yard { position: absolute; left: 0; bottom: 0; width: 100%; height: 280px; }
+.shop[data-saison="halloween-dark"] .shop-foot { padding-bottom: 290px; }
+@media (min-width: 900px) { .hwd-yard { height: 400px; } .shop[data-saison="halloween-dark"] .shop-foot { padding-bottom: 390px; } }
+.hwd-bodennebel { position: absolute; left: -10%; bottom: 0; width: 120%; height: 150px; background: linear-gradient(0deg, rgba(90, 210, 190, 0.16), transparent); }
+.hwd-ff { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #d8ff9a; box-shadow: 0 0 8px 2px rgba(216, 255, 154, 0.6); bottom: 120px; opacity: 0.55; }
+.hwd-ff--1 { left: 12%; } .hwd-ff--2 { left: 36%; bottom: 90px; } .hwd-ff--3 { left: 71%; bottom: 140px; }
+.hwd-ff--4, .hwd-ff--5, .hwd-ff--6 { display: none; }
+@media (min-width: 900px) { .hwd-ff--4, .hwd-ff--5, .hwd-ff--6 { display: block; } .hwd-ff--4 { left: 24%; bottom: 190px; } .hwd-ff--5 { left: 55%; bottom: 110px; } .hwd-ff--6 { left: 88%; bottom: 170px; } }
+.hwd-blitz { position: absolute; left: 0; right: 0; top: 0; height: 760px; opacity: 0; background: radial-gradient(70% 70% at 70% 10%, rgba(170, 255, 235, 0.22), transparent 70%); }
+@media (prefers-reduced-motion: no-preference) {
+  .hwd-wolke--1 { animation: hwd-zug 60s linear infinite; }
+  .hwd-wolke--2 { animation: hwd-zug 85s linear -30s infinite; }
+  .hwd-fen--1 { animation: hwd-fenster 5s ease-in-out infinite; }
+  .hwd-fen--2 { animation: hwd-fenster 7s ease-in-out -2s infinite; }
+  .hwd-fen--3 { animation: hwd-fenster 6s ease-in-out -4s infinite; }
+  .hwd-fen--4 { animation: hwd-fenster 8s ease-in-out -1s infinite; }
+  .hwd-flamme { animation: hwd-flackern 2.6s ease-in-out infinite; }
+  .hwd-flamme--b { animation-delay: -1.3s; }
+  .hwd-ff--1 { animation: hwd-ff 12s ease-in-out infinite; } .hwd-ff--2 { animation: hwd-ff 15s ease-in-out -5s infinite; } .hwd-ff--3 { animation: hwd-ff 13s ease-in-out -8s infinite; }
+  .hwd-ff--4 { animation: hwd-ff 16s ease-in-out -3s infinite; } .hwd-ff--5 { animation: hwd-ff 14s ease-in-out -10s infinite; } .hwd-ff--6 { animation: hwd-ff 17s ease-in-out -6s infinite; }
+  .hwd-bodennebel { animation: hwd-drift 40s ease-in-out infinite alternate; }
+  .hwd-blitz { animation: hwd-blitz 45s ease-in-out 8s infinite; }
+}
+@keyframes hwd-zug { from { transform: translateX(-30%); } to { transform: translateX(30%); } }
+@keyframes hwd-fenster { 0%, 100% { opacity: 1; } 50% { opacity: 0.62; } }
+@keyframes hwd-flackern { 0%, 100% { opacity: 1; } 50% { opacity: 0.72; } }
+@keyframes hwd-ff { 0%, 100% { transform: translate(0, 0); opacity: 0.2; } 50% { transform: translate(24px, -30px); opacity: 0.8; } }
+@keyframes hwd-blitz { 0%, 5%, 100% { opacity: 0; } 2.5% { opacity: 1; } }
+/* Footer durchlaessig, damit der Friedhof dahinter sichtbar bleibt (Text bleibt hell auf fast schwarz) */
+.shop[data-saison="halloween-dark"] .shop-foot::before { background: rgba(2, 8, 8, 0.45); box-shadow: 0 0 0 100vmax rgba(2, 8, 8, 0.45); }
