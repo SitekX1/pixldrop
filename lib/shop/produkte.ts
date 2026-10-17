@@ -181,7 +181,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein ausgehöhlter Kürbis für ein LED-Teelicht. Das Licht scheint durch das Gesicht. Das LED-Teelicht setzt du unten durch die Öffnung ein, ganz ohne Werkzeug.",
     gruppe: "halloween", kategorien: ["halloween"], form: "laterne", grundfarbe: "#ff8a1f",
-    preisCent: 1690, masse: null, material: MATERIAL,
+    preisCent: 1290, masse: null, material: MATERIAL,
     teile: [{ id: "koerper", label: "Kürbis" }, { id: "stiel", label: "Stiel" }],
     optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],

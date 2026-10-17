@@ -89,7 +89,7 @@ test("Ungueltige Kundendaten, Key und fehlende Preise werden abgelehnt", async (
 });
 
 test("Live-Betrieb ohne freigegebene Pflichtangaben wird verweigert", async () => {
-  const { db, deps } = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }) });
+  const { db, deps } = neueDeps({ env: testEnv({ PAYPAL_ENV: "live" }), pflichtangabenFreigegeben: false });
   const a = await legeBestellungAn(deps, bestellEingabe(), ctx);
   assert.equal(a.status, 503);
   assert.equal(a.body.code, "texte_fehlen");

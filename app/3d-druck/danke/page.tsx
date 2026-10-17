@@ -51,7 +51,7 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
                   <li><strong>Bestellbestätigung per E-Mail</strong>Gebe ich den Text frei, bekommst du die Bestellbestätigung mit AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Damit kommt der Vertrag zustande. Lehne ich den Text ab, schreibe ich dir den Grund und erstatte dir den vollen Betrag einschließlich Versand über PayPal. Kommt innerhalb von 24 Stunden nichts an, schreib an as@sitekx.de.</li>
                 </>
               ) : (
-                <li><strong>Bestätigung per E-Mail</strong>Sobald die Zahlung bestätigt ist, folgt sie mit AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Kommt nichts an, schreib an as@sitekx.de.</li>
+                <li><strong>Bestätigung per E-Mail</strong>Sobald die Zahlung bestätigt ist, folgt sie mit AGB, Widerrufsbelehrung und Muster-Widerrufsformular. Kommt nichts an, schau bitte auch im Spam-Ordner nach oder schreib an as@sitekx.de.</li>
               )}
               <li><strong>Druck und Versand</strong>Lieferzeit: {lieferzeit ?? TEXTE.lieferzeitHinweis}. Ich drucke und verpacke selbst.</li>
             </ol>
