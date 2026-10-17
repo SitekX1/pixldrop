@@ -1189,3 +1189,58 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 @keyframes hwd-blitz { 0%, 5%, 100% { opacity: 0; } 2.5% { opacity: 1; } }
 /* Footer durchlaessig, damit der Friedhof dahinter sichtbar bleibt (Text bleibt hell auf fast schwarz) */
 .shop[data-saison="halloween-dark"] .shop-foot::before { background: rgba(2, 8, 8, 0.45); box-shadow: 0 0 0 100vmax rgba(2, 8, 8, 0.45); }
+
+/* ---------- Runde 3: schaerferer Mond, dunkle Wolken, Sterne, Fluege, Laternen, Kuerbisgruppe ---------- */
+.hwd-wolke--1 { top: 38%; height: 14%; opacity: 0.7; filter: blur(8px); }
+.hwd-cloud { position: absolute; height: auto; }
+.hwd-cloud--1 { width: 170px; top: 210px; left: -10px; opacity: 0.55; }
+.hwd-cloud--2 { width: 240px; top: 420px; right: -30px; opacity: 0.75; }
+.hwd-cloud--3 { display: none; }
+@media (min-width: 900px) {
+  .hwd-cloud--1 { width: 300px; top: 150px; left: 6vw; }
+  .hwd-cloud--2 { width: 420px; top: 480px; right: 2vw; }
+  .hwd-cloud--3 { display: block; width: 240px; top: 900px; left: 10vw; opacity: 0.5; }
+}
+.hwd-sterne { position: absolute; left: 0; right: 0; top: 0; height: 620px; opacity: 0.7;
+  background-image:
+    radial-gradient(1.2px 1.2px at 6% 9%, #dffff6, transparent), radial-gradient(1px 1px at 17% 22%, #bff5e8, transparent),
+    radial-gradient(1.4px 1.4px at 29% 6%, #dffff6, transparent), radial-gradient(1px 1px at 41% 17%, #bff5e8, transparent),
+    radial-gradient(1.2px 1.2px at 55% 8%, #dffff6, transparent), radial-gradient(1px 1px at 63% 25%, #bff5e8, transparent),
+    radial-gradient(1.4px 1.4px at 74% 12%, #dffff6, transparent), radial-gradient(1px 1px at 86% 6%, #bff5e8, transparent),
+    radial-gradient(1.2px 1.2px at 93% 20%, #dffff6, transparent), radial-gradient(1px 1px at 12% 40%, #bff5e8, transparent),
+    radial-gradient(1px 1px at 48% 36%, #dffff6, transparent), radial-gradient(1px 1px at 80% 44%, #bff5e8, transparent); }
+.hwd-sterne--b { opacity: 0.5; transform: translate(3.3%, 4%); }
+.hwd-bat--4 { left: 40%; top: 110px; width: 24px; opacity: 0.45; }
+.hwd-bat--5 { right: 8%; top: 260px; width: 30px; opacity: 0.4; }
+.hwd-bat--6 { left: 8%; top: 400px; width: 26px; opacity: 0.4; }
+@media (max-width: 899px) { .hwd-bat--5, .hwd-bat--6 { display: none; } }
+@media (min-width: 900px) { .hwd-bat--4 { width: 34px; } .hwd-bat--5 { width: 42px; } .hwd-bat--6 { width: 36px; } }
+.hwd-lat { position: absolute; width: 22px; height: auto; transform-origin: top center; }
+.hwd-lat--1 { left: 46px; top: 0; }
+.hwd-lat--2 { right: 40px; top: 0; }
+.hwd-lat--3 { display: none; }
+@media (min-width: 900px) { .hwd-lat { width: 28px; } .hwd-lat--1 { left: 90px; } .hwd-lat--2 { right: 84px; } .hwd-lat--3 { display: block; left: 170px; top: 0; } }
+.hwd-kg { position: absolute; left: 6px; bottom: 14px; width: 150px; height: 70px; }
+.hwd-kg::before { content: ""; position: absolute; left: -30px; bottom: -20px; width: 220px; height: 110px; background: radial-gradient(closest-side, rgba(255, 138, 31, 0.32), transparent); }
+.hwd-kgp { position: absolute; height: auto; filter: drop-shadow(0 0 12px rgba(255, 138, 31, 0.6)); }
+.hwd-kgp--1 { width: 64px; left: 0; bottom: 0; }
+.hwd-kgp--2 { width: 46px; left: 66px; bottom: 0; }
+.hwd-kgp--3 { display: none; }
+@media (min-width: 900px) { .hwd-kg { left: 3vw; bottom: 20px; width: 260px; height: 110px; } .hwd-kgp--1 { width: 104px; } .hwd-kgp--2 { width: 74px; left: 106px; } .hwd-kgp--3 { display: block; width: 58px; left: 186px; bottom: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .hwd-cloud--1 { animation: hwd-wzug 110s ease-in-out infinite alternate; }
+  .hwd-cloud--2 { animation: hwd-wzug 75s ease-in-out -30s infinite alternate-reverse; }
+  .hwd-cloud--3 { animation: hwd-wzug 140s ease-in-out -50s infinite alternate; }
+  .hwd-sterne--a { animation: hwd-stern 5s ease-in-out infinite; }
+  .hwd-sterne--b { animation: hwd-stern 7s ease-in-out -3s infinite; }
+  .hwd-bat--4 { animation: hwd-flug 28s ease-in-out infinite alternate; }
+  .hwd-bat--5 { animation: hwd-flug 34s ease-in-out -12s infinite alternate-reverse; }
+  .hwd-bat--6 { animation: hwd-flug 30s ease-in-out -6s infinite alternate; }
+  .hwd-lat--1 { animation: hwd-pendel 7s ease-in-out infinite; }
+  .hwd-lat--2 { animation: hwd-pendel 8s ease-in-out -3s infinite; }
+  .hwd-lat--3 { animation: hwd-pendel 9s ease-in-out -5s infinite; }
+}
+@keyframes hwd-wzug { from { transform: translateX(-4vw); } to { transform: translateX(8vw); } }
+@keyframes hwd-stern { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.85; } }
+@keyframes hwd-flug { from { transform: translate(0, 0); } to { transform: translate(18vw, -30px); } }
+@keyframes hwd-pendel { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
