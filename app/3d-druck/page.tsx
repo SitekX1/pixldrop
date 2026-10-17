@@ -31,7 +31,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const halloween = aktiv === "halloween";
 
   return (
-    <ShopShell theme={halloween ? "halloween" : undefined} banner={<PauseBanner />} zurueck={aktiv === "alle" ? "pixldrop" : "shop"}>
+    <ShopShell theme={halloween ? "halloween" : undefined} saison={!halloween && modus !== "off" ? "halloween-dark" : undefined} banner={<PauseBanner />} zurueck={aktiv === "alle" ? "pixldrop" : "shop"}>
       <div className="shop-wrap">
         {halloween ? (
           <section className="shop-hero" style={{ minHeight: 0, paddingTop: 12 }} aria-labelledby="titel">

@@ -3,13 +3,15 @@ import Image from "next/image";
 import { KONTAKT_MIT_ANSCHRIFT } from "@/lib/shop/config";
 import WarenkorbLink from "./WarenkorbLink";
 import HalloweenHintergrund from "./HalloweenHintergrund";
+import HalloweenDunkel from "./HalloweenDunkel";
 
 // Shell: Kopf (Zurück-Link: Shop-Startseite → PixlDrop, alle anderen Seiten → Shop), Inhalt, Fuß. Theme ("halloween") per data-theme am Wrapper (Token-Austausch).
 export default function ShopShell({
-  children, theme, banner, zurueck = "shop",
-}: { children: React.ReactNode; theme?: "halloween"; banner?: React.ReactNode; zurueck?: "shop" | "pixldrop" }) {
+  children, theme, saison, banner, zurueck = "shop",
+}: { children: React.ReactNode; theme?: "halloween"; saison?: "halloween-dark"; banner?: React.ReactNode; zurueck?: "shop" | "pixldrop" }) {
   return (
-    <div className="shop" data-theme={theme}>
+    <div className="shop" data-theme={theme} data-saison={saison}>
+      {saison === "halloween-dark" && <HalloweenDunkel />}
       {theme === "halloween" && <HalloweenHintergrund />}
       <a className="shop-skip" href="#inhalt">Zum Inhalt springen</a>
       {banner}

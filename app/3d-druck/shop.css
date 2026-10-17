@@ -985,3 +985,136 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 /* Kachel: Farbpunkte + "+N" duerfen nie aus der Karte ragen: bei wenig Platz unter den Preis umbrechen */
 .shop-card-price { flex-wrap: wrap; row-gap: 6px; column-gap: 10px; min-width: 0; }
 .shop-card-price .shop-dots { max-width: 100%; }
+
+/* =====================================================================
+   Dunkler Halloween-Look Hauptseite: .shop[data-saison="halloween-dark"]
+   Nur gesetzt, solange halloweenModus() !== "off" (endet automatisch am 3.11.).
+   Kuehl, petrol/mint statt orange. Alle Selektoren gescoped, andere Seiten unberuehrt.
+   ===================================================================== */
+.shop[data-saison="halloween-dark"] {
+  --shop-bg: #040f0f;
+  --shop-card: #0a1c1b;
+  --shop-ink: #e8fff9;
+  --shop-on-ink: #04100f;
+  --shop-text: #d6efe9;
+  --shop-muted: #9cc7bd;
+  --shop-honey: #3fe0bc;
+  --shop-on-honey: #03110f;
+  --shop-link: #72f2d6;
+  --shop-tint: #0e2b29;
+  --shop-bon: #0a1c1b;
+  --shop-success: #86f0ae;
+  --shop-error: #ff9d96;
+  --shop-line: #1f5750;
+  --shop-control: #62a498;
+  --shop-ring: rgba(63, 224, 188, 0.4);
+  --shop-focus: #c6fff2;
+  --shop-disabled-bg: #123532;
+  --shop-e1: 0 0 0 1px rgba(63,224,188,.18), 0 4px 14px rgba(0,0,0,.5);
+  --shop-e2: 0 0 0 1px rgba(63,224,188,.32), 0 0 26px -6px rgba(63,224,188,.38), 0 14px 30px rgba(0,0,0,.55);
+  --shop-e3: 0 0 0 1px rgba(110,245,215,.6), 0 0 38px -4px rgba(63,224,188,.55), 0 20px 40px rgba(0,0,0,.6);
+  --shop-err-bg: #2a1620; --shop-err-line: #7a3a4a; --shop-err-text: #ffd0cb;
+  --hwd-ueb: var(--font-sf-creepster), "Segoe UI", system-ui, sans-serif;
+  --hwd-glow: rgba(63, 224, 188, 0.55);
+  isolation: isolate;
+  background:
+    radial-gradient(90% 520px at 78% 0%, rgba(40, 150, 130, 0.22) 0%, transparent 70%),
+    radial-gradient(120% 600px at 0% 100%, rgba(20, 90, 80, 0.2) 0%, transparent 70%),
+    linear-gradient(180deg, #06181a 0%, #040f0f 38%, #020909 100%);
+}
+
+/* Ueberschriften im Horror-Stil (Creepster, nur Display; Fliesstext bleibt Bricolage) */
+.shop[data-saison="halloween-dark"] .shop-hero h1,
+.shop[data-saison="halloween-dark"] .shop-section h2,
+.shop[data-saison="halloween-dark"] .shop-halloween h2,
+.shop[data-saison="halloween-dark"] .shop-alex h2,
+.shop[data-saison="halloween-dark"] .shop-empty h2 {
+  font-family: var(--hwd-ueb); font-weight: 400; letter-spacing: 0.03em; line-height: 1.08;
+  text-shadow: 0 0 18px var(--hwd-glow), 0 2px 0 #020707;
+}
+.shop[data-saison="halloween-dark"] .shop-hero--start h1 { font-size: clamp(2.1rem, 9.6vw, 3rem); max-width: 12ch; }
+.shop[data-saison="halloween-dark"] .shop-section h2 { font-size: 2rem; }
+.shop[data-saison="halloween-dark"] .shop-alex h2 { font-size: 1.8rem !important; }
+@media (min-width: 900px) { .shop[data-saison="halloween-dark"] .shop-hero--start h1 { font-size: 3.9rem; } .shop[data-saison="halloween-dark"] .shop-section h2 { font-size: 2.4rem; } }
+.shop[data-saison="halloween-dark"] .shop-hero-mark {
+  background: linear-gradient(100deg, #1fa88c 0%, #8ff5df 50%, #2dd4b4 100%); -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 0 14px rgba(63, 224, 188, 0.45)); opacity: 0.85;
+}
+.shop[data-saison="halloween-dark"] .shop-hero .lead { color: var(--shop-ink); }
+.shop[data-saison="halloween-dark"] .shop-hero-eddie { opacity: 0.85; filter: drop-shadow(0 0 28px rgba(63, 224, 188, 0.3)); }
+@media (min-width: 900px) { .shop[data-saison="halloween-dark"] .shop-hero-eddie { opacity: 0.95; } }
+
+/* Karten: kuehles Leuchten */
+.shop[data-saison="halloween-dark"] .shop-card, .shop[data-saison="halloween-dark"] .shop-empty { border-color: rgba(63, 224, 188, 0.4); }
+@media (hover: hover) and (pointer: fine) { .shop[data-saison="halloween-dark"] .shop-card:hover { box-shadow: var(--shop-e3); border-color: rgba(120, 248, 222, 0.8); } }
+.shop[data-saison="halloween-dark"] .shop-btn { border-color: #b8fff0; box-shadow: 0 3px 0 #1c8f7a, 0 0 22px rgba(63, 224, 188, 0.4); }
+.shop[data-saison="halloween-dark"] .shop-btn--ghost { box-shadow: none; color: var(--shop-ink) !important; }
+.shop[data-saison="halloween-dark"] .shop-head::before { background: rgba(4, 15, 15, 0.92); box-shadow: 0 0 0 100vmax rgba(4, 15, 15, 0.92); }
+.shop[data-saison="halloween-dark"] .shop-head::after { box-shadow: 0 0 18px 1px rgba(63, 224, 188, 0.35); background: rgba(63, 224, 188, 0.35); }
+.shop[data-saison="halloween-dark"] .shop-foot::before { background: #020808; box-shadow: 0 0 0 100vmax #020808; }
+.shop[data-saison="halloween-dark"] .shop-foot { border-top: 0; }
+.shop[data-saison="halloween-dark"] .shop-foot a.shop-widerruf-btn { color: #020808; background: #b8fff0; border-color: #b8fff0; }
+.shop[data-saison="halloween-dark"] .shop-foot a:not(.shop-widerruf-btn) { color: #d6fff4; }
+.shop[data-saison="halloween-dark"] .shop-alex { border-left-color: var(--shop-honey); box-shadow: -10px 0 24px -14px var(--hwd-glow); }
+.shop[data-saison="halloween-dark"] .shop-steps li::before { box-shadow: 0 0 14px -2px var(--hwd-glow); border-color: var(--shop-honey); }
+.shop[data-saison="halloween-dark"] .shop-pause:not([data-voll="true"]), .shop[data-saison="halloween-dark"] .shop-pause-bar:not([data-voll="true"]) { background: #0e2b29; color: #d6fff4; border-color: var(--shop-honey); box-shadow: 0 3px 0 var(--shop-honey); }
+
+/* Halloween-Banner (Hauptseite): kuehle Huelle, Kuerbisse bleiben orange */
+.shop[data-saison="halloween-dark"] .shop-halloween {
+  border-color: rgba(63, 224, 188, 0.7);
+  background: radial-gradient(120% 90% at 85% 100%, rgba(255, 138, 31, 0.2) 0%, transparent 60%), radial-gradient(90% 80% at 0% 0%, rgba(40, 170, 150, 0.35) 0%, transparent 65%), linear-gradient(160deg, #0b2624 0%, #041010 100%);
+  box-shadow: 0 0 38px -6px rgba(63, 224, 188, 0.45);
+}
+.shop[data-saison="halloween-dark"] .shop-halloween .shop-overline { color: #8ff5df; }
+.shop[data-saison="halloween-dark"] .shop-halloween h2, .shop[data-saison="halloween-dark"] .shop-halloween p { color: #e8fff9; }
+.shop[data-saison="halloween-dark"] .shop-halloween .shop-btn { border-color: #b8fff0; background: #3fe0bc; color: #03110f !important; box-shadow: 0 3px 0 #1c8f7a, 0 0 22px rgba(63, 224, 188, 0.5); }
+
+/* ---------- Dekoebene (hinter dem Inhalt) ---------- */
+.hwd { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; color: #4fd9bd; }
+.hwd svg { position: absolute; display: block; }
+.hwd-moon {
+  position: absolute; top: 56px; right: -40px; width: 200px; aspect-ratio: 1 / 1; border-radius: 50%; opacity: 0.42;
+  background:
+    radial-gradient(circle at 30% 34%, rgba(20, 90, 80, 0.45) 0 9%, transparent 10%),
+    radial-gradient(circle at 62% 58%, rgba(20, 90, 80, 0.4) 0 13%, transparent 14%),
+    radial-gradient(circle at 48% 20%, rgba(20, 90, 80, 0.3) 0 6%, transparent 7%),
+    radial-gradient(circle at 38% 36%, #d4fff4 0%, #8aeed8 42%, #3fb8a2 100%);
+  box-shadow: 0 0 60px 16px rgba(80, 230, 200, 0.28), 0 0 160px 50px rgba(63, 224, 188, 0.14);
+}
+@media (min-width: 900px) { .hwd-moon { top: 70px; right: 4vw; width: 280px; opacity: 0.6; } }
+@media (min-width: 1200px) { .hwd-moon { right: 6vw; width: 340px; opacity: 0.95; } }
+.hwd-web { width: 120px; height: 120px; opacity: 0.32; }
+.hwd-web--tl { left: 0; top: 0; }
+.hwd-web--tr { right: 0; top: 0; transform: scaleX(-1); }
+.hwd-web--bl { left: 0; bottom: 0; transform: scaleY(-1); opacity: 0.22; }
+.hwd-web--br { right: 0; bottom: 0; transform: scale(-1, -1); opacity: 0.22; }
+@media (min-width: 900px) { .hwd-web { width: 230px; height: 230px; } }
+.hwd-fog { position: absolute; left: -30%; width: 160%; height: 320px; border-radius: 50%; filter: blur(46px); background: radial-gradient(closest-side, rgba(70, 200, 180, 0.13), transparent); }
+.hwd-fog--1 { top: 380px; }
+.hwd-fog--2 { top: 1250px; opacity: 0.8; }
+.hwd-fog--3 { bottom: 140px; }
+.hwd-bat { width: 34px; height: auto; opacity: 0.55; color: #35bfa4; filter: drop-shadow(0 0 6px rgba(63, 224, 188, 0.5)); }
+.hwd-bat--1 { left: 14%; top: 150px; }
+.hwd-bat--2 { right: 30%; top: 70px; width: 26px; opacity: 0.4; }
+.hwd-bat--3 { left: 62%; top: 720px; width: 28px; opacity: 0.35; }
+@media (min-width: 900px) { .hwd-bat { width: 48px; } .hwd-bat--2 { width: 36px; } .hwd-bat--3 { width: 38px; } }
+.hwd-spider { width: 36px; height: auto; opacity: 0.75; top: 0; transform-origin: top center; color: #7fb8ae; }
+.hwd-spider--1 { left: 26%; }
+.hwd-spider--2 { right: 8%; width: 30px; opacity: 0.6; }
+.hwd-spider--3 { left: 3%; top: 0; width: 30px; opacity: 0.55; }
+@media (prefers-reduced-motion: no-preference) {
+  .hwd-fog--1 { animation: hwd-drift 38s ease-in-out infinite alternate; }
+  .hwd-fog--2 { animation: hwd-drift 46s ease-in-out -12s infinite alternate-reverse; }
+  .hwd-fog--3 { animation: hwd-drift 52s ease-in-out -20s infinite alternate; }
+  .hwd-bat--1 { animation: hwd-schweb 9s ease-in-out infinite; }
+  .hwd-bat--2 { animation: hwd-schweb 11s ease-in-out -4s infinite; }
+  .hwd-bat--3 { animation: hwd-schweb 10s ease-in-out -2s infinite; }
+  .hwd-wings { transform-box: fill-box; transform-origin: center; animation: hwd-flatter 1.1s ease-in-out infinite alternate; }
+  .hwd-spider--1 { animation: hwd-abseilen 14s ease-in-out infinite; }
+  .hwd-spider--2 { animation: hwd-abseilen 18s ease-in-out -6s infinite; }
+  .hwd-spider--3 { animation: hwd-abseilen 16s ease-in-out -10s infinite; }
+}
+@keyframes hwd-drift { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+@keyframes hwd-schweb { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(10px, -10px); } }
+@keyframes hwd-flatter { from { transform: scaleY(1); } to { transform: scaleY(0.62); } }
+@keyframes hwd-abseilen { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(18px); } }

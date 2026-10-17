@@ -3,7 +3,7 @@
 // next/font verlangt literale Optionen (kein Spread).
 import {
   Bricolage_Grotesque, Montserrat, Oswald, Dancing_Script, Pacifico, Caveat, Satisfy, Lobster,
-  Permanent_Marker, Bangers, Righteous, Playfair_Display, Cinzel,
+  Permanent_Marker, Bangers, Creepster, Righteous, Playfair_Display, Cinzel,
 } from "next/font/google";
 import localFont from "next/font/local";
 
@@ -17,6 +17,8 @@ const pacifico = Pacifico({ subsets: ["latin"], weight: ["400"], variable: "--fo
 const caveat = Caveat({ subsets: ["latin"], weight: ["700"], variable: "--font-sf-caveat", display: "swap", preload: false });
 const satisfy = Satisfy({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-satisfy", display: "swap", preload: false });
 const lobster = Lobster({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-lobster", display: "swap", preload: false });
+// Creepster (Halloween-Ueberschriften Hauptseite): SIL OFL 1.1 (laut Google Fonts; vor Livegang auf fonts.google.com/specimen/Creepster belegen).
+const creepster = Creepster({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-creepster", display: "swap", preload: false });
 const marker = Permanent_Marker({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-marker", display: "swap", preload: false });
 const bangers = Bangers({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-bangers", display: "swap", preload: false });
 const righteous = Righteous({ subsets: ["latin"], weight: ["400"], variable: "--font-sf-righteous", display: "swap", preload: false });
@@ -40,6 +42,6 @@ const winterF = localFont({ src: "./fonts-frei/winter-draw.ttf", weight: "400", 
 const dragonF = localFont({ src: "./fonts-frei/wood-dragon.ttf", weight: "400", style: "normal", variable: "--font-sf-dragon", display: "swap", preload: false, fallback: ["cursive"] });
 
 export const fontVariablen = [
-  display, montserrat, oswald, dancing, pacifico, caveat, satisfy, lobster, marker, bangers, righteous, playfair, cinzel,
+  display, montserrat, oswald, dancing, pacifico, caveat, satisfy, lobster, marker, bangers, creepster, righteous, playfair, cinzel,
   artsyF, bulbearF, oldwestF, rosemartinF, roundexF, startstoryF, streetyearF, sallyF, travelliaF, veganF, dramaF, winterF, dragonF,
 ].map((f) => f.variable).join(" ");
