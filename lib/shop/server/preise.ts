@@ -3,7 +3,7 @@ import "server-only";
 // Serverseitige Preis- und Warenkorbberechnung. Preise kommen AUSSCHLIESSLICH aus
 // lib/shop/produkte.ts (bzw. dem uebergebenen Katalog); vom Client wird nie ein Betrag
 // uebernommen, nur Artikel-Slug, Menge und Auswahl.
-import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "../produkte";
+import { KOMBI_KEY, einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "../produkte";
 import type { Farbe } from "../farben";
 import { standardTeilFarbe } from "../teilfarben";
 import { SCHRIFTEN, SCHRIFT_TITEL_KEY, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung } from "../schriften";
@@ -186,7 +186,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       if (lf) optionen["Linienfarbe"] = lf.name; // ohne Wahl und ohne passende Lagerfarbe: keine Linienfarbe festgelegt (Alex entscheidet)
     }
 
-    if (kombi) optionen["Farbkombination"] = kombi.label;
+    if (kombi) optionen[nurEinzelfarben(produkt) ? "Farbe" : "Farbkombination"] = kombi.label;
     Object.assign(optionen, teilOptionen); // z. B. „Kürbis: Orange“, „Stiel: Grün“ (Mail, PDF, Telegram, Admin lesen optionen)
 
     // Personalisierung (Text einzeilig oder mehrzeilig "zeile1\nzeile2", Schrift fest oder aus der Liste)

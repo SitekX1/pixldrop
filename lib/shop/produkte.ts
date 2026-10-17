@@ -96,6 +96,14 @@ const WEISS = { name: "Weiß", hex: "#f4f1ea" };
 const TUERKIS = { name: "Türkis", hex: "#2bb8a8" };
 const ORANGE = { name: "Orange", hex: "#ff6a13" };
 const VIOLETT = { name: "Violett", hex: "#7a3fb0" };
+// Einzelfarben als „Kombinationen“ mit je einer Farbe (Skelett: nur diese drei Farben, kein freies Lager)
+const FARBEN_SKELETT: Farbkombination[] = [
+  { id: "weiss", label: "Weiß", farben: [WEISS] },
+  { id: "violett", label: "Violett", farben: [VIOLETT] },
+  { id: "orange", label: "Orange", farben: [ORANGE] },
+];
+/** Artikel mit nur einer Farbe je Auswahl heißen „Farbe“ statt „Farbkombination“. */
+export const nurEinzelfarben = (p: { kombinationen?: Farbkombination[] }): boolean => !!p.kombinationen?.every((k) => k.farben.length === 1);
 const KOMBI_WOCHENTAG: Farbkombination[] = [
   { id: "schwarz-tuerkis-weiss", label: "Schwarz / Türkis / Weiß", farben: [SCHWARZ, TUERKIS, WEISS] },
   { id: "schwarz-orange-weiss", label: "Schwarz / Orange / Weiß", farben: [SCHWARZ, ORANGE, WEISS] },
@@ -187,6 +195,17 @@ export const PRODUKTE: Produkt[] = [
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
+    slug: "skelett-beweglich",
+    name: "Bewegliches Skelett",
+    kurz: "Ein kleines Skelett mit beweglichen Gelenken, ca. 19 cm groß. In Weiß, Violett oder Orange.",
+    beschreibung:
+      "Ein kleines Skelett zum Aufstellen, Hinsetzen oder Aufhängen, ca. 19 cm groß. Arme, Beine, Hals und Taille sind mit kleinen Kettengliedern verbunden und lassen sich bewegen, sodass du es in jede Pose setzen kannst. Es wird in einem Stück gedruckt, du musst nichts zusammenbauen. Am Kopf sitzt eine kleine Öse zum Aufhängen mit Schnur oder Faden (Schnur nicht dabei). Du wählst Weiß, Violett oder Orange; die Fotos zeigen die weiße Ausführung. Die Gelenke sind filigran, bitte bewege sie vorsichtig.",
+    gruppe: "halloween", kategorien: ["halloween"], form: "geister", grundfarbe: "#f4f1ea",
+    preisCent: 1190, masse: "75 × 37 × 187", material: MATERIAL, optionen: [],
+    kombinationen: FARBEN_SKELETT,
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG],
+  },
+  {
     slug: "geister-set",
     name: "Geister-Set groß (3 Geister)",
     kurz: "Drei Geister, groß genug für LED-Teelichter. Verschluss unten.",
@@ -273,6 +292,7 @@ const ARTIKELNR: Record<string, string> = {
   "spruch-untersetzer": "PD-004",
   "namensschild": "PD-005",
   "kuerbis-laterne": "PD-006",
+  "skelett-beweglich": "PD-013",
   "geister-set": "PD-007",
   "geister-set-klein": "PD-008",
   "kuerbis-klein-set": "PD-009",

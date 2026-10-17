@@ -410,3 +410,16 @@ test("Individueller Untersetzer: Standardtext, Linienfarbe (Lager, Kontrast, nur
   assert.equal(einzelpreisCent(echt, {}), 590);
   assert.equal(einzelpreisCent(echt, { kork: "mit" }), 620);
 });
+
+// --- Bewegliches Skelett: nur Weiß, Violett, Orange (Einzelfarben als Kombinationen) ---
+test("Skelett: nur die drei Farben, Option heißt Farbe, Päckchen", () => {
+  for (const [id, name] of [["weiss", "Weiß"], ["violett", "Violett"], ["orange", "Orange"]]) {
+    const r = berechneWarenkorb([{ slug: "skelett-beweglich", menge: 1, optionen: { farbkombi: id } }], ctx(), "hermes");
+    assert.ok(r.ok, id);
+    assert.equal(r.wert.positionen[0].optionen["Farbe"], name);
+    assert.equal(r.wert.positionen[0].optionen["Farbkombination"], undefined);
+  }
+  assert.ok(!berechneWarenkorb([{ slug: "skelett-beweglich", menge: 1, optionen: { farbkombi: "rot" } }], ctx(), "hermes").ok);
+  assert.ok(!berechneWarenkorb([{ slug: "skelett-beweglich", menge: 1, farbeId: "schwarz" }], ctx(), "hermes").ok);
+  assert.ok(!berechneWarenkorb([{ slug: "skelett-beweglich", menge: 1, optionen: { farbkombi: "weiss" } }], ctx(), "brief").ok);
+});

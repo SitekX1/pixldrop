@@ -57,6 +57,12 @@ const ALT: Record<string, string[]> = {
     "Kürbis mit Gesicht bei Tageslicht, orange mit schwarzem Stiel",
     "Kürbis mit Gesicht leuchtet im Dunkeln mit LED-Teelicht (Foto in Originalfarben)",
   ],
+  // Dateien 2, 3, 1: Titelbild = ganzer Körper von oben (2.webp), siehe FOTO_DATEIEN. Fotos zeigen die weiße Ausführung (kein Umfärben)
+  "skelett-beweglich": [
+    "Bewegliches Skelett von oben, Arm zur Seite gestreckt (weiße Ausführung)",
+    "Bewegliches Skelett sitzt, die Gelenke sind beweglich",
+    "Bewegliches Skelett liegt in lockerer Pose",
+  ],
   "kuerbis-teelichthalter": [
     "Kürbis-Teelichthalter mit brennendem LED-Teelicht",
     "Kürbis-Teelichthalter von oben schräg",
@@ -88,7 +94,7 @@ const ALT: Record<string, string[]> = {
 };
 
 /** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Titelbild = Seitenansicht 2.webp, danach die Live-Vorschau 1.webp). */
-export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [2, 1, 3, 4] };
+export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [2, 1, 3, 4], "skelett-beweglich": [2, 3, 1] };
 /** Index (Anzeigereihenfolge) des Fotos, das die Live-Vorschau ist (umgefärbt, mit Aufdruck); Standard 0. */
 export const LIVE_FOTO: Record<string, number> = { "stiftebecher-tasse": 1 };
 export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;

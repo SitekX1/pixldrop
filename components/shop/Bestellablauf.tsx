@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "@/lib/shop/produkte";
 import { LINIENFARBE_KEY, TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import { SCHRIFTEN, schriftZeilen } from "@/lib/shop/schriften";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
@@ -332,7 +332,7 @@ export default function Bestellablauf({
                       <div className="shop-bon-img"><PositionsBild p={p} a={a} farbeHex={farbe?.hex} textfarbeHex={tfarbe?.hex} farben={farben} /></div>
                       <dl>
                         <div><dt>Ware</dt><dd>{p.name}</dd></div>
-                        {kombiVon(p, a) ? <div><dt>Farbkombination</dt><dd>{kombiVon(p, a)!.label}</dd></div> : p.teile ? teilFarbenVon(p, a, farben).map((t) => <div key={t.id}><dt>Farbe {t.label}</dt><dd>{t.farbe?.name ?? "nicht mehr vorrätig"}</dd></div>) : farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
+                        {kombiVon(p, a) ? <div><dt>{nurEinzelfarben(p) ? "Farbe" : "Farbkombination"}</dt><dd>{kombiVon(p, a)!.label}</dd></div> : p.teile ? teilFarbenVon(p, a, farben).map((t) => <div key={t.id}><dt>Farbe {t.label}</dt><dd>{t.farbe?.name ?? "nicht mehr vorrätig"}</dd></div>) : farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
                         {optText.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
                         {a.text && <div><dt>Text</dt><dd>{a.text.split("\n").join(" / ")}</dd></div>}
                         {p.masse && <div><dt>Maße</dt><dd>{`ca. ${p.masse} mm${p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}`}</dd></div>}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { formatPreis } from "@/lib/shop/config";
 import { ORIGINALFARBE, ORIGINAL_ABSTAND } from "@/lib/shop/fotos";
 import { farbAbstand } from "./fotoFaerben";
-import { KOMBI_KEY, einzelpreisCent, istIndividuell, type Produkt } from "@/lib/shop/produkte";
+import { KOMBI_KEY, einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "@/lib/shop/produkte";
 import { SCHRIFTEN, SCHRIFT_TITEL_KEY, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung, umlauteErsetzen } from "@/lib/shop/schriften";
 import { GROESSEN, STANDARD_GROESSE, type GroesseId } from "@/lib/shop/umbruch";
 import { messeEm } from "@/lib/shop/textmessung";
@@ -291,7 +291,7 @@ export default function ProductBuy({
       {/* Farbwahl */}
       {kombis ? (
         <fieldset className="shop-step">
-          <legend>Farbkombination</legend>
+          <legend>{nurEinzelfarben(produkt) ? "Farbe" : "Farbkombination"}</legend>
           <div className="shop-kombis">
             {kombis.map((k) => (
               <label key={k.id} className="shop-kombi">
@@ -303,7 +303,7 @@ export default function ProductBuy({
               </label>
             ))}
           </div>
-          <p className="muted">Fertige Kombination aus drei Farben. Bildschirmfarben können leicht abweichen.</p>
+          <p className="muted">{nurEinzelfarben(produkt) ? "Bildschirmfarben können leicht abweichen." : "Fertige Kombination aus drei Farben. Bildschirmfarben können leicht abweichen."}</p>
         </fieldset>
       ) : teile && farben.length > 0 ? (
         <>
