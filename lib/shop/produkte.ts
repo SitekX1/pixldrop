@@ -104,8 +104,8 @@ const FARBEN_SKELETT: Farbkombination[] = [
   { id: "violett", label: "Violett", farben: [VIOLETT] },
   { id: "orange", label: "Orange", farben: [ORANGE] },
 ];
-// Feste Farbe ohne Auswahl (Halloween-Untersetzer: nur Schwarz mit Motiv, Alex 18.10.): eine einzige Kombination, die Seite zeigt sie als Hinweis statt als Auswahl
-const FARBEN_NUR_SCHWARZ: Farbkombination[] = [{ id: "schwarz", label: "Schwarz", farben: [SCHWARZ] }];
+// Feste Farbe ohne Auswahl (Halloween-Untersetzer: nur die abgebildete Ausführung schwarz/orange/weiß, Alex 18.10.): eine einzige Kombination, die Seite zeigt sie als Hinweis statt als Auswahl
+const FARBEN_NUR_SCHWARZ: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [SCHWARZ, ORANGE, WEISS] }];
 /** Artikel mit nur einer Farbe je Auswahl heißen „Farbe“ statt „Farbkombination“. */
 export const nurEinzelfarben = (p: { kombinationen?: Farbkombination[] }): boolean => !!p.kombinationen?.every((k) => k.farben.length === 1);
 const KOMBI_WOCHENTAG: Farbkombination[] = [
