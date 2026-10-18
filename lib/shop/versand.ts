@@ -122,7 +122,7 @@ const ROH: Record<string, Roh> = {
   "geister-set": { teile: [{ mm: [77.2, 86.2, 70], g: 21, anz: 1, rund: true }, { mm: [81.5, 84.2, 96], g: 24, anz: 1, rund: true }, { mm: [104.5, 104.5, 80], g: 28, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   "geister-set-klein": { teile: [{ mm: [46.3, 51.7, 42], g: 6, anz: 1, rund: true }, { mm: [48.9, 50.5, 57.6], g: 6, anz: 1, rund: true }, { mm: [62.7, 62.7, 48], g: 7, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   "kuerbis-klein-set": { teile: [{ mm: [51.1, 50.1, 50], g: 20, anz: 1, rund: true }, { mm: [58.7, 58.5, 50], g: 26, anz: 1, rund: true }, { mm: [59.9, 59.5, 50], g: 28, anz: 1, rund: true }, { mm: [35.4, 35.7, 50], g: 8, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 }, // 4 Kuerbisse = 82 g laut Alex, Masse aus der 3MF
-  "design-kuerbis": { teile: [{ mm: [130, 130, 130], g: 150, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 }, // PLATZHALTER bis Alex Maße/Gramm je Größe nennt (großzügig geschätzt)
+  "design-kuerbis": { teile: [{ mm: [109.7, 109.7, 114.9], g: 82, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 }, // große Größe: 109,7 breit x 114,9 hoch mit Strunk (Alex 18.10.), 82 g = Körper 78,5 + Strunk 3,15 laut Druckaufträgen
   "kuerbis-teelichthalter": { teile: [{ mm: [72, 73, 40], g: 38, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
 };
 /** Unbekannter Slug: grosszuegiger Quader, nie Brief. */

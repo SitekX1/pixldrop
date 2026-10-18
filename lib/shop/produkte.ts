@@ -279,11 +279,11 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "design-kuerbis",
     name: "Design-Kürbis",
-    kurz: "Dekorativer Kürbis in zwei Größen. Platzhalter, Angaben folgen.",
-    beschreibung: "Ein Design-Kürbis als Herbstdeko, in zwei Größen erhältlich. (Platzhalter: Beschreibung, Maße und Gewicht folgen.)",
+    kurz: "Dekorativer Herbst-Kürbis mit Lamellen, ca. 11 cm hoch. Platzhaltertext, Angaben folgen.",
+    beschreibung: "Ein Design-Kürbis als Herbstdeko mit geschwungenen Lamellen und gebogenem Strunk. (Platzhalter: Beschreibung folgt.)",
     gruppe: "allgemein", kategorien: ["halloween", "sonstiges"], form: "laterne", grundfarbe: "#d9731a",
-    preisCent: 1490, masse: null, material: MATERIAL,
-    optionen: [{ id: "kuerbisgroesse", label: "Größe", optionen: [{ id: "klein", label: "Klein" }, { id: "gross", label: "Groß", aufpreisCent: 500 }] }],
+    preisCent: 1490, masse: "110 × 110 × 115", material: MATERIAL,
+    optionen: [], // zweite, kleinere Größe folgt später (dann Option "Größe")
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
 ];
