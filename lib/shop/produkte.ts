@@ -104,6 +104,8 @@ const FARBEN_SKELETT: Farbkombination[] = [
   { id: "violett", label: "Violett", farben: [VIOLETT] },
   { id: "orange", label: "Orange", farben: [ORANGE] },
 ];
+// Feste Farbe ohne Auswahl (Halloween-Untersetzer: nur Schwarz mit Motiv, Alex 18.10.): eine einzige Kombination, die Seite zeigt sie als Hinweis statt als Auswahl
+const FARBEN_NUR_SCHWARZ: Farbkombination[] = [{ id: "schwarz", label: "Schwarz", farben: [SCHWARZ] }];
 /** Artikel mit nur einer Farbe je Auswahl heißen „Farbe“ statt „Farbkombination“. */
 export const nurEinzelfarben = (p: { kombinationen?: Farbkombination[] }): boolean => !!p.kombinationen?.every((k) => k.farben.length === 1);
 const KOMBI_WOCHENTAG: Farbkombination[] = [
@@ -254,8 +256,9 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Drei Untersetzer für die Tasse im Herbst, mit Halloween-Motiv.",
     beschreibung:
       "Drei Untersetzer mit Halloween-Motiv für die Tasse, 90 mm Durchmesser. Auch einzeln erhältlich.",
-    gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
+    gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#1c1c1c",
     preisCent: 1190, masse: null, material: MATERIAL, optionen: korbGruppe(90),
+    kombinationen: FARBEN_NUR_SCHWARZ,
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {
@@ -264,12 +267,13 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Ein Untersetzer mit Halloween-Motiv, Motiv frei wählbar.",
     beschreibung:
       "Ein einzelner Untersetzer mit Halloween-Motiv, 90 mm Durchmesser. Wähle das Motiv. Du möchtest mehrere vom selben Motiv? Dann erhöhe die Menge.",
-    gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#ff8a1f",
+    gruppe: "halloween", kategorien: ["halloween", "untersetzer"], form: "untersetzer-kuerbis", grundfarbe: "#1c1c1c",
     preisCent: 590, masse: null, material: MATERIAL,
     optionen: [
       { id: "motiv", label: "Motiv", optionen: [{ id: "kuerbis", label: "Kürbis" }, { id: "geister", label: "Geister" }, { id: "spukhaus", label: "Spukhaus" }] },
       ...korbGruppe(30),
     ],
+    kombinationen: FARBEN_NUR_SCHWARZ,
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
   {

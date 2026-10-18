@@ -138,8 +138,6 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "kuerbis-teelichthalter": "farbe",
   "kuerbis-laterne": "teile",
   "kuerbis-klein-set": "farbe",
-  "halloween-untersetzer-set": "grund",
-  "halloween-untersetzer-einzeln": "grund",
 };
 
 /** Fotos ohne Maske, die nie umgefärbt werden (Kork-Rückseite): Slug -> Fotonummern (0-basiert). */

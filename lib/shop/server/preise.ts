@@ -131,7 +131,8 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
     let kombi: NonNullable<Produkt["kombinationen"]>[number] | undefined;
     if (produkt.kombinationen) {
       const kid = istObjekt(roh.optionen) ? roh.optionen[KOMBI_KEY] : undefined;
-      kombi = typeof kid === "string" ? produkt.kombinationen.find((k) => k.id === kid) : undefined;
+      // Artikel mit genau einer festen Farbe (Halloween-Untersetzer): ohne Angabe gilt diese
+      kombi = kid === undefined && produkt.kombinationen.length === 1 ? produkt.kombinationen[0] : typeof kid === "string" ? produkt.kombinationen.find((k) => k.id === kid) : undefined;
       if (!kombi) return fehler("farbe_ungueltig", "Bitte wähle eine Farbkombination.");
     } else if (produkt.teile) {
       // Mehrteilig: je Teil eine vorrätige PLA-Lagerfarbe; fehlt ein Teil, gilt die Standardfarbe (wie im Browser: ähnlichste Lagerfarbe zur Referenz, z. B. Orange/Schwarz)

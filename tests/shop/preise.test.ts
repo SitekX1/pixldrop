@@ -423,3 +423,9 @@ test("Skelett: nur die drei Farben, Option heißt Farbe, Päckchen", () => {
   assert.ok(!berechneWarenkorb([{ slug: "skelett-beweglich", menge: 1, farbeId: "schwarz" }], ctx(), "hermes").ok);
   assert.ok(!berechneWarenkorb([{ slug: "skelett-beweglich", menge: 1, optionen: { farbkombi: "weiss" } }], ctx(), "brief").ok);
 });
+
+test("Halloween-Untersetzer: nur Schwarz, ohne Wahl gueltig, fremde Farbe abgelehnt", () => {
+  const ok = berechneWarenkorb([{ slug: "halloween-untersetzer-set", menge: 1 }], ctx());
+  assert.ok(ok.ok);
+  assert.ok(!berechneWarenkorb([{ slug: "halloween-untersetzer-set", menge: 1, optionen: { farbkombi: "orange" } }], ctx()).ok);
+});

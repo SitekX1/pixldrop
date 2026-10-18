@@ -14,8 +14,12 @@ export default function ProductCard({
   const galerieFoto = fotosFuer(p.slug)[0];
   const cover = coverFuer(p.slug, halloweenSicht);
   const foto = cover && galerieFoto ? { src: cover, alt: galerieFoto.alt } : galerieFoto;
-  const sichtbar = farben.slice(0, 5);
-  const rest = farben.length - sichtbar.length;
+  // Artikel mit festen Farben zeigen deren Punkte, nicht das ganze Farblager
+  const kartenFarben: { id: string; hex: string }[] = p.kombinationen
+    ? [...new Map(p.kombinationen.flatMap((k) => k.farben).map((f) => [f.hex, { id: f.hex, hex: f.hex }])).values()]
+    : farben;
+  const sichtbar = kartenFarben.slice(0, 5);
+  const rest = kartenFarben.length - sichtbar.length;
   const meta = [KAT_LABEL[p.kategorien[0]], p.nurAnfrage ? "Nur auf Anfrage" : p.material.split(" ")[0]].join(" · ");
   return (
     <li className={erste ? "shop-first" : undefined}>
@@ -37,7 +41,7 @@ export default function ProductCard({
           <div className="shop-card-price">
             <span className="shop-price-small">{p.nurAnfrage ? TEXTE.preisAnfrage : (p.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0)) ? "ab " : "") + formatPreis(p.preisCent)}</span>
             {sichtbar.length > 0 && (
-              <span className="shop-dots" role="img" aria-label={`${farben.length} Farben`}>
+              <span className="shop-dots" role="img" aria-label={`${kartenFarben.length} ${kartenFarben.length === 1 ? "Farbe" : "Farben"}`}>
                 {sichtbar.map((f) => <i key={f.id} style={{ background: f.hex }} />)}
                 {rest > 0 && <span className="muted" aria-hidden="true">+{rest}</span>}
               </span>

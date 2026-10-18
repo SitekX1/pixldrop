@@ -289,7 +289,9 @@ export default function ProductBuy({
       )}
 
       {/* Farbwahl */}
-      {kombis ? (
+      {kombis && kombis.length === 1 ? (
+        <p className="shop-step"><strong>Farbe: {kombis[0].label}</strong>, Motiv wie auf den Fotos. Gibt es nur in dieser Ausführung.</p>
+      ) : kombis ? (
         <fieldset className="shop-step">
           <legend>{nurEinzelfarben(produkt) ? "Farbe" : "Farbkombination"}</legend>
           <div className="shop-kombis">
