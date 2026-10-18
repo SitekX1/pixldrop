@@ -19,6 +19,8 @@ const ALT: Record<string, string[]> = {
     "Untersetzer Donnerstag: Fast geschafft.",
     "Untersetzer Freitag: Endlich.",
     "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
+    "Box zum Hineinstellen mit eingestellten Untersetzern, davor der Montag-Untersetzer (Option „Mit Box“)",
+    "Leere Box für die Wochentags-Untersetzer (Option „Mit Box“)",
   ],
   // Foto 2 (Datei 1.webp) = Becher mit leerem Namensfeld; das Titelbild ist die Seitenansicht mit Henkel (Datei 2.webp), siehe FOTO_DATEIEN/LIVE_FOTO: Farben und Text deiner Wahl werden live daraufgelegt (components/shop/BecherAufdruck.tsx)
   "stiftebecher-tasse": [
@@ -148,13 +150,15 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
 };
 
 /** Fotos ohne Maske, die nie umgefärbt werden (Kork-Rückseite): Slug -> Fotonummern (0-basiert). */
+/** Beschriftung der Motivfotos (Halloween-Untersetzer einzeln): Foto 1 bis 3 zeigen je ein Motiv, der Name steht in Gruselschrift auf dem Bild. */
+export const MOTIV_BESCHRIFTUNG: Record<string, string[]> = { "halloween-untersetzer-einzeln": ["Kürbis", "Geister", "Spukhaus"] };
 export const OHNE_UMFAERBEN: Record<string, number[]> = {
   "spruch-untersetzer": [1],
   "namensschild": [1, 2, 3], // Beispielfotos mit Schrift bleiben Alex' Originale
   "stiftebecher-tasse": [0, 2, 3], // Anzeige-Index: Titelbild und Beispielfotos bleiben Originale, Index 1 ist die Live-Vorschau // Alex' Originalfotos bleiben unverändert (Beispielstücke)
   "kuerbis-laterne": [1], // Dunkel-Foto mit LED-Teelicht: Originalfarben
   "wochentags-untersetzer-set": [5],
-  "wochentags-untersetzer-einzeln": [5],
+  "wochentags-untersetzer-einzeln": [5, 6, 7], // 5 = Kork-Rückseite, 6/7 = Box-Fotos
   "halloween-untersetzer-set": [5],
   "halloween-untersetzer-einzeln": [3],
 };

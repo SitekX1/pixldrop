@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import type { Form } from "@/lib/shop/produkte";
-import { liveIdx, MIT_AUFDRUCK, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, istOriginalTeile, darfUmfaerben, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
+import { liveIdx, MIT_AUFDRUCK, MOTIV_BESCHRIFTUNG, ORIGINALFARBE, ORIGINAL_ABSTAND, ORIGINAL_LINIE, istOriginalTeile, darfUmfaerben, TAG_FOTO, UMFAERBEN, type Foto } from "@/lib/shop/fotos";
 import { umfaerben, zielFarben, type UmfaerbModus } from "@/lib/shop/umfaerben";
 import { teelichtFaerben } from "./teelichtFaerben";
 import { vorbereiteFoto, farbAbstand } from "./fotoFaerben";
@@ -96,6 +96,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorTe
           {aktiv && (
             <canvas ref={canvas} className="shop-foto" width={GROESSE} height={GROESSE} role="img" aria-label={`${foto.alt}, in deiner gewählten Farbe`} style={zeigeCanvas ? undefined : { visibility: "hidden" }} />
           )}
+          {!imCover && MOTIV_BESCHRIFTUNG[slug]?.[idx] && <span className="shop-motivlabel" aria-hidden="true">{MOTIV_BESCHRIFTUNG[slug][idx]}</span>}
           {mitAufdruck && (slug === "namensschild" ? <NamensschildAufdruck w={w} /> : slug === "stiftebecher-tasse" ? <BecherAufdruck w={w} /> : <UntersetzerAufdruck w={w} />)}
         </div>
       ) : (
