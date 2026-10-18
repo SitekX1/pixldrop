@@ -96,7 +96,7 @@ export interface VersandProdukt {
   teile: PackTeil[];
   /** Mit Box (BOX_MIT): ersetzt die Teile durch die Box mit Inhalt */
   teileMitBox?: PackTeil[];
-  /** Teile je gewählter Größe (Option `kuerbisgroesse`); fehlt die Wahl, gilt `teile` (= kleinste Größe, Standard der Option) */
+  /** Teile je gewählter Größe (Option `kuerbisgroesse`); fehlt die Wahl, gilt `teile` */
   teileJeGroesse?: Record<string, PackTeil[]>;
   briefFaehig: boolean;
   /** Stueck je Menge fuer die Brief-Grenzen (ein Set zaehlt mehrfach) */
@@ -126,7 +126,7 @@ const ROH: Record<string, Roh> = {
   "kuerbis-klein-set": { teile: [{ mm: [51.1, 50.1, 50], g: 20, anz: 1, rund: true }, { mm: [58.7, 58.5, 50], g: 26, anz: 1, rund: true }, { mm: [59.9, 59.5, 50], g: 28, anz: 1, rund: true }, { mm: [35.4, 35.7, 50], g: 8, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 }, // 4 Kuerbisse = 82 g laut Alex, Masse aus der 3MF
   // Design-Kürbis in drei Größen (Maße von Alex 18.10.: klein 55 x 57,4, mittel 110 x 114,9, groß 140 x 145 mm mit Strunk). Gramm: mittel gewogen 82 g, klein und groß GESCHÄTZT bis gewogen
   "design-kuerbis": {
-    teile: [{ mm: [55, 55, 57.4], g: 14, anz: 1, rund: true }],
+    teile: [{ mm: [109.7, 109.7, 114.9], g: 82, anz: 1, rund: true }], // aktuell nur die mittlere Größe im Shop
     teileJeGroesse: {
       klein: [{ mm: [55, 55, 57.4], g: 14, anz: 1, rund: true }],
       mittel: [{ mm: [109.7, 109.7, 114.9], g: 82, anz: 1, rund: true }],

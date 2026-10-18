@@ -144,7 +144,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       const gewaehlt: Farbe[] = [];
       for (const t of produkt.teile) {
         const w = wahl[t.id];
-        if (w === undefined) { const standard = standardTeilFarbe(t.id, ctx.farben)!; gewaehlt.push(standard); teilOptionen[t.label] = standard.name; continue; }
+        if (w === undefined) { const standard = standardTeilFarbe(t.id, ctx.farben, t.referenz)!; gewaehlt.push(standard); teilOptionen[t.label] = standard.name; continue; }
         const f = typeof w === "string" ? ctx.farben.find((x) => x.id === w) : undefined;
         if (!f) return fehler("farbe_ungueltig", `Die Farbe für „${t.label}“ ist nicht (mehr) vorrätig. Bitte wähle eine andere.`);
         gewaehlt.push(f);

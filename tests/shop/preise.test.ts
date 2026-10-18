@@ -430,12 +430,8 @@ test("Halloween-Untersetzer: nur Schwarz, ohne Wahl gueltig, fremde Farbe abgele
   assert.ok(!berechneWarenkorb([{ slug: "halloween-untersetzer-set", menge: 1, optionen: { farbkombi: "orange" } }], ctx()).ok);
 });
 
-test("Design-Kuerbis: drei Groessen, Preis steigt mit der Groesse, unbekannte Groesse abgelehnt", () => {
-  const preis = (g?: string) => { const r = berechneWarenkorb([{ slug: "design-kuerbis", menge: 1, farbeId: "schwarz", ...(g ? { optionen: { kuerbisgroesse: g } } : {}) }], ctx()); return r.ok ? r.wert.positionen[0].einzelpreisCent : null; };
-  // Katalog der Tests setzt jeden Basispreis auf 12,90: Aufpreise +5 / +10 EUR
-  assert.equal(preis(), null); // Größe muss gewählt sein (Shop sendet die Vorauswahl "klein")
-  assert.equal(preis("klein"), 1290);
-  assert.equal(preis("mittel"), 1790);
-  assert.equal(preis("gross"), 2290);
-  assert.equal(preis("riesig"), null);
+test("Design-Kuerbis: Koerper und Strunk waehlbar, Standardfarben, fremde Teile abgelehnt", () => {
+  const r = berechneWarenkorb([{ slug: "design-kuerbis", menge: 1 }], ctx());
+  assert.ok(r.ok);
+  assert.ok(!berechneWarenkorb([{ slug: "design-kuerbis", menge: 1, teilFarben: { henkel: "schwarz" } }], ctx()).ok);
 });

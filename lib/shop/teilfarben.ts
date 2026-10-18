@@ -19,15 +19,15 @@ export function farbAbstand(a: string, b: string): number {
 }
 
 /** Standardfarbe eines Teils: ähnlichste Lagerfarbe zur Referenzfarbe, sonst die erste. */
-export function standardTeilFarbe(teilId: string, farben: Farbe[]): Farbe | undefined {
-  const ref = REFERENZ[teilId];
+export function standardTeilFarbe(teilId: string, farben: Farbe[], referenz?: string): Farbe | undefined {
+  const ref = referenz ?? REFERENZ[teilId];
   if (!ref) return farben[0];
   return farben.reduce<Farbe | undefined>((best, f) => (!best || farbAbstand(f.hex, ref) < farbAbstand(best.hex, ref) ? f : best), undefined);
 }
 
 export function standardTeilFarben(teile: NonNullable<Produkt["teile"]>, farben: Farbe[]): Record<string, string> {
   const r: Record<string, string> = {};
-  for (const t of teile) { const f = standardTeilFarbe(t.id, farben); if (f) r[t.id] = f.id; }
+  for (const t of teile) { const f = standardTeilFarbe(t.id, farben, t.referenz); if (f) r[t.id] = f.id; }
   return r;
 }
 
@@ -35,7 +35,7 @@ export function standardTeilFarben(teile: NonNullable<Produkt["teile"]>, farben:
 export function teilFarbenVon(p: Produkt, a: Pick<Auswahl, "teilFarben">, farben: Farbe[]): { id: string; label: string; farbe?: Farbe }[] {
   return (p.teile ?? []).map((t) => ({
     id: t.id, label: t.label,
-    farbe: farben.find((f) => f.id === a.teilFarben?.[t.id]) ?? (a.teilFarben?.[t.id] ? undefined : standardTeilFarbe(t.id, farben)),
+    farbe: farben.find((f) => f.id === a.teilFarben?.[t.id]) ?? (a.teilFarben?.[t.id] ? undefined : standardTeilFarbe(t.id, farben, t.referenz)),
   }));
 }
 

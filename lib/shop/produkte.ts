@@ -58,7 +58,7 @@ export interface Produkt {
   /** Fertige Farbkombinationen; gesetzt = keine Lagerfarb-Wahl, Auswahl als optionen.farbkombi (erste = Standard). */
   kombinationen?: Farbkombination[];
   /** Mehrteilige Artikel: je Teil eine Lagerfarbe (Auswahl.teilFarben: teilId -> farbeId). */
-  teile?: { id: string; label: string }[];
+  teile?: { id: string; label: string; /** Vorauswahl: ähnlichste Lagerfarbe zu dieser Farbe (sonst Standard je Teil-ID, siehe teilfarben.ts) */ referenz?: string }[];
   personalisierung: null | Personalisierung;
   /** Zusätzlich wählbare Linienfarbe (Zierlinien am Rand, Individueller Untersetzer): Lagerfarbe, hebt sich vom Untergrund ab. */
   linienfarbe?: boolean;
@@ -279,12 +279,13 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "design-kuerbis",
     name: "Design-Kürbis",
-    kurz: "Moderner Deko-Kürbis mit geschwungenen Lamellen, in drei Größen.",
+    kurz: "Moderner Deko-Kürbis mit geschwungenen Lamellen, ca. 11 cm hoch. Farbe von Kürbis und Strunk wählbar.",
     beschreibung:
-      "Ein Kürbis als Herbstdeko, ganz ohne Gesicht: 18 geschwungene Lamellen laufen wie gedreht um den Körper, oben sitzt ein gebogener Strunk mit gebrochener Spitze. Der Kürbis steht sicher auf einer flachen Bodenfläche und passt auf Fensterbank, Sideboard oder Esstisch, gern auch in einer Gruppe aus allen drei Größen. Er ist ein reines Deko-Stück ohne Öffnung, ein Teelicht passt nicht hinein. Körper und Strunk werden getrennt gedruckt und von mir zusammengesteckt und verklebt. Die Oberfläche ist fein und leicht rau, die Lamellen sieht man auch im Streiflicht. Die Fotos zeigen die mittlere Größe in Sand; Größe wählst du unten aus.",
+      "Ein Kürbis als Herbstdeko, ganz ohne Gesicht: 18 geschwungene Lamellen laufen wie gedreht um den Körper, oben sitzt ein gebogener Strunk mit gebrochener Spitze. Der Kürbis steht sicher auf einer flachen Bodenfläche und passt auf Fensterbank, Sideboard oder Esstisch. Er ist ein reines Deko-Stück ohne Öffnung, ein Teelicht passt nicht hinein. Körper und Strunk werden getrennt gedruckt und von mir zusammengesteckt und verklebt, deshalb kannst du beide Teile in einer eigenen Farbe wählen. Die Oberfläche ist fein und leicht rau, die Lamellen sieht man auch im Streiflicht. Die Fotos zeigen den Kürbis in Sand mit weißem Strunk, das erste Foto färbt sich nach deiner Wahl um.",
     gruppe: "allgemein", kategorien: ["halloween", "sonstiges"], form: "laterne", grundfarbe: "#d9731a",
-    preisCent: 690, masse: null, material: MATERIAL, // Preise sind Richtwerte (Alex/Karla 18.10.): klein 6,90 (nie mehr), mittel 11,90, groß 16,90
-    optionen: [{ id: "kuerbisgroesse", label: "Größe", optionen: [{ id: "klein", label: "Klein (55 × 57 mm)" }, { id: "mittel", label: "Mittel (110 × 115 mm)", aufpreisCent: 500 }, { id: "gross", label: "Groß (140 × 145 mm)", aufpreisCent: 1000 }] }],
+    preisCent: 1190, masse: "110 × 110 × 115", material: MATERIAL, // Richtpreis (Karla 18.10.), Alex entscheidet; weitere Größen klein 55 × 57 mm (max. 6,90 €) und groß 140 × 145 mm folgen später
+    teile: [{ id: "koerper", label: "Kürbis", referenz: "#c2ad96" }, { id: "stiel", label: "Strunk", referenz: "#f4f1ea" }],
+    optionen: [], // Größenauswahl (klein/mittel/groß) kommt, sobald die anderen Größen gedruckt sind; Versandmaße je Größe liegen schon in versand.ts
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
 ];
