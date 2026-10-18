@@ -7,6 +7,14 @@ const nextConfig = {
       { protocol: "https", hostname: "i.scdn.co" },
     ],
   },
+  // Kurze Links fuer Profile (Bio): zaehlen die Herkunft, ohne "?" im sichtbaren Link.
+  async redirects() {
+    return [
+      { source: "/tiktok", destination: "/3d-druck?quelle=tiktok", permanent: false },
+      { source: "/insta", destination: "/3d-druck?quelle=instagram", permanent: false },
+      { source: "/shop", destination: "/3d-druck?quelle=kurzlink", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {
