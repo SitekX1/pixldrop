@@ -279,8 +279,9 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "design-kuerbis",
     name: "Design-Kürbis",
-    kurz: "Dekorativer Herbst-Kürbis mit Lamellen in drei Größen. Platzhaltertext, Angaben folgen.",
-    beschreibung: "Ein Design-Kürbis als Herbstdeko mit geschwungenen Lamellen und gebogenem Strunk. (Platzhalter: Beschreibung folgt.)",
+    kurz: "Moderner Deko-Kürbis mit geschwungenen Lamellen, in drei Größen.",
+    beschreibung:
+      "Ein Kürbis als Herbstdeko, ganz ohne Gesicht: 18 geschwungene Lamellen laufen wie gedreht um den Körper, oben sitzt ein gebogener Strunk mit gebrochener Spitze. Der Kürbis steht sicher auf einer flachen Bodenfläche und passt auf Fensterbank, Sideboard oder Esstisch, gern auch in einer Gruppe aus allen drei Größen. Er ist ein reines Deko-Stück ohne Öffnung, ein Teelicht passt nicht hinein. Körper und Strunk werden getrennt gedruckt und von mir zusammengesteckt und verklebt. Die Oberfläche ist fein und leicht rau, die Lamellen sieht man auch im Streiflicht. Die Fotos zeigen die mittlere Größe in Sand; Größe wählst du unten aus.",
     gruppe: "allgemein", kategorien: ["halloween", "sonstiges"], form: "laterne", grundfarbe: "#d9731a",
     preisCent: 690, masse: null, material: MATERIAL, // Preise sind Richtwerte (Alex/Karla 18.10.): klein 6,90 (nie mehr), mittel 11,90, groß 16,90
     optionen: [{ id: "kuerbisgroesse", label: "Größe", optionen: [{ id: "klein", label: "Klein (55 × 57 mm)" }, { id: "mittel", label: "Mittel (110 × 115 mm)", aufpreisCent: 500 }, { id: "gross", label: "Groß (140 × 145 mm)", aufpreisCent: 1000 }] }],
