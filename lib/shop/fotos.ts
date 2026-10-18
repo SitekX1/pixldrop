@@ -63,7 +63,7 @@ const ALT: Record<string, string[]> = {
     "Bewegliches Skelett sitzt, die Gelenke sind beweglich",
     "Bewegliches Skelett liegt in lockerer Pose",
   ],
-  // Fotos zeigen die mittlere Größe (110 mm) in Sand
+  // Fotos zeigen die mittlere Größe (110 mm) in Latte mit weißem Strunk
   "design-kuerbis": [
     "Design-Kürbis mit geschwungenen Lamellen und hellem Strunk, Vorderansicht",
     "Design-Kürbis von der Seite, Strunk leicht gebogen",

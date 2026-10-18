@@ -105,7 +105,7 @@ const FARBEN_SKELETT: Farbkombination[] = [
   { id: "orange", label: "Orange", farben: [ORANGE] },
 ];
 // Feste Farbe ohne Auswahl (Halloween-Untersetzer: nur die abgebildete Ausführung schwarz/orange/weiß, Alex 18.10.): eine einzige Kombination, die Seite zeigt sie als Hinweis statt als Auswahl
-const FARBEN_DESIGN_KUERBIS: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [{ name: "Sand", hex: "#c2ad96" }, WEISS] }]; // Sand + weißer Strunk, wie fotografiert
+const FARBEN_DESIGN_KUERBIS: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [{ name: "Latte", hex: "#d3b7a7" }, WEISS] }]; // Latte + weißer Strunk, wie fotografiert
 const FARBEN_NUR_SCHWARZ: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [SCHWARZ, ORANGE, WEISS] }];
 /** Artikel mit nur einer Farbe je Auswahl heißen „Farbe“ statt „Farbkombination“. */
 export const nurEinzelfarben = (p: { kombinationen?: Farbkombination[] }): boolean => !!p.kombinationen?.every((k) => k.farben.length === 1);
@@ -282,8 +282,8 @@ export const PRODUKTE: Produkt[] = [
     name: "Design-Kürbis",
     kurz: "Moderner Deko-Kürbis mit geschwungenen Lamellen, ca. 11 cm hoch.",
     beschreibung:
-      "Ein Kürbis als Herbstdeko, ganz ohne Gesicht: 18 geschwungene Lamellen laufen wie gedreht um den Körper, oben sitzt ein gebogener Strunk mit gebrochener Spitze. Der Kürbis steht sicher auf einer flachen Bodenfläche und passt auf Fensterbank, Sideboard oder Esstisch. Er ist ein reines Deko-Stück ohne Öffnung, ein Teelicht passt nicht hinein. Körper und Strunk werden getrennt gedruckt und von mir zusammengesteckt und verklebt. Die Oberfläche ist fein und leicht rau, die Lamellen sieht man auch im Streiflicht. Den Kürbis gibt es aktuell nur in der abgebildeten Ausführung: Sand mit weißem Strunk.",
-    gruppe: "allgemein", kategorien: ["halloween", "sonstiges"], form: "laterne", grundfarbe: "#d9731a",
+      "Ein Kürbis als Herbstdeko: 18 geschwungene Lamellen laufen wie gedreht um den Körper, oben sitzt ein gebogener Strunk mit gebrochener Spitze. Der Kürbis steht sicher auf einer flachen Bodenfläche und passt auf Fensterbank, Sideboard oder Esstisch. Er ist ein reines Deko-Stück ohne Öffnung, ein Teelicht passt nicht hinein. Körper und Strunk werden getrennt gedruckt und von mir zusammengesteckt und verklebt. Die Oberfläche ist fein und leicht rau, die Lamellen sieht man auch im Streiflicht. Den Kürbis gibt es aktuell nur in der abgebildeten Ausführung: Latte mit weißem Strunk.",
+    gruppe: "allgemein", kategorien: ["sonstiges"], form: "laterne", grundfarbe: "#d9731a",
     preisCent: 1190, masse: "110 × 110 × 115", material: MATERIAL, // Richtpreis (Karla 18.10.), Alex entscheidet; weitere Größen klein 55 × 57 mm (max. 6,90 €) und groß 140 × 145 mm folgen später
     kombinationen: FARBEN_DESIGN_KUERBIS, // feste Ausführung ohne Farbwahl (Alex 18.10.); Farbvarianten kommen mit den weiteren Größen
     optionen: [], // Größenauswahl (klein/mittel/groß) kommt, sobald die anderen Größen gedruckt sind; Versandmaße je Größe liegen schon in versand.ts
