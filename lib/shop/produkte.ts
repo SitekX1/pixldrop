@@ -1,6 +1,6 @@
 // Produktdaten. Später durch DB/Supabase ersetzbar, die Typen bleiben gleich.
 // Keine erfundenen Maße, Gewichte oder Bewertungen: masse null = Maßblock wird nicht angezeigt.
-import { halloweenModus, TEXTE } from "./config";
+import { ENTWURF_MODUS, halloweenModus, TEXTE } from "./config";
 const TEXTE_LED = TEXTE.ledHinweis;
 
 export type Kategorie = "halloween" | "untersetzer" | "sonstiges";
@@ -67,6 +67,8 @@ export interface Produkt {
   nurAnfrage?: boolean;
   hinweise: string[];
   bestseller?: boolean;
+  /** Platzhalter ohne fertige Daten (Preis, Maße, Gewicht, Fotos): nur im Entwurfs-/Vorschau-Modus sichtbar, nie im Live-Shop. Flag entfernen, sobald alles stimmt. */
+  entwurf?: boolean;
 }
 
 const KEIN_SPIELZEUG = "Kein Spielzeug. Enthält Kleinteile bzw. kann zerbrechen: von Kleinkindern fernhalten.";
@@ -269,6 +271,16 @@ export const PRODUKTE: Produkt[] = [
     ],
     personalisierung: null, hinweise: [HITZE, KEIN_SPIELZEUG],
   },
+  {
+    slug: "design-kuerbis",
+    name: "Design-Kürbis",
+    kurz: "Dekorativer Kürbis in zwei Größen. Platzhalter, Angaben folgen.",
+    beschreibung: "Ein Design-Kürbis als Herbstdeko, in zwei Größen erhältlich. (Platzhalter: Beschreibung, Maße und Gewicht folgen.)",
+    gruppe: "allgemein", kategorien: ["halloween", "sonstiges"], form: "laterne", grundfarbe: "#d9731a",
+    preisCent: 1490, masse: null, material: MATERIAL,
+    optionen: [{ id: "kuerbisgroesse", label: "Größe", optionen: [{ id: "klein", label: "Klein" }, { id: "gross", label: "Groß", aufpreisCent: 500 }] }],
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+  },
 ];
 
 export const KATEGORIEN: { id: "alle" | Kategorie; label: string }[] = [
@@ -281,7 +293,7 @@ export const KATEGORIEN: { id: "alle" | Kategorie; label: string }[] = [
 /** Sichtbare Produkte: Halloween-Artikel nur, wenn der Modus nicht "off" ist. */
 export function sichtbareProdukte(): Produkt[] {
   const aus = halloweenModus() === "off";
-  return PRODUKTE.filter((p) => !(aus && p.gruppe === "halloween"));
+  return PRODUKTE.filter((p) => !(aus && p.gruppe === "halloween") && !(p.entwurf && !ENTWURF_MODUS));
 }
 
 /** Artikelnummern (Produktidentifikation nach GPSR); stabil halten, nie umnummerieren. */
@@ -299,6 +311,7 @@ const ARTIKELNR: Record<string, string> = {
   "kuerbis-teelichthalter": "PD-010",
   "halloween-untersetzer-set": "PD-011",
   "halloween-untersetzer-einzeln": "PD-012",
+  "design-kuerbis": "PD-014",
 };
 export function artikelnummer(slug: string): string | null { return ARTIKELNR[slug] ?? null; }
 /** Teelichtfach (aus dem Modell gemessen): nur Artikel mit offenem Fach. */
