@@ -25,7 +25,7 @@ export default function ProductCard({
     <li className={erste ? "shop-first" : undefined}>
       <article className={gesperrt ? "shop-card shop-card--gesperrt" : "shop-card"}>
         {foto ? (
-          <div className={`shop-img ${erste ? "shop-img--wide" : ""}`}>
+          <div className={`shop-img ${erste && !cover ? "shop-img--wide" : ""}`}> {/* Cover-Bilder sind quadratisch: nie auf 4:3 beschneiden */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="shop-foto" src={foto.src} alt={foto.alt} width={1100} height={1100} loading={erste ? "eager" : "lazy"} decoding="async" />
           </div>
