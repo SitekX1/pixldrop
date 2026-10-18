@@ -96,6 +96,8 @@ export interface VersandProdukt {
   teile: PackTeil[];
   /** Mit Box (BOX_MIT): ersetzt die Teile durch die Box mit Inhalt */
   teileMitBox?: PackTeil[];
+  /** Teile je gewählter Größe (Option `kuerbisgroesse`); fehlt die Wahl, gilt `teile` (= kleinste Größe, Standard der Option) */
+  teileJeGroesse?: Record<string, PackTeil[]>;
   briefFaehig: boolean;
   /** Stueck je Menge fuer die Brief-Grenzen (ein Set zaehlt mehrfach) */
   stueckJeMenge: number;
@@ -122,7 +124,16 @@ const ROH: Record<string, Roh> = {
   "geister-set": { teile: [{ mm: [77.2, 86.2, 70], g: 21, anz: 1, rund: true }, { mm: [81.5, 84.2, 96], g: 24, anz: 1, rund: true }, { mm: [104.5, 104.5, 80], g: 28, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   "geister-set-klein": { teile: [{ mm: [46.3, 51.7, 42], g: 6, anz: 1, rund: true }, { mm: [48.9, 50.5, 57.6], g: 6, anz: 1, rund: true }, { mm: [62.7, 62.7, 48], g: 7, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   "kuerbis-klein-set": { teile: [{ mm: [51.1, 50.1, 50], g: 20, anz: 1, rund: true }, { mm: [58.7, 58.5, 50], g: 26, anz: 1, rund: true }, { mm: [59.9, 59.5, 50], g: 28, anz: 1, rund: true }, { mm: [35.4, 35.7, 50], g: 8, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 }, // 4 Kuerbisse = 82 g laut Alex, Masse aus der 3MF
-  "design-kuerbis": { teile: [{ mm: [109.7, 109.7, 114.9], g: 82, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 }, // große Größe: 109,7 breit x 114,9 hoch mit Strunk (Alex 18.10.), 82 g = Körper 78,5 + Strunk 3,15 laut Druckaufträgen
+  // Design-Kürbis in drei Größen (Maße von Alex 18.10.: klein 55 x 57,4, mittel 110 x 114,9, groß 140 x 145 mm mit Strunk). Gramm: mittel gewogen 82 g, klein und groß GESCHÄTZT bis gewogen
+  "design-kuerbis": {
+    teile: [{ mm: [55, 55, 57.4], g: 14, anz: 1, rund: true }],
+    teileJeGroesse: {
+      klein: [{ mm: [55, 55, 57.4], g: 14, anz: 1, rund: true }],
+      mittel: [{ mm: [109.7, 109.7, 114.9], g: 82, anz: 1, rund: true }],
+      gross: [{ mm: [140, 140, 145], g: 160, anz: 1, rund: true }],
+    },
+    briefFaehig: false, stueckJeMenge: 1,
+  },
   "kuerbis-teelichthalter": { teile: [{ mm: [72, 73, 40], g: 38, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
 };
 /** Unbekannter Slug: grosszuegiger Quader, nie Brief. */
@@ -134,7 +145,8 @@ function stueckVon(t: PackTeil): Stueck {
   const [l, m, k] = [...t.mm].sort((x, y) => y - x);
   return { l, m, k, g: t.g, vol: l * m * k, rund: t.rund, hohl: t.hohl };
 }
-function teileJeStueck(roh: Roh, box: boolean, kork = false): PackTeil[] {
+function teileJeStueck(roh: Roh, box: boolean, kork = false, groesse?: unknown): PackTeil[] {
+  if (roh.teileJeGroesse && typeof groesse === "string" && roh.teileJeGroesse[groesse]) return roh.teileJeGroesse[groesse];
   if (box && roh.teileMitBox && kork) return roh.teileMitBox === BOX_SET ? BOX_SET_KORK : roh.teileMitBox;
   return box && roh.teileMitBox ? roh.teileMitBox : roh.teile;
 }
@@ -208,7 +220,7 @@ function stueckeAusKorb(positionen: readonly VersandPosition[]): Stueck[] {
   for (const p of positionen) {
     const roh = ROH[p.slug] ?? UNBEKANNT;
     const box = p.optionen?.[BOX_GRUPPE] === BOX_MIT;
-    for (let i = 0, n = Math.min(mengeOk(p.menge), 500); i < n; i++) out.push(...stueckeAusTeilen(teileJeStueck(roh, box, p.optionen?.kork === "mit")));
+    for (let i = 0, n = Math.min(mengeOk(p.menge), 500); i < n; i++) out.push(...stueckeAusTeilen(teileJeStueck(roh, box, p.optionen?.kork === "mit", p.optionen?.kuerbisgroesse)));
   }
   return verschachtele(out);
 }
