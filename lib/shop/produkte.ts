@@ -1,6 +1,6 @@
 // Produktdaten. Später durch DB/Supabase ersetzbar, die Typen bleiben gleich.
 // Keine erfundenen Maße, Gewichte oder Bewertungen: masse null = Maßblock wird nicht angezeigt.
-import { ENTWURF_MODUS, halloweenModus, TEXTE } from "./config";
+import { halloweenModus, TEXTE } from "./config";
 const TEXTE_LED = TEXTE.ledHinweis;
 
 export type Kategorie = "halloween" | "untersetzer" | "sonstiges";
@@ -67,7 +67,7 @@ export interface Produkt {
   nurAnfrage?: boolean;
   hinweise: string[];
   bestseller?: boolean;
-  /** Platzhalter ohne fertige Daten (Preis, Maße, Gewicht, Fotos): nur im Entwurfs-/Vorschau-Modus sichtbar, nie im Live-Shop. Flag entfernen, sobald alles stimmt. */
+  /** Platzhalter ohne fertige Daten (Preis, Maße, Gewicht, Fotos): nur in Vorschau/lokal sichtbar (VERCEL_ENV !== production), nie im Live-Shop. Flag entfernen, sobald alles stimmt. */
   entwurf?: boolean;
 }
 
@@ -295,10 +295,13 @@ export const KATEGORIEN: { id: "alle" | Kategorie; label: string }[] = [
   { id: "sonstiges", label: "Sonstiges" },
 ];
 
+/** Echte Live-Seite (Vercel-Production). Vorschau-Deployments und lokale Entwicklung zeigen Entwurfs-Produkte, Production nie. */
+const liveUmgebung = (): boolean => typeof process !== "undefined" && process.env?.VERCEL_ENV === "production";
+
 /** Sichtbare Produkte: Halloween-Artikel nur, wenn der Modus nicht "off" ist. */
 export function sichtbareProdukte(): Produkt[] {
   const aus = halloweenModus() === "off";
-  return PRODUKTE.filter((p) => !(aus && p.gruppe === "halloween") && !(p.entwurf && !ENTWURF_MODUS));
+  return PRODUKTE.filter((p) => !(aus && p.gruppe === "halloween") && !(p.entwurf && liveUmgebung()));
 }
 
 /** Artikelnummern (Produktidentifikation nach GPSR); stabil halten, nie umnummerieren. */
