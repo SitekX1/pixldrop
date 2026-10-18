@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Ring from "./Ring";
 import ProductImage from "./ProductImage";
-import { fotosFuer } from "@/lib/shop/fotos";
+import { coverFuer, fotosFuer } from "@/lib/shop/fotos";
 import { formatPreis, TEXTE } from "@/lib/shop/config";
 import type { Produkt } from "@/lib/shop/produkte";
 import type { Farbe } from "@/lib/shop/farben";
@@ -11,7 +11,9 @@ const KAT_LABEL: Record<string, string> = { halloween: "Halloween", untersetzer:
 export default function ProductCard({
   p, farben, vorschau, erste = false, gesperrt = false,
 }: { p: Produkt; farben: Farbe[]; vorschau: boolean; erste?: boolean; gesperrt?: boolean }) {
-  const foto = fotosFuer(p.slug)[0];
+  const galerieFoto = fotosFuer(p.slug)[0];
+  const cover = coverFuer(p.slug);
+  const foto = cover && galerieFoto ? { src: cover, alt: galerieFoto.alt } : galerieFoto;
   const sichtbar = farben.slice(0, 5);
   const rest = farben.length - sichtbar.length;
   const meta = [KAT_LABEL[p.kategorien[0]], p.nurAnfrage ? "Nur auf Anfrage" : p.material.split(" ")[0]].join(" · ");

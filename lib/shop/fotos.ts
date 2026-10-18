@@ -99,6 +99,10 @@ export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [2
 export const LIVE_FOTO: Record<string, number> = { "stiftebecher-tasse": 1 };
 export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
 
+/** Produkte mit eigenem Cover-Bild für die Shop-Übersicht (public/shop/cover/<slug>.webp, 1100 × 1100). Die Galerie auf der Produktseite bleibt unverändert. Slug hier eintragen, sobald die Datei liegt. */
+export const COVER: string[] = [];
+export const coverFuer = (slug: string): string | undefined => (COVER.includes(slug) ? `/shop/cover/${slug}.webp` : undefined);
+
 export function fotosFuer(slug: string): Foto[] {
   return (ALT[slug] ?? []).map((alt, i) => ({ src: `/shop/fotos/${slug}/${FOTO_DATEIEN[slug]?.[i] ?? i + 1}.webp`, alt }));
 }
