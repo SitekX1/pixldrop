@@ -237,6 +237,7 @@ export const PRODUKTE: Produkt[] = [
     preisCent: 990, masse: "60 × 60 × 50", material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
+  // TODO nach Halloween-Ende (3.11.2026): gruppe auf "allgemein" stellen (Kategorien halloween+sonstiges lassen), sonst verschwindet der Teelichthalter mit den Halloween-Artikeln. Design-Cover (kuerbis-teelichthalter-design.webp) ist schon da. Siehe OFFEN.md.
   {
     slug: "kuerbis-teelichthalter",
     name: "Kürbis-Teelichthalter, offen",
