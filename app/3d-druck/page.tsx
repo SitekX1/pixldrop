@@ -24,10 +24,16 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const alle = sichtbareProdukte();
   const gueltig = KATEGORIEN.filter((k) => k.id !== "halloween" || modus !== "off");
   const aktiv = gueltig.find((k) => k.id === kategorie)?.id ?? "alle";
-  // "Alle": Standardartikel zuerst, saisonale Halloween-Artikel unten (stabile Sortierung).
+  // "Alle": Standardartikel zuerst, darunter (abgesetzt, mit Überschrift) die saisonalen Halloween-Artikel.
   const liste = aktiv === "alle"
     ? [...alle].sort((a, b) => Number(a.gruppe === "halloween") - Number(b.gruppe === "halloween"))
     : alle.filter((p) => p.kategorien.includes(aktiv as Kategorie));
+  const gruppiert = aktiv === "alle" && modus !== "off" && liste.some((p) => p.gruppe === "halloween") && liste.some((p) => p.gruppe !== "halloween");
+  const normal = gruppiert ? liste.filter((p) => p.gruppe !== "halloween") : liste;
+  const saison = gruppiert ? liste.filter((p) => p.gruppe === "halloween") : [];
+  const karte = (p: (typeof liste)[number], i: number) => (
+    <ProductCard key={p.slug} p={p} farben={farben} gesperrt={wunschtextPausiert && !!p.personalisierung} vorschau={modus === "preview"} halloweenSicht={halloween} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
+  );
   const halloween = aktiv === "halloween";
 
   return (
@@ -67,11 +73,19 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
         <div id="stuecke" className="shop-stuecke">
         {halloween && <p className="shop-alle-link"><Link href="/3d-druck#stuecke">&larr; Alle Stücke</Link></p>}
         {liste.length > 0 ? (
-          <ul className="shop-grid" aria-label="Produkte">
-            {liste.map((p, i) => (
-              <ProductCard key={p.slug} p={p} farben={farben} gesperrt={wunschtextPausiert && !!p.personalisierung} vorschau={modus === "preview"} halloweenSicht={halloween} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
-            ))}
-          </ul>
+          <>
+            <ul className="shop-grid" aria-label="Produkte">
+              {normal.map(karte)}
+            </ul>
+            {saison.length > 0 && (
+              <>
+                <h2 className="shop-gruppe-titel" id="saison-titel"><span>Halloween-Kollektion</span><small>nur bis Anfang November</small></h2>
+                <ul className="shop-grid" aria-labelledby="saison-titel">
+                  {saison.map(karte)}
+                </ul>
+              </>
+            )}
+          </>
         ) : (
           <div className="shop-empty" role="status">
             <EddieSchnitt className="shop-eddie-mini" />

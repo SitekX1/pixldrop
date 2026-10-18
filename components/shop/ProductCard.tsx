@@ -20,7 +20,8 @@ export default function ProductCard({
     : farben;
   const sichtbar = kartenFarben.slice(0, 5);
   const rest = kartenFarben.length - sichtbar.length;
-  const meta = [KAT_LABEL[p.kategorien[0]], p.nurAnfrage ? "Nur auf Anfrage" : p.material.split(" ")[0]].join(" · ");
+  const kat = (p.gruppe === "allgemein" ? p.kategorien.find((k) => k !== "halloween") : undefined) ?? p.kategorien[0]; // Standardartikel mit Halloween-Nebenkategorie heißen nicht "Halloween"
+  const meta = [KAT_LABEL[kat], p.nurAnfrage ? "Nur auf Anfrage" : p.material.split(" ")[0]].join(" · ");
   return (
     <li className={erste ? "shop-first" : undefined}>
       <article className={gesperrt ? "shop-card shop-card--gesperrt" : "shop-card"}>
