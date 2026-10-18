@@ -287,7 +287,7 @@ export const PRODUKTE: Produkt[] = [
     preisCent: 1190, masse: "110 × 110 × 115", material: MATERIAL, // Richtpreis (Karla 18.10.), Alex entscheidet; weitere Größen klein 55 × 57 mm (max. 6,90 €) und groß 140 × 145 mm folgen später
     kombinationen: FARBEN_DESIGN_KUERBIS, // feste Ausführung ohne Farbwahl (Alex 18.10.); Farbvarianten kommen mit den weiteren Größen
     optionen: [], // Größenauswahl (klein/mittel/groß) kommt, sobald die anderen Größen gedruckt sind; Versandmaße je Größe liegen schon in versand.ts
-    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
 ];
 
