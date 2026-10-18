@@ -243,7 +243,7 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Der einfache Einstieg: LED-Teelicht von oben einsetzen.",
     beschreibung:
       "Ein offener Kürbis-Halter. Das LED-Teelicht kommt von oben hinein, fertig. Der einfachste und günstigste Weg zur Deko.",
-    gruppe: "halloween", kategorien: ["halloween"], form: "teelicht", grundfarbe: "#ff8a1f",
+    gruppe: "halloween", kategorien: ["halloween", "sonstiges"], form: "teelicht", grundfarbe: "#ff8a1f",
     preisCent: 790, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },

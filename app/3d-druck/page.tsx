@@ -69,7 +69,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
         {liste.length > 0 ? (
           <ul className="shop-grid" aria-label="Produkte">
             {liste.map((p, i) => (
-              <ProductCard key={p.slug} p={p} farben={farben} gesperrt={wunschtextPausiert && !!p.personalisierung} vorschau={modus === "preview"} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
+              <ProductCard key={p.slug} p={p} farben={farben} gesperrt={wunschtextPausiert && !!p.personalisierung} vorschau={modus === "preview"} halloweenSicht={halloween} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
             ))}
           </ul>
         ) : (

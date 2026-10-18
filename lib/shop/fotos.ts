@@ -116,7 +116,10 @@ export const COVER: string[] = [
   "wochentags-untersetzer-einzeln",
   "wochentags-untersetzer-set",
 ];
-export const coverFuer = (slug: string): string | undefined => (COVER.includes(slug) ? `/shop/cover/${slug}.webp` : undefined);
+/** Zweites Cover im Design-Stil (Datei <slug>-design.webp) für die Ansicht außerhalb der Halloween-Kollektion ("Alle", "Sonstiges"). */
+export const COVER_DESIGN: string[] = ["kuerbis-teelichthalter"];
+export const coverFuer = (slug: string, halloweenSicht = false): string | undefined =>
+  !COVER.includes(slug) ? undefined : !halloweenSicht && COVER_DESIGN.includes(slug) ? `/shop/cover/${slug}-design.webp` : `/shop/cover/${slug}.webp`;
 
 export function fotosFuer(slug: string): Foto[] {
   return (ALT[slug] ?? []).map((alt, i) => ({ src: `/shop/fotos/${slug}/${FOTO_DATEIEN[slug]?.[i] ?? i + 1}.webp`, alt }));
