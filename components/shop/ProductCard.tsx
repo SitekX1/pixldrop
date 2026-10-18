@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Ring from "./Ring";
 import ProductImage from "./ProductImage";
 import { coverFuer, fotosFuer } from "@/lib/shop/fotos";
 import { formatPreis, TEXTE } from "@/lib/shop/config";
@@ -33,7 +32,6 @@ export default function ProductCard({
         ) : (
           <ProductImage form={p.form} farbe={p.grundfarbe} breit={erste} />
         )}
-        <Ring />
         <div className="shop-card-body">
           {gesperrt && <span className="shop-state">Vorübergehend nicht bestellbar</span>}
           {!gesperrt && vorschau && p.gruppe === "halloween" && <span className="shop-state">Vorschau, noch nicht bestellbar</span>}
