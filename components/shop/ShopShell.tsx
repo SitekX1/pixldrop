@@ -4,6 +4,7 @@ import { KONTAKT_MIT_ANSCHRIFT } from "@/lib/shop/config";
 import WarenkorbLink from "./WarenkorbLink";
 import HalloweenHintergrund from "./HalloweenHintergrund";
 import HalloweenDunkel from "./HalloweenDunkel";
+import ShopBesuch from "./ShopBesuch";
 
 // Shell: Kopf (Zurück-Link: Shop-Startseite → PixlDrop, alle anderen Seiten → Shop), Inhalt, Fuß. Theme ("halloween") per data-theme am Wrapper (Token-Austausch).
 export default function ShopShell({
@@ -13,6 +14,7 @@ export default function ShopShell({
     <div className="shop" data-theme={theme} data-saison={saison}>
       {saison === "halloween-dark" && <HalloweenDunkel />}
       {theme === "halloween" && <HalloweenHintergrund />}
+      <ShopBesuch />
       <a className="shop-skip" href="#inhalt">Zum Inhalt springen</a>
       {banner}
       <div className="shop-wrap">
