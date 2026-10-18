@@ -1246,6 +1246,7 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 @keyframes hwd-pendel { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
 
 /* Übersicht "Alle": Trennung zwischen Standardprodukten und Halloween-Kollektion */
-.shop-gruppe-titel { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 44px 0 14px; padding-top: 22px; border-top: 2px dashed currentColor; border-top-color: color-mix(in srgb, currentColor 30%, transparent); font-size: clamp(1.25rem, 4.5vw, 1.6rem); }
+.shop .shop-gruppe { margin: 64px 0 10px; padding-top: 30px; border-top: 2px dashed currentColor; border-top-color: color-mix(in srgb, currentColor 30%, transparent); }
+.shop .shop-gruppe-titel { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 0 0 14px; font-size: clamp(1.25rem, 4.5vw, 1.6rem); }
 .shop-gruppe-titel small { font: 600 0.8125rem/1.2 var(--shop-display); opacity: .75; letter-spacing: .02em; }
 .shop[data-saison="halloween-dark"] .shop-gruppe-titel span { color: #ff8a1f; }

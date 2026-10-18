@@ -79,7 +79,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
             </ul>
             {saison.length > 0 && (
               <>
-                <h2 className="shop-gruppe-titel" id="saison-titel"><span>Halloween-Kollektion</span><small>nur bis Anfang November</small></h2>
+                <div className="shop-gruppe"><h2 className="shop-gruppe-titel" id="saison-titel"><span>Halloween-Kollektion</span><small>nur bis Anfang November</small></h2></div>
                 <ul className="shop-grid" aria-labelledby="saison-titel">
                   {saison.map(karte)}
                 </ul>

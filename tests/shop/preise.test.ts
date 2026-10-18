@@ -430,8 +430,7 @@ test("Halloween-Untersetzer: nur Schwarz, ohne Wahl gueltig, fremde Farbe abgele
   assert.ok(!berechneWarenkorb([{ slug: "halloween-untersetzer-set", menge: 1, optionen: { farbkombi: "orange" } }], ctx()).ok);
 });
 
-test("Design-Kuerbis: Koerper und Strunk waehlbar, Standardfarben, fremde Teile abgelehnt", () => {
-  const r = berechneWarenkorb([{ slug: "design-kuerbis", menge: 1 }], ctx());
-  assert.ok(r.ok);
-  assert.ok(!berechneWarenkorb([{ slug: "design-kuerbis", menge: 1, teilFarben: { henkel: "schwarz" } }], ctx()).ok);
+test("Design-Kuerbis: feste Ausfuehrung ohne Farbwahl, fremde Auswahl abgelehnt", () => {
+  assert.ok(berechneWarenkorb([{ slug: "design-kuerbis", menge: 1 }], ctx()).ok);
+  assert.ok(!berechneWarenkorb([{ slug: "design-kuerbis", menge: 1, optionen: { farbkombi: "pink" } }], ctx()).ok);
 });

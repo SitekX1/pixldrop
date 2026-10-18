@@ -144,7 +144,6 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "geister-set-klein": "farbe",
   "kuerbis-teelichthalter": "farbe",
   "kuerbis-laterne": "teile",
-  "design-kuerbis": "teile",
   "kuerbis-klein-set": "farbe",
 };
 
@@ -167,7 +166,7 @@ export const ORIGINALFARBE: Record<string, string> = {
   "geister-set": "#f4f1ea", "geister-set-klein": "#f4f1ea", "kuerbis-klein-set": "#ff8a1f",
 }
 /** Mehrteilige Fotos: echte Farben der Teile im Foto. Sind alle Teile in dieser Farbe gewählt (Abstand klein), erscheint das unveränderte Foto. */
-export const ORIGINAL_TEILE: Record<string, Record<string, string>> = { "kuerbis-laterne": { koerper: "#ff8a1f", stiel: "#1c1c1c" }, "design-kuerbis": { koerper: "#c2ad96", stiel: "#f4f1ea" } };
+export const ORIGINAL_TEILE: Record<string, Record<string, string>> = { "kuerbis-laterne": { koerper: "#ff8a1f", stiel: "#1c1c1c" } };
 export function istOriginalTeile(slug: string, teile?: Record<string, string>): boolean {
   const o = ORIGINAL_TEILE[slug];
   if (!o || !teile) return false;
