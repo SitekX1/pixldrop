@@ -40,10 +40,10 @@ const ALT: Record<string, string[]> = {
   "geister-set-klein": [
     "Drei kleine Geister in Weiß vor Halloween-Kulisse",
   ],
-  // Cover = Kürbis 2; Galerie: 1.webp (leuchtend im Mondlicht), 2.webp (Kürbis 2), kein Cover-Duplikat davor (COVER_IST_FOTO1); keine Live-Umfärbung, die Farben stehen als Auswahl bereit
+  // Titelbild (Cover = „Kürbis Cover“) zuerst, danach 1.webp (Kürbis 2) und 2.webp (leuchtend im Mondlicht); keine Live-Umfärbung, die Farben stehen als Auswahl bereit
   "kuerbis-laterne": [
-    "Leuchtender 3D-Druck-Kürbis im Mondlicht mit LED-Teelicht",
     "Kürbis mit Gesicht, orange mit schwarzem Stiel, Premium LED Halloween-Licht",
+    "Leuchtender 3D-Druck-Kürbis im Mondlicht mit LED-Teelicht",
   ],
   // Titelbild (Cover) zuerst, dann 4.webp (hängend im Halloween-Look) und 5.webp (sitzend im Halloween-Zauber), beide Hochformat mit unscharfem Rand auf Quadrat gesetzt
   "skelett-beweglich": [
@@ -100,7 +100,9 @@ export const COVER: string[] = [
 ];
 /** Zweites Cover im Design-Stil (Datei <slug>-design.webp) für die Ansicht außerhalb der Halloween-Kollektion ("Alle", "Sonstiges"). */
 /** Artikel, deren Titelbild schon Foto 1 der Galerie ist (dann kein zusätzliches Cover als erstes Galeriebild). */
-export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "geister-set-klein", "kuerbis-klein-set", "kuerbis-laterne"];
+export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "geister-set-klein", "kuerbis-klein-set"];
+/** Ansicht-abhängiges Titelbild: In der Halloween-Ansicht zeigt ein Artikel mit Design-Cover nur sein Halloween-Bild (Cover = Foto 1, kein zweites Bild davor). */
+export const coverIstFoto1 = (slug: string, halloweenSicht: boolean): boolean => COVER_IST_FOTO1.includes(slug) || (halloweenSicht && COVER_DESIGN.includes(slug));
 export const COVER_DESIGN: string[] = ["kuerbis-teelichthalter"];
 export const coverFuer = (slug: string, halloweenSicht = false): string | undefined =>
   !COVER.includes(slug) ? undefined : !halloweenSicht && COVER_DESIGN.includes(slug) ? `/shop/cover/${slug}-design.webp` : `/shop/cover/${slug}.webp`;

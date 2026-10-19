@@ -5,7 +5,7 @@ import ShopShell from "@/components/shop/ShopShell";
 import ProductImage from "@/components/shop/ProductImage";
 import Galerie from "@/components/shop/Galerie";
 import FotoGalerie from "@/components/shop/FotoGalerie";
-import { COVER_IST_FOTO1, coverFuer, fotosFuer } from "@/lib/shop/fotos";
+import { coverFuer, coverIstFoto1, fotosFuer } from "@/lib/shop/fotos";
 import { VorschauProvider, LiveProductImage } from "@/components/shop/Vorschau";
 import PauseBanner from "@/components/shop/PauseBanner";
 import ProductBuy from "@/components/shop/ProductBuy";
@@ -23,21 +23,23 @@ export function generateStaticParams() {
   return PRODUKTE.map((p) => ({ slug: p.slug }));
 }
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ kategorie?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   return { title: holeProdukt(slug)?.name ?? "Nicht gefunden" };
 }
 
-export default async function Produktseite({ params }: Props) {
+export default async function Produktseite({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { kategorie } = await searchParams;
   const p = holeProdukt(slug);
   if (!p) notFound();
   const farben = await holeFarben();
   const { lieferzeit: LIEFERZEIT_TEXT, wunschtextPausiert } = await holeEinstellungen();
   const bestellbar = istBestellbar(p);
-  const halloween = p.gruppe === "halloween";
+  // Halloween-Ansicht: Halloween-Artikel oder Aufruf aus der Halloween-Kategorie (dann auch Zurück-Link, Thema und Titelbild im Halloween-Stil)
+  const halloween = p.gruppe === "halloween" || (kategorie === "halloween" && halloweenModus() !== "off");
   const hatAufpreis = p.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0));
   const vk = VERSAND_PRODUKTE[p.slug];
   const abPaket = Math.min(...(["hermes", "dhl"] as const).map((a) => VERSAND_PREISE[a][vk?.versandStufe ?? "mittel"].cent));
@@ -50,7 +52,7 @@ export default async function Produktseite({ params }: Props) {
         <Link className="shop-crumb" href={halloween ? "/3d-druck?kategorie=halloween#stuecke" : "/3d-druck#stuecke"}>← Alle Stücke</Link>
         <VorschauProvider>
         <div className="shop-product">
-          <Galerie bild={fotosFuer(p.slug).length ? <FotoGalerie cover={coverFuer(p.slug) && !COVER_IST_FOTO1.includes(p.slug) ? { src: coverFuer(p.slug)!, alt: `${p.name}, Titelbild` } : undefined} vorText={p.personalisierung?.standardText} slug={p.slug} form={p.form} grundfarbe={p.grundfarbe} fotos={fotosFuer(p.slug)} name={p.name} /> : <><LiveProductImage form={p.form} grundfarbe={p.grundfarbe} /><p className="shop-fotohinweis"><strong>Wichtig:</strong> {TEXTE.bildHinweis}</p></>} preis={preis} chips={[p.material, ...(p.masse ? [`ca. ${p.masse} mm`] : [])]} />
+          <Galerie bild={fotosFuer(p.slug).length ? <FotoGalerie cover={coverFuer(p.slug, halloween) && !coverIstFoto1(p.slug, halloween) ? { src: coverFuer(p.slug, halloween)!, alt: `${p.name}, Titelbild` } : undefined} vorText={p.personalisierung?.standardText} slug={p.slug} form={p.form} grundfarbe={p.grundfarbe} fotos={fotosFuer(p.slug)} name={p.name} /> : <><LiveProductImage form={p.form} grundfarbe={p.grundfarbe} /><p className="shop-fotohinweis"><strong>Wichtig:</strong> {TEXTE.bildHinweis}</p></>} preis={preis} chips={[p.material, ...(p.masse ? [`ca. ${p.masse} mm`] : [])]} />
           <div className="shop-info">
             <p className="shop-overline">{halloween ? "Halloween-Kollektion" : "3D-Druck"}</p>
             <h1 style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)", overflowWrap: "anywhere" }}>{p.name}</h1>

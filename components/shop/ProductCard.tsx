@@ -35,7 +35,7 @@ export default function ProductCard({
         <div className="shop-card-body">
           {gesperrt && <span className="shop-state">Vorübergehend nicht bestellbar</span>}
           {!gesperrt && vorschau && p.gruppe === "halloween" && <span className="shop-state">Vorschau, noch nicht bestellbar</span>}
-          <h3>{gesperrt ? <span>{p.name}</span> : <Link href={`/3d-druck/${p.slug}`}>{p.name}</Link>}</h3>
+          <h3>{gesperrt ? <span>{p.name}</span> : <Link href={halloweenSicht ? `/3d-druck/${p.slug}?kategorie=halloween` : `/3d-druck/${p.slug}`}>{p.name}</Link>}</h3>
           <p className="meta">{meta}</p>
           <div className="shop-card-price">
             <span className="shop-price-small">{p.nurAnfrage ? TEXTE.preisAnfrage : (p.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0)) ? "ab " : "") + formatPreis(p.preisCent)}</span>
