@@ -4,7 +4,9 @@ import type { UmfaerbModus } from "./umfaerben";
 export interface Foto { src: string; alt: string }
 
 const ALT: Record<string, string[]> = {
+  // Titelbild (Cover, alle fünf Untersetzer) zuerst, dann 7.webp (Aufbewahrungsbox), danach Datei 1.webp = Live-Foto, auf das Farbwahl gelegt wird (LIVE_FOTO), siehe FOTO_DATEIEN
   "wochentags-untersetzer-set": [
+    "Aufbewahrungsbox für die Wochentags-Untersetzer, Option „Mit Box“ (gestaltetes Bild)",
     "Fünf Wochentags-Untersetzer Montag bis Freitag nebeneinander",
     "Wochentags-Untersetzer in der Box, davor der Montag-Untersetzer",
     "Box mit eingestellten Untersetzern von vorn",
@@ -102,9 +104,9 @@ const ALT: Record<string, string[]> = {
 };
 
 /** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Frontsicht 5, Seite 6, Draufsicht 7, zuletzt die Live-Vorschau 1.webp). */
-export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [5, 6, 7, 1], "skelett-beweglich": [2, 3, 1], "design-kuerbis": [5, 6], "spruch-untersetzer": [3, 1, 2] };
+export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [5, 6, 7, 1], "skelett-beweglich": [2, 3, 1], "design-kuerbis": [5, 6], "spruch-untersetzer": [3, 1, 2], "wochentags-untersetzer-set": [7, 1, 2, 3, 4, 5, 6] };
 /** Index (Anzeigereihenfolge) des Fotos, das die Live-Vorschau ist (umgefärbt, mit Aufdruck); Standard 0. */
-export const LIVE_FOTO: Record<string, number> = { "stiftebecher-tasse": 3, "spruch-untersetzer": 1 };
+export const LIVE_FOTO: Record<string, number> = { "stiftebecher-tasse": 3, "spruch-untersetzer": 1, "wochentags-untersetzer-set": 1 };
 export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
 
 /** Produkte mit eigenem Cover-Bild für die Shop-Übersicht (public/shop/cover/<slug>.webp, 1100 × 1100). Die Galerie auf der Produktseite bleibt unverändert. Slug hier eintragen, sobald die Datei liegt. */
@@ -156,7 +158,7 @@ export const OHNE_UMFAERBEN: Record<string, number[]> = {
   "namensschild": [1, 2, 3], // Beispielfotos mit Schrift bleiben Alex' Originale
   "stiftebecher-tasse": [0, 1, 2], // Anzeige-Index: 0-2 = Frontsicht, Seitenansicht, Draufsicht bleiben Originale, 3 ist die Live-Vorschau
   "kuerbis-laterne": [1], // Dunkel-Foto mit LED-Teelicht: Originalfarben
-  "wochentags-untersetzer-set": [5],
+  "wochentags-untersetzer-set": [0, 6], // Anzeige-Index: 0 = Aufbewahrungsbox (Original), 1 = Live-Foto, 6 = Kork-Rückseite
   "wochentags-untersetzer-einzeln": [5, 6, 7], // 5 = Kork-Rückseite, 6/7 = Box-Fotos
   "halloween-untersetzer-set": [5],
   "halloween-untersetzer-einzeln": [3],
