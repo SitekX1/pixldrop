@@ -33,12 +33,9 @@ const ALT: Record<string, string[]> = {
   "spruch-untersetzer": [
     "Individueller Untersetzer stehend neben einem Glas mit Zitrone und Minze, darauf dein Text und deine Farben (Vorschau)",
   ],
+  // Titelbild (Cover, Geister leuchten mit LED-Licht) kommt automatisch zuerst; Foto 1 = Geister ohne Licht, darauf wird die Farbwahl gelegt (Maske 1.m.webp), die Galerie springt beim Ändern dorthin
   "geister-set": [
-    "Drei große Geister nebeneinander",
-    "Drei große Geister leuchten mit LED-Teelicht im Dunkeln",
-    "Großer Geist mit einem Auge zwinkernd",
-    "Großer Geist mit schiefem Kopf",
-    "Großer Geist, Vorderansicht",
+    "Drei große Geister ohne Licht nebeneinander, in deiner gewählten Farbe (gestaltetes Bild)",
   ],
   "geister-set-klein": [
     "Drei kleine Geister nebeneinander",
