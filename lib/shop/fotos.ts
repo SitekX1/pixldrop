@@ -4,12 +4,12 @@ import type { UmfaerbModus } from "./umfaerben";
 export interface Foto { src: string; alt: string }
 
 const ALT: Record<string, string[]> = {
-  // Foto 1 (alle fünf Untersetzer) ist zugleich das Titelbild (COVER_IST_FOTO1) und das Foto, auf das die Farbwahl gelegt wird; Foto 2 = 7.webp (Aufbewahrungsbox, Option „Mit Box“)
+  // Titelbild (Cover, unveränderlich) zuerst, danach dasselbe Motiv als Foto 1 mit Farbwahl (umfärbbar, Maske 1.m.webp), dann 7.webp (Aufbewahrungsbox, Option „Mit Box“)
   "wochentags-untersetzer-set": [
     "Fünf Wochentags-Untersetzer Montag bis Freitag in deiner Farbkombination",
     "Aufbewahrungsbox für die Wochentags-Untersetzer, Option „Mit Box“",
   ],
-  // Foto 1 (Montag) ist zugleich das Titelbild (COVER_IST_FOTO1): kein zweites Cover davor; Wochenwahl wechselt das Foto, Farbwahl färbt es um
+  // Titelbild (Cover, unveränderlich) zuerst, danach Montag bis Freitag als umfärbbare Fotos (Masken <n>.m.webp); die Tageswahl wechselt das Foto, die Farbwahl färbt es um
   "wochentags-untersetzer-einzeln": [
     "Untersetzer Montag: Noch nicht.",
     "Untersetzer Dienstag: Läuft. Irgendwie.",
@@ -101,7 +101,7 @@ export const COVER: string[] = [
 ];
 /** Zweites Cover im Design-Stil (Datei <slug>-design.webp) für die Ansicht außerhalb der Halloween-Kollektion ("Alle", "Sonstiges"). */
 /** Artikel, deren Titelbild schon Foto 1 der Galerie ist (dann kein zusätzliches Cover als erstes Galeriebild). */
-export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "wochentags-untersetzer-set", "geister-set-klein", "kuerbis-klein-set", "kuerbis-laterne"];
+export const COVER_IST_FOTO1: string[] = ["geister-set-klein", "kuerbis-klein-set", "kuerbis-laterne"];
 export const COVER_DESIGN: string[] = ["kuerbis-teelichthalter"];
 export const coverFuer = (slug: string, halloweenSicht = false): string | undefined =>
   !COVER.includes(slug) ? undefined : !halloweenSicht && COVER_DESIGN.includes(slug) ? `/shop/cover/${slug}-design.webp` : `/shop/cover/${slug}.webp`;
