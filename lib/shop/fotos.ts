@@ -60,19 +60,15 @@ const ALT: Record<string, string[]> = {
   "kuerbis-teelichthalter": [
     "Kürbis-Teelichthalter mit brennendem LED-Teelicht im Halloween-Look",
   ],
+  // Titelbild (Cover) zuerst, danach das gestaltete Bild; keine Farbwahl, keine Umfärbung
   "halloween-untersetzer-set": [
-    "Drei Halloween-Untersetzer nebeneinander",
-    "Drei Halloween-Untersetzer in Draufsicht",
-    "Halloween-Untersetzer mit Kürbis",
-    "Halloween-Untersetzer mit Geistern",
-    "Halloween-Untersetzer mit Spukhaus",
-    "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
+    "Drei Halloween-Untersetzer mit Kürbis, Geistern und Geisterschloss auf dem Tisch",
   ],
+  // Titelbild (Set) zuerst, danach je Motiv ein gestaltetes Bild
   "halloween-untersetzer-einzeln": [
-    "Halloween-Untersetzer mit Kürbis",
-    "Halloween-Untersetzer mit Geistern",
-    "Halloween-Untersetzer mit Spukhaus",
-    "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
+    "Halloween-Untersetzer mit Kürbis und Geistern, einzeln",
+    "Halloween-Untersetzer mit Geistern, einzeln",
+    "Halloween-Untersetzer mit Geisterschloss, einzeln",
   ],
   // Das Titelbild ist das einzige Bild (Foto 1 = Titelbild, COVER_IST_FOTO1), keine Farbwahl
   "kuerbis-klein-set": [
@@ -127,18 +123,16 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
 
 /** Fotos ohne Maske, die nie umgefärbt werden (Kork-Rückseite): Slug -> Fotonummern (0-basiert). */
 /** Beschriftung der Motivfotos (Halloween-Untersetzer einzeln): Foto 1 bis 3 zeigen je ein Motiv, der Name steht in Gruselschrift auf dem Bild. */
-export const MOTIV_BESCHRIFTUNG: Record<string, string[]> = { "halloween-untersetzer-einzeln": ["Kürbis", "Geister", "Spukhaus"] };
+export const MOTIV_BESCHRIFTUNG: Record<string, string[]> = {};
 export const OHNE_UMFAERBEN: Record<string, number[]> = {
   "namensschild": [0, 1], // Anzeige-Index: 0 und 1 (Beispiel, Rückseite) bleiben Originale, 2 ist die Live-Vorschau
   "stiftebecher-tasse": [1, 2], // Anzeige-Index: 0 = Live-Vorschau (Frontsicht), 1/2 = Seitenansicht und Draufsicht bleiben Originale
-  "halloween-untersetzer-set": [5],
-  "halloween-untersetzer-einzeln": [3],
 };
 
 /** Foto 1 zeigt diese echte Farbe: Ist sie gewählt (Abstand klein), erscheint das unveränderte Foto statt des umgefärbten Canvas. */
 export const ORIGINALFARBE: Record<string, string> = {
   "stiftebecher-tasse": "#1c1c1c", "namensschild": "#1c1c1c",
-  "spruch-untersetzer": "#1c1c1c", "halloween-untersetzer-set": "#1c1c1c", "halloween-untersetzer-einzeln": "#1c1c1c",
+  "spruch-untersetzer": "#1c1c1c",
   "geister-set": "#f4f1ea",
 }
 /** Mehrteilige Fotos: echte Farben der Teile im Foto. Sind alle Teile in dieser Farbe gewählt (Abstand klein), erscheint das unveränderte Foto. */
