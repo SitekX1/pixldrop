@@ -5,7 +5,7 @@ import ShopShell from "@/components/shop/ShopShell";
 import ProductImage from "@/components/shop/ProductImage";
 import Galerie from "@/components/shop/Galerie";
 import FotoGalerie from "@/components/shop/FotoGalerie";
-import { coverFuer, fotosFuer } from "@/lib/shop/fotos";
+import { COVER_IST_FOTO1, coverFuer, fotosFuer } from "@/lib/shop/fotos";
 import { VorschauProvider, LiveProductImage } from "@/components/shop/Vorschau";
 import PauseBanner from "@/components/shop/PauseBanner";
 import ProductBuy from "@/components/shop/ProductBuy";
@@ -50,7 +50,7 @@ export default async function Produktseite({ params }: Props) {
         <Link className="shop-crumb" href={halloween ? "/3d-druck?kategorie=halloween#stuecke" : "/3d-druck#stuecke"}>← Alle Stücke</Link>
         <VorschauProvider>
         <div className="shop-product">
-          <Galerie bild={fotosFuer(p.slug).length ? <FotoGalerie cover={coverFuer(p.slug) ? { src: coverFuer(p.slug)!, alt: `${p.name}, Titelbild` } : undefined} vorText={p.personalisierung?.standardText} slug={p.slug} form={p.form} grundfarbe={p.grundfarbe} fotos={fotosFuer(p.slug)} name={p.name} /> : <><LiveProductImage form={p.form} grundfarbe={p.grundfarbe} /><p className="shop-fotohinweis"><strong>Wichtig:</strong> {TEXTE.bildHinweis}</p></>} preis={preis} chips={[p.material, ...(p.masse ? [`ca. ${p.masse} mm`] : [])]} />
+          <Galerie bild={fotosFuer(p.slug).length ? <FotoGalerie cover={coverFuer(p.slug) && !COVER_IST_FOTO1.includes(p.slug) ? { src: coverFuer(p.slug)!, alt: `${p.name}, Titelbild` } : undefined} vorText={p.personalisierung?.standardText} slug={p.slug} form={p.form} grundfarbe={p.grundfarbe} fotos={fotosFuer(p.slug)} name={p.name} /> : <><LiveProductImage form={p.form} grundfarbe={p.grundfarbe} /><p className="shop-fotohinweis"><strong>Wichtig:</strong> {TEXTE.bildHinweis}</p></>} preis={preis} chips={[p.material, ...(p.masse ? [`ca. ${p.masse} mm`] : [])]} />
           <div className="shop-info">
             <p className="shop-overline">{halloween ? "Halloween-Kollektion" : "3D-Druck"}</p>
             <h1 style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)", overflowWrap: "anywhere" }}>{p.name}</h1>
