@@ -115,6 +115,8 @@ const FARBEN_DESIGN_KUERBIS = [
 ];
 // Kleine Geister: nur die abgebildete Ausführung in Weiß, keine Farbwahl (Alex 19.10.)
 const FARBEN_GEISTER_KLEIN: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [WEISS] }];
+// Mini-Kürbisse: nur die abgebildete Ausführung in Orange, keine Farbwahl (Alex 19.10.)
+const FARBEN_KUERBIS_KLEIN: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [{ name: "Orange", hex: "#ff8a1f" }] }];
 const FARBEN_NUR_SCHWARZ: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [SCHWARZ, ORANGE, WEISS] }];
 /** Artikel mit nur einer Farbe je Auswahl heißen „Farbe“ statt „Farbkombination“. */
 export const nurEinzelfarben = (p: { kombinationen?: Farbkombination[] }): boolean => !!p.kombinationen?.every((k) => k.farben.length === 1);
@@ -244,9 +246,9 @@ export const PRODUKTE: Produkt[] = [
     name: "Mini-Kürbisse mit Gesicht (4er-Set)",
     kurz: "Vier lustige Deko-Kürbisse mit Gesicht.",
     beschreibung:
-      "Vier lustige Deko-Kürbisse mit Gesicht zum Hinstellen, jeder mit anderem Gesichtsausdruck. Sie sind 50 mm hoch und 35 bis 60 mm breit, innen massiv, ohne Teelicht. Eine kleine Deko für Fensterbank, Tisch oder Regal.",
+      "Vier lustige Deko-Kürbisse mit Gesicht zum Hinstellen, jeder mit anderem Gesichtsausdruck. Sie sind 50 mm hoch und 35 bis 60 mm breit, innen massiv, ohne Teelicht. Eine kleine Deko für Fensterbank, Tisch oder Regal. Es gibt sie nur in der abgebildeten Ausführung in Orange.",
     gruppe: "halloween", kategorien: ["halloween"], form: "laterne", grundfarbe: "#ff8a1f",
-    preisCent: 990, masse: "60 × 60 × 50", material: MATERIAL, optionen: [],
+    preisCent: 990, masse: "60 × 60 × 50", material: MATERIAL, optionen: [], kombinationen: FARBEN_KUERBIS_KLEIN,
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   // Gruppe "allgemein": bleibt nach Halloween im Shop (Alex 18.10.), steht in der Übersicht bei den normalen Produkten, in der Halloween-Kollektion nur über die Kategorie

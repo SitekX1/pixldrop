@@ -75,14 +75,9 @@ const ALT: Record<string, string[]> = {
     "Halloween-Untersetzer mit Spukhaus",
     "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
   ],
+  // Das Titelbild ist das einzige Bild (Foto 1 = Titelbild, COVER_IST_FOTO1), keine Farbwahl
   "kuerbis-klein-set": [
-    "Vier kleine Kürbisse mit Gesicht nebeneinander",
-    "Vier kleine Kürbisse, Gruppenfoto",
-    "Vier kleine Kürbisse, Gruppenfoto von schräg",
-    "Kleiner Kürbis in Birnenform, zwinkernd",
-    "Kleiner Kürbis mit Zunge",
-    "Kleiner Kürbis, lachend",
-    "Kleiner Kürbis, breit grinsend",
+    "Vier kleine Deko-Kürbisse mit Gesicht in Orange vor Halloween-Kulisse",
   ],
 };
 
@@ -111,7 +106,7 @@ export const COVER: string[] = [
 ];
 /** Zweites Cover im Design-Stil (Datei <slug>-design.webp) für die Ansicht außerhalb der Halloween-Kollektion ("Alle", "Sonstiges"). */
 /** Artikel, deren Titelbild schon Foto 1 der Galerie ist (dann kein zusätzliches Cover als erstes Galeriebild). */
-export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "wochentags-untersetzer-set", "geister-set-klein"];
+export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "wochentags-untersetzer-set", "geister-set-klein", "kuerbis-klein-set"];
 export const COVER_DESIGN: string[] = ["kuerbis-teelichthalter"];
 export const coverFuer = (slug: string, halloweenSicht = false): string | undefined =>
   !COVER.includes(slug) ? undefined : !halloweenSicht && COVER_DESIGN.includes(slug) ? `/shop/cover/${slug}-design.webp` : `/shop/cover/${slug}.webp`;
@@ -131,7 +126,6 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "geister-set": "farbe",
   "kuerbis-teelichthalter": "farbe",
   "kuerbis-laterne": "teile",
-  "kuerbis-klein-set": "farbe",
 };
 
 /** Fotos ohne Maske, die nie umgefärbt werden (Kork-Rückseite): Slug -> Fotonummern (0-basiert). */
@@ -149,7 +143,7 @@ export const OHNE_UMFAERBEN: Record<string, number[]> = {
 export const ORIGINALFARBE: Record<string, string> = {
   "stiftebecher-tasse": "#1c1c1c", "namensschild": "#1c1c1c", "kuerbis-teelichthalter": "#1c1c1c",
   "spruch-untersetzer": "#1c1c1c", "halloween-untersetzer-set": "#1c1c1c", "halloween-untersetzer-einzeln": "#1c1c1c",
-  "geister-set": "#f4f1ea", "kuerbis-klein-set": "#ff8a1f",
+  "geister-set": "#f4f1ea",
 }
 /** Mehrteilige Fotos: echte Farben der Teile im Foto. Sind alle Teile in dieser Farbe gewählt (Abstand klein), erscheint das unveränderte Foto. */
 export const ORIGINAL_TEILE: Record<string, Record<string, string>> = { "kuerbis-laterne": { koerper: "#ff8a1f", stiel: "#1c1c1c" } };
