@@ -4,12 +4,11 @@ import type { UmfaerbModus } from "./umfaerben";
 export interface Foto { src: string; alt: string }
 
 const ALT: Record<string, string[]> = {
-  // Titelbild (Cover, unveränderlich) zuerst, danach dasselbe Motiv als Foto 1 mit Farbwahl (umfärbbar, Maske 1.m.webp), dann 7.webp (Aufbewahrungsbox, Option „Mit Box“)
+  // Titelbild (Cover) zuerst, danach 7.webp (Aufbewahrungsbox, Option „Mit Box“); keine Umfärbung, die Farbkombination ist nur eine Auswahl
   "wochentags-untersetzer-set": [
-    "Fünf Wochentags-Untersetzer Montag bis Freitag in deiner Farbkombination",
     "Aufbewahrungsbox für die Wochentags-Untersetzer, Option „Mit Box“",
   ],
-  // Titelbild (Cover, unveränderlich) zuerst, danach Montag bis Freitag als umfärbbare Fotos (Masken <n>.m.webp); die Tageswahl wechselt das Foto, die Farbwahl färbt es um
+  // Foto 1 (Montag) ist zugleich das Titelbild (COVER_IST_FOTO1); die Tageswahl wechselt das Foto, keine Umfärbung (die Farbkombination ist nur eine Auswahl)
   "wochentags-untersetzer-einzeln": [
     "Untersetzer Montag: Noch nicht.",
     "Untersetzer Dienstag: Läuft. Irgendwie.",
@@ -77,7 +76,7 @@ const ALT: Record<string, string[]> = {
 };
 
 /** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Frontsicht leer 8, Seite 6, Draufsicht 7). */
-export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [8, 6, 7], "skelett-beweglich": [4, 5], "design-kuerbis": [5, 6], "spruch-untersetzer": [3], "wochentags-untersetzer-set": [1, 7], "namensschild": [5, 6, 7] };
+export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [8, 6, 7], "skelett-beweglich": [4, 5], "design-kuerbis": [5, 6], "spruch-untersetzer": [3], "wochentags-untersetzer-set": [7], "namensschild": [5, 6, 7] };
 /** Index (Anzeigereihenfolge) des Fotos, das die Live-Vorschau ist (umgefärbt, mit Aufdruck); Standard 0. */
 export const LIVE_FOTO: Record<string, number> = { "namensschild": 2 };
 export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
@@ -101,7 +100,7 @@ export const COVER: string[] = [
 ];
 /** Zweites Cover im Design-Stil (Datei <slug>-design.webp) für die Ansicht außerhalb der Halloween-Kollektion ("Alle", "Sonstiges"). */
 /** Artikel, deren Titelbild schon Foto 1 der Galerie ist (dann kein zusätzliches Cover als erstes Galeriebild). */
-export const COVER_IST_FOTO1: string[] = ["geister-set-klein", "kuerbis-klein-set", "kuerbis-laterne"];
+export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "geister-set-klein", "kuerbis-klein-set", "kuerbis-laterne"];
 export const COVER_DESIGN: string[] = ["kuerbis-teelichthalter"];
 export const coverFuer = (slug: string, halloweenSicht = false): string | undefined =>
   !COVER.includes(slug) ? undefined : !halloweenSicht && COVER_DESIGN.includes(slug) ? `/shop/cover/${slug}-design.webp` : `/shop/cover/${slug}.webp`;
@@ -113,8 +112,6 @@ export function fotosFuer(slug: string): Foto[] {
 /** Welche Fotos beim Farbwechsel umgefärbt werden (Masken liegen als <n>.m.webp daneben), siehe lib/shop/umfaerben.ts. */
 
 export const UMFAERBEN: Record<string, UmfaerbModus> = {
-  "wochentags-untersetzer-set": "kombi",
-  "wochentags-untersetzer-einzeln": "kombi",
   "stiftebecher-tasse": "becher",
   "namensschild": "schild",
   "spruch-untersetzer": "untersetzer",
