@@ -113,6 +113,8 @@ const FARBEN_DESIGN_KUERBIS = [
   { id: "weiss", name: "Weiß", hex: "#f4f1ea" },
   { id: "olivgruen", name: "Olivgrün", hex: "#5a6d3d" },
 ];
+// Kleine Geister: nur die abgebildete Ausführung in Weiß, keine Farbwahl (Alex 19.10.)
+const FARBEN_GEISTER_KLEIN: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [WEISS] }];
 const FARBEN_NUR_SCHWARZ: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [SCHWARZ, ORANGE, WEISS] }];
 /** Artikel mit nur einer Farbe je Auswahl heißen „Farbe“ statt „Farbkombination“. */
 export const nurEinzelfarben = (p: { kombinationen?: Farbkombination[] }): boolean => !!p.kombinationen?.every((k) => k.farben.length === 1);
@@ -232,9 +234,9 @@ export const PRODUKTE: Produkt[] = [
     name: "Geister-Set klein (3 Geister)",
     kurz: "Drei kleine Geister als Deko, ohne Teelicht.",
     beschreibung:
-      "Drei kleine Geister zum Hinstellen, dieselben wie im großen Set, nur kleiner. Es passt kein Teelicht hinein.",
+      "Drei kleine Geister zum Hinstellen, dieselben wie im großen Set, nur kleiner. Es passt kein Teelicht hinein. Sie gibt es nur in der abgebildeten Ausführung in Weiß.",
     gruppe: "halloween", kategorien: ["halloween"], form: "geister", grundfarbe: "#f4f1ea",
-    preisCent: 690, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 690, masse: null, material: MATERIAL, optionen: [], kombinationen: FARBEN_GEISTER_KLEIN,
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {

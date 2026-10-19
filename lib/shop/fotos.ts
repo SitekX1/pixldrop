@@ -37,11 +37,9 @@ const ALT: Record<string, string[]> = {
   "geister-set": [
     "Drei große Geister ohne Licht nebeneinander, in deiner gewählten Farbe (gestaltetes Bild)",
   ],
+  // Das Titelbild ist das einzige Bild (Foto 1 = Titelbild, COVER_IST_FOTO1), keine Farbwahl
   "geister-set-klein": [
-    "Drei kleine Geister nebeneinander",
-    "Kleiner Geist, Vorderansicht",
-    "Kleiner Geist, leicht seitlich",
-    "Kleiner Geist mit schiefem Kopf",
+    "Drei kleine Geister in Weiß vor Halloween-Kulisse",
   ],
   // Foto 1 = Tageslicht (orange Körper, schwarzer Stiel): Körper- und Stielfarbe deiner Wahl werden live eingefärbt (Maske 1.m.webp); Foto 2 = leuchtend im Dunkeln, immer Originalfarben
   "kuerbis-laterne": [
@@ -113,7 +111,7 @@ export const COVER: string[] = [
 ];
 /** Zweites Cover im Design-Stil (Datei <slug>-design.webp) für die Ansicht außerhalb der Halloween-Kollektion ("Alle", "Sonstiges"). */
 /** Artikel, deren Titelbild schon Foto 1 der Galerie ist (dann kein zusätzliches Cover als erstes Galeriebild). */
-export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "wochentags-untersetzer-set"];
+export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "wochentags-untersetzer-set", "geister-set-klein"];
 export const COVER_DESIGN: string[] = ["kuerbis-teelichthalter"];
 export const coverFuer = (slug: string, halloweenSicht = false): string | undefined =>
   !COVER.includes(slug) ? undefined : !halloweenSicht && COVER_DESIGN.includes(slug) ? `/shop/cover/${slug}-design.webp` : `/shop/cover/${slug}.webp`;
@@ -131,7 +129,6 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "namensschild": "schild",
   "spruch-untersetzer": "untersetzer",
   "geister-set": "farbe",
-  "geister-set-klein": "farbe",
   "kuerbis-teelichthalter": "farbe",
   "kuerbis-laterne": "teile",
   "kuerbis-klein-set": "farbe",
@@ -152,7 +149,7 @@ export const OHNE_UMFAERBEN: Record<string, number[]> = {
 export const ORIGINALFARBE: Record<string, string> = {
   "stiftebecher-tasse": "#1c1c1c", "namensschild": "#1c1c1c", "kuerbis-teelichthalter": "#1c1c1c",
   "spruch-untersetzer": "#1c1c1c", "halloween-untersetzer-set": "#1c1c1c", "halloween-untersetzer-einzeln": "#1c1c1c",
-  "geister-set": "#f4f1ea", "geister-set-klein": "#f4f1ea", "kuerbis-klein-set": "#ff8a1f",
+  "geister-set": "#f4f1ea", "kuerbis-klein-set": "#ff8a1f",
 }
 /** Mehrteilige Fotos: echte Farben der Teile im Foto. Sind alle Teile in dieser Farbe gewählt (Abstand klein), erscheint das unveränderte Foto. */
 export const ORIGINAL_TEILE: Record<string, Record<string, string>> = { "kuerbis-laterne": { koerper: "#ff8a1f", stiel: "#1c1c1c" } };
