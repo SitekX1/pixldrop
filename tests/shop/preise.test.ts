@@ -63,17 +63,18 @@ test("Server rechnet den Versand aus der Versandart, nicht vom Client", () => {
 
 test("Brief nur fuer flache Untersetzer ohne Box", () => {
   const flach = { slug: "wochentags-untersetzer-einzeln", menge: 1, farbeId: null };
-  const ok = berechneWarenkorb([{ ...flach, optionen: { tag: "mo", box: "ohne", farbkombi: K } }], ctx(), "brief");
+  const ok = berechneWarenkorb([{ ...flach, optionen: { tag: "mo", farbkombi: K } }], ctx(), "brief");
   assert.ok(ok.ok);
   assert.equal(ok.wert.versandCent, 180);
   assert.equal(ok.wert.versandart, "brief");
   // statt Brief gibt es dann keine Paketwahl
-  assert.equal((berechneWarenkorb([{ ...flach, optionen: { tag: "mo", box: "ohne", farbkombi: K } }], ctx(), "hermes") as { fehler: { code: string } }).fehler.code, "versandart_ungueltig");
-  // mit Box: kein Brief
-  const box = berechneWarenkorb([{ ...flach, optionen: { tag: "mo", box: "mit", farbkombi: K } }], ctx(), "brief");
+  assert.equal((berechneWarenkorb([{ ...flach, optionen: { tag: "mo", farbkombi: K } }], ctx(), "hermes") as { fehler: { code: string } }).fehler.code, "versandart_ungueltig");
+  // mit Box (nur noch beim Set): kein Brief
+  const setBox = { slug: "wochentags-untersetzer-set", menge: 1, farbeId: null, optionen: { box: "mit", farbkombi: K } };
+  const box = berechneWarenkorb([setBox], ctx(), "brief");
   assert.ok(!box.ok);
   assert.equal(box.fehler.code, "versandart_ungueltig");
-  assert.ok(berechneWarenkorb([{ ...flach, optionen: { tag: "mo", box: "mit", farbkombi: K } }], ctx(), "hermes").ok);
+  assert.ok(berechneWarenkorb([setBox], ctx(), "hermes").ok);
   // nicht brieffaehiger Artikel: kein Brief
   assert.ok(!berechneWarenkorb([pos()], ctx(), "brief").ok);
 });
@@ -250,14 +251,15 @@ test("Kork-Option: Aufpreis kommt vom Server, Box und Kork addieren sich", () =>
   assert.equal(hw.wert.summeWarenCent, 2 * (1290 + 30));
 });
 
-test("Wochentags-Einzelartikel: Tag Pflicht, Box und Kork als Aufpreis", () => {
+test("Wochentags-Einzelartikel: Tag Pflicht, Kork als Aufpreis, keine Box-Option mehr", () => {
   const e = { slug: "wochentags-untersetzer-einzeln", menge: 1, farbeId: "schwarz" };
-  const r = berechneWarenkorb([{ ...e, optionen: { tag: "fr", box: "mit", kork: "mit", farbkombi: K } }], ctx());
+  const r = berechneWarenkorb([{ ...e, optionen: { tag: "fr", kork: "mit", farbkombi: K } }], ctx());
   assert.ok(r.ok);
-  assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 490 + 30);
+  assert.equal(r.wert.positionen[0].einzelpreisCent, 1290 + 30);
   assert.equal(r.wert.positionen[0].optionen["Wochentag"], "Freitag");
-  assert.ok(!berechneWarenkorb([{ ...e, optionen: { box: "ohne", farbkombi: K } }], ctx()).ok);
-  assert.ok(!berechneWarenkorb([{ ...e, optionen: { tag: "sa", box: "ohne", farbkombi: K } }], ctx()).ok);
+  assert.ok(!berechneWarenkorb([{ ...e, optionen: { farbkombi: K } }], ctx()).ok, "Tag fehlt");
+  assert.ok(!berechneWarenkorb([{ ...e, optionen: { tag: "sa", farbkombi: K } }], ctx()).ok);
+  assert.ok(!berechneWarenkorb([{ ...e, optionen: { tag: "fr", box: "mit", farbkombi: K } }], ctx()).ok, "Box gibt es einzeln nicht mehr");
 });
 
 

@@ -85,7 +85,7 @@ test("Brief: nur flache Untersetzer ohne Box, automatisch nach Stueckzahl", () =
   const einzeln = (menge: number, optionen?: Record<string, unknown>) =>
     versandOptionen([{ slug: "wochentags-untersetzer-einzeln", menge, optionen }]);
   for (const m of [1, VERSAND_BRIEF.grossbrief.maxStueck]) {
-    const o = einzeln(m, { box: "ohne" });
+    const o = einzeln(m);
     assert.deepEqual(arten(o), ["brief"], "keine Auswahl: nur Brief");
     assert.equal(o[0].cent, 180);
     assert.match(o[0].label, /Großbrief/);
@@ -101,7 +101,7 @@ test("Brief: nur flache Untersetzer ohne Box, automatisch nach Stueckzahl", () =
 });
 
 test("Brief: Box, nicht brieffaehige Artikel und Mischkorb schliessen Brief aus", () => {
-  assert.deepEqual(arten(versandOptionen([{ slug: "wochentags-untersetzer-einzeln", menge: 1, optionen: { box: "mit" } }])), ["hermes", "dhl"]);
+  assert.deepEqual(arten(versandOptionen([{ slug: "wochentags-untersetzer-set", menge: 1, optionen: { box: "mit" } }])), ["hermes", "dhl"]);
   assert.deepEqual(arten(versandOptionen([{ slug: "stiftebecher-tasse", menge: 1 }])), ["hermes", "dhl"]);
   assert.deepEqual(arten(versandOptionen([
     { slug: "wochentags-untersetzer-einzeln", menge: 1 }, { slug: "stiftebecher-tasse", menge: 1 },

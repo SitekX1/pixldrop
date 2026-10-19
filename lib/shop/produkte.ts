@@ -145,14 +145,13 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "wochentags-untersetzer-einzeln",
     name: "Wochentags-Untersetzer einzeln",
-    kurz: "Ein Untersetzer für deinen Wochentag, auf Wunsch mit Box.",
+    kurz: "Ein Untersetzer für deinen Wochentag.",
     beschreibung:
-      "Ein einzelner Untersetzer mit deinem Wochentag, 90 mm Durchmesser. Wähle den Tag. Du möchtest alle fünf? Dann gibt es das Set Montag bis Freitag. Auf Wunsch mit passender Box, auf der ein QR-Code zu meinen Songs auf Spotify sitzt.",
+      "Ein einzelner Untersetzer mit deinem Wochentag, 90 mm Durchmesser. Wähle den Tag. Du möchtest alle fünf? Dann gibt es das Set Montag bis Freitag.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#4fb894",
     preisCent: 590, masse: null, material: MATERIAL,
     optionen: [
       { id: "tag", label: "Wochentag", optionen: [{ id: "mo", label: "Montag" }, { id: "di", label: "Dienstag" }, { id: "mi", label: "Mittwoch" }, { id: "do", label: "Donnerstag" }, { id: "fr", label: "Freitag" }] },
-      { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: AUFPREIS_BOX_CENT }] },
       ...korbGruppe(30),
     ],
     kombinationen: KOMBI_WOCHENTAG,
