@@ -430,7 +430,18 @@ test("Halloween-Untersetzer: nur Schwarz, ohne Wahl gueltig, fremde Farbe abgele
   assert.ok(!berechneWarenkorb([{ slug: "halloween-untersetzer-set", menge: 1, optionen: { farbkombi: "orange" } }], ctx()).ok);
 });
 
-test("Design-Kuerbis: feste Ausfuehrung ohne Farbwahl, fremde Auswahl abgelehnt", () => {
-  assert.ok(berechneWarenkorb([{ slug: "design-kuerbis", menge: 1 }], ctx()).ok);
-  assert.ok(!berechneWarenkorb([{ slug: "design-kuerbis", menge: 1, optionen: { farbkombi: "pink" } }], ctx()).ok);
+test("Design-Kuerbis: Groesse + feste Farbpalette fuer Kuerbis und Strunk getrennt, Preis klein 6,90 / mittel 11,90", () => {
+  const o = (g: string, k: string, s: string) => ({ slug: "design-kuerbis", menge: 1, optionen: { kuerbisgroesse: g }, teilFarben: { koerper: k, strunk: s } });
+  const klein = berechneWarenkorb([o("klein", "olivgruen", "lattebraun")], ctx({ produkte: PRODUKTE }));
+  const mittel = berechneWarenkorb([o("mittel", "weiss", "olivgruen")], ctx({ produkte: PRODUKTE }));
+  assert.ok(klein.ok && mittel.ok);
+  if (klein.ok && mittel.ok) {
+    assert.equal(klein.wert.gesamtCent, 690 + 410, "6,90 + Versand");
+    assert.equal(mittel.wert.gesamtCent, 1190 + 410, "11,90 + Versand");
+    assert.equal(klein.wert.positionen[0].optionen["Strunk"], "Lattebraun");
+  }
+  assert.ok(!berechneWarenkorb([o("klein", "pink", "lattebraun")], ctx({ produkte: PRODUKTE })).ok, "fremde Farbe");
+  assert.ok(!berechneWarenkorb([o("gross", "weiss", "weiss")], ctx({ produkte: PRODUKTE })).ok, "Groesse gross gibt es nicht");
+  const ohne = berechneWarenkorb([{ slug: "design-kuerbis", menge: 1, optionen: { kuerbisgroesse: "mittel" } }], ctx({ produkte: PRODUKTE }));
+  assert.ok(ohne.ok && ohne.wert.positionen[0].optionen["Kürbis"] === "Lattebraun" && ohne.wert.positionen[0].optionen["Strunk"] === "Weiß", "Standard Latte + weißer Strunk");
 });

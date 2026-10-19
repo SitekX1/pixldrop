@@ -59,6 +59,8 @@ export interface Produkt {
   kombinationen?: Farbkombination[];
   /** Mehrteilige Artikel: je Teil eine Lagerfarbe (Auswahl.teilFarben: teilId -> farbeId). */
   teile?: { id: string; label: string; /** Vorauswahl: ähnlichste Lagerfarbe zu dieser Farbe (sonst Standard je Teil-ID, siehe teilfarben.ts) */ referenz?: string }[];
+  /** Feste Farbpalette für mehrteilige Artikel statt der Lagerfarben (Design-Kürbis: nur drei Farben, Alex 19.10.). Keine Lagerprüfung. */
+  festeFarben?: { id: string; name: string; hex: string }[];
   personalisierung: null | Personalisierung;
   /** Zusätzlich wählbare Linienfarbe (Zierlinien am Rand, Individueller Untersetzer): Lagerfarbe, hebt sich vom Untergrund ab. */
   linienfarbe?: boolean;
@@ -105,7 +107,12 @@ const FARBEN_SKELETT: Farbkombination[] = [
   { id: "orange", label: "Orange", farben: [ORANGE] },
 ];
 // Feste Farbe ohne Auswahl (Halloween-Untersetzer: nur die abgebildete Ausführung schwarz/orange/weiß, Alex 18.10.): eine einzige Kombination, die Seite zeigt sie als Hinweis statt als Auswahl
-const FARBEN_DESIGN_KUERBIS: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [{ name: "Latte", hex: "#d3b7a7" }, WEISS] }]; // Latte + weißer Strunk, wie fotografiert
+// Design-Kürbis: Kürbis und Strunk getrennt in je einer dieser drei Farben (hex wie die Lagerfarben Latte Brown / Olive grün)
+const FARBEN_DESIGN_KUERBIS = [
+  { id: "lattebraun", name: "Lattebraun", hex: "#d3b7a7" },
+  { id: "weiss", name: "Weiß", hex: "#f4f1ea" },
+  { id: "olivgruen", name: "Olivgrün", hex: "#5a6d3d" },
+];
 const FARBEN_NUR_SCHWARZ: Farbkombination[] = [{ id: "wie-abgebildet", label: "Wie abgebildet", farben: [SCHWARZ, ORANGE, WEISS] }];
 /** Artikel mit nur einer Farbe je Auswahl heißen „Farbe“ statt „Farbkombination“. */
 export const nurEinzelfarben = (p: { kombinationen?: Farbkombination[] }): boolean => !!p.kombinationen?.every((k) => k.farben.length === 1);
@@ -280,13 +287,16 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "design-kuerbis",
     name: "Design-Kürbis",
-    kurz: "Moderner Deko-Kürbis mit geschwungenen Lamellen, ca. 11 cm hoch.",
+    kurz: "Moderner Deko-Kürbis mit geschwungenen Lamellen in zwei Größen, Farbe für Kürbis und Strunk frei wählbar.",
     beschreibung:
-      "Ein Kürbis als Herbstdeko: 18 geschwungene Lamellen laufen wie gedreht um den Körper, oben sitzt ein gebogener Strunk mit gebrochener Spitze. Der Kürbis steht sicher auf einer flachen Bodenfläche und passt auf Fensterbank, Sideboard oder Esstisch. Er ist ein reines Deko-Stück ohne Öffnung, ein Teelicht passt nicht hinein. Körper und Strunk werden getrennt gedruckt und von mir zusammengesteckt und verklebt. Die Oberfläche ist fein und leicht rau, die Lamellen sieht man auch im Streiflicht. Den Kürbis gibt es aktuell nur in der abgebildeten Ausführung: Latte mit weißem Strunk.",
+      "Ein Kürbis als Herbstdeko: 18 geschwungene Lamellen laufen wie gedreht um den Körper, oben sitzt ein gebogener Strunk mit gebrochener Spitze. Der Kürbis steht sicher auf einer flachen Bodenfläche und passt auf Fensterbank, Sideboard oder Esstisch. Er ist ein reines Deko-Stück ohne Öffnung, ein Teelicht passt nicht hinein. Körper und Strunk werden getrennt gedruckt und von mir zusammengesteckt und verklebt. Die Oberfläche ist fein und leicht rau, die Lamellen sieht man auch im Streiflicht. Du wählst die Größe (Mittel ca. 11 cm, Klein ca. 6 cm hoch) und die Farbe für Kürbis und Strunk getrennt aus Olivgrün, Weiß und Lattebraun. Die Bilder zeigen Beispiele (Mittel in Latte mit weißem Strunk, Klein in Olivgrün mit Latte-Strunk).",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "laterne", grundfarbe: "#d9731a",
-    preisCent: 1190, masse: "110 × 110 × 115", material: MATERIAL, // Richtpreis (Karla 18.10.), Alex entscheidet; weitere Größen klein 55 × 57 mm (max. 6,90 €) und groß 140 × 145 mm folgen später
-    kombinationen: FARBEN_DESIGN_KUERBIS, // feste Ausführung ohne Farbwahl (Alex 18.10.); Farbvarianten kommen mit den weiteren Größen
-    optionen: [], // Größenauswahl (klein/mittel/groß) kommt, sobald die anderen Größen gedruckt sind; Versandmaße je Größe liegen schon in versand.ts
+    preisCent: 690, masse: null, material: MATERIAL, // Preise (Alex/Karla 18.10.): klein 6,90 (nie mehr), mittel 11,90; Maße stehen in den Größen-Optionen
+    teile: [{ id: "koerper", label: "Kürbis", referenz: "#d3b7a7" }, { id: "strunk", label: "Strunk", referenz: "#f4f1ea" }], // Standard = Latte + weißer Strunk (wie das Beispielfoto)
+    festeFarben: FARBEN_DESIGN_KUERBIS,
+    optionen: [
+      { id: "kuerbisgroesse", label: "Größe", optionen: [{ id: "klein", label: "Klein (55 × 57 mm)" }, { id: "mittel", label: "Mittel (110 × 115 mm)", aufpreisCent: 500 }] },
+    ],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
 ];

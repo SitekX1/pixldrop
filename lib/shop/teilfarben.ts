@@ -25,6 +25,9 @@ export function standardTeilFarbe(teilId: string, farben: Farbe[], referenz?: st
   return farben.reduce<Farbe | undefined>((best, f) => (!best || farbAbstand(f.hex, ref) < farbAbstand(best.hex, ref) ? f : best), undefined);
 }
 
+/** Farbquelle mehrteiliger Artikel: feste Palette des Artikels (Design-Kürbis) oder die Lagerfarben. */
+export const teilQuelle = (p: Pick<Produkt, "festeFarben">, farben: Farbe[]): Farbe[] => p.festeFarben ?? farben;
+
 export function standardTeilFarben(teile: NonNullable<Produkt["teile"]>, farben: Farbe[]): Record<string, string> {
   const r: Record<string, string> = {};
   for (const t of teile) { const f = standardTeilFarbe(t.id, farben, t.referenz); if (f) r[t.id] = f.id; }
@@ -32,7 +35,8 @@ export function standardTeilFarben(teile: NonNullable<Produkt["teile"]>, farben:
 }
 
 /** Aufgelöste Teilfarben einer Position (fehlt eine Wahl, gilt die Standardfarbe). */
-export function teilFarbenVon(p: Produkt, a: Pick<Auswahl, "teilFarben">, farben: Farbe[]): { id: string; label: string; farbe?: Farbe }[] {
+export function teilFarbenVon(p: Produkt, a: Pick<Auswahl, "teilFarben">, lager: Farbe[]): { id: string; label: string; farbe?: Farbe }[] {
+  const farben = teilQuelle(p, lager);
   return (p.teile ?? []).map((t) => ({
     id: t.id, label: t.label,
     farbe: farben.find((f) => f.id === a.teilFarben?.[t.id]) ?? (a.teilFarben?.[t.id] ? undefined : standardTeilFarbe(t.id, farben, t.referenz)),

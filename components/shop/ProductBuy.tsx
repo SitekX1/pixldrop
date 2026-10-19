@@ -18,7 +18,7 @@ import type { Farbe } from "@/lib/shop/farben";
 import { TEXTE } from "@/lib/shop/config";
 import { pruefeWunschtext } from "@/lib/shop/textfilter";
 import { LINIENFARBE_HINWEIS, LINIENFARBE_KEY, TEXTFARBE_HINWEIS, TEXTFARBE_KEY, automatischeLinienfarbe, automatischeTextfarbe, textfarbeErlaubt } from "@/lib/shop/textfarbe";
-import { standardTeilFarben } from "@/lib/shop/teilfarben";
+import { standardTeilFarben, teilQuelle } from "@/lib/shop/teilfarben";
 import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
 
 /** Lagerfarbe, die der Fotofarbe am nächsten liegt (Voreinstellung = Foto ohne Umfärbung); null, wenn keine nah genug ist. */
@@ -42,8 +42,9 @@ export default function ProductBuy({
   const kombi = kombis?.find((k) => k.id === kombiId);
   // Mehrteilige Artikel (Kürbis): je Teil eine eigene Lagerfarbe, Standard = ähnlichste Farbe zur Referenz (orange / schwarz).
   const teile = produkt.teile;
-  const [teilWahl, setTeilWahl] = useState<Record<string, string>>(() => (teile ? standardTeilFarben(teile, farben) : {}));
-  const teilFarbe = (id: string) => farben.find((f) => f.id === teilWahl[id]);
+  const teilFarben = teilQuelle(produkt, farben); // Design-Kürbis: feste Palette statt Lager
+  const [teilWahl, setTeilWahl] = useState<Record<string, string>>(() => (teile ? standardTeilFarben(teile, teilFarben) : {}));
+  const teilFarbe = (id: string) => teilFarben.find((f) => f.id === teilWahl[id]);
   const teileHex = teile ? Object.fromEntries(teile.flatMap((t) => { const f = teilFarbe(t.id); return f ? [[t.id, f.hex]] : []; })) : undefined;
   const [opt, setOpt] = useState<Record<string, string>>(() =>
     Object.fromEntries(produkt.optionen.map((g) => [g.id, g.optionen[0].id])),
@@ -307,7 +308,7 @@ export default function ProductBuy({
           </div>
           <p className="muted">{nurEinzelfarben(produkt) ? "Bildschirmfarben können leicht abweichen." : "Fertige Kombination aus drei Farben. Bildschirmfarben können leicht abweichen."}</p>
         </fieldset>
-      ) : teile && farben.length > 0 ? (
+      ) : teile && teilFarben.length > 0 ? (
         <>
           {teile.map((t) => {
             const gew = teilFarbe(t.id);
@@ -315,7 +316,7 @@ export default function ProductBuy({
               <fieldset key={t.id} className="shop-step">
                 <legend>Farbe {t.label}</legend>
                 <div className="shop-swatches">
-                  {farben.map((f) => (
+                  {teilFarben.map((f) => (
                     <label key={f.id} className="shop-swatch">
                       <input type="radio" name={`farbe-${t.id}`} value={f.id} checked={teilWahl[t.id] === f.id} onChange={() => setTeilWahl({ ...teilWahl, [t.id]: f.id })} aria-label={`${f.name} (${t.label})`} />
                       <span className="dot" style={{ background: f.hex }}>
@@ -324,11 +325,11 @@ export default function ProductBuy({
                     </label>
                   ))}
                 </div>
-                <p aria-live="polite" style={{ marginTop: 6 }}><strong>{t.label}: {gew?.name}</strong> · auf Lager</p>
+                <p aria-live="polite" style={{ marginTop: 6 }}><strong>{t.label}: {gew?.name}</strong>{produkt.festeFarben ? "" : " · auf Lager"}</p>
               </fieldset>
             );
           })}
-          <p className="muted">Nur Farben, die gerade im Regal liegen. Bildschirmfarben können leicht abweichen.</p>
+          <p className="muted">{produkt.festeFarben ? "Kürbis und Strunk kannst du in beliebiger Kombination wählen. Die Bilder zeigen Beispiele. Bildschirmfarben können leicht abweichen." : "Nur Farben, die gerade im Regal liegen. Bildschirmfarben können leicht abweichen."}</p>
         </>
       ) : farben.length > 0 ? (
         <fieldset className="shop-step">

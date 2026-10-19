@@ -36,8 +36,9 @@ const ALT: Record<string, string[]> = {
     "Namensschild von schräg vorn, Beispieltext",
     "Namensschild von hinten",
   ],
-  // Foto 1 = Untersetzer von oben ohne Text: Farben und Text deiner Wahl werden live daraufgelegt (components/shop/UntersetzerAufdruck.tsx)
+  // Titelbild (Cover) zuerst, dann 3.webp (stehend mit Glas); Datei 1 = Untersetzer von oben ohne Text: Farben und Text deiner Wahl werden live daraufgelegt (components/shop/UntersetzerAufdruck.tsx), siehe LIVE_FOTO
   "spruch-untersetzer": [
+    "Individueller Untersetzer stehend neben einem Glas mit Zitrone und Minze",
     "Individueller Untersetzer von oben mit deinem Text und deinen Farben (Vorschau)",
     "Rückseite des Untersetzers mit selbstklebendem Kork (Option „Mit selbstklebendem Kork“)",
   ],
@@ -65,12 +66,10 @@ const ALT: Record<string, string[]> = {
     "Bewegliches Skelett sitzt, die Gelenke sind beweglich",
     "Bewegliches Skelett liegt in lockerer Pose",
   ],
-  // Fotos zeigen die mittlere Größe (110 mm) in Latte mit weißem Strunk
+  // Titelbild (Cover, mittel + klein im warmen Interieur) kommt automatisch zuerst; Galerie nur 2 Einzelbilder: 5.webp mittel, 6.webp klein (Alex 19.10.)
   "design-kuerbis": [
-    "Design-Kürbis mit geschwungenen Lamellen und hellem Strunk, Vorderansicht",
-    "Design-Kürbis von der Seite, Strunk leicht gebogen",
-    "Design-Kürbis auf der Seite liegend, flache Bodenfläche sichtbar",
-    "Design-Kürbis von oben, Lamellen laufen zum Strunk zusammen",
+    "Design-Kürbis mittel in Latte mit weißem Strunk im Herbstlicht",
+    "Design-Kürbis klein in Olivgrün mit Latte-Strunk",
   ],
   "kuerbis-teelichthalter": [
     "Kürbis-Teelichthalter mit brennendem LED-Teelicht",
@@ -103,9 +102,9 @@ const ALT: Record<string, string[]> = {
 };
 
 /** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Titelbild = Seitenansicht 2.webp, danach die Live-Vorschau 1.webp). */
-export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [2, 1, 3, 4], "skelett-beweglich": [2, 3, 1] };
+export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [2, 1, 3, 4], "skelett-beweglich": [2, 3, 1], "design-kuerbis": [5, 6], "spruch-untersetzer": [3, 1, 2] };
 /** Index (Anzeigereihenfolge) des Fotos, das die Live-Vorschau ist (umgefärbt, mit Aufdruck); Standard 0. */
-export const LIVE_FOTO: Record<string, number> = { "stiftebecher-tasse": 1 };
+export const LIVE_FOTO: Record<string, number> = { "stiftebecher-tasse": 1, "spruch-untersetzer": 1 };
 export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
 
 /** Produkte mit eigenem Cover-Bild für die Shop-Übersicht (public/shop/cover/<slug>.webp, 1100 × 1100). Die Galerie auf der Produktseite bleibt unverändert. Slug hier eintragen, sobald die Datei liegt. */
@@ -153,7 +152,7 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
 /** Beschriftung der Motivfotos (Halloween-Untersetzer einzeln): Foto 1 bis 3 zeigen je ein Motiv, der Name steht in Gruselschrift auf dem Bild. */
 export const MOTIV_BESCHRIFTUNG: Record<string, string[]> = { "halloween-untersetzer-einzeln": ["Kürbis", "Geister", "Spukhaus"] };
 export const OHNE_UMFAERBEN: Record<string, number[]> = {
-  "spruch-untersetzer": [1],
+  "spruch-untersetzer": [0, 2], // Anzeige-Index: 0 = stehend (Original), 1 = Live-Vorschau, 2 = Kork-Rückseite
   "namensschild": [1, 2, 3], // Beispielfotos mit Schrift bleiben Alex' Originale
   "stiftebecher-tasse": [0, 2, 3], // Anzeige-Index: Titelbild und Beispielfotos bleiben Originale, Index 1 ist die Live-Vorschau // Alex' Originalfotos bleiben unverändert (Beispielstücke)
   "kuerbis-laterne": [1], // Dunkel-Foto mit LED-Teelicht: Originalfarben

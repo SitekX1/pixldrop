@@ -5,7 +5,7 @@ import "server-only";
 // uebernommen, nur Artikel-Slug, Menge und Auswahl.
 import { KOMBI_KEY, einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "../produkte";
 import type { Farbe } from "../farben";
-import { standardTeilFarbe } from "../teilfarben";
+import { standardTeilFarbe, teilQuelle } from "../teilfarben";
 import { SCHRIFTEN, SCHRIFT_TITEL_KEY, unerlaubteZeichen, fehlendeZeichen, fehlendeZeichenMeldung } from "../schriften";
 import {
   formatAnzeige, formatAusOptionen, formatUnerlaubt, istFormatSchluessel, pruefePasst, zeilenAnzahl,
@@ -140,12 +140,13 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       if (roh2 !== undefined && !istObjekt(roh2)) return fehler("farbe_ungueltig", "Ungültige Farbwahl.");
       const wahl = roh2 ?? {};
       if (Object.keys(wahl).some((k) => !produkt.teile!.some((t) => t.id === k))) return fehler("farbe_ungueltig", "Ungültige Farbwahl.");
-      if (!ctx.farben[0]) return fehler("farbe_ungueltig", "Zurzeit ist keine Farbe vorrätig. Bitte versuch es später noch einmal.");
+      const quelle = teilQuelle(produkt, ctx.farben);
+      if (!quelle[0]) return fehler("farbe_ungueltig", "Zurzeit ist keine Farbe vorrätig. Bitte versuch es später noch einmal.");
       const gewaehlt: Farbe[] = [];
       for (const t of produkt.teile) {
         const w = wahl[t.id];
-        if (w === undefined) { const standard = standardTeilFarbe(t.id, ctx.farben, t.referenz)!; gewaehlt.push(standard); teilOptionen[t.label] = standard.name; continue; }
-        const f = typeof w === "string" ? ctx.farben.find((x) => x.id === w) : undefined;
+        if (w === undefined) { const standard = standardTeilFarbe(t.id, quelle, t.referenz)!; gewaehlt.push(standard); teilOptionen[t.label] = standard.name; continue; }
+        const f = typeof w === "string" ? quelle.find((x) => x.id === w) : undefined;
         if (!f) return fehler("farbe_ungueltig", `Die Farbe für „${t.label}“ ist nicht (mehr) vorrätig. Bitte wähle eine andere.`);
         gewaehlt.push(f);
         teilOptionen[t.label] = f.name;
