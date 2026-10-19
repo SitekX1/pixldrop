@@ -4,11 +4,11 @@ import type { VorschauWerte } from "./Vorschau";
 import { RundText, textfarbeFuer } from "./ProductImage";
 import { FLAECHE_BECHER } from "@/lib/shop/umbruch";
 
-// Mitte des Namensfelds im Foto (public/shop/fotos/stiftebecher-tasse/1.webp, 1100-px-Bild).
-// Maßstab: Außen-Ø 85 mm entspricht im Foto ca. 513 px (Becherrand oben) = ca. 6 px je mm; Einheit der Textfläche (FLAECHE_BECHER) = 1 mm.
-const CX = 551, CY = 601, PX_JE_MM = 6;
-// Sichtbare Grenze: Namensfeld im Foto (ca. 262 x 135 px = 44 x 22,5 mm); langer Text wird hier abgeschnitten (die Passt-Prüfung meldet ihn trotzdem).
-const FELD_B = 44, FELD_H = 22.5;
+// Mitte des Namensfelds im Foto (public/shop/fotos/stiftebecher-tasse/8.webp, Frontsicht mit leerem Feld, 1100-px-Bild).
+// Maßstab: das Namensfeld (ca. 145 x 87 px im Foto) entspricht der Textfläche von 44 x 26 mm, also ca. 3,3 px je mm; Einheit der Textfläche (FLAECHE_BECHER) = 1 mm.
+const CX = 388, CY = 622, PX_JE_MM = 3.3;
+// Sichtbare Grenze: Namensfeld im Foto; langer Text wird hier abgeschnitten (die Passt-Prüfung meldet ihn trotzdem).
+const FELD_B = 44, FELD_H = 26;
 
 /** Legt den Wunschtext des Kunden (Schrift, Farbe, Fett/Kursiv, Größe wie in der Passt-Prüfung) in das Namensfeld des Becher-Fotos. */
 export default function BecherAufdruck({ w }: { w: VorschauWerte }) {

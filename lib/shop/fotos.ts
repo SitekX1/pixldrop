@@ -17,12 +17,11 @@ const ALT: Record<string, string[]> = {
     "Untersetzer Donnerstag: Fast geschafft.",
     "Untersetzer Freitag: Endlich.",
   ],
-  // Titelbild (Cover) zuerst, dann Frontsicht (5.webp), Seitenansicht mit Griff (6.webp), Draufsicht (7.webp), zuletzt (Datei 1.webp) der Becher mit leerem Namensfeld: darauf werden Farben und Text deiner Wahl live gelegt (components/shop/BecherAufdruck.tsx, LIVE_FOTO); die Galerie springt beim Ändern automatisch dorthin
+  // Titelbild (Cover) zuerst, dann 8.webp = Frontsicht mit leerem Namensfeld (gestaltetes Bild): Farben und Text deiner Wahl werden live daraufgelegt (components/shop/BecherAufdruck.tsx), die Galerie springt beim Ändern dorthin; danach Seitenansicht mit Griff (6.webp) und Draufsicht (7.webp)
   "stiftebecher-tasse": [
-    "Stiftebecher in Frontsicht mit Namensschild (Beispiel „Eddie“)",
+    "Stiftebecher in Frontsicht mit deinem Namensschild und deiner Farbe (Vorschau)",
     "Stiftebecher in Seitenansicht mit Griff",
     "Stiftebecher in Draufsicht, innen und von unten",
-    "Stiftebecher mit gerillter Wand und leerem Namensfeld, darauf dein Text und deine Farben (Vorschau)",
   ],
   // Titelbild (Cover) zuerst, dann 5.webp (Beispiel „Max Mustermann“), 6.webp (Rückseite), zuletzt 7.webp = Blanko-Schild von vorn (gestaltetes Bild): Farbe und Text deiner Wahl werden live daraufgelegt (components/shop/NamensschildAufdruck.tsx), die Galerie springt beim Ändern dorthin
   "namensschild": [
@@ -93,10 +92,10 @@ const ALT: Record<string, string[]> = {
   ],
 };
 
-/** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Frontsicht 5, Seite 6, Draufsicht 7, zuletzt die Live-Vorschau 1.webp). */
-export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [5, 6, 7, 1], "skelett-beweglich": [2, 3, 1], "design-kuerbis": [5, 6], "spruch-untersetzer": [3], "wochentags-untersetzer-set": [1, 7], "namensschild": [5, 6, 7] };
+/** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Frontsicht leer 8, Seite 6, Draufsicht 7). */
+export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [8, 6, 7], "skelett-beweglich": [2, 3, 1], "design-kuerbis": [5, 6], "spruch-untersetzer": [3], "wochentags-untersetzer-set": [1, 7], "namensschild": [5, 6, 7] };
 /** Index (Anzeigereihenfolge) des Fotos, das die Live-Vorschau ist (umgefärbt, mit Aufdruck); Standard 0. */
-export const LIVE_FOTO: Record<string, number> = { "stiftebecher-tasse": 3, "namensschild": 2 };
+export const LIVE_FOTO: Record<string, number> = { "namensschild": 2 };
 export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
 
 /** Produkte mit eigenem Cover-Bild für die Shop-Übersicht (public/shop/cover/<slug>.webp, 1100 × 1100). Die Galerie auf der Produktseite bleibt unverändert. Slug hier eintragen, sobald die Datei liegt. */
@@ -147,7 +146,7 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
 export const MOTIV_BESCHRIFTUNG: Record<string, string[]> = { "halloween-untersetzer-einzeln": ["Kürbis", "Geister", "Spukhaus"] };
 export const OHNE_UMFAERBEN: Record<string, number[]> = {
   "namensschild": [0, 1], // Anzeige-Index: 0 und 1 (Beispiel, Rückseite) bleiben Originale, 2 ist die Live-Vorschau
-  "stiftebecher-tasse": [0, 1, 2], // Anzeige-Index: 0-2 = Frontsicht, Seitenansicht, Draufsicht bleiben Originale, 3 ist die Live-Vorschau
+  "stiftebecher-tasse": [1, 2], // Anzeige-Index: 0 = Live-Vorschau (Frontsicht), 1/2 = Seitenansicht und Draufsicht bleiben Originale
   "kuerbis-laterne": [1], // Dunkel-Foto mit LED-Teelicht: Originalfarben
   "halloween-untersetzer-set": [5],
   "halloween-untersetzer-einzeln": [3],
