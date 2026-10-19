@@ -51,11 +51,10 @@ const ALT: Record<string, string[]> = {
     "Kürbis mit Gesicht bei Tageslicht, orange mit schwarzem Stiel",
     "Kürbis mit Gesicht leuchtet im Dunkeln mit LED-Teelicht (Foto in Originalfarben)",
   ],
-  // Dateien 2, 3, 1: Titelbild = ganzer Körper von oben (2.webp), siehe FOTO_DATEIEN. Fotos zeigen die weiße Ausführung (kein Umfärben)
+  // Titelbild (Cover) zuerst, dann 4.webp (hängend im Halloween-Look) und 5.webp (sitzend im Halloween-Zauber), beide Hochformat mit unscharfem Rand auf Quadrat gesetzt
   "skelett-beweglich": [
-    "Bewegliches Skelett von oben, Arm zur Seite gestreckt (weiße Ausführung)",
-    "Bewegliches Skelett sitzt, die Gelenke sind beweglich",
-    "Bewegliches Skelett liegt in lockerer Pose",
+    "Bewegliches Skelett hängt an einer Schnur vor Halloween-Kulisse (gestaltetes Bild)",
+    "Bewegliches Skelett sitzt zwischen Kürbissen und Kerzen (gestaltetes Bild)",
   ],
   // Titelbild (Cover, mittel + klein im warmen Interieur) kommt automatisch zuerst; Galerie nur 2 Einzelbilder: 5.webp mittel, 6.webp klein (Alex 19.10.)
   "design-kuerbis": [
@@ -93,7 +92,7 @@ const ALT: Record<string, string[]> = {
 };
 
 /** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Frontsicht leer 8, Seite 6, Draufsicht 7). */
-export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [8, 6, 7], "skelett-beweglich": [2, 3, 1], "design-kuerbis": [5, 6], "spruch-untersetzer": [3], "wochentags-untersetzer-set": [1, 7], "namensschild": [5, 6, 7] };
+export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [8, 6, 7], "skelett-beweglich": [4, 5], "design-kuerbis": [5, 6], "spruch-untersetzer": [3], "wochentags-untersetzer-set": [1, 7], "namensschild": [5, 6, 7] };
 /** Index (Anzeigereihenfolge) des Fotos, das die Live-Vorschau ist (umgefärbt, mit Aufdruck); Standard 0. */
 export const LIVE_FOTO: Record<string, number> = { "namensschild": 2 };
 export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
