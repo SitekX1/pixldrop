@@ -41,10 +41,10 @@ const ALT: Record<string, string[]> = {
   "geister-set-klein": [
     "Drei kleine Geister in Weiß vor Halloween-Kulisse",
   ],
-  // Foto 1 = Tageslicht (orange Körper, schwarzer Stiel): Körper- und Stielfarbe deiner Wahl werden live eingefärbt (Maske 1.m.webp); Foto 2 = leuchtend im Dunkeln, immer Originalfarben
+  // Cover = Kürbis 2; Galerie: 1.webp (leuchtend im Mondlicht), 2.webp (Kürbis 2), kein Cover-Duplikat davor (COVER_IST_FOTO1); keine Live-Umfärbung, die Farben stehen als Auswahl bereit
   "kuerbis-laterne": [
-    "Kürbis mit Gesicht bei Tageslicht, orange mit schwarzem Stiel",
-    "Kürbis mit Gesicht leuchtet im Dunkeln mit LED-Teelicht (Foto in Originalfarben)",
+    "Leuchtender 3D-Druck-Kürbis im Mondlicht mit LED-Teelicht",
+    "Kürbis mit Gesicht, orange mit schwarzem Stiel, Premium LED Halloween-Licht",
   ],
   // Titelbild (Cover) zuerst, dann 4.webp (hängend im Halloween-Look) und 5.webp (sitzend im Halloween-Zauber), beide Hochformat mit unscharfem Rand auf Quadrat gesetzt
   "skelett-beweglich": [
@@ -105,7 +105,7 @@ export const COVER: string[] = [
 ];
 /** Zweites Cover im Design-Stil (Datei <slug>-design.webp) für die Ansicht außerhalb der Halloween-Kollektion ("Alle", "Sonstiges"). */
 /** Artikel, deren Titelbild schon Foto 1 der Galerie ist (dann kein zusätzliches Cover als erstes Galeriebild). */
-export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "wochentags-untersetzer-set", "geister-set-klein", "kuerbis-klein-set"];
+export const COVER_IST_FOTO1: string[] = ["wochentags-untersetzer-einzeln", "wochentags-untersetzer-set", "geister-set-klein", "kuerbis-klein-set", "kuerbis-laterne"];
 export const COVER_DESIGN: string[] = ["kuerbis-teelichthalter"];
 export const coverFuer = (slug: string, halloweenSicht = false): string | undefined =>
   !COVER.includes(slug) ? undefined : !halloweenSicht && COVER_DESIGN.includes(slug) ? `/shop/cover/${slug}-design.webp` : `/shop/cover/${slug}.webp`;
@@ -123,7 +123,6 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "namensschild": "schild",
   "spruch-untersetzer": "untersetzer",
   "geister-set": "farbe",
-  "kuerbis-laterne": "teile",
 };
 
 /** Fotos ohne Maske, die nie umgefärbt werden (Kork-Rückseite): Slug -> Fotonummern (0-basiert). */
@@ -132,7 +131,6 @@ export const MOTIV_BESCHRIFTUNG: Record<string, string[]> = { "halloween-unterse
 export const OHNE_UMFAERBEN: Record<string, number[]> = {
   "namensschild": [0, 1], // Anzeige-Index: 0 und 1 (Beispiel, Rückseite) bleiben Originale, 2 ist die Live-Vorschau
   "stiftebecher-tasse": [1, 2], // Anzeige-Index: 0 = Live-Vorschau (Frontsicht), 1/2 = Seitenansicht und Draufsicht bleiben Originale
-  "kuerbis-laterne": [1], // Dunkel-Foto mit LED-Teelicht: Originalfarben
   "halloween-untersetzer-set": [5],
   "halloween-untersetzer-einzeln": [3],
 };
