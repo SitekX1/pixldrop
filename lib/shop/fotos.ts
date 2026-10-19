@@ -45,7 +45,7 @@ const ALT: Record<string, string[]> = {
     "Kürbis mit Gesicht, orange mit schwarzem Stiel, Premium LED Halloween-Licht",
     "Leuchtender 3D-Druck-Kürbis im Mondlicht mit LED-Teelicht",
   ],
-  // Titelbild (Cover) zuerst, dann 4.webp (hängend im Halloween-Look) und 5.webp (sitzend im Halloween-Zauber), beide Hochformat, quadratisch zugeschnitten
+  // Titelbild (Cover) zuerst, dann 4.webp (hängend im Halloween-Look) und 5.webp (sitzend im Halloween-Zauber), beide Hochformat: komplett sichtbar, Seiten dunkel weichgezeichnet zum Quadrat erweitert
   "skelett-beweglich": [
     "Bewegliches Skelett hängt an einer Schnur vor Halloween-Kulisse (gestaltetes Bild)",
     "Bewegliches Skelett sitzt zwischen Kürbissen und Kerzen (gestaltetes Bild)",
