@@ -56,10 +56,9 @@ const ALT: Record<string, string[]> = {
     "Design-Kürbis mittel in Latte mit weißem Strunk im Herbstlicht",
     "Design-Kürbis klein in Olivgrün mit Latte-Strunk",
   ],
+  // Titelbild im Design-Stil kommt automatisch zuerst (COVER_DESIGN), danach das Halloween-Titelbild (1.webp); keine Live-Umfärbung, die Farben stehen als Auswahl bereit
   "kuerbis-teelichthalter": [
-    "Kürbis-Teelichthalter mit brennendem LED-Teelicht",
-    "Kürbis-Teelichthalter von oben schräg",
-    "Kürbis-Teelichthalter von der Seite",
+    "Kürbis-Teelichthalter mit brennendem LED-Teelicht im Halloween-Look",
   ],
   "halloween-untersetzer-set": [
     "Drei Halloween-Untersetzer nebeneinander",
@@ -124,7 +123,6 @@ export const UMFAERBEN: Record<string, UmfaerbModus> = {
   "namensschild": "schild",
   "spruch-untersetzer": "untersetzer",
   "geister-set": "farbe",
-  "kuerbis-teelichthalter": "farbe",
   "kuerbis-laterne": "teile",
 };
 
@@ -141,7 +139,7 @@ export const OHNE_UMFAERBEN: Record<string, number[]> = {
 
 /** Foto 1 zeigt diese echte Farbe: Ist sie gewählt (Abstand klein), erscheint das unveränderte Foto statt des umgefärbten Canvas. */
 export const ORIGINALFARBE: Record<string, string> = {
-  "stiftebecher-tasse": "#1c1c1c", "namensschild": "#1c1c1c", "kuerbis-teelichthalter": "#1c1c1c",
+  "stiftebecher-tasse": "#1c1c1c", "namensschild": "#1c1c1c",
   "spruch-untersetzer": "#1c1c1c", "halloween-untersetzer-set": "#1c1c1c", "halloween-untersetzer-einzeln": "#1c1c1c",
   "geister-set": "#f4f1ea",
 }
