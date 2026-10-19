@@ -165,7 +165,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee. Auf Wunsch mit einer Textzeile in einer von 25 Schriften; änderst du den Text, wird das Stück einzeln für dich gefertigt.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "tasse", grundfarbe: "#6b4423",
-    preisCent: 1290, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 1090, masse: null, material: MATERIAL, optionen: [],
     personalisierung: { maxLaenge: 14, label: "Text auf der Tasse", beispiel: "Stifte", standardSchrift: "montserrat", flaeche: "becher" },
     hinweise: [KEIN_SPIELZEUG],
   },
@@ -188,7 +188,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Namensschild mit Ständer für den Schreibtisch: Dein Name steht groß in der Mitte, darunter dein Titel (vorbelegt sind „Eddie Pixldrop“ und „Content Creator“). Die Schrift ist bündig ins Schild eingelegt. Du wählst Schrift, Schildfarbe und Schriftfarbe, die Vorschau zeigt das Schild nahezu genau so; die Position der Schrift wird beim Druck bei Bedarf um wenige Millimeter angepasst.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1c1c1c",
-    preisCent: 1690, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 1490, masse: null, material: MATERIAL, optionen: [],
     personalisierung: {
       maxLaenge: 40, label: "Text auf dem Schild", beispiel: "Eddie Pixldrop", standardSchrift: "montserrat", fuellt: true, schriftJeZeile: true,
       zeilen: [
