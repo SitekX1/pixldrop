@@ -1253,3 +1253,28 @@ html:has(.shop), body:has(.shop) { overflow-x: clip; overflow-y: visible; }
 
 /* Motivname in Gruselschrift auf den Fotos der Halloween-Untersetzer (Einzelstück) */
 .shop-img .shop-motivlabel { position: absolute; left: 0; right: 0; top: 6%; z-index: 2; text-align: center; font-family: var(--font-sf-creepster), "Bangers", cursive; font-size: clamp(1.8rem, 6vw, 3.2rem); line-height: 1; letter-spacing: .04em; color: #ff8a1f; text-shadow: 0 2px 0 #1a0a00, 0 0 14px rgba(255, 138, 31, .55), 0 0 4px #000; pointer-events: none; }
+
+/* ---------- Halloween-Kachel: Blickfang, bewusst anders als die kuehle Seite ---------- */
+.shop .shop-halloween, .shop[data-saison="halloween-dark"] .shop-halloween {
+  min-height: 420px; border: 3px solid #ff8a1f; color: #fff1dc;
+  background: radial-gradient(90% 70% at 100% 50%, rgba(255, 120, 20, 0.55) 0%, transparent 70%), linear-gradient(120deg, #1a0a02 0%, #3a1204 55%, #7a2a05 100%);
+  box-shadow: 0 0 0 4px rgba(255, 138, 31, 0.18), 0 0 46px 2px rgba(255, 120, 20, 0.6), inset 0 0 60px rgba(255, 100, 0, 0.25);
+  animation: hw-glut 3.2s ease-in-out infinite;
+}
+@keyframes hw-glut { 0%, 100% { box-shadow: 0 0 0 4px rgba(255,138,31,0.18), 0 0 34px 0 rgba(255,120,20,0.45), inset 0 0 50px rgba(255,100,0,0.2); } 50% { box-shadow: 0 0 0 4px rgba(255,138,31,0.3), 0 0 64px 8px rgba(255,120,20,0.8), inset 0 0 80px rgba(255,100,0,0.35); } }
+.shop .shop-halloween .hw-foto { position: absolute; z-index: 1; right: 0; bottom: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; opacity: 0.55;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 45%, #000 68%, transparent 88%); mask-image: linear-gradient(to bottom, transparent 0%, #000 45%, #000 68%, transparent 88%); pointer-events: none; }
+.shop .shop-halloween .hw-text { z-index: 3; padding-bottom: 200px; }
+.shop .shop-halloween .shop-overline, .shop[data-saison="halloween-dark"] .shop-halloween .shop-overline { color: #ffb066; font-size: 0.95rem; letter-spacing: 0.14em; }
+.shop .shop-halloween h2, .shop[data-saison="halloween-dark"] .shop-halloween h2 { color: #ffa94d; text-shadow: 0 0 22px rgba(255, 110, 0, 0.9), 0 3px 0 #1a0a02; font-size: clamp(2rem, 9vw, 3.4rem); max-width: 14ch; }
+.shop .shop-halloween p, .shop[data-saison="halloween-dark"] .shop-halloween p { color: #fff1dc; text-shadow: 0 1px 8px #000; }
+.shop .shop-halloween .shop-btn, .shop[data-saison="halloween-dark"] .shop-halloween .shop-btn { background: #ff8a1f; border-color: #fff1dc; color: #1a0a02 !important; font-size: 1.1rem; box-shadow: 0 4px 0 #fff1dc, 0 0 28px rgba(255, 138, 31, 0.8); }
+.hw-sticker { position: absolute; z-index: 4; right: 10px; top: 10px; display: grid; place-items: center; width: 70px; height: 70px; font-size: 0.75rem !important; border-radius: 50%; background: #ff8a1f; color: #1a0a02; font: 800 0.85rem/1.1 var(--shop-display); text-align: center; transform: rotate(12deg); box-shadow: 0 0 0 3px #fff1dc, 0 0 22px rgba(255, 138, 31, 0.8); }
+@media (min-width: 900px) {
+  .shop .shop-halloween { min-height: 400px; padding-top: 56px; }
+  .shop .shop-halloween .hw-foto { width: 58%; height: 100%; object-position: 50% 55%; opacity: 1;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 38%); mask-image: linear-gradient(to right, transparent 0%, #000 38%); }
+  .shop .shop-halloween .hw-text { padding-bottom: 0; padding-right: 48%; }
+  .hw-sticker { right: 34px; top: 30px; width: 108px; height: 108px; font-size: 1.05rem !important; }
+}
+@media (prefers-reduced-motion: reduce) { .shop .shop-halloween { animation: none; } }
