@@ -40,6 +40,19 @@ export default function Datenschutz() {
         (Serverstandort EU/Irland) gespeichert. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO
         (berechtigtes Interesse an der Analyse und Verbesserung unseres Angebots).
       </p>
+      <p>
+        Im 3D-Druck-Shop zählen wir außerdem, wie oft einzelne Seiten aufgerufen werden, und
+        werten dabei aus, ob der Aufruf von einem automatisierten Programm (Bot) stammt. Pro
+        Aufruf speichern wir die aufgerufene Seite, die Herkunft (angegebene Quelle bzw. Domain
+        der verweisenden Seite, sonst &bdquo;direkt&ldquo;), den Zeitpunkt, die Angabe, ob es
+        sich voraussichtlich um einen Bot handelt, und eine grobe Geräteklasse (Handy, Tablet
+        oder Desktop). Dazu wird der Browser-Typ beim Aufruf auf unserem Server kurz
+        ausgewertet und nicht gespeichert. Wir speichern keine IP-Adresse, setzen keine Cookies
+        und legen nichts auf deinem Gerät ab. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO
+        (berechtigtes Interesse an Erfolgsmessung, Verbesserung des Angebots und Abwehr
+        automatisierter Zugriffe). Du kannst dieser Verarbeitung nach Art. 21 DSGVO jederzeit
+        widersprechen, z. B. per E-Mail an as@sitekx.de.
+      </p>
 
       <h2>4. Eingebettete Inhalte Dritter</h2>
       <p>
@@ -323,8 +336,8 @@ export default function Datenschutz() {
         Versandart, deine bereits eingegebenen Lieferdaten (Name, Anschrift, E-Mail, Hinweis) und
         einen technischen Schlüssel gegen Doppelbestellungen. Das ist erforderlich, damit der
         Bestellvorgang nach der Rückkehr von PayPal fortgesetzt werden kann (§ 25 Abs. 2 Nr. 2
-        TDDDG); die Daten enden mit dem Schließen des Tabs. Eine Klick-Statistik ist im Shop nicht
-        aktiv.
+        TDDDG); die Daten enden mit dem Schließen des Tabs. Die Besuchszählung im Shop ist in
+        Abschnitt 3 beschrieben.
       </p>
 
       <h3>12.9 Speicherdauer im Shop</h3>
