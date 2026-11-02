@@ -135,6 +135,10 @@ const ROH: Record<string, Roh> = {
     briefFaehig: false, stueckJeMenge: 1,
   },
   "kuerbis-teelichthalter": { teile: [{ mm: [72, 73, 40], g: 38, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  // Weihnachts-PLATZHALTER (entwurf, nie bestellbar): Maße/Gramm sind ERFUNDENE Platzhalter, beim Einpflegen echter Artikel durch gemessene Werte ersetzen.
+  "wn-entwurf-teelichtstern": { teile: [{ mm: [80, 80, 40], g: 30, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  "wn-entwurf-baumanhaenger": { teile: [{ mm: [60, 60, 6], g: 8, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
+  "wn-entwurf-geschenkanhaenger": { teile: [{ mm: [70, 40, 4], g: 6, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
 };
 /** Unbekannter Slug: grosszuegiger Quader, nie Brief. */
 const UNBEKANNT: Roh = { teile: [{ mm: [200, 150, 100], g: 300, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 };
