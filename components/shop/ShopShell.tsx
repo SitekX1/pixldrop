@@ -50,6 +50,7 @@ export default function ShopShell({
               <li><Link href="/3d-druck/widerruf">Widerrufsbelehrung</Link></li>
               <li><Link href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               <li><Link href="/3d-druck/anfrage">Individueller Druck</Link></li>
+              {weihnachten && SHOP_LINK_ZU_PIXLDROP && <li><a className="wn-fuss-link" href="/">pixldrop.de</a></li>}
             </ul>
           </nav>
           <section className="shop-kontakt" aria-labelledby="shop-kontakt-h">
@@ -65,7 +66,6 @@ export default function ShopShell({
             </p>
             <p><a href="mailto:as@sitekx.de">as@sitekx.de</a> · <a href="/impressum">Impressum</a></p>
           </section>
-          {weihnachten && SHOP_LINK_ZU_PIXLDROP && <p className="wn-fuss-link"><a href="/">pixldrop.de</a></p>}
           <p className="muted" style={{ fontSize: "0.85rem", marginTop: 16, textAlign: "center", maxWidth: 560, marginInline: "auto" }}>© Alexander Sitek / PixlDrop. Gestaltung von PixlDrop; soweit geschützt, ist der gewerbliche Nachbau ohne Zustimmung nicht gestattet.</p>
         </footer>
       </div>

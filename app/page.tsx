@@ -6,6 +6,7 @@ import TrackedLink from "@/components/TrackedLink";
 import LegalFooter from "@/components/LegalFooter";
 import SpotifyLinkButton from "@/components/SpotifyLinkButton";
 import { SHOP_SICHTBAR } from "@/lib/shop/config";
+import { istWeihnachtenVorschau } from "@/lib/shop/saison";
 import ShopPromoCard from "@/components/ShopPromoCard";
 import {
   TikTokIcon,
@@ -104,7 +105,8 @@ export default async function Home({
 
         <section className="bento">
           {/* 3D-Druck-Shop: ganz oben, erscheint erst, wenn der Shop öffentlich ist (NEXT_PUBLIC_SHOP_AKTIV=true, ENTWURF=false, OEFFENTLICH=true), ohne Codeänderung */}
-          {SHOP_SICHTBAR && <ShopPromoCard />}
+          {/* Kachel auch im Vorschau-Deployment des Branches "weihnachten" (dort ist NEXT_PUBLIC_SHOP_OEFFENTLICH nicht gesetzt); Production-Logik unverändert */}
+          {(SHOP_SICHTBAR || istWeihnachtenVorschau()) && <ShopPromoCard />}
 
           <div className="section-label">🎮 Minigame</div>
           <TrackedLink

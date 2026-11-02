@@ -60,7 +60,14 @@
 .shop .wn-marke { min-height: 44px; }
 .wn-marke-name { font: 600 1.25rem/1.05 var(--wn-serif); color: var(--shop-ink); letter-spacing: -0.005em; }
 .wn-marke-sub { font: 700 0.6875rem/1.1 var(--shop-display); text-transform: uppercase; letter-spacing: 0.12em; color: var(--shop-muted); }
-.wn-fuss-link { margin-top: 14px; text-align: center; }
+.wn-fuss-link { margin: 14px auto 0; max-width: none; text-align: center; }
+/* Footer im Weihnachts-Theme: durchgängig dunkel (Nacht-Töne statt Braun), Kontakt-Überschrift in Footer-Größe */
+.shop[data-saison="weihnachten"] .shop-foot::before { background: #0a1620; box-shadow: 0 0 0 100vmax #0a1620; }
+.shop[data-saison="weihnachten"][data-ton="papier"] .shop-foot::before { background: #14262f; box-shadow: 0 0 0 100vmax #14262f; }
+.shop[data-saison="weihnachten"] .shop-foot a.shop-widerruf-btn { color: #14262f; background: #fff4e0; border-color: #fff4e0; }
+.shop[data-saison="weihnachten"] .shop-kontakt h2 { font: 700 0.9375rem/1.3 var(--shop-display); letter-spacing: 0; margin: 8px 0 6px; }
+.shop[data-saison="weihnachten"] .shop-kontakt-logo { height: 62px; width: auto; image-rendering: auto; }
+.shop[data-saison="weihnachten"][data-ton="papier"] .shop-kontakt-logo { background: #14262f; border-radius: 8px; padding: 4px 12px; }
 .wn-fuss-link a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; font-size: 0.875rem; color: var(--shop-muted) !important; }
 
 /* ---------- Buttons, Karten, Marken ---------- */

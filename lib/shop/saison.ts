@@ -69,12 +69,17 @@ function imZeitraum(def: SaisonDef, jetzt: Date): boolean {
  * Aktive Saison. Env SHOP_SAISON=halloween|weihnachten|off überschreibt das Datum (Standard: auto).
  * Halloween ist nach HALLOWEEN_ENDE (2026-11-03) immer aus, sofern es nicht ausdrücklich per Env erzwungen wird.
  */
+/** true nur im Vercel-Vorschau-Deployment des Branches "weihnachten" (Production hat nie diese Branch-Referenz). */
+export function istWeihnachtenVorschau(): boolean {
+  return typeof process !== "undefined" && process.env?.VERCEL_ENV === "preview" && process.env?.VERCEL_GIT_COMMIT_REF === "weihnachten";
+}
+
 export function aktiveSaison(jetzt: Date = new Date()): SaisonId | null {
   const env = typeof process !== "undefined" ? process.env?.SHOP_SAISON : undefined;
   if (env === "off") return null;
   if (env === "halloween" || env === "weihnachten") return env;
   // Vorschau-Deployment des Branches "weihnachten" zeigt Weihnachten schon vor dem Saisonstart (Production hat nie diese Branch-Referenz).
-  if (typeof process !== "undefined" && process.env?.VERCEL_ENV === "preview" && process.env?.VERCEL_GIT_COMMIT_REF === "weihnachten") return "weihnachten";
+  if (istWeihnachtenVorschau()) return "weihnachten";
   const ende = Date.parse(HALLOWEEN_ENDE + "T00:00:00Z");
   for (const id of REIHENFOLGE) {
     if (id === "halloween" && jetzt.getTime() >= ende && jetzt.getUTCFullYear() === 2026) continue;
