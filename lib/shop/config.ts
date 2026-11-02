@@ -36,8 +36,8 @@ export function halloweenModus(jetzt: Date = new Date()): HalloweenModus {
   return saisonModus("halloween", jetzt);
 }
 
-/** Arbeitstitel der Shop-Wortmarke (nur Text, kein Logo). Hier ändern, sonst nirgends. Markenrecherche (DPMA/EUIPO) steht aus. */
-export const SHOP_NAME = "Druckstube";
+/** Shop-Wortmarke (nur Text, kein Logo): "PixlDrop" + Zusatz "3D-Druck" im Header. Hier ändern, sonst nirgends. */
+export const SHOP_NAME = "PixlDrop";
 /** Dezenter Rückweg zu pixldrop.de im Footer. Auf false setzen, wenn sich der Shop ganz abkapseln soll. */
 export const SHOP_LINK_ZU_PIXLDROP = true;
 
