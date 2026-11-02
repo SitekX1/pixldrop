@@ -8,6 +8,7 @@ import KontaktDialog from "@/components/shop/KontaktDialog";
 import EddieSchnitt from "@/components/shop/EddieSchnitt";
 import HeroEddie from "@/components/shop/HeroEddie";
 import WeihnachtenBuehne from "@/components/shop/WeihnachtenBuehne";
+import WeihnachtenKachel from "@/components/shop/WeihnachtenKachel";
 import WeihnachtenHinweis from "@/components/shop/WeihnachtenHinweis";
 import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
@@ -102,11 +103,13 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
         {!halloween && !weihnachten && <HalloweenBanner modus={hwModus} />}
 
-        {!halloween && <IndividuellBanner pausiert={bestellungPausiert} />}
+        {!halloween && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
+
+        {weihnachten && aktiv === "alle" && modus !== "off" && <WeihnachtenKachel modus={modus === "sale" ? "sale" : "preview"} />}
 
         <div id="stuecke" className="shop-stuecke">
         {(halloween || nurWeihnacht) && <p className="shop-alle-link"><Link href="/3d-druck#stuecke">&larr; Alle Stücke</Link></p>}
-        {weihnachten && modus === "preview" && <WeihnachtenHinweis />}
+        {weihnachten && modus === "preview" && aktiv !== "alle" && <WeihnachtenHinweis />}
         {liste.length > 0 ? (
           <>
             {normal.length > 0 && (

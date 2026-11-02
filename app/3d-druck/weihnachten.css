@@ -197,6 +197,49 @@
 /* Schnee-Canvas (ganze Seite, über dem Inhalt, klickt nie) */
 .wn-schnee-c { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
 
+/* ---------- Individuell-Banner: Linien-Icons (ein Strichstil, Gold auf Nachtblau) ---------- */
+.shop[data-saison="weihnachten"] .shop-indbanner { border-style: solid; border-width: 1px; border-color: var(--shop-control); }
+.ind-linien { display: flex; gap: 12px; color: var(--shop-honey); }
+.ind-linien span { display: grid; place-items: center; width: 52px; height: 52px; border: 1px solid rgba(240, 187, 85, 0.5); border-radius: 50%; }
+.shop[data-saison="weihnachten"][data-ton="papier"] .ind-linien { color: var(--shop-link); }
+
+/* ---------- Weihnachts-Kachel im Shop (klickbar, Gegenstueck zur Halloween-Kachel) ---------- */
+.wn-kachel {
+  position: relative; display: block; isolation: isolate; overflow: hidden; container-type: inline-size; margin: 24px 0 8px; min-height: 420px;
+  padding: 26px 20px 24px; border-radius: var(--shop-r-card, 22px); border: 1px solid var(--shop-control); color: var(--shop-ink); text-decoration: none;
+  box-shadow: var(--shop-e2); transition: transform var(--wn-slow) var(--wn-ease-out), box-shadow var(--wn-slow) var(--wn-ease-out);
+}
+.wn-kachel-bild { position: absolute; inset: 0; z-index: -1; background: var(--shop-bg); }
+.wn-kb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; display: block; }
+.wn-ks { position: absolute; left: 3%; bottom: 9%; width: 94%; height: auto; }
+.wn-kb-vorn { -webkit-mask-image: linear-gradient(to top, #000 0, #000 8%, transparent 15%); mask-image: linear-gradient(to top, #000 0, #000 8%, transparent 15%); }
+.wn-kbokeh { -webkit-mask-image: radial-gradient(ellipse 60% 60% at 55% 45%, #000 30%, transparent 78%); mask-image: radial-gradient(ellipse 60% 60% at 55% 45%, #000 30%, transparent 78%); position: absolute; right: -8%; top: -8%; width: 80%; height: auto; opacity: 0.38; mix-blend-mode: screen; animation: spc-bokeh 9s ease-in-out infinite alternate; }
+.wn-kdunkel { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8, 20, 30, 0.82) 0, rgba(8, 20, 30, 0.55) 45%, rgba(8, 20, 30, 0) 70%); }
+.wn-kachel-siegel { right: 14px; top: 16px; transform: rotate(4deg); }
+.wn-kachel-text { position: relative; display: grid; gap: 10px; justify-items: start; padding-top: 44px; }
+.wn-kachel h2 { font-size: clamp(1.75rem, 8cqw, 2.75rem); color: var(--shop-ink); text-shadow: 0 2px 14px rgba(8, 18, 26, 0.9); max-width: 12ch; }
+.wn-kachel p { color: var(--shop-ink); max-width: 34ch; font-size: 0.9375rem; text-shadow: 0 1px 10px rgba(8, 18, 26, 0.95); }
+.wn-kachel .shop-overline { color: #ffd27a; text-shadow: 0 1px 10px rgba(8, 18, 26, 0.95); }
+.wn-kachel-cta {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 22px; margin-top: 6px; border: 2px solid #ffd98f; border-radius: 999px;
+  background: var(--shop-honey); color: var(--shop-on-honey); font: 700 1rem/1.1 var(--shop-display); box-shadow: 0 3px 0 #9a6f1f;
+}
+.wn-kachel-cta svg { transition: transform var(--wn-fast) var(--wn-ease-out); }
+.wn-kachel:focus-visible { outline: 3px solid var(--shop-focus); outline-offset: 3px; }
+.wn-kachel:active { transform: scale(0.99); transition-duration: 120ms; }
+@media (hover: hover) and (pointer: fine) {
+  .wn-kachel:hover { transform: translateY(-2px); box-shadow: var(--shop-e3); }
+  .wn-kachel:hover .wn-kachel-cta svg { transform: translateX(3px); }
+}
+@media (min-width: 900px) {
+  .wn-kachel { min-height: 380px; padding: 40px 48px; margin-top: 28px; }
+  .wn-ks { left: auto; right: 2%; bottom: 7%; width: 60%; }
+  .wn-kdunkel { background: linear-gradient(100deg, rgba(8, 20, 30, 0.86) 0, rgba(8, 20, 30, 0.55) 38%, rgba(8, 20, 30, 0) 62%); }
+  .wn-kachel-text { padding-top: 0; align-content: center; min-height: 300px; }
+  .wn-kachel-siegel { right: 32px; top: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { .wn-kbokeh { animation: none; } }
+
 /* ---------- Reduced Motion: Standbild, kein Schnee, kein Idle, kein Einflug ---------- */
 @media (prefers-reduced-motion: reduce) {
   .shop[data-saison="weihnachten"] *, .shop[data-saison="weihnachten"] *::before, .shop[data-saison="weihnachten"] *::after { animation: none !important; transition-duration: 0.01ms !important; }

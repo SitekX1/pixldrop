@@ -26,14 +26,26 @@ function Deko() {
   );
 }
 
-export default function IndividuellBanner({ pausiert = false }: { pausiert?: boolean }) {
+// Ruhige, einheitliche Linien-Icons (ein Strichstil, ohne Fuellung/Verlauf) fuer das Weihnachts-Theme: Schichten, Maßband, Foto.
+function Linien() {
+  const a = { viewBox: "0 0 24 24", width: 26, height: 26, fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true, focusable: "false" as const };
+  return (
+    <div className="ind-linien" aria-hidden="true">
+      <span><svg {...a}><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z" /><path d="m3 12 9 4.5 9-4.5" /><path d="m3 16.5 9 4.5 9-4.5" /></svg></span>
+      <span><svg {...a}><rect x="2.5" y="8" width="19" height="8" rx="1.5" /><path d="M6 8v3M10 8v4M14 8v3M18 8v4" /></svg></span>
+      <span><svg {...a}><rect x="3" y="4.5" width="18" height="15" rx="2" /><circle cx="8.5" cy="10" r="1.6" /><path d="m3.5 17 5-4.5 4 3.5 3-2.5 5 4" /></svg></span>
+    </div>
+  );
+}
+
+export default function IndividuellBanner({ pausiert = false, linien = false }: { pausiert?: boolean; linien?: boolean }) {
   return (
     <section className="shop-indbanner" aria-labelledby="ind-titel">
       <div className="ind-text">
         <h2 id="ind-titel">Etwas Eigenes? <span>Preis nach Anfrage</span></h2>
         <p>Beschreib deine Idee, lade ein Foto hoch, du bekommst ein unverbindliches Angebot.</p>
       </div>
-      <Deko />
+      {linien ? <Linien /> : <Deko />}
       {pausiert ? (
         <div>
           <span className="shop-btn shop-btn--aus" role="link" aria-disabled="true">Individuell anfragen</span>
