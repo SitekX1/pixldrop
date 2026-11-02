@@ -73,6 +73,8 @@ export function aktiveSaison(jetzt: Date = new Date()): SaisonId | null {
   const env = typeof process !== "undefined" ? process.env?.SHOP_SAISON : undefined;
   if (env === "off") return null;
   if (env === "halloween" || env === "weihnachten") return env;
+  // Vorschau-Deployment des Branches "weihnachten" zeigt Weihnachten schon vor dem Saisonstart (Production hat nie diese Branch-Referenz).
+  if (typeof process !== "undefined" && process.env?.VERCEL_ENV === "preview" && process.env?.VERCEL_GIT_COMMIT_REF === "weihnachten") return "weihnachten";
   const ende = Date.parse(HALLOWEEN_ENDE + "T00:00:00Z");
   for (const id of REIHENFOLGE) {
     if (id === "halloween" && jetzt.getTime() >= ende && jetzt.getUTCFullYear() === 2026) continue;
