@@ -7,7 +7,7 @@ import IndividuellBanner from "@/components/shop/IndividuellBanner";
 import KontaktDialog from "@/components/shop/KontaktDialog";
 import EddieSchnitt from "@/components/shop/EddieSchnitt";
 import HeroEddie from "@/components/shop/HeroEddie";
-import WeihnachtenHimmel from "@/components/shop/WeihnachtenHimmel";
+import WeihnachtenBuehne from "@/components/shop/WeihnachtenBuehne";
 import WeihnachtenHinweis from "@/components/shop/WeihnachtenHinweis";
 import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
@@ -56,10 +56,12 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
       <div className="shop-wrap">
         {weihnachten ? (
           <section className="shop-hero wn-hero" aria-labelledby="titel">
-            <WeihnachtenHimmel />
+            <WeihnachtenBuehne />
+            <div className="wn-scrim" aria-hidden="true" />
             <div className="wn-text">
               <p className="shop-overline">Advent 2026 &middot; selbst gedruckt</p>
               <h1 id="titel">Schicht für Schicht <em>Weihnachten.</em></h1>
+              <div className="wn-abstand" aria-hidden="true" />
               <p className="lead">
                 Teelichthalter, Sterne und Deko für den Advent, gedruckt in der Werkstatt.
                 {modus === "preview" && " Noch nicht bestellbar: stöbern ist erlaubt, der Verkauf startet später."}
@@ -97,7 +99,6 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
           </section>
         )}
 
-        {weihnachten && <div className="wn-tannenreihe" aria-hidden="true" />}
 
         {!halloween && !weihnachten && <HalloweenBanner modus={hwModus} />}
 
