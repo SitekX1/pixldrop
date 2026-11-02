@@ -7,6 +7,7 @@ import LegalFooter from "@/components/LegalFooter";
 import SpotifyLinkButton from "@/components/SpotifyLinkButton";
 import { SHOP_SICHTBAR } from "@/lib/shop/config";
 import ShopPromoCard from "@/components/ShopPromoCard";
+import NurBisHalloweenEnde, { HALLOWEEN_KACHEL_ENDE_MS } from "@/components/NurBisHalloweenEnde";
 import {
   TikTokIcon,
   InstagramIcon,
@@ -104,7 +105,11 @@ export default async function Home({
 
         <section className="bento">
           {/* 3D-Druck-Shop: ganz oben, erscheint erst, wenn der Shop öffentlich ist (NEXT_PUBLIC_SHOP_AKTIV=true, ENTWURF=false, OEFFENTLICH=true), ohne Codeänderung */}
-          {SHOP_SICHTBAR && <ShopPromoCard />}
+          {SHOP_SICHTBAR && Date.now() < HALLOWEEN_KACHEL_ENDE_MS && (
+            <NurBisHalloweenEnde>
+              <ShopPromoCard />
+            </NurBisHalloweenEnde>
+          )}
 
           <div className="section-label">🎮 Minigame</div>
           <TrackedLink
