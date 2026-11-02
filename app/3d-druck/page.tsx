@@ -7,39 +7,70 @@ import IndividuellBanner from "@/components/shop/IndividuellBanner";
 import KontaktDialog from "@/components/shop/KontaktDialog";
 import EddieSchnitt from "@/components/shop/EddieSchnitt";
 import HeroEddie from "@/components/shop/HeroEddie";
+import WeihnachtenHimmel from "@/components/shop/WeihnachtenHimmel";
+import WeihnachtenHinweis from "@/components/shop/WeihnachtenHinweis";
 import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
-import { KATEGORIEN, sichtbareProdukte, type Kategorie } from "@/lib/shop/produkte";
+import { aktiveSaison, saisonModus, SAISONEN } from "@/lib/shop/saison";
+import { kategorienFuer, sichtbareProdukte, UNTERKATEGORIEN, type Kategorie } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
-// Halloween-Status hängt vom Datum ab: pro Anfrage auswerten, nicht beim Build einfrieren.
+// Saison-Status hängt vom Datum ab: pro Anfrage auswerten, nicht beim Build einfrieren.
 export const dynamic = "force-dynamic";
 
 export default async function ShopUebersicht({ searchParams }: { searchParams: Promise<{ kategorie?: string }> }) {
   const { kategorie } = await searchParams;
-  const modus = halloweenModus();
+  const saisonId = aktiveSaison();
+  const modus = saisonModus(saisonId);
+  const hwModus = halloweenModus();
+  const weihnachten = saisonId === "weihnachten";
   const farben = await holeFarben();
   const { wunschtextPausiert, bestellungPausiert } = await holeEinstellungen();
   const alle = sichtbareProdukte();
-  const gueltig = KATEGORIEN.filter((k) => k.id !== "halloween" || modus !== "off");
+  const gueltig = kategorienFuer(saisonId);
   const aktiv = gueltig.find((k) => k.id === kategorie)?.id ?? "alle";
-  // "Alle": Standardartikel zuerst, darunter (abgesetzt, mit Überschrift) die saisonalen Halloween-Artikel.
+  const istSaisonArtikel = (p: (typeof alle)[number]) => saisonId !== null && p.gruppe === saisonId;
+  // "Alle": Standardartikel zuerst, darunter (abgesetzt, mit Überschrift) die saisonalen Artikel.
   const liste = aktiv === "alle"
-    ? [...alle].sort((a, b) => Number(a.gruppe === "halloween") - Number(b.gruppe === "halloween"))
+    ? [...alle].sort((a, b) => Number(istSaisonArtikel(a)) - Number(istSaisonArtikel(b)))
     : alle.filter((p) => p.kategorien.includes(aktiv as Kategorie));
-  const gruppiert = aktiv === "alle" && modus !== "off" && liste.some((p) => p.gruppe === "halloween") && liste.some((p) => p.gruppe !== "halloween");
-  const normal = gruppiert ? liste.filter((p) => p.gruppe !== "halloween") : liste;
-  const saison = gruppiert ? liste.filter((p) => p.gruppe === "halloween") : [];
+  const nurWeihnacht = weihnachten && aktiv === "weihnachten";
+  const gruppiert = aktiv === "alle" && modus !== "off" && liste.some(istSaisonArtikel) && liste.some((p) => !istSaisonArtikel(p));
+  const normal = gruppiert ? liste.filter((p) => !istSaisonArtikel(p)) : (nurWeihnacht ? [] : liste);
+  const saison = gruppiert ? liste.filter(istSaisonArtikel) : (nurWeihnacht ? liste : []);
+  const halloween = aktiv === "halloween";
   const karte = (p: (typeof liste)[number], i: number) => (
     <ProductCard key={p.slug} p={p} farben={farben} gesperrt={wunschtextPausiert && !!p.personalisierung} vorschau={modus === "preview"} halloweenSicht={halloween} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
   );
-  const halloween = aktiv === "halloween";
+  // Weihnachts-Kollektion gliedert sich in Rubriken (leere entfallen), Artikel ohne Rubrik stehen am Ende
+  const rubriken = weihnachten
+    ? [
+        ...UNTERKATEGORIEN.map((u) => ({ id: u.id as string, label: u.label, items: saison.filter((p) => p.unterkategorie === u.id) })),
+        { id: "weitere", label: "Weitere Stücke", items: saison.filter((p) => !p.unterkategorie) },
+      ].filter((r) => r.items.length > 0)
+    : [];
 
   return (
-    <ShopShell theme={halloween ? "halloween" : undefined} saison={!halloween && modus !== "off" ? "halloween-dark" : undefined} banner={<PauseBanner />} zurueck={aktiv === "alle" ? "pixldrop" : "shop"}>
+    <ShopShell theme={halloween ? "halloween" : undefined} saison={weihnachten ? "weihnachten" : !halloween && hwModus !== "off" ? "halloween-dark" : undefined} ton="nacht" banner={<PauseBanner />} zurueck={aktiv === "alle" ? "pixldrop" : "shop"}>
       <div className="shop-wrap">
-        {halloween ? (
+        {weihnachten ? (
+          <section className="shop-hero wn-hero" aria-labelledby="titel">
+            <WeihnachtenHimmel />
+            <div className="wn-text">
+              <p className="shop-overline">Advent 2026 &middot; selbst gedruckt</p>
+              <h1 id="titel">Schicht für Schicht <em>Weihnachten.</em></h1>
+              <p className="lead">
+                Teelichthalter, Sterne und Deko für den Advent, gedruckt in der Werkstatt.
+                {modus === "preview" && " Noch nicht bestellbar: stöbern ist erlaubt, der Verkauf startet später."}
+              </p>
+              <div className="shop-hero-actions">
+                <a className="shop-btn" href="#stuecke">Stücke ansehen</a>
+                <Link className="shop-link" href="/3d-druck/anfrage">Etwas Eigenes anfragen</Link>
+              </div>
+            </div>
+          </section>
+        ) : halloween ? (
           <section className="shop-hero" style={{ minHeight: 0, paddingTop: 12 }} aria-labelledby="titel">
             <p className="shop-overline" style={{ color: "#ff8a1f" }}>Halloween-Kollektion</p>
             <h1 id="titel">Bis Anfang November dürfen sie spuken.</h1>
@@ -66,18 +97,34 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
           </section>
         )}
 
-        {!halloween && <HalloweenBanner modus={modus} />}
+        {weihnachten && <div className="wn-tannenreihe" aria-hidden="true" />}
+
+        {!halloween && !weihnachten && <HalloweenBanner modus={hwModus} />}
 
         {!halloween && <IndividuellBanner pausiert={bestellungPausiert} />}
 
         <div id="stuecke" className="shop-stuecke">
-        {halloween && <p className="shop-alle-link"><Link href="/3d-druck#stuecke">&larr; Alle Stücke</Link></p>}
+        {(halloween || nurWeihnacht) && <p className="shop-alle-link"><Link href="/3d-druck#stuecke">&larr; Alle Stücke</Link></p>}
+        {weihnachten && modus === "preview" && <WeihnachtenHinweis />}
         {liste.length > 0 ? (
           <>
-            <ul className="shop-grid" aria-label="Produkte">
-              {normal.map(karte)}
-            </ul>
-            {saison.length > 0 && (
+            {normal.length > 0 && (
+              <ul className="shop-grid" aria-label="Produkte">
+                {normal.map(karte)}
+              </ul>
+            )}
+            {saison.length > 0 && weihnachten && (
+              <>
+                <div className="shop-gruppe"><h2 className="shop-gruppe-titel" id="saison-titel"><span>Weihnachts-Kollektion</span><small>{SAISONEN.weihnachten.label} 2026</small></h2></div>
+                {rubriken.map((r) => (
+                  <section key={r.id} className="wn-rubrik" aria-labelledby={`rubrik-${r.id}`}>
+                    <h3 id={`rubrik-${r.id}`}>{r.label}</h3>
+                    <ul className="shop-grid" aria-labelledby={`rubrik-${r.id}`}>{r.items.map(karte)}</ul>
+                  </section>
+                ))}
+              </>
+            )}
+            {saison.length > 0 && !weihnachten && (
               <>
                 <div className="shop-gruppe"><h2 className="shop-gruppe-titel" id="saison-titel"><span>Halloween-Kollektion</span><small>nur bis Anfang November</small></h2></div>
                 <ul className="shop-grid" aria-labelledby="saison-titel">
@@ -86,6 +133,11 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
               </>
             )}
           </>
+        ) : weihnachten ? (
+          <div className="shop-empty" role="status">
+            <h2>Hier ist noch Platz unter dem Baum.</h2>
+            <Link className="shop-btn" href="/3d-druck#stuecke">Alle Stücke ansehen</Link>
+          </div>
         ) : (
           <div className="shop-empty" role="status">
             <EddieSchnitt className="shop-eddie-mini" />
@@ -114,10 +166,10 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
           </ol>
         </section>
 
-        <aside className="shop-alex" aria-labelledby="eddie-sagt">
-          <EddieSchnitt className="shop-alex-eddie" />
+        <aside className={weihnachten ? "shop-alex shop-alex--ohne" : "shop-alex"} aria-labelledby="eddie-sagt">
+          {!weihnachten && <EddieSchnitt className="shop-alex-eddie" />}
           <div className="shop-alex-text">
-            <h2 id="eddie-sagt" style={{ fontSize: "1.25rem" }}>Eddie sagt</h2>
+            <h2 id="eddie-sagt" style={{ fontSize: "1.25rem" }}>{weihnachten ? "Von der Werkbank" : "Eddie sagt"}</h2>
             <p>Ich entwerfe, drucke und verpacke selbst. Wenn etwas nicht passt, schreib mir.</p>
             <KontaktDialog label="Schreib mir" />
           </div>

@@ -3,9 +3,10 @@ import ProductImage from "./ProductImage";
 import { coverFuer, fotosFuer } from "@/lib/shop/fotos";
 import { formatPreis, TEXTE } from "@/lib/shop/config";
 import type { Produkt } from "@/lib/shop/produkte";
+import { SAISONEN } from "@/lib/shop/saison";
 import type { Farbe } from "@/lib/shop/farben";
 
-const KAT_LABEL: Record<string, string> = { halloween: "Halloween", untersetzer: "Untersetzer", sonstiges: "Sonstiges" };
+const KAT_LABEL: Record<string, string> = { halloween: "Halloween", weihnachten: "Weihnachten", untersetzer: "Untersetzer", sonstiges: "Sonstiges" };
 
 export default function ProductCard({
   p, farben, vorschau, erste = false, gesperrt = false, halloweenSicht = false,
@@ -19,7 +20,7 @@ export default function ProductCard({
     : farben;
   const sichtbar = kartenFarben.slice(0, 5);
   const rest = kartenFarben.length - sichtbar.length;
-  const kat = (p.gruppe === "allgemein" ? p.kategorien.find((k) => k !== "halloween") : undefined) ?? p.kategorien[0]; // Standardartikel mit Halloween-Nebenkategorie heißen nicht "Halloween"
+  const kat = (p.gruppe === "allgemein" ? p.kategorien.find((k) => k !== "halloween" && k !== "weihnachten") : undefined) ?? p.kategorien[0]; // Standardartikel mit Halloween-Nebenkategorie heißen nicht "Halloween"
   const meta = [KAT_LABEL[kat], p.nurAnfrage ? "Nur auf Anfrage" : p.material.split(" ")[0]].join(" · ");
   return (
     <li className={erste ? "shop-first" : undefined}>
@@ -34,7 +35,8 @@ export default function ProductCard({
         )}
         <div className="shop-card-body">
           {gesperrt && <span className="shop-state">Vorübergehend nicht bestellbar</span>}
-          {!gesperrt && vorschau && p.gruppe === "halloween" && <span className="shop-state">Vorschau, noch nicht bestellbar</span>}
+          {!gesperrt && vorschau && p.gruppe !== "allgemein" && <span className={p.gruppe === "weihnachten" ? "shop-state shop-state--wn" : "shop-state"}>{SAISONEN[p.gruppe].texte.badgeVorschau}</span>}
+          {p.entwurf && <span className="shop-placeholder-tag">Platzhalter, nur Vorschau</span>}
           <h3>{gesperrt ? <span>{p.name}</span> : <Link href={halloweenSicht ? `/3d-druck/${p.slug}?kategorie=halloween` : `/3d-druck/${p.slug}`}>{p.name}</Link>}</h3>
           <p className="meta">{meta}</p>
           <div className="shop-card-price">

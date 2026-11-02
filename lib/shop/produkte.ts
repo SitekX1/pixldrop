@@ -1,9 +1,17 @@
 // Produktdaten. Später durch DB/Supabase ersetzbar, die Typen bleiben gleich.
 // Keine erfundenen Maße, Gewichte oder Bewertungen: masse null = Maßblock wird nicht angezeigt.
-import { halloweenModus, TEXTE } from "./config";
+import { TEXTE } from "./config";
+import { aktiveSaison, saisonModus, type SaisonId } from "./saison";
 const TEXTE_LED = TEXTE.ledHinweis;
 
-export type Kategorie = "halloween" | "untersetzer" | "sonstiges";
+export type Kategorie = "halloween" | "weihnachten" | "untersetzer" | "sonstiges";
+export type Unterkategorie = "lichter" | "baumschmuck" | "tischdeko" | "geschenke";
+export const UNTERKATEGORIEN: { id: Unterkategorie; label: string }[] = [
+  { id: "lichter", label: "Lichter" },
+  { id: "baumschmuck", label: "Baumschmuck" },
+  { id: "tischdeko", label: "Tischdeko" },
+  { id: "geschenke", label: "Zum Verschenken" },
+];
 export type Form = "rund" | "set" | "pegel" | "schild" | "laterne" | "tasse" | "geister" | "teelicht" | "untersetzer-kuerbis";
 
 export interface Optionsgruppe {
@@ -46,8 +54,10 @@ export interface Produkt {
   name: string;
   kurz: string;
   beschreibung: string;
-  gruppe: "allgemein" | "halloween";
+  gruppe: "allgemein" | "halloween" | "weihnachten";
   kategorien: Kategorie[];
+  /** Nur Weihnachtsartikel: Gliederung in der Übersicht. */
+  unterkategorie?: Unterkategorie;
   form: Form;
   grundfarbe: string; // nur für den Bildplatzhalter
   preisCent: number | null; // null = "Preis auf Anfrage"
@@ -302,22 +312,56 @@ export const PRODUKTE: Produkt[] = [
     ],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
+  // ---- Weihnachten: PLATZHALTER-Entwürfe (entwurf: true = nur Vorschau/lokal, auf Production unsichtbar und nie bestellbar). ----
+  // Zum Einpflegen echter Artikel: siehe D:\Apps\3D-Druck\shop\WEIHNACHTEN-ARTIKEL-EINPFLEGEN.md. Entwurf-Eintrag ersetzen oder umbenennen, Flag entfernen.
+  {
+    slug: "wn-entwurf-teelichtstern",
+    name: "PLATZHALTER: Teelicht-Stern",
+    kurz: "Entwurf. Hier steht später ein Satz zum Artikel.",
+    beschreibung: "PLATZHALTER ohne echte Daten (Foto, Preis, Maße und Gewicht fehlen). Dieser Eintrag zeigt nur, wie ein Weihnachtsartikel in der Rubrik „Lichter“ aussieht.",
+    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "lichter", form: "teelicht", grundfarbe: "#f0bb55",
+    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG], entwurf: true,
+  },
+  {
+    slug: "wn-entwurf-baumanhaenger",
+    name: "PLATZHALTER: Baumanhänger",
+    kurz: "Entwurf. Hier steht später ein Satz zum Artikel.",
+    beschreibung: "PLATZHALTER ohne echte Daten (Foto, Preis, Maße und Gewicht fehlen). Dieser Eintrag zeigt nur, wie ein Weihnachtsartikel in der Rubrik „Baumschmuck“ aussieht. Schnur nicht dabei.",
+    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "baumschmuck", form: "rund", grundfarbe: "#b3262f",
+    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+  },
+  {
+    slug: "wn-entwurf-geschenkanhaenger",
+    name: "PLATZHALTER: Geschenkanhänger",
+    kurz: "Entwurf. Hier steht später ein Satz zum Artikel.",
+    beschreibung: "PLATZHALTER ohne echte Daten (Foto, Preis, Maße und Gewicht fehlen). Dieser Eintrag zeigt nur, wie ein Weihnachtsartikel in der Rubrik „Zum Verschenken“ aussieht.",
+    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "geschenke", form: "schild", grundfarbe: "#1f7a5c",
+    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+  },
 ];
 
-export const KATEGORIEN: { id: "alle" | Kategorie; label: string }[] = [
+const KATEGORIEN_BASIS: { id: "alle" | Kategorie; label: string }[] = [
   { id: "alle", label: "Alle" },
   { id: "halloween", label: "Halloween" },
+  { id: "weihnachten", label: "Weihnachten" },
   { id: "untersetzer", label: "Untersetzer" },
   { id: "sonstiges", label: "Sonstiges" },
 ];
+/** Filter-Chips: der Chip einer Saison erscheint nur, solange sie aktiv ist. */
+export function kategorienFuer(saison: SaisonId | null = aktiveSaison()) {
+  return KATEGORIEN_BASIS.filter((k) => (k.id !== "halloween" && k.id !== "weihnachten") || k.id === saison);
+}
 
 /** Echte Live-Seite (Vercel-Production). Vorschau-Deployments und lokale Entwicklung zeigen Entwurfs-Produkte, Production nie. */
 const liveUmgebung = (): boolean => typeof process !== "undefined" && process.env?.VERCEL_ENV === "production";
 
-/** Sichtbare Produkte: Halloween-Artikel nur, wenn der Modus nicht "off" ist. */
+/** Sichtbare Produkte: Saisonartikel nur, solange ihre Saison aktiv ist; Entwürfe nie auf Production. */
 export function sichtbareProdukte(): Produkt[] {
-  const aus = halloweenModus() === "off";
-  return PRODUKTE.filter((p) => !(aus && p.gruppe === "halloween") && !(p.entwurf && liveUmgebung()));
+  const saison = aktiveSaison();
+  return PRODUKTE.filter((p) => !(p.gruppe !== "allgemein" && p.gruppe !== saison) && !(p.entwurf && liveUmgebung()));
 }
 
 /** Artikelnummern (Produktidentifikation nach GPSR); stabil halten, nie umnummerieren. */
@@ -336,6 +380,9 @@ const ARTIKELNR: Record<string, string> = {
   "halloween-untersetzer-set": "PD-011",
   "halloween-untersetzer-einzeln": "PD-012",
   "design-kuerbis": "PD-014",
+  "wn-entwurf-teelichtstern": "PD-015",
+  "wn-entwurf-baumanhaenger": "PD-016",
+  "wn-entwurf-geschenkanhaenger": "PD-017",
 };
 export function artikelnummer(slug: string): string | null { return ARTIKELNR[slug] ?? null; }
 /** Teelichtfach (aus dem Modell gemessen): nur Artikel mit offenem Fach. */
@@ -352,7 +399,8 @@ export function istLiveBetrieb(): boolean {
 
 export function istBestellbar(p: Produkt): boolean {
   if (p.nurAnfrage) return false;
-  return p.gruppe !== "halloween" || halloweenModus() === "sale";
+  if (p.entwurf) return false;
+  return p.gruppe === "allgemein" || saisonModus(p.gruppe) === "sale";
 }
 
 /** Der vorbelegte Standardtext (mehrzeilig, mit "\n" verbunden) oder null, wenn der Artikel keinen hat. */

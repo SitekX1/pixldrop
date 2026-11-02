@@ -3,13 +3,16 @@
 // next/font verlangt literale Optionen (kein Spread).
 import {
   Bricolage_Grotesque, Montserrat, Oswald, Dancing_Script, Pacifico, Caveat, Satisfy, Lobster,
-  Permanent_Marker, Bangers, Creepster, Righteous, Playfair_Display, Cinzel,
+  Permanent_Marker, Bangers, Creepster, Righteous, Playfair_Display, Cinzel, Fraunces,
 } from "next/font/google";
 import localFont from "next/font/local";
 
 const display = Bricolage_Grotesque({
   subsets: ["latin", "latin-ext"], weight: ["600", "700", "800"], variable: "--font-shop-display", display: "swap",
 });
+// Fraunces (Weihnachts-Überschriften): statischer Schnitt 600 normal + kursiv statt voller Variable-Font; nur Subset latin (Deutsch vollständig), lädt dank unicode-range nur bei Bedarf.
+// Lizenz: SIL OFL 1.1 laut Google Fonts (vor Livegang belegen, siehe SCHRIFTEN-LIZENZEN.md).
+const fraunces = Fraunces({ subsets: ["latin"], weight: ["600"], style: ["normal", "italic"], variable: "--font-shop-serif", display: "swap" });
 const montserrat = Montserrat({ subsets: ["latin"], weight: ["700", "900"], style: ["normal", "italic"], variable: "--font-sf-montserrat", display: "swap", preload: false });
 const oswald = Oswald({ subsets: ["latin"], weight: ["700"], variable: "--font-sf-oswald", display: "swap", preload: false });
 const dancing = Dancing_Script({ subsets: ["latin"], weight: ["700"], variable: "--font-sf-dancing", display: "swap", preload: false });
@@ -42,6 +45,6 @@ const winterF = localFont({ src: "./fonts-frei/winter-draw.ttf", weight: "400", 
 const dragonF = localFont({ src: "./fonts-frei/wood-dragon.ttf", weight: "400", style: "normal", variable: "--font-sf-dragon", display: "swap", preload: false, fallback: ["cursive"] });
 
 export const fontVariablen = [
-  display, montserrat, oswald, dancing, pacifico, caveat, satisfy, lobster, marker, bangers, creepster, righteous, playfair, cinzel,
+  display, fraunces, montserrat, oswald, dancing, pacifico, caveat, satisfy, lobster, marker, bangers, creepster, righteous, playfair, cinzel,
   artsyF, bulbearF, oldwestF, rosemartinF, roundexF, startstoryF, streetyearF, sallyF, travelliaF, veganF, dramaF, winterF, dragonF,
 ].map((f) => f.variable).join(" ");

@@ -13,6 +13,7 @@ import { holeProdukt, istBestellbar, hitzeHinweis, artikelnummer, TEELICHTFACH, 
 import { ledPartnerlink } from "@/lib/shop/affiliate";
 import { holeFarben } from "@/lib/shop/farben";
 import { formatPreis, halloweenModus, TEXTE } from "@/lib/shop/config";
+import { saisonModus } from "@/lib/shop/saison";
 import { VERSAND_BRIEF, VERSAND_PREISE, VERSAND_PRODUKTE } from "@/lib/shop/versand";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
@@ -40,6 +41,8 @@ export default async function Produktseite({ params, searchParams }: Props) {
   const bestellbar = istBestellbar(p);
   // Halloween-Ansicht: Halloween-Artikel oder Aufruf aus der Halloween-Kategorie (dann auch Zurück-Link, Thema und Titelbild im Halloween-Stil)
   const halloween = p.gruppe === "halloween" || (kategorie === "halloween" && halloweenModus() !== "off");
+  const weihnachtsArtikel = p.gruppe === "weihnachten";
+  const saisonVorschau = p.gruppe !== "allgemein" && saisonModus(p.gruppe) === "preview";
   const hatAufpreis = p.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0));
   const vk = VERSAND_PRODUKTE[p.slug];
   const abPaket = Math.min(...(["hermes", "dhl"] as const).map((a) => VERSAND_PREISE[a][vk?.versandStufe ?? "mittel"].cent));
@@ -47,17 +50,17 @@ export default async function Produktseite({ params, searchParams }: Props) {
   const preis = p.nurAnfrage ? TEXTE.preisAnfrage : `${hatAufpreis ? "ab " : ""}${formatPreis(p.preisCent)}`;
 
   return (
-    <ShopShell theme={halloween ? "halloween" : undefined} banner={<PauseBanner />}>
+    <ShopShell theme={halloween ? "halloween" : undefined} ton={weihnachtsArtikel ? "nacht" : "papier"} banner={<PauseBanner />}>
       <div className="shop-wrap" style={{ paddingBottom: 96 }}>
         <Link className="shop-crumb" href={halloween ? "/3d-druck?kategorie=halloween#stuecke" : "/3d-druck#stuecke"}>← Alle Stücke</Link>
         <VorschauProvider>
         <div className="shop-product">
           <Galerie bild={fotosFuer(p.slug).length ? <FotoGalerie cover={coverFuer(p.slug, halloween) && !coverIstFoto1(p.slug, halloween) ? { src: coverFuer(p.slug, halloween)!, alt: `${p.name}, Titelbild` } : undefined} vorText={p.personalisierung?.standardText} slug={p.slug} form={p.form} grundfarbe={p.grundfarbe} fotos={fotosFuer(p.slug)} name={p.name} /> : <><LiveProductImage form={p.form} grundfarbe={p.grundfarbe} /><p className="shop-fotohinweis"><strong>Wichtig:</strong> {TEXTE.bildHinweis}</p></>} preis={preis} chips={[p.material, ...(p.masse ? [`ca. ${p.masse} mm`] : [])]} />
           <div className="shop-info">
-            <p className="shop-overline">{halloween ? "Halloween-Kollektion" : "3D-Druck"}</p>
+            <p className="shop-overline">{halloween ? "Halloween-Kollektion" : weihnachtsArtikel ? "Weihnachts-Kollektion" : "3D-Druck"}</p>
             <h1 style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)", overflowWrap: "anywhere" }}>{p.name}</h1>
             <p className="kurz">{p.beschreibung}</p>
-            {halloween && !bestellbar && (
+            {(halloween || saisonVorschau) && !bestellbar && (
               <p className="shop-note shop-note--warn" role="note">Vorschau: Dieser Artikel ist noch nicht bestellbar.</p>
             )}
             <div className="shop-pricebox">

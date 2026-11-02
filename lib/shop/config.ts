@@ -1,4 +1,5 @@
 // Zentrale Shop-Konfiguration (Gerüst, nicht live). Alles Umstellbare steht hier, nicht im Markup.
+import { saisonModus, HALLOWEEN_ENDE, HALLOWEEN_ENDE_TEXT, type SaisonModus } from "./saison";
 
 /**
  * Sicherheitsnetz: Solange false, sind Bestell- und Anfrageformulare reine Oberfläche
@@ -22,21 +23,23 @@ export const SHOP_AKTIV: boolean = process.env.NEXT_PUBLIC_SHOP_AKTIV === "true"
 export const SHOP_OEFFENTLICH: boolean = process.env.NEXT_PUBLIC_SHOP_OEFFENTLICH === "true";
 export const SHOP_SICHTBAR: boolean = SHOP_AKTIV && !ENTWURF_MODUS && SHOP_OEFFENTLICH;
 
-export type HalloweenModus = "off" | "preview" | "sale";
+export type HalloweenModus = SaisonModus;
 
-/** Ab diesem Datum (UTC, exklusiv) ist die Halloween-Kollektion automatisch aus. */
-export const HALLOWEEN_ENDE = "2026-11-03";
-export const HALLOWEEN_ENDE_TEXT = "bis 2. November";
+// Halloween-Enddatum und -Text liegen in saison.ts (hier re-exportiert, bestehende Importe bleiben gültig).
+export { HALLOWEEN_ENDE, HALLOWEEN_ENDE_TEXT };
 
 /**
- * Standard "preview" (PLAN.md: Halloween 2026 nur Content, Verkauf frühestens Weihnachten).
- * Umstellbar per Env SHOP_HALLOWEEN=off|preview|sale. Nach dem Enddatum immer "off".
+ * Wrapper um die zentrale Saison-Steuerung (lib/shop/saison.ts): "off", sobald Halloween nicht die aktive Saison ist.
+ * Standard "preview"; umstellbar per Env SHOP_HALLOWEEN=off|preview|sale.
  */
 export function halloweenModus(jetzt: Date = new Date()): HalloweenModus {
-  if (jetzt.getTime() >= Date.parse(HALLOWEEN_ENDE + "T00:00:00Z")) return "off";
-  const v = process.env.SHOP_HALLOWEEN;
-  return v === "off" || v === "sale" || v === "preview" ? v : "preview";
+  return saisonModus("halloween", jetzt);
 }
+
+/** Arbeitstitel der Shop-Wortmarke (nur Text, kein Logo). Hier ändern, sonst nirgends. Markenrecherche (DPMA/EUIPO) steht aus. */
+export const SHOP_NAME = "Druckstube";
+/** Dezenter Rückweg zu pixldrop.de im Footer. Auf false setzen, wenn sich der Shop ganz abkapseln soll. */
+export const SHOP_LINK_ZU_PIXLDROP = true;
 
 export const TEXTE = {
   bestellButton: "Zahlungspflichtig bestellen", // Button-Lösung § 312j BGB, Wortlaut von Justus bestätigen

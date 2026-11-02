@@ -20,7 +20,7 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
   // muss dafür &hinweis=freigabe anhängen (app/api/shop/zahlung/rueckkehr). "pruefung" hat Vorrang.
   const freigabe = hinweis === "freigabe";
   return (
-    <ShopShell>
+    <ShopShell ton="nacht">
       <div className="shop-wrap" style={{ maxWidth: 1040 }}>
         <section className="shop-danke" aria-labelledby="titel">
           {!echt && (

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { KONTAKT_MIT_ANSCHRIFT } from "@/lib/shop/config";
+import { KONTAKT_MIT_ANSCHRIFT, SHOP_NAME, SHOP_LINK_ZU_PIXLDROP } from "@/lib/shop/config";
+import { aktiveSaison } from "@/lib/shop/saison";
+import WeihnachtenKulisse from "./WeihnachtenKulisse";
 import WarenkorbLink from "./WarenkorbLink";
 import HalloweenHintergrund from "./HalloweenHintergrund";
 import HalloweenDunkel from "./HalloweenDunkel";
@@ -8,18 +10,28 @@ import ShopBesuch from "./ShopBesuch";
 
 // Shell: Kopf (Zurück-Link: Shop-Startseite → PixlDrop, alle anderen Seiten → Shop), Inhalt, Fuß. Theme ("halloween") per data-theme am Wrapper (Token-Austausch).
 export default function ShopShell({
-  children, theme, saison, banner, zurueck = "shop",
-}: { children: React.ReactNode; theme?: "halloween"; saison?: "halloween-dark"; banner?: React.ReactNode; zurueck?: "shop" | "pixldrop" }) {
+  children, theme, saison, banner, zurueck = "shop", ton = "papier",
+}: { children: React.ReactNode; theme?: "halloween"; saison?: "halloween-dark" | "weihnachten"; banner?: React.ReactNode; zurueck?: "shop" | "pixldrop"; ton?: "nacht" | "papier" }) {
+  // Ist Weihnachten die aktive Saison, tragen alle Shopseiten das Weihnachts-Theme (Ton "papier" zum Lesen/Zahlen, "nacht" mit Kulisse).
+  const wn = !theme && !saison && aktiveSaison() === "weihnachten";
+  const saisonAttr = wn ? "weihnachten" : saison;
+  const weihnachten = saisonAttr === "weihnachten";
   return (
-    <div className="shop" data-theme={theme} data-saison={saison}>
-      {saison === "halloween-dark" && <HalloweenDunkel />}
+    <div className="shop" data-theme={theme} data-saison={saisonAttr} data-ton={weihnachten ? ton : undefined}>
+      {saisonAttr === "halloween-dark" && <HalloweenDunkel />}
+      {weihnachten && <WeihnachtenKulisse ton={ton} />}
       {theme === "halloween" && <HalloweenHintergrund />}
       <ShopBesuch />
       <a className="shop-skip" href="#inhalt">Zum Inhalt springen</a>
       {banner}
       <div className="shop-wrap">
         <header className="shop-head">
-          {zurueck === "pixldrop" ? <a href="/">← PixlDrop</a> : <Link href="/3d-druck#stuecke">← 3D-Druck-Shop</Link>}
+          {weihnachten ? (
+            <Link className="wn-marke" href="/3d-druck" aria-label={`${SHOP_NAME}, 3D-Druck, zur Shop-Startseite`}>
+              <span className="wn-marke-name" translate="no">{SHOP_NAME}</span>
+              <span className="wn-marke-sub" aria-hidden="true">3D-Druck</span>
+            </Link>
+          ) : zurueck === "pixldrop" ? <a href="/">← PixlDrop</a> : <Link href="/3d-druck#stuecke">← 3D-Druck-Shop</Link>}
           <span className="shop-head-r">
             <Link className="shop-widerruf-btn" href="/3d-druck/widerruf#widerrufsfunktion">Vertrag widerrufen</Link>
             <WarenkorbLink />
@@ -53,6 +65,7 @@ export default function ShopShell({
             </p>
             <p><a href="mailto:as@sitekx.de">as@sitekx.de</a> · <a href="/impressum">Impressum</a></p>
           </section>
+          {weihnachten && SHOP_LINK_ZU_PIXLDROP && <p className="wn-fuss-link"><a href="/">pixldrop.de</a></p>}
           <p className="muted" style={{ fontSize: "0.85rem", marginTop: 16, textAlign: "center", maxWidth: 560, marginInline: "auto" }}>© Alexander Sitek / PixlDrop. Gestaltung von PixlDrop; soweit geschützt, ist der gewerbliche Nachbau ohne Zustimmung nicht gestattet.</p>
         </footer>
       </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./shop.css";
+import "./weihnachten.css";
 import { fontVariablen } from "./fonts";
 import { SHOP_SICHTBAR } from "@/lib/shop/config";
 
@@ -7,7 +8,7 @@ import { SHOP_SICHTBAR } from "@/lib/shop/config";
 const LIVE = SHOP_SICHTBAR;
 export const metadata: Metadata = {
   title: { default: "3D-Druck — PixlDrop", template: "%s — 3D-Druck, PixlDrop" },
-  description: "Untersetzer, Halloween-Deko und Individuelles aus dem 3D-Drucker.",
+  description: "Untersetzer, Deko und Individuelles aus dem 3D-Drucker.",
   robots: LIVE ? { index: true, follow: true } : { index: false, follow: false, nocache: true },
   openGraph: null,
   twitter: null,

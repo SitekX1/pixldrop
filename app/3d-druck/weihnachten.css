@@ -1,0 +1,206 @@
+/* Weihnachts-Theme des 3D-Druck-Shops ("Winterwerkstatt, Schicht für Schicht", Art Direction: Mira, WEIHNACHTEN-ARTDIRECTION.md).
+   Aktivierung per Attribut: .shop[data-saison="weihnachten"] plus data-ton="nacht" (Übersicht, Weihnachtsartikel, Danke) oder "papier" (Warenkorb, Bestellung, Anfrage, Rechtstexte).
+   Halloween-Regeln in shop.css bleiben unberührt und ziehen nächstes Jahr wieder. Komponenten sprechen nur --shop-* und --wn-* (Hex nur in der Schlitten-SVG). */
+
+.shop[data-saison="weihnachten"] {
+  --wn-fast: 140ms; --wn-normal: 240ms; --wn-slow: 420ms;
+  --wn-flug: 2800ms; --wn-nachfedern: 600ms; --wn-idle-atem: 3600ms;
+  --wn-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --wn-ease-land: cubic-bezier(0.16, 1, 0.3, 1);
+  --wn-ease-sink: cubic-bezier(0.45, 0, 0.2, 1);
+  --wn-ease-io: ease-in-out;
+  --wn-snow: #f4fbff;
+  --wn-serif: var(--font-shop-serif), Georgia, "Times New Roman", serif;
+  --wn-von-x: 110vw; --wn-von-y: -64px;
+}
+
+/* ---------- Ton NACHT ---------- */
+.shop[data-saison="weihnachten"][data-ton="nacht"] {
+  color-scheme: dark;
+  --shop-bg: #0f1f2a; --shop-card: #172f3d; --shop-ink: #fff4e0; --shop-on-ink: #0f1f2a;
+  --shop-text: #f1ebdf; --shop-muted: #b9c7cf; --shop-honey: #f0bb55; --shop-on-honey: #2e1c0f;
+  --shop-link: #ffd27a; --shop-tint: #1f3b4a; --shop-bon: #172f3d; --shop-success: #8fe3b5; --shop-error: #ff9d96;
+  --shop-line: #2c4655; --shop-control: #7f9fb0; --shop-ring: rgba(240, 187, 85, 0.35); --shop-focus: #fff4e0;
+  --shop-disabled-bg: #26404f;
+  --wn-cran: #b3262f; --wn-moon: #f6ead0; --wn-ridge-back: #1a3442; --wn-ridge-front: #e6f1f5;
+  --shop-e1: 0 1px 0 rgba(255, 244, 224, 0.06) inset, 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shop-e2: 0 1px 0 rgba(255, 244, 224, 0.06) inset, 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3), 0 10px 24px rgba(0, 0, 0, 0.35), 0 24px 48px -12px rgba(240, 187, 85, 0.1);
+  --shop-e3: 0 2px 6px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(0, 0, 0, 0.4), 0 36px 72px -16px rgba(240, 187, 85, 0.18);
+  --shop-err-bg: #2a1620; --shop-err-line: #7a3a4a; --shop-err-text: #ffd0cb;
+}
+
+/* ---------- Ton PAPIER ---------- */
+.shop[data-saison="weihnachten"][data-ton="papier"] {
+  --shop-bg: #fbf5ea; --shop-card: #fffdf9; --shop-ink: #14262f; --shop-on-ink: #fff4e0;
+  --shop-text: #1d2b33; --shop-muted: #4f626c; --shop-honey: #f0bb55; --shop-on-honey: #2e1c0f;
+  --shop-link: #8a2a2f; --shop-tint: #f5e6c4; --shop-bon: #fff6e0; --shop-success: #1f7a5c; --shop-error: #b3261e;
+  --shop-line: #e6d8bd; --shop-control: #8f7a57; --shop-ring: rgba(20, 38, 47, 0.2); --shop-focus: #14262f;
+  --shop-disabled-bg: #e6d8bd;
+  --wn-cran: #a3202a;
+}
+
+/* ---------- Typografie ---------- */
+.shop[data-saison="weihnachten"] h1,
+.shop[data-saison="weihnachten"] h2 { font-family: var(--wn-serif); font-weight: 600; letter-spacing: -0.005em; }
+.shop[data-saison="weihnachten"] h1 { font-size: clamp(2.125rem, 8vw, 3.75rem); line-height: 1.05; }
+.shop[data-saison="weihnachten"] h2 { font-size: clamp(1.5rem, 5vw, 2.25rem); }
+.shop[data-saison="weihnachten"] .shop-overline { font-family: var(--shop-display); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.12em; }
+.shop[data-saison="weihnachten"] .shop-cart-body h2 { font-size: 1.125rem; }
+.shop[data-saison="weihnachten"] .shop-card h3 { font-size: 1.125rem; }
+
+/* Sichtbarer Fokus: Ring 3 px, Offset 3 px */
+.shop[data-saison="weihnachten"] :focus-visible { outline: 3px solid var(--shop-focus); outline-offset: 3px; }
+
+/* ---------- Stapelreihenfolge: Kulisse hinter dem Inhalt, vordere Flocken davor ---------- */
+.shop[data-saison="weihnachten"] main,
+.shop[data-saison="weihnachten"] .shop-wrap { position: relative; z-index: 1; }
+
+/* ---------- Kopf: Text-Wortmarke ---------- */
+.wn-marke { display: inline-flex; flex-direction: column; justify-content: center; gap: 2px; text-decoration: none; }
+.shop .wn-marke { min-height: 44px; }
+.wn-marke-name { font: 600 1.25rem/1.05 var(--wn-serif); color: var(--shop-ink); letter-spacing: -0.005em; }
+.wn-marke-sub { font: 700 0.6875rem/1.1 var(--shop-display); text-transform: uppercase; letter-spacing: 0.12em; color: var(--shop-muted); }
+.wn-fuss-link { margin-top: 14px; text-align: center; }
+.wn-fuss-link a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; font-size: 0.875rem; color: var(--shop-muted) !important; }
+
+/* ---------- Buttons, Karten, Marken ---------- */
+.shop[data-saison="weihnachten"][data-ton="nacht"] .shop-btn { border-color: #ffd98f; box-shadow: 0 3px 0 #9a6f1f, var(--shop-e1); }
+.shop[data-saison="weihnachten"][data-ton="nacht"] .shop-btn:active { box-shadow: 0 0 0 #9a6f1f; }
+.shop[data-saison="weihnachten"][data-ton="nacht"] .shop-btn--ghost { border-color: var(--shop-control); box-shadow: none; color: var(--shop-ink) !important; }
+.shop[data-saison="weihnachten"] .shop-state--wn { background: var(--wn-cran); border-color: var(--wn-cran); color: #fff4e0; }
+.shop[data-saison="weihnachten"][data-ton="nacht"] .shop-card { border: 1px solid var(--shop-line); }
+.wn-hinweis {
+  display: flex; align-items: flex-start; gap: 12px; margin: 4px 0 24px; padding: 12px 16px; max-width: 62ch;
+  border: 1px solid var(--shop-control); border-radius: 14px; background: var(--shop-tint); color: var(--shop-text); font-size: 0.9375rem; line-height: 1.5;
+}
+.wn-hinweis-punkt { flex: none; width: 10px; height: 10px; margin-top: 7px; border-radius: 50%; background: var(--shop-honey); box-shadow: 0 0 10px 2px rgba(240, 187, 85, 0.55); }
+.wn-rubrik { margin-top: 28px; }
+.wn-rubrik:first-of-type { margin-top: 20px; }
+.wn-rubrik h3 { font: 600 clamp(1.25rem, 4vw, 1.5rem)/1.2 var(--wn-serif); margin-bottom: 14px; color: var(--shop-ink); }
+.shop-alex--ohne { grid-template-columns: minmax(0, 1fr) !important; }
+
+/* ---------- Hero ---------- */
+.wn-hero { display: grid; padding-top: 0; min-height: 0; gap: 0; align-content: start; }
+.wn-szene { grid-row: 1; margin-inline: calc(50% - 50vw); }
+.wn-text { grid-row: 2; display: grid; gap: 14px; padding-top: 22px; position: relative; z-index: 1; justify-items: start; }
+.wn-hero h1 { max-width: 13ch; }
+.wn-hero h1 em { font-style: italic; font-weight: 600; color: var(--shop-honey); }
+.wn-hero p.lead { font-size: 1.0625rem; max-width: 34ch; color: var(--shop-ink); text-shadow: none; }
+.wn-hero .shop-overline { text-shadow: none; color: var(--shop-link); }
+.wn-hero .shop-hero-actions { margin-top: 6px; }
+.wn-hero .shop-btn { min-width: 220px; min-height: 52px; }
+
+.wn-band { position: relative; height: min(196px, 28svh); min-height: 168px; overflow: clip; contain: layout paint; }
+.wn-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: linear-gradient(180deg, var(--shop-bg) 0%, var(--shop-tint) 100%); }
+.wn-fg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 30px; display: block; }
+.wn-sled { position: absolute; right: 8px; bottom: 22px; width: min(272px, 70vw); pointer-events: none; }
+.wn-sled svg { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 50% 92%; }
+
+.wn-steuer {
+  position: absolute; z-index: 3; left: 12px; top: 10px; min-width: 44px; min-height: 44px; padding: 0 16px;
+  border: 1px solid var(--shop-control); border-radius: 999px; background: rgba(15, 31, 42, 0.78); color: var(--shop-ink);
+  font: 700 0.8125rem/1.1 var(--shop-display); cursor: pointer; touch-action: manipulation;
+  transition: transform var(--wn-fast) var(--wn-ease-out);
+}
+.wn-steuer[hidden] { display: none; }
+.wn-steuer:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .wn-steuer:hover { background: var(--shop-tint); } }
+
+.wn-tannenreihe {
+  height: 36px; margin-top: -1px; background: var(--wn-ridge-back);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 100'%3E%3Cg fill='black'%3E%3Cpath transform='translate(30 100)' d='M0 -100 L16 -70 L8 -70 L22 -42 L11 -42 L28 -10 L4 -10 L4 0 L-4 0 L-4 -10 L-28 -10 L-11 -42 L-22 -42 L-8 -70 L-16 -70 Z'/%3E%3Cpath transform='translate(88 100) scale(.65)' d='M0 -100 L16 -70 L8 -70 L22 -42 L11 -42 L28 -10 L4 -10 L4 0 L-4 0 L-4 -10 L-28 -10 L-11 -42 L-22 -42 L-8 -70 L-16 -70 Z'/%3E%3C/g%3E%3C/svg%3E") repeat-x left bottom / auto 100%;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 100'%3E%3Cg fill='black'%3E%3Cpath transform='translate(30 100)' d='M0 -100 L16 -70 L8 -70 L22 -42 L11 -42 L28 -10 L4 -10 L4 0 L-4 0 L-4 -10 L-28 -10 L-11 -42 L-22 -42 L-8 -70 L-16 -70 Z'/%3E%3Cpath transform='translate(88 100) scale(.65)' d='M0 -100 L16 -70 L8 -70 L22 -42 L11 -42 L28 -10 L4 -10 L4 0 L-4 0 L-4 -10 L-28 -10 L-11 -42 L-22 -42 L-8 -70 L-16 -70 Z'/%3E%3C/g%3E%3C/svg%3E") repeat-x left bottom / auto 100%;
+  margin-inline: calc(50% - 50vw); margin-bottom: 8px;
+}
+
+@media (min-width: 640px) {
+  .wn-band { height: 240px; }
+  .wn-sled { width: 380px; bottom: 26px; right: 24px; }
+  .wn-fg { height: 38px; }
+}
+@media (min-width: 900px) {
+  .wn-hero { grid-template-columns: minmax(0, 1fr); min-height: 520px; align-content: center; position: relative; }
+  .wn-szene { position: absolute; top: 0; bottom: 0; left: 50%; right: calc(50% - 50vw); margin: 0; grid-row: auto; }
+  .wn-band { height: 100%; min-height: 0; }
+  .wn-bg { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22%); mask-image: linear-gradient(90deg, transparent 0, #000 22%); }
+  .wn-text { grid-row: 1; padding: 48px 0 56px; max-width: calc(50% - 48px); }
+  .wn-hero h1 { max-width: 12ch; }
+  .wn-sled { width: 560px; bottom: 50px; right: 28px; }
+  .wn-fg { height: 64px; }
+  .wn-steuer { left: 40px; top: 20px; }
+  .wn-tannenreihe { height: 64px; }
+  .wn-hero { --wn-von-x: 70vw; --wn-von-y: -96px; }
+}
+@media (max-width: 899px) { .wn-hero { --wn-von-x: 110vw; --wn-von-y: -64px; } }
+
+/* ---------- Einflug und Landung (Phase "flug", auch ohne JS) ---------- */
+.wn-band[data-phase="flug"] .wn-sled { animation: wn-flug-x var(--wn-flug) var(--wn-ease-land) 500ms both; }
+.wn-band[data-phase="flug"] .wn-sled svg {
+  animation: wn-flug-y var(--wn-flug) var(--wn-ease-sink) 500ms both, wn-neigung var(--wn-flug) var(--wn-ease-io) 500ms both, wn-setzen var(--wn-nachfedern) var(--wn-ease-out) 3300ms both;
+}
+.wn-band[data-phase="flug"] .wn-puff circle { opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; animation: wn-puff 500ms var(--wn-ease-out) 3000ms both; }
+@keyframes wn-flug-x { from { transform: translateX(var(--wn-von-x)); } to { transform: translateX(0); } }
+@keyframes wn-flug-y { from { translate: 0 var(--wn-von-y); } to { translate: 0 0; } }
+@keyframes wn-neigung { 0%, 40% { rotate: 4deg; } 80% { rotate: -2deg; } 100% { rotate: 0deg; } }
+@keyframes wn-setzen { 0% { transform: none; } 30% { transform: translateY(5px) scaleY(0.97); } 65% { transform: translateY(-2px); } 100% { transform: none; } }
+@keyframes wn-puff { 0% { opacity: 0; transform: scale(0.6); } 20% { opacity: 0.5; } 100% { opacity: 0; transform: scale(1.2); } }
+.wn-puff { pointer-events: none; }
+.wn-puff circle { opacity: 0; }
+
+/* Wiederkehrer: Schlitten steht sofort, nur kurzes Einblenden */
+.wn-band[data-wiederkehr="ja"] .wn-sled { animation: wn-ein var(--wn-normal) var(--wn-ease-out) both; }
+@keyframes wn-ein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Idle (gelandet): ruhig, nur transform/opacity ---------- */
+.wn-glitz { opacity: 0; transform-box: fill-box; transform-origin: 50% 50%; }
+.wn-ren-in { transform-box: fill-box; transform-origin: 50% 100%; }
+.wn-kopf { transform-box: fill-box; transform-origin: 100% 100%; }
+.wn-band[data-phase="idle"] .wn-ren-in { animation: wn-atem var(--wn-idle-atem) var(--wn-ease-io) infinite alternate; }
+.wn-band[data-phase="idle"] .wn-ren-2 .wn-ren-in { animation-delay: 0.6s; }
+.wn-band[data-phase="idle"] .wn-ren-3 .wn-ren-in { animation-delay: 1.2s; }
+.wn-band[data-phase="idle"] .wn-kopf { animation: wn-nicken 5s var(--wn-ease-io) infinite alternate; }
+.wn-band[data-phase="idle"] .wn-nase { animation: wn-nase 2.4s var(--wn-ease-io) infinite alternate; }
+.wn-band[data-phase="idle"] .wn-hof { animation: wn-hof 2.4s var(--wn-ease-io) infinite alternate; }
+.wn-band[data-phase="idle"] .wn-glitz { animation: wn-glitz 3.2s var(--wn-ease-io) infinite; }
+.wn-band[data-phase="idle"] .wn-glitz-2 { animation-delay: 0.8s; }
+.wn-band[data-phase="idle"] .wn-glitz-3 { animation-delay: 1.6s; }
+.wn-band[data-phase="idle"] .wn-glitz-4 { animation-delay: 2.4s; }
+.wn-band[data-phase="idle"] .wn-stern { animation: wn-funkeln 4s var(--wn-ease-io) infinite alternate; }
+.wn-band[data-phase="idle"] .wn-stern-1 { animation-delay: 1.3s; }
+.wn-band[data-phase="idle"] .wn-stern-2 { animation-delay: 2.6s; }
+@keyframes wn-atem { to { transform: scaleY(1.015); } }
+@keyframes wn-nicken { to { transform: rotate(-1.5deg); } }
+@keyframes wn-nase { from { opacity: 0.55; } to { opacity: 1; } }
+@keyframes wn-hof { from { opacity: 0.1; } to { opacity: 0.4; } }
+@keyframes wn-glitz { 0%, 100% { opacity: 0; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes wn-funkeln { from { opacity: 0.35; } to { opacity: 0.8; } }
+.wn-hof { opacity: 0.25; }
+
+/* "Bewegung anhalten" (Knopf): Szene und Schnee pausieren */
+.shop[data-ruhe="an"] .wn-szene *, .wn-band[data-ruhe="an"] * { animation-play-state: paused !important; }
+.shop[data-ruhe="an"] .wn-schnee { opacity: 0; transition: opacity 200ms linear; }
+
+/* ---------- Schnee (CSS) ---------- */
+.wn-schnee { pointer-events: none; }
+.wn-ebene { position: fixed; inset: 0; pointer-events: none; contain: strict; z-index: 0; }
+.wn-ebene--hinten { opacity: 0.45; }
+.wn-ebene--mitte { opacity: 0.7; }
+.wn-ebene--vorn { opacity: 0.55; z-index: 40; }
+.wn-flocke { position: absolute; top: 0; left: var(--x); width: var(--s); height: var(--s); animation: wn-fall var(--d) linear var(--delay) infinite; }
+.wn-flocke i {
+  display: block; width: 100%; height: 100%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(244, 251, 255, 0.95) 0 38%, rgba(244, 251, 255, 0) 72%);
+  animation: wn-wiegen 5s var(--wn-ease-io) var(--delay) infinite alternate;
+}
+@keyframes wn-fall { from { transform: translateY(-8vh); } to { transform: translateY(108vh); } }
+@keyframes wn-wiegen { from { transform: translateX(calc(var(--w) * -1)); } to { transform: translateX(var(--w)); } }
+@media (max-width: 899px) { .wn-flocke.d { display: none; } .wn-flocke i { animation-duration: 4s; } }
+
+/* ---------- Reduced Motion: Standbild, kein Schnee, kein Idle, kein Einflug ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .shop[data-saison="weihnachten"] *, .shop[data-saison="weihnachten"] *::before, .shop[data-saison="weihnachten"] *::after { animation: none !important; transition-duration: 0.01ms !important; }
+  .wn-schnee { display: none; }
+  .wn-glitz-1, .wn-glitz-3 { opacity: 1; }
+  .wn-hof { opacity: 0.3; }
+  .wn-steuer { display: none; }
+}
