@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import ShopShell from "@/components/shop/ShopShell";
 import ProductCard from "@/components/shop/ProductCard";
 import PauseBanner from "@/components/shop/PauseBanner";
@@ -12,8 +12,8 @@ import WeihnachtenKachel from "@/components/shop/WeihnachtenKachel";
 import WeihnachtenHinweis from "@/components/shop/WeihnachtenHinweis";
 import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
-import { aktiveSaison, saisonModus, SAISONEN } from "@/lib/shop/saison";
-import { kategorienFuer, sichtbareProdukte, UNTERKATEGORIEN, type Kategorie } from "@/lib/shop/produkte";
+import { aktiveSaison, saisonModus } from "@/lib/shop/saison";
+import { kategorienFuer, sichtbareProdukte, type Kategorie } from "@/lib/shop/produkte";
 import { holeFarben } from "@/lib/shop/farben";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
@@ -44,14 +44,6 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const karte = (p: (typeof liste)[number], i: number) => (
     <ProductCard key={p.slug} p={p} farben={farben} gesperrt={wunschtextPausiert && !!p.personalisierung} vorschau={modus === "preview"} halloweenSicht={halloween} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
   );
-  // Weihnachts-Kollektion gliedert sich in Rubriken (leere entfallen), Artikel ohne Rubrik stehen am Ende
-  const rubriken = weihnachten
-    ? [
-        ...UNTERKATEGORIEN.map((u) => ({ id: u.id as string, label: u.label, items: saison.filter((p) => p.unterkategorie === u.id) })),
-        { id: "weitere", label: "Weitere Stücke", items: saison.filter((p) => !p.unterkategorie) },
-      ].filter((r) => r.items.length > 0)
-    : [];
-
   return (
     <ShopShell theme={halloween ? "halloween" : undefined} saison={weihnachten ? "weihnachten" : !halloween && hwModus !== "off" ? "halloween-dark" : undefined} ton="nacht" banner={<PauseBanner />} zurueck={aktiv === "alle" ? "pixldrop" : "shop"}>
       <div className="shop-wrap">
@@ -119,15 +111,10 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
             )}
             {saison.length > 0 && weihnachten && (
               <>
-                <div className="shop-gruppe"><h2 className="shop-gruppe-titel" id="saison-titel"><span>Weihnachts-Kollektion</span><small>{SAISONEN.weihnachten.label} 2026</small></h2></div>
-                <div className="wn-rubriken">
-                  {rubriken.map((r) => (
-                    <section key={r.id} className="wn-rubrik" style={{ "--n": Math.min(r.items.length, 4) } as React.CSSProperties} aria-labelledby={`rubrik-${r.id}`}>
-                      <h3 id={`rubrik-${r.id}`}>{r.label}</h3>
-                      <ul className="shop-grid" aria-labelledby={`rubrik-${r.id}`}>{r.items.map(karte)}</ul>
-                    </section>
-                  ))}
-                </div>
+                <div className="shop-gruppe"><h2 className="shop-gruppe-titel" id="saison-titel"><span>Weihnachten</span><small>Advent 2026</small></h2></div>
+                <ul className="shop-grid" aria-labelledby="saison-titel">
+                  {saison.map(karte)}
+                </ul>
               </>
             )}
             {saison.length > 0 && !weihnachten && (
