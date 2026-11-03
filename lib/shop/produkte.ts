@@ -340,6 +340,15 @@ export const PRODUKTE: Produkt[] = [
     preisCent: null, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG], entwurf: true,
   },
+  {
+    slug: "deko-schale",
+    name: "Deko-Schale",
+    kurz: "Ovale Schale mit geschwungenem Wellenrand, passt zu Kugel und Rentieren, auch ausserhalb von Weihnachten nutzbar.",
+    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Eine flache, ovale Deko-Schale mit geschwungenem Wellenrand. Darauf kommen Weihnachtskugel und Rentiere gut zur Geltung (Deko auf dem Cover nicht enthalten), sie taugt aber auch das ganze Jahr als Ablage oder Tischdeko. Reines Deko-Stueck, nicht fuer Speisen gedacht.",
+    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#e3d3b3",
+    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+  },
   // ---- Weihnachten: PLATZHALTER-Entwürfe (entwurf: true = nur Vorschau/lokal, auf Production unsichtbar und nie bestellbar). ----
   // Zum Einpflegen echter Artikel: siehe D:\Apps\3D-Druck\shop\WEIHNACHTEN-ARTIKEL-EINPFLEGEN.md. Entwurf-Eintrag ersetzen oder umbenennen, Flag entfernen.
   {
@@ -414,6 +423,7 @@ const ARTIKELNR: Record<string, string> = {
   "weihnachts-rentier": "PD-018",
   "weihnachtsengel": "PD-019",
   "weihnachtskugel": "PD-020",
+  "deko-schale": "PD-021",
 };
 export function artikelnummer(slug: string): string | null { return ARTIKELNR[slug] ?? null; }
 /** Teelichtfach (aus dem Modell gemessen): nur Artikel mit offenem Fach. */
