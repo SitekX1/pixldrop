@@ -349,6 +349,15 @@ export const PRODUKTE: Produkt[] = [
     preisCent: null, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
+  {
+    slug: "weihnachtsbaum",
+    name: "Weihnachtsbaum",
+    kurz: "Gerillter Deko-Weihnachtsbaum in Creme oder Gruen, schlicht und nordisch.",
+    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein stilisierter Weihnachtsbaum aus vier Rundungen mit feiner Rillenstruktur und schlanker Spitze, im nordischen Stil. Gedruckt in Creme oder Gruen, als Tisch- und Fensterdeko. Reines Deko-Stueck.",
+    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#c9d3a8",
+    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+  },
   // ---- Weihnachten: PLATZHALTER-Entwürfe (entwurf: true = nur Vorschau/lokal, auf Production unsichtbar und nie bestellbar). ----
   // Zum Einpflegen echter Artikel: siehe D:\Apps\3D-Druck\shop\WEIHNACHTEN-ARTIKEL-EINPFLEGEN.md. Entwurf-Eintrag ersetzen oder umbenennen, Flag entfernen.
   {
@@ -424,6 +433,7 @@ const ARTIKELNR: Record<string, string> = {
   "weihnachtsengel": "PD-019",
   "weihnachtskugel": "PD-020",
   "deko-schale": "PD-021",
+  "weihnachtsbaum": "PD-022",
 };
 export function artikelnummer(slug: string): string | null { return ARTIKELNR[slug] ?? null; }
 /** Teelichtfach (aus dem Modell gemessen): nur Artikel mit offenem Fach. */

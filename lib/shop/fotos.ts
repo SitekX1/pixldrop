@@ -92,6 +92,10 @@ const ALT: Record<string, string[]> = {
     "Deko-Schale mit Weihnachtskugel und zwei Rentieren (Deko nicht enthalten), nah",
     "Leere ovale Deko-Schale mit Wellenrand",
   ],
+  "weihnachtsbaum": [
+    "Zwei gerillte Weihnachtsbaeume in Gruen und Creme, schraeg von vorn",
+    "Zwei gerillte Weihnachtsbaeume in Gruen und Creme, nah",
+  ],
 };
 
 /** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Frontsicht leer 8, Seite 6, Draufsicht 7). */
@@ -102,6 +106,7 @@ export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
 
 /** Produkte mit eigenem Cover-Bild für die Shop-Übersicht (public/shop/cover/<slug>.webp, 1100 × 1100). Die Galerie auf der Produktseite bleibt unverändert. Slug hier eintragen, sobald die Datei liegt. */
 export const COVER: string[] = [
+  "weihnachtsbaum",
   "deko-schale",
   "weihnachts-rentier",
   "weihnachtsengel",
