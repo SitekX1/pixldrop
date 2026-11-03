@@ -83,6 +83,13 @@
 .wn-hinweis-punkt { flex: none; width: 10px; height: 10px; margin-top: 7px; border-radius: 50%; background: var(--shop-honey); box-shadow: 0 0 10px 2px rgba(240, 187, 85, 0.55); }
 .wn-rubrik { margin-top: 28px; }
 .wn-rubrik:first-of-type { margin-top: 20px; }
+/* Kleine Rubriken nebeneinander statt untereinander: je Rubrik so viel Breite wie Artikel (max. 4 Spalten gesamt je Zeile) */
+@media (min-width: 640px) {
+  .wn-rubriken { display: flex; flex-wrap: wrap; column-gap: 24px; }
+  .wn-rubrik { flex: var(--n, 1) 1 calc(var(--n, 1) * 150px); min-width: 0; }
+  .wn-rubrik .shop-grid { grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); gap: 14px; }
+  .wn-rubrik .shop-grid > li { margin-top: 0 !important; }
+}
 .wn-rubrik h3 { font: 600 clamp(1.25rem, 4vw, 1.5rem)/1.2 var(--wn-serif); margin-bottom: 14px; color: var(--shop-ink); }
 .shop-alex--ohne { grid-template-columns: minmax(0, 1fr) !important; }
 

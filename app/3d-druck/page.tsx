@@ -120,12 +120,14 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
             {saison.length > 0 && weihnachten && (
               <>
                 <div className="shop-gruppe"><h2 className="shop-gruppe-titel" id="saison-titel"><span>Weihnachts-Kollektion</span><small>{SAISONEN.weihnachten.label} 2026</small></h2></div>
-                {rubriken.map((r) => (
-                  <section key={r.id} className="wn-rubrik" aria-labelledby={`rubrik-${r.id}`}>
-                    <h3 id={`rubrik-${r.id}`}>{r.label}</h3>
-                    <ul className="shop-grid" aria-labelledby={`rubrik-${r.id}`}>{r.items.map(karte)}</ul>
-                  </section>
-                ))}
+                <div className="wn-rubriken">
+                  {rubriken.map((r) => (
+                    <section key={r.id} className="wn-rubrik" style={{ "--n": Math.min(r.items.length, 4) } as React.CSSProperties} aria-labelledby={`rubrik-${r.id}`}>
+                      <h3 id={`rubrik-${r.id}`}>{r.label}</h3>
+                      <ul className="shop-grid" aria-labelledby={`rubrik-${r.id}`}>{r.items.map(karte)}</ul>
+                    </section>
+                  ))}
+                </div>
               </>
             )}
             {saison.length > 0 && !weihnachten && (
