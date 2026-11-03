@@ -312,6 +312,34 @@ export const PRODUKTE: Produkt[] = [
     ],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
+  // ---- Weihnachten: echte Artikel mit Fotos (Alex 03.11.), Preis/Masse/Gewicht noch offen -> entwurf: true bis alles stimmt. ----
+  {
+    slug: "weihnachts-rentier",
+    name: "Weihnachts-Rentier",
+    kurz: "Schlankes Deko-Rentier mit feinen Lamellen, als Paar in zwei Farbstellungen.",
+    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein Rentier als Weihnachtsdeko: Der Koerper ist fein gerillt, der Kopf traegt ein filigranes Geweih. Als Einzelstueck oder als Paar auf Fensterbank, Sideboard oder Esstisch. Reines Deko-Stueck.",
+    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#d9c3a0",
+    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+  },
+  {
+    slug: "weihnachtsengel",
+    name: "Weihnachtsengel",
+    kurz: "Kleiner Engel mit gerilltem Kleid und Fluegeln, als Deko fuer Tisch und Fensterbank.",
+    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein Engel als Weihnachtsdeko: schlichtes, fein gerilltes Kleid, runder Kopf und angesteckte Fluegel. Reines Deko-Stueck zum Hinstellen.",
+    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#e3cfae",
+    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+  },
+  {
+    slug: "weihnachtskugel",
+    name: "Weihnachtskugel",
+    kurz: "Zweiteilige Kugel mit Stern- und Tannenbaum-Ausschnitten, mit LED-Teelicht oder als Ueberraschungskugel.",
+    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Eine Kugel mit Oese, die sich in zwei Haelften oeffnen laesst. Die Wand hat Ausschnitte in Stern- und Tannenbaumform: Mit einem LED-Teelicht leuchtet sie stimmungsvoll, ausserdem kann man sie mit kleinen Ueberraschungen befuellen. Fuer Baum, Tisch und Zuhause. Schnur nicht dabei.",
+    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "baumschmuck", form: "rund", grundfarbe: "#e8d4a8",
+    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG], entwurf: true,
+  },
   // ---- Weihnachten: PLATZHALTER-Entwürfe (entwurf: true = nur Vorschau/lokal, auf Production unsichtbar und nie bestellbar). ----
   // Zum Einpflegen echter Artikel: siehe D:\Apps\3D-Druck\shop\WEIHNACHTEN-ARTIKEL-EINPFLEGEN.md. Entwurf-Eintrag ersetzen oder umbenennen, Flag entfernen.
   {
@@ -383,6 +411,9 @@ const ARTIKELNR: Record<string, string> = {
   "wn-entwurf-teelichtstern": "PD-015",
   "wn-entwurf-baumanhaenger": "PD-016",
   "wn-entwurf-geschenkanhaenger": "PD-017",
+  "weihnachts-rentier": "PD-018",
+  "weihnachtsengel": "PD-019",
+  "weihnachtskugel": "PD-020",
 };
 export function artikelnummer(slug: string): string | null { return ARTIKELNR[slug] ?? null; }
 /** Teelichtfach (aus dem Modell gemessen): nur Artikel mit offenem Fach. */

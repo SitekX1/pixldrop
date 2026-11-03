@@ -73,6 +73,21 @@ const ALT: Record<string, string[]> = {
   "kuerbis-klein-set": [
     "Vier kleine Deko-Kürbisse mit Gesicht in Orange vor Halloween-Kulisse",
   ],
+  // Titelbild (Cover) zuerst, danach echte Fotos vom Druckbett (quadratisch zugeschnitten)
+  "weihnachts-rentier": [
+    "Zwei Weihnachts-Rentiere, eines gruen-gelb verlaufend, eines in Creme",
+    "Zwei Weihnachts-Rentiere von vorn",
+    "Weihnachts-Rentier in Creme mit Geweih",
+  ],
+  "weihnachtsengel": [
+    "Zwei Weihnachtsengel in Creme und Gruen mit weissen Fluegeln",
+    "Zwei Weihnachtsengel vor weisser Wand auf Holz",
+  ],
+  "weihnachtskugel": [
+    "Geoeffnete Weihnachtskugel mit Stern- und Tannenbaum-Ausschnitten",
+    "Geschlossene Weihnachtskugel mit Oese",
+    "Weihnachtskugel von der Seite",
+  ],
 };
 
 /** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Frontsicht leer 8, Seite 6, Draufsicht 7). */
@@ -83,6 +98,9 @@ export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
 
 /** Produkte mit eigenem Cover-Bild für die Shop-Übersicht (public/shop/cover/<slug>.webp, 1100 × 1100). Die Galerie auf der Produktseite bleibt unverändert. Slug hier eintragen, sobald die Datei liegt. */
 export const COVER: string[] = [
+  "weihnachts-rentier",
+  "weihnachtsengel",
+  "weihnachtskugel",
   "design-kuerbis",
   "geister-set",
   "geister-set-klein",
