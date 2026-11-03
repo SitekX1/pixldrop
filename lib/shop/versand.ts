@@ -98,6 +98,8 @@ export interface VersandProdukt {
   teileMitBox?: PackTeil[];
   /** Teile je gewählter Größe (Option `kuerbisgroesse`); fehlt die Wahl, gilt `teile` */
   teileJeGroesse?: Record<string, PackTeil[]>;
+  /** Optionsgruppe, nach der `teileJeGroesse` gewaehlt wird (Standard `kuerbisgroesse`; Rentier `ausfuehrung`, Engel `groesse`) */
+  teileGruppe?: string;
   briefFaehig: boolean;
   /** Stueck je Menge fuer die Brief-Grenzen (ein Set zaehlt mehrfach) */
   stueckJeMenge: number;
@@ -135,6 +137,21 @@ const ROH: Record<string, Roh> = {
     briefFaehig: false, stueckJeMenge: 1,
   },
   "kuerbis-teelichthalter": { teile: [{ mm: [72, 73, 40], g: 38, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  // Weihnachtsartikel (Alex 03.11.2026): Gramm aus Bambu Studio, Maße aus den 3MF-Dateien (mit Skalierung). Engel: KEINE Datei im Ordner, Maße fehlen noch (fällt auf UNBEKANNT zurück); Gramm 36,24 (groß) und 23,47 (klein) ohne Flügel.
+  "weihnachts-rentier": {
+    teile: [{ mm: [35, 37, 100], g: 20, anz: 1 }],
+    teileGruppe: "ausfuehrung",
+    teileJeGroesse: {
+      gerade: [{ mm: [35, 37, 100], g: 20, anz: 1 }],
+      gedreht: [{ mm: [35, 37, 100], g: 17, anz: 1 }],
+      set: [{ mm: [35, 37, 100], g: 20, anz: 1 }, { mm: [35, 37, 100], g: 17, anz: 1 }],
+    },
+    briefFaehig: false, stueckJeMenge: 1,
+  },
+  "weihnachtsbaum": { teile: [{ mm: [60, 60, 106], g: 13, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  "deko-schale": { teile: [{ mm: [200, 101, 14], g: 61, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
+  // Kugel: Durchmesser 90 mm, Höhe mit Öse noch nicht gemessen; 112 mm = vorsichtige Schätzung (Hälften 46,5 + 65,9 mm hoch gedruckt).
+  "weihnachtskugel": { teile: [{ mm: [90, 90, 112], g: 67, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   // Weihnachts-PLATZHALTER (entwurf, nie bestellbar): Maße/Gramm sind ERFUNDENE Platzhalter, beim Einpflegen echter Artikel durch gemessene Werte ersetzen.
   "wn-entwurf-teelichtstern": { teile: [{ mm: [80, 80, 40], g: 30, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   "wn-entwurf-baumanhaenger": { teile: [{ mm: [60, 60, 6], g: 8, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
@@ -224,7 +241,7 @@ function stueckeAusKorb(positionen: readonly VersandPosition[]): Stueck[] {
   for (const p of positionen) {
     const roh = ROH[p.slug] ?? UNBEKANNT;
     const box = p.optionen?.[BOX_GRUPPE] === BOX_MIT;
-    for (let i = 0, n = Math.min(mengeOk(p.menge), 500); i < n; i++) out.push(...stueckeAusTeilen(teileJeStueck(roh, box, p.optionen?.kork === "mit", p.optionen?.kuerbisgroesse)));
+    for (let i = 0, n = Math.min(mengeOk(p.menge), 500); i < n; i++) out.push(...stueckeAusTeilen(teileJeStueck(roh, box, p.optionen?.kork === "mit", p.optionen?.[roh.teileGruppe ?? "kuerbisgroesse"])));
   }
   return verschachtele(out);
 }
