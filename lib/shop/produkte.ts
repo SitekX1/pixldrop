@@ -316,19 +316,23 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "weihnachts-rentier",
     name: "Weihnachts-Rentier",
-    kurz: "Schlankes Deko-Rentier mit feinen Lamellen, als Paar in zwei Farbstellungen.",
-    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein Rentier als Weihnachtsdeko: Der Koerper ist fein gerillt, der Kopf traegt ein filigranes Geweih. Als Einzelstueck oder als Paar auf Fensterbank, Sideboard oder Esstisch. Reines Deko-Stueck.",
+    kurz: "Schlankes Deko-Rentier mit feinen Rillen, einzeln oder als Paar.",
+    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein Rentier als Weihnachtsdeko: Der Koerper ist fein gerillt, der Kopf traegt ein filigranes Geweih. Es gibt zwei Ausfuehrungen, eine mit gedrehten und eine mit geraden Rillen. Du waehlst eine einzeln oder beide als Set. Reines Deko-Stueck fuer Fensterbank, Sideboard oder Esstisch.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#d9c3a0",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    preisCent: null, masse: null, material: MATERIAL,
+    // Set-Preis spaeter als aufpreisCent auf "set" eintragen (Einzelpreis + Aufpreis, bleibt unter 2 x Einzel). Erste Option = Einzelpreis.
+    optionen: [{ id: "ausfuehrung", label: "Ausführung", optionen: [{ id: "gedreht", label: "Rentier mit gedrehten Rillen" }, { id: "gerade", label: "Rentier mit geraden Rillen" }, { id: "set", label: "Set: beide Rentiere" }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
   {
     slug: "weihnachtsengel",
     name: "Weihnachtsengel",
-    kurz: "Kleiner Engel mit gerilltem Kleid und Fluegeln, als Deko fuer Tisch und Fensterbank.",
-    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein Engel als Weihnachtsdeko: schlichtes, fein gerilltes Kleid, runder Kopf und angesteckte Fluegel. Reines Deko-Stueck zum Hinstellen.",
+    kurz: "Engel mit gerilltem Kleid und Fluegeln in zwei Groessen, einzeln oder als Set.",
+    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein Engel als Weihnachtsdeko: schlichtes, fein gerilltes Kleid, runder Kopf und angesteckte Fluegel. Es gibt ihn gross und klein. Du waehlst einen davon oder beide als Set. Reines Deko-Stueck zum Hinstellen.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#e3cfae",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    preisCent: null, masse: null, material: MATERIAL,
+    // Basispreis = kleiner Engel. Spaeter aufpreisCent eintragen: "gross" = Preis gross minus klein, "set" = Setpreis minus klein (Set unter gross + klein einzeln).
+    optionen: [{ id: "groesse", label: "Größe", optionen: [{ id: "klein", label: "Kleiner Engel" }, { id: "gross", label: "Großer Engel" }, { id: "set", label: "Set: klein und groß" }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
   {
@@ -352,10 +356,11 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "weihnachtsbaum",
     name: "Weihnachtsbaum",
-    kurz: "Gerillter Deko-Weihnachtsbaum in Creme oder Gruen, schlicht und nordisch.",
-    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein stilisierter Weihnachtsbaum aus vier Rundungen mit feiner Rillenstruktur und schlanker Spitze, im nordischen Stil. Gedruckt in Creme oder Gruen, als Tisch- und Fensterdeko. Reines Deko-Stueck.",
+    kurz: "Gerillter Deko-Weihnachtsbaum im nordischen Stil, in Gruen oder Creme.",
+    beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein stilisierter Weihnachtsbaum aus vier Rundungen mit feiner Rillenstruktur und schlanker Spitze, im nordischen Stil. Es gibt ihn in einer Groesse, du waehlst die Farbe: Gruen oder Creme. Als Tisch- und Fensterdeko. Reines Deko-Stueck.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#c9d3a8",
     preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    kombinationen: [{ id: "gruen", label: "Grün", farben: [{ name: "Grün", hex: "#a9b98d" }] }, { id: "creme", label: "Creme", farben: [{ name: "Creme", hex: "#e8d8b8" }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
   // ---- Weihnachten: PLATZHALTER-Entwürfe (entwurf: true = nur Vorschau/lokal, auf Production unsichtbar und nie bestellbar). ----
