@@ -46,7 +46,7 @@ export default async function Produktseite({ params, searchParams }: Props) {
   const hatAufpreis = p.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0));
   const vk = VERSAND_PRODUKTE[p.slug];
   const abPaket = Math.min(...(["hermes", "dhl"] as const).map((a) => VERSAND_PREISE[a][vk?.versandStufe ?? "mittel"].cent));
-  const versandHinweisText = `Versand: Kosten starten bei ${formatPreis(abPaket)} (Hermes/DHL, je nach Größe)${vk?.briefFaehig ? `, reine Untersetzer als Brief schon ab ${formatPreis(VERSAND_BRIEF.grossbrief.cent)}` : ""}, nur Deutschland`;
+  const versandHinweisText = `Versand ab ${formatPreis(abPaket)} je nach Größe (Hermes/DHL)${vk?.briefFaehig ? `, reine Untersetzer als Brief ab ${formatPreis(VERSAND_BRIEF.grossbrief.cent)}` : ""}, nur Deutschland`;
   const preis = p.nurAnfrage ? TEXTE.preisAnfrage : `${hatAufpreis ? "ab " : ""}${formatPreis(p.preisCent)}`;
 
   return (
