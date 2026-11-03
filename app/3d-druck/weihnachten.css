@@ -29,6 +29,12 @@
   --shop-err-bg: #2a1620; --shop-err-line: #7a3a4a; --shop-err-text: #ffd0cb;
 }
 
+/* Eingabefelder im Nacht-Ton: dunkles Feld, helle Schrift (vorher weiss auf weiss, Mengenfeld unlesbar). */
+.shop[data-saison="weihnachten"][data-ton="nacht"] .shop-input,
+.shop[data-saison="weihnachten"][data-ton="nacht"] select.shop-input,
+.shop[data-saison="weihnachten"][data-ton="nacht"] textarea.shop-input { background: var(--shop-tint); color: var(--shop-text); }
+.shop[data-saison="weihnachten"][data-ton="nacht"] .shop-input[readonly] { background: var(--shop-card); }
+
 /* ---------- Ton PAPIER ---------- */
 .shop[data-saison="weihnachten"][data-ton="papier"] {
   --shop-bg: #fbf5ea; --shop-card: #fffdf9; --shop-ink: #14262f; --shop-on-ink: #fff4e0;
