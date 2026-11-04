@@ -6,7 +6,7 @@
 export const LED_PARTNERLINK: string | null = "https://www.amazon.de/dp/B09ZXYZCNP?tag=pixldrop-21";
 
 /** Artikel, die mit LED-Teelicht genutzt werden. */
-export const LED_ARTIKEL = ["geister-set", "kuerbis-laterne", "kuerbis-teelichthalter"] as const;
+export const LED_ARTIKEL = ["geister-set", "kuerbis-laterne", "kuerbis-teelichthalter", "weihnachtskugel"] as const;
 
 export function ledPartnerlink(slug: string): string | null {
   return LED_PARTNERLINK && (LED_ARTIKEL as readonly string[]).includes(slug) ? LED_PARTNERLINK : null;

@@ -319,9 +319,9 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Schlankes Deko-Rentier mit feinen Rillen, einzeln oder als Paar.",
     beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein Rentier als Weihnachtsdeko: Der Koerper ist fein gerillt, der Kopf traegt ein filigranes Geweih. Es gibt zwei Ausfuehrungen, eine mit gedrehten und eine mit geraden Rillen. Du waehlst eine einzeln oder beide als Set. Reines Deko-Stueck fuer Fensterbank, Sideboard oder Esstisch.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#d9c3a0",
-    preisCent: null, masse: "35 × 37 × 100", material: MATERIAL,
-    // Set-Preis spaeter als aufpreisCent auf "set" eintragen (Einzelpreis + Aufpreis, bleibt unter 2 x Einzel). Erste Option = Einzelpreis.
-    optionen: [{ id: "ausfuehrung", label: "Ausführung", optionen: [{ id: "gedreht", label: "Rentier mit gedrehten Rillen" }, { id: "gerade", label: "Rentier mit geraden Rillen" }, { id: "set", label: "Set: beide Rentiere" }] }],
+    preisCent: 390, masse: "35 × 37 × 100", material: MATERIAL,
+    // Preise (Alex/Karla 04.11., Masse statt Marge): einzeln 3,90, Set 5,90 (= +2,00). Erste Option = Einzelpreis.
+    optionen: [{ id: "ausfuehrung", label: "Ausführung", optionen: [{ id: "gedreht", label: "Rentier mit gedrehten Rillen" }, { id: "gerade", label: "Rentier mit geraden Rillen" }, { id: "set", label: "Set: beide Rentiere", aufpreisCent: 200 }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
   {
@@ -330,9 +330,9 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Engel mit gerilltem Kleid und Fluegeln in zwei Groessen, einzeln oder als Set.",
     beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein Engel als Weihnachtsdeko: schlichtes, fein gerilltes Kleid, runder Kopf und angesteckte Fluegel. Es gibt ihn gross und klein. Du waehlst einen davon oder beide als Set. Reines Deko-Stueck zum Hinstellen.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#e3cfae",
-    preisCent: null, masse: null, material: MATERIAL,
-    // Basispreis = kleiner Engel. Spaeter aufpreisCent eintragen: "gross" = Preis gross minus klein, "set" = Setpreis minus klein (Set unter gross + klein einzeln).
-    optionen: [{ id: "groesse", label: "Größe", optionen: [{ id: "klein", label: "Kleiner Engel" }, { id: "gross", label: "Großer Engel" }, { id: "set", label: "Set: klein und groß" }] }],
+    preisCent: 490, masse: null, material: MATERIAL,
+    // Preise (Alex/Karla 04.11.): klein 4,90 (Basis), gross 6,90 (+2,00), Set 8,90 (+4,00; einzeln zusammen 11,80).
+    optionen: [{ id: "groesse", label: "Größe", optionen: [{ id: "klein", label: "Kleiner Engel" }, { id: "gross", label: "Großer Engel", aufpreisCent: 200 }, { id: "set", label: "Set: klein und groß", aufpreisCent: 400 }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
   {
@@ -341,7 +341,7 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Zweiteilige Kugel mit Stern- und Tannenbaum-Ausschnitten, mit LED-Teelicht oder als Ueberraschungskugel.",
     beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Eine Kugel mit Oese (Durchmesser ca. 90 mm), die sich in zwei Haelften oeffnen laesst. Die Wand hat Ausschnitte in Stern- und Tannenbaumform: Mit einem LED-Teelicht leuchtet sie stimmungsvoll, ausserdem kann man sie mit kleinen Ueberraschungen befuellen. Fuer Baum, Tisch und Zuhause. Schnur nicht dabei.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "baumschmuck", form: "rund", grundfarbe: "#e8d4a8",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 890, masse: null, material: MATERIAL, optionen: [], // 8,90 ohne LED-Teelicht (Partnerlink auf der Produktseite)
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG], entwurf: true,
   },
   {
@@ -350,7 +350,7 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Ovale Schale mit geschwungenem Wellenrand, passt zu Kugel und Rentieren, auch ausserhalb von Weihnachten nutzbar.",
     beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Eine flache, ovale Deko-Schale mit geschwungenem Wellenrand. Darauf kommen Weihnachtskugel und Rentiere gut zur Geltung (Deko auf dem Cover nicht enthalten), sie taugt aber auch das ganze Jahr als Ablage oder Tischdeko. Reines Deko-Stueck, nicht fuer Speisen gedacht.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#e3d3b3",
-    preisCent: null, masse: "200 × 101 × 14", material: MATERIAL, optionen: [],
+    preisCent: 690, masse: "200 × 101 × 14", material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
   {
@@ -359,7 +359,7 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Gerillter Deko-Weihnachtsbaum im nordischen Stil, in Gruen oder Creme.",
     beschreibung: "VORLAEUFIG (Preis, Masse und Gewicht stehen noch aus). Ein stilisierter Weihnachtsbaum aus vier Rundungen mit feiner Rillenstruktur und schlanker Spitze, im nordischen Stil. Es gibt ihn in einer Groesse, du waehlst die Farbe: Gruen oder Creme. Als Tisch- und Fensterdeko. Reines Deko-Stueck.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#c9d3a8",
-    preisCent: null, masse: "60 × 60 × 106", material: MATERIAL, optionen: [],
+    preisCent: 390, masse: "60 × 60 × 106", material: MATERIAL, optionen: [],
     kombinationen: [{ id: "gruen", label: "Grün", farben: [{ name: "Grün", hex: "#a9b98d" }] }, { id: "creme", label: "Creme", farben: [{ name: "Creme", hex: "#e8d8b8" }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
   },
