@@ -345,6 +345,16 @@ export const PRODUKTE: Produkt[] = [
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
+    slug: "weihnachtskugel-schneeflocke",
+    name: "Weihnachtskugel Schneeflocke",
+    kurz: "Netzkugel mit aufgesetzter Schneeflocke, zweiteilig zum Auseinandernehmen, als Baumschmuck oder kleines Geschenk.",
+    beschreibung: "Eine Kugel aus feinem Gittergewebe (Durchmesser ca. 90 mm) mit Oese zum Aufhaengen und einer Schneeflocke auf der Vorderseite. Die beiden Haelften lassen sich auseinandernehmen: Man kann kleine Geschenke oder einen Geldschein hineinlegen. Kugel und Schneeflocke gibt es in Farben deiner Wahl, zum Beispiel Creme mit weisser Flocke oder Gruen mit weisser Flocke. Das feine Netz ist filigran: bitte vorsichtig behandeln. Schnur und Inhalt sind nicht dabei.",
+    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "baumschmuck", form: "rund", grundfarbe: "#d3c5a3",
+    preisCent: 490, masse: "90 × 90 × 112", material: MATERIAL, optionen: [], // Preis und Hoehe vorlaeufig (Alex prueft Mass beim Testdruck)
+    teile: [{ id: "kugel", label: "Kugel", referenz: "#d3c5a3" }, { id: "flocke", label: "Schneeflocke", referenz: "#ffffff" }], // Standard = Creme + weisse Flocke (wie das Beispielfoto)
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG],
+  },
+  {
     slug: "deko-schale",
     name: "Deko-Schale",
     kurz: "Ovale Schale mit geschwungenem Wellenrand, passt zu Kugel und Rentieren, auch ausserhalb von Weihnachten nutzbar.",
@@ -406,6 +416,7 @@ const ARTIKELNR: Record<string, string> = {
   "weihnachtskugel": "PD-020",
   "deko-schale": "PD-021",
   "weihnachtsbaum": "PD-022",
+  "weihnachtskugel-schneeflocke": "PD-023",
 };
 export function artikelnummer(slug: string): string | null { return ARTIKELNR[slug] ?? null; }
 /** Teelichtfach (aus dem Modell gemessen): nur Artikel mit offenem Fach. */

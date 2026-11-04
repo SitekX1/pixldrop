@@ -88,6 +88,12 @@ const ALT: Record<string, string[]> = {
     "Geschlossene Weihnachtskugel mit Oese",
     "Weihnachtskugel von der Seite",
   ],
+  // Titelbild (Cover) zuerst, danach echte Fotos vom Druckbett (quadratisch zugeschnitten); Fotos zeigen die Creme-Ausfuehrung
+  "weihnachtskugel-schneeflocke": [
+    "Netzkugel mit Schneeflocke in Creme und Weiss, schraeg von der Seite",
+    "Netzkugel mit weisser Schneeflocke von vorn",
+    "Netzkugel in Creme von der Seite, die beiden Haelften mit Rand",
+  ],
   "deko-schale": [
     "Deko-Schale mit Weihnachtskugel und zwei Rentieren (Deko nicht enthalten), nah",
     "Leere ovale Deko-Schale mit Wellenrand",
@@ -111,6 +117,7 @@ export const COVER: string[] = [
   "weihnachts-rentier",
   "weihnachtsengel",
   "weihnachtskugel",
+  "weihnachtskugel-schneeflocke",
   "design-kuerbis",
   "geister-set",
   "geister-set-klein",
