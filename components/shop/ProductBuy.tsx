@@ -357,7 +357,7 @@ export default function ProductBuy({
           <p aria-live="polite" style={{ marginTop: 6 }}>
             <strong>{produkt.linienfarbe ? "Untersetzerfarbe" : "Farbe"}: {farbe?.name}</strong>{farbe?.glanz ? " (glänzend)" : ""} · auf Lager
           </p>
-          <p className="muted">Nur Farben, die gerade im Regal liegen. Bildschirmfarben können leicht abweichen.{produkt.gruppe === "weihnachten" ? " Die Fotos zeigen Beispiele in Olivgrün und Beige, gedruckt wird in deiner Wunschfarbe." : ""}</p>
+          <p className="muted">Nur Farben, die gerade im Regal liegen. Bildschirmfarben können leicht abweichen.{produkt.gruppe === "weihnachten" ? " Die Fotos zeigen Beispielfarben, gedruckt wird in deiner Wunschfarbe." : ""}</p>
         </fieldset>
       ) : (
         <div className="shop-note">

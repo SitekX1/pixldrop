@@ -98,7 +98,7 @@ export interface VersandProdukt {
   teileMitBox?: PackTeil[];
   /** Teile je gewählter Größe (Option `kuerbisgroesse`); fehlt die Wahl, gilt `teile` */
   teileJeGroesse?: Record<string, PackTeil[]>;
-  /** Optionsgruppe, nach der `teileJeGroesse` gewaehlt wird (Standard `kuerbisgroesse`; Rentier `ausfuehrung`, Engel `groesse`) */
+  /** Optionsgruppe, nach der `teileJeGroesse` gewaehlt wird (Standard `kuerbisgroesse`; Rentier `ausfuehrung`, Engel `engelgroesse`) */
   teileGruppe?: string;
   briefFaehig: boolean;
   /** Stueck je Menge fuer die Brief-Grenzen (ein Set zaehlt mehrfach) */
@@ -155,7 +155,7 @@ const ROH: Record<string, Roh> = {
   // Engel (Alex 04.11.): groß 125 mm hoch, 80 mm breit mit Flügeln; klein 105 mm hoch, 70 mm breit. Tiefe = Breite angenommen. Gramm = Bambu-Wert ohne Flügel + ca. 5 g Flügel-Puffer (36,24 / 23,47 g ohne Flügel).
   "weihnachtsengel": {
     teile: [{ mm: [70, 70, 105], g: 28.5, anz: 1, rund: true }],
-    teileGruppe: "groesse",
+    teileGruppe: "engelgroesse",
     teileJeGroesse: {
       klein: [{ mm: [70, 70, 105], g: 28.5, anz: 1, rund: true }],
       gross: [{ mm: [80, 80, 125], g: 41.2, anz: 1, rund: true }],

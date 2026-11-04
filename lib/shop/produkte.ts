@@ -332,7 +332,7 @@ export const PRODUKTE: Produkt[] = [
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#e3cfae",
     preisCent: 490, masse: null, material: MATERIAL,
     // Preise (Alex/Karla 04.11.): klein 4,90 (Basis), gross 6,90 (+2,00), Set 8,90 (+4,00; einzeln zusammen 11,80).
-    optionen: [{ id: "groesse", label: "Größe", optionen: [{ id: "klein", label: "Kleiner Engel (ca. 105 mm hoch)" }, { id: "gross", label: "Großer Engel (ca. 125 mm hoch)", aufpreisCent: 200 }, { id: "set", label: "Set: klein und groß", aufpreisCent: 400 }] }],
+    optionen: [{ id: "engelgroesse", label: "Größe", optionen: [{ id: "klein", label: "Kleiner Engel (ca. 105 mm hoch)" }, { id: "gross", label: "Großer Engel (ca. 125 mm hoch)", aufpreisCent: 200 }, { id: "set", label: "Set: klein und groß", aufpreisCent: 400 }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
