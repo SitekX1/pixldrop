@@ -1172,7 +1172,6 @@ footer {
 }
 .shop-promo-eddie { position: absolute; left: 3%; bottom: -4%; height: 74%; width: auto; z-index: 3; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35)); }
 
-<<<<<<< HEAD
 /* ---------- Weihnachtskachel (Startseite, Coming soon): Präfix spc-, Halloween-Klassen (spw-/shop-promo-) bleiben ---------- */
 .spc {
   grid-column: 1 / -1; background: #172f3d; color: #fff4e0; border: none; overflow: visible; position: relative;
@@ -1238,7 +1237,6 @@ footer {
 @keyframes spc-bokeh { from { opacity: 0.4; transform: translateY(0); } to { opacity: 0.7; transform: translateY(6px); } }
 @keyframes spc-glow { from { opacity: 0.6; transform: scale(0.96); } to { opacity: 1; transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .spc-bokeh, .spc-mondglow { animation: none; } }
-=======
 /* Startseiten-Kachel: Weihnachtshälfte "Coming soon" (rechts unten, diagonal geteilt wie zuvor Halloween) */
 .shop-promo-wn {
   position: absolute; inset: 0; z-index: 1; overflow: hidden;
@@ -1258,4 +1256,3 @@ footer {
   position: absolute; left: 68%; top: 52%; padding: 0.35em 1.1em; font-size: 2.6cqw; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   color: #fff4e0; background: #a3202a; border-radius: 999px; box-shadow: 0 0 0 2px #f0bb55, 0 4px 10px rgba(0, 0, 0, 0.45); transform: rotate(-3deg);
 }
->>>>>>> origin/main
