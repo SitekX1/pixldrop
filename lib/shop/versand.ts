@@ -137,7 +137,7 @@ const ROH: Record<string, Roh> = {
     briefFaehig: false, stueckJeMenge: 1,
   },
   "kuerbis-teelichthalter": { teile: [{ mm: [72, 73, 40], g: 38, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
-  // Weihnachtsartikel (Alex 03.11.2026): Gramm aus Bambu Studio, Maße aus den 3MF-Dateien (mit Skalierung). Engel: KEINE Datei im Ordner, Maße fehlen noch (fällt auf UNBEKANNT zurück); Gramm 36,24 (groß) und 23,47 (klein) ohne Flügel.
+  // Weihnachtsartikel (Alex 03.11.2026): Gramm aus Bambu Studio, Maße aus den 3MF-Dateien (mit Skalierung).
   "weihnachts-rentier": {
     teile: [{ mm: [35, 37, 100], g: 20, anz: 1 }],
     teileGruppe: "ausfuehrung",
@@ -150,8 +150,19 @@ const ROH: Record<string, Roh> = {
   },
   "weihnachtsbaum": { teile: [{ mm: [60, 60, 106], g: 13, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   "deko-schale": { teile: [{ mm: [200, 101, 14], g: 61, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
-  // Kugel: Durchmesser 90 mm, Höhe mit Öse noch nicht gemessen; 112 mm = vorsichtige Schätzung (Hälften 46,5 + 65,9 mm hoch gedruckt).
-  "weihnachtskugel": { teile: [{ mm: [90, 90, 112], g: 67, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  // Kugel: Durchmesser 90 mm, Höhe ca. 115 mm (Alex 04.11.).
+  "weihnachtskugel": { teile: [{ mm: [90, 90, 115], g: 67, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  // Engel (Alex 04.11.): groß 125 mm hoch, 80 mm breit mit Flügeln; klein 105 mm hoch, 70 mm breit. Tiefe = Breite angenommen. Gramm = Bambu-Wert ohne Flügel + ca. 5 g Flügel-Puffer (36,24 / 23,47 g ohne Flügel).
+  "weihnachtsengel": {
+    teile: [{ mm: [70, 70, 105], g: 28.5, anz: 1, rund: true }],
+    teileGruppe: "groesse",
+    teileJeGroesse: {
+      klein: [{ mm: [70, 70, 105], g: 28.5, anz: 1, rund: true }],
+      gross: [{ mm: [80, 80, 125], g: 41.2, anz: 1, rund: true }],
+      set: [{ mm: [70, 70, 105], g: 28.5, anz: 1, rund: true }, { mm: [80, 80, 125], g: 41.2, anz: 1, rund: true }],
+    },
+    briefFaehig: false, stueckJeMenge: 1,
+  },
   // Weihnachts-PLATZHALTER (entwurf, nie bestellbar): Maße/Gramm sind ERFUNDENE Platzhalter, beim Einpflegen echter Artikel durch gemessene Werte ersetzen.
   "wn-entwurf-teelichtstern": { teile: [{ mm: [80, 80, 40], g: 30, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
   "wn-entwurf-baumanhaenger": { teile: [{ mm: [60, 60, 6], g: 8, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
