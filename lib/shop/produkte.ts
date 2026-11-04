@@ -312,7 +312,7 @@ export const PRODUKTE: Produkt[] = [
     ],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
-  // ---- Weihnachten: echte Artikel mit Fotos (Alex 03.11.), Preis/Masse/Gewicht noch offen -> entwurf: true bis alles stimmt. ----
+  // ---- Weihnachten: echte Artikel mit Fotos, Preisen, Maßen und Gewichten (Alex 03./04.11.). ----
   {
     slug: "weihnachts-rentier",
     name: "Weihnachts-Rentier",
@@ -322,7 +322,7 @@ export const PRODUKTE: Produkt[] = [
     preisCent: 390, masse: "35 × 37 × 100", material: MATERIAL,
     // Preise (Alex/Karla 04.11., Masse statt Marge): einzeln 3,90, Set 5,90 (= +2,00). Erste Option = Einzelpreis.
     optionen: [{ id: "ausfuehrung", label: "Ausführung", optionen: [{ id: "gedreht", label: "Rentier mit gedrehten Rillen" }, { id: "gerade", label: "Rentier mit geraden Rillen" }, { id: "set", label: "Set: beide Rentiere", aufpreisCent: 200 }] }],
-    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
     slug: "weihnachtsengel",
@@ -333,7 +333,7 @@ export const PRODUKTE: Produkt[] = [
     preisCent: 490, masse: null, material: MATERIAL,
     // Preise (Alex/Karla 04.11.): klein 4,90 (Basis), gross 6,90 (+2,00), Set 8,90 (+4,00; einzeln zusammen 11,80).
     optionen: [{ id: "groesse", label: "Größe", optionen: [{ id: "klein", label: "Kleiner Engel (ca. 105 mm hoch)" }, { id: "gross", label: "Großer Engel (ca. 125 mm hoch)", aufpreisCent: 200 }, { id: "set", label: "Set: klein und groß", aufpreisCent: 400 }] }],
-    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
     slug: "weihnachtskugel",
@@ -342,7 +342,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung: "Eine Kugel mit Oese (Durchmesser ca. 90 mm), die sich in zwei Haelften oeffnen laesst. Die Wand hat Ausschnitte in Stern- und Tannenbaumform: Mit einem LED-Teelicht leuchtet sie stimmungsvoll, ausserdem kann man sie mit kleinen Ueberraschungen befuellen. Fuer Baum, Tisch und Zuhause. LED-Teelicht und Schnur sind nicht dabei.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "baumschmuck", form: "rund", grundfarbe: "#e8d4a8",
     preisCent: 890, masse: "90 × 90 × 115", material: MATERIAL, optionen: [], // 8,90 ohne LED-Teelicht (Partnerlink auf der Produktseite)
-    personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG], entwurf: true,
+    personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
     slug: "deko-schale",
@@ -351,46 +351,16 @@ export const PRODUKTE: Produkt[] = [
     beschreibung: "Eine flache, ovale Deko-Schale mit geschwungenem Wellenrand. Darauf kommen Weihnachtskugel und Rentiere gut zur Geltung (Deko auf dem Cover nicht enthalten), sie taugt aber auch das ganze Jahr als Ablage oder Tischdeko. Reines Deko-Stueck, nicht fuer Speisen gedacht.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#e3d3b3",
     preisCent: 690, masse: "200 × 101 × 14", material: MATERIAL, optionen: [],
-    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
     slug: "weihnachtsbaum",
     name: "Weihnachtsbaum",
-    kurz: "Gerillter Deko-Weihnachtsbaum im nordischen Stil, in Gruen oder Creme.",
-    beschreibung: "Ein stilisierter Weihnachtsbaum aus vier Rundungen mit feiner Rillenstruktur und schlanker Spitze, im nordischen Stil. Es gibt ihn in einer Groesse, du waehlst die Farbe: Gruen oder Creme. Als Tisch- und Fensterdeko. Reines Deko-Stueck.",
+    kurz: "Gerillter Deko-Weihnachtsbaum im nordischen Stil, in der Farbe deiner Wahl.",
+    beschreibung: "Ein stilisierter Weihnachtsbaum aus vier Rundungen mit feiner Rillenstruktur und schlanker Spitze, im nordischen Stil. Es gibt ihn in einer Groesse, du waehlst die Farbe. Als Tisch- und Fensterdeko. Reines Deko-Stueck.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#c9d3a8",
     preisCent: 390, masse: "60 × 60 × 106", material: MATERIAL, optionen: [],
-    kombinationen: [{ id: "gruen", label: "Grün", farben: [{ name: "Grün", hex: "#a9b98d" }] }, { id: "creme", label: "Creme", farben: [{ name: "Creme", hex: "#e8d8b8" }] }],
-    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
-  },
-  // ---- Weihnachten: PLATZHALTER-Entwürfe (entwurf: true = nur Vorschau/lokal, auf Production unsichtbar und nie bestellbar). ----
-  // Zum Einpflegen echter Artikel: siehe D:\Apps\3D-Druck\shop\WEIHNACHTEN-ARTIKEL-EINPFLEGEN.md. Entwurf-Eintrag ersetzen oder umbenennen, Flag entfernen.
-  {
-    slug: "wn-entwurf-teelichtstern",
-    name: "PLATZHALTER: Teelicht-Stern",
-    kurz: "Entwurf. Hier steht später ein Satz zum Artikel.",
-    beschreibung: "PLATZHALTER ohne echte Daten (Foto, Preis, Maße und Gewicht fehlen). Dieser Eintrag zeigt nur, wie ein Weihnachtsartikel in der Rubrik „Lichter“ aussieht.",
-    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "lichter", form: "teelicht", grundfarbe: "#f0bb55",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
-    personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG], entwurf: true,
-  },
-  {
-    slug: "wn-entwurf-baumanhaenger",
-    name: "PLATZHALTER: Baumanhänger",
-    kurz: "Entwurf. Hier steht später ein Satz zum Artikel.",
-    beschreibung: "PLATZHALTER ohne echte Daten (Foto, Preis, Maße und Gewicht fehlen). Dieser Eintrag zeigt nur, wie ein Weihnachtsartikel in der Rubrik „Baumschmuck“ aussieht. Schnur nicht dabei.",
-    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "baumschmuck", form: "rund", grundfarbe: "#b3262f",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
-    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
-  },
-  {
-    slug: "wn-entwurf-geschenkanhaenger",
-    name: "PLATZHALTER: Geschenkanhänger",
-    kurz: "Entwurf. Hier steht später ein Satz zum Artikel.",
-    beschreibung: "PLATZHALTER ohne echte Daten (Foto, Preis, Maße und Gewicht fehlen). Dieser Eintrag zeigt nur, wie ein Weihnachtsartikel in der Rubrik „Zum Verschenken“ aussieht.",
-    gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "geschenke", form: "schild", grundfarbe: "#1f7a5c",
-    preisCent: null, masse: null, material: MATERIAL, optionen: [],
-    personalisierung: null, hinweise: [KEIN_SPIELZEUG], entwurf: true,
+    personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
 ];
 
@@ -431,9 +401,6 @@ const ARTIKELNR: Record<string, string> = {
   "halloween-untersetzer-set": "PD-011",
   "halloween-untersetzer-einzeln": "PD-012",
   "design-kuerbis": "PD-014",
-  "wn-entwurf-teelichtstern": "PD-015",
-  "wn-entwurf-baumanhaenger": "PD-016",
-  "wn-entwurf-geschenkanhaenger": "PD-017",
   "weihnachts-rentier": "PD-018",
   "weihnachtsengel": "PD-019",
   "weihnachtskugel": "PD-020",

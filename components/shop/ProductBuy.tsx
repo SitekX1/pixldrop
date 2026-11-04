@@ -334,20 +334,30 @@ export default function ProductBuy({
       ) : farben.length > 0 ? (
         <fieldset className="shop-step">
           <legend>{produkt.linienfarbe ? "Untersetzerfarbe" : "Farbe"}</legend>
-          <div className="shop-swatches">
-            {farben.map((f) => (
+          {(() => {
+            const punkt = (f: Farbe) => (
               <label key={f.id} className="shop-swatch">
-                <input type="radio" name="farbe" value={f.id} checked={farbeId === f.id} onChange={() => setFarbeId(f.id)} aria-label={f.name} />
-                <span className="dot" style={{ background: f.hex }}>
+                <input type="radio" name="farbe" value={f.id} checked={farbeId === f.id} onChange={() => setFarbeId(f.id)} aria-label={f.glanz ? `${f.name} (glänzend)` : f.name} />
+                <span className={f.glanz ? "dot dot--glanz" : "dot"} style={{ background: f.hex }}>
                   <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5l3.5 3.5 7.5-8" fill="none" stroke={hell(f.hex) ? "#2e1c0f" : "#fff"} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </span>
               </label>
-            ))}
-          </div>
+            );
+            const glanz = farben.filter((f) => f.glanz);
+            if (glanz.length === 0) return <div className="shop-swatches">{farben.map(punkt)}</div>;
+            return (
+              <>
+                <div className="shop-swatches">{farben.filter((f) => !f.glanz).map(punkt)}</div>
+                <p className="shop-farbgruppe">Glänzende Weihnachtsfarben <span className="muted">(Silk-PLA)</span></p>
+                <div className="shop-swatches">{glanz.map(punkt)}</div>
+                <p className="muted">Silk-PLA hat eine seidig schimmernde Oberfläche und lässt die Schichtlinien weniger hervortreten.</p>
+              </>
+            );
+          })()}
           <p aria-live="polite" style={{ marginTop: 6 }}>
-            <strong>{produkt.linienfarbe ? "Untersetzerfarbe" : "Farbe"}: {farbe?.name}</strong> · auf Lager
+            <strong>{produkt.linienfarbe ? "Untersetzerfarbe" : "Farbe"}: {farbe?.name}</strong>{farbe?.glanz ? " (glänzend)" : ""} · auf Lager
           </p>
-          <p className="muted">Nur Farben, die gerade im Regal liegen. Bildschirmfarben können leicht abweichen.</p>
+          <p className="muted">Nur Farben, die gerade im Regal liegen. Bildschirmfarben können leicht abweichen.{produkt.gruppe === "weihnachten" ? " Die Fotos zeigen Beispiele in Olivgrün und Beige, gedruckt wird in deiner Wunschfarbe." : ""}</p>
         </fieldset>
       ) : (
         <div className="shop-note">

@@ -9,6 +9,8 @@ export interface Farbe {
   hex: string;
   /** Nur gesetzt, wenn der RPC ein Material liefert (z. B. "PLA"). */
   material?: string;
+  /** Silk-PLA (glänzend): erkannt an "Silk" im Namen oder Material. Eigene Gruppe bei Weihnachtsartikeln, sonst ausgeblendet. */
+  glanz?: boolean;
 }
 
 // Standardfarben (Fallback, solange der RPC nicht erreichbar ist).
@@ -47,7 +49,8 @@ export function farbenAusZeilen(zeilen: unknown): Farbe[] {
       }
       continue;
     }
-    map.set(id, { id, name: z.name, hex: z.hex.toLowerCase(), ...(material ? { material } : {}) });
+    const glanz = /silk/i.test(z.name) || /silk/i.test(material ?? "");
+    map.set(id, { id, name: z.name, hex: z.hex.toLowerCase(), ...(material ? { material } : {}), ...(glanz ? { glanz: true } : {}) });
   }
   return Array.from(map.values());
 }
@@ -77,4 +80,19 @@ export async function holeLagerFarben(fetchImpl: typeof fetch = fetch): Promise<
 export async function holeFarben(): Promise<Farbe[]> {
   const lager = await holeLagerFarben();
   return lager ?? STANDARDFARBEN;
+}
+
+/**
+ * Vorschau-Platzhalter für die drei Weihnachts-Silk-Farben (Alex 04.11.): solange die Spulen nicht im Panel-Lager stehen,
+ * erscheinen sie in der Weihnachts-Vorschau. Bestellbar sind echte Lagerfarben (Server prüft gegen das Lager); sobald
+ * "Rot Silk" usw. im Lager liegen, ersetzen sie diese Einträge. Nur im Preview-Modus verwenden.
+ */
+const SILK_VORSCHAU: { farbe: Farbe; wort: RegExp }[] = [
+  { farbe: { id: "rot-silk", name: "Rot Silk", hex: "#b3202a", glanz: true }, wort: /rot|red/i },
+  { farbe: { id: "gruen-silk", name: "Grün Silk", hex: "#1f7a4d", glanz: true }, wort: /gr(ü|ue|u)n|green/i },
+  { farbe: { id: "gold-silk", name: "Gold Silk", hex: "#d4a935", glanz: true }, wort: /gold/i },
+];
+export function mitSilkVorschau(farben: Farbe[]): Farbe[] {
+  const echt = farben.filter((f) => f.glanz);
+  return [...farben, ...SILK_VORSCHAU.filter((v) => !echt.some((f) => v.wort.test(f.name))).map((v) => v.farbe)];
 }

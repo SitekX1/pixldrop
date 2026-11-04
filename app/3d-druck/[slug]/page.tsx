@@ -11,7 +11,7 @@ import PauseBanner from "@/components/shop/PauseBanner";
 import ProductBuy from "@/components/shop/ProductBuy";
 import { holeProdukt, istBestellbar, hitzeHinweis, artikelnummer, TEELICHTFACH, PRODUKTE } from "@/lib/shop/produkte";
 import { ledPartnerlink } from "@/lib/shop/affiliate";
-import { holeFarben } from "@/lib/shop/farben";
+import { holeFarben, mitSilkVorschau } from "@/lib/shop/farben";
 import { formatPreis, halloweenModus, TEXTE } from "@/lib/shop/config";
 import { saisonModus } from "@/lib/shop/saison";
 import { VERSAND_BRIEF, VERSAND_PREISE, VERSAND_PRODUKTE } from "@/lib/shop/versand";
@@ -36,7 +36,9 @@ export default async function Produktseite({ params, searchParams }: Props) {
   const { kategorie } = await searchParams;
   const p = holeProdukt(slug);
   if (!p) notFound();
-  const farben = await holeFarben();
+  const lagerFarben = await holeFarben();
+  // Silk-PLA nur bei Weihnachtsartikeln (dort als eigene Gruppe); in der Vorschau mit Platzhaltern, bis die Spulen im Lager stehen.
+  const farben = p.gruppe === "weihnachten" ? (saisonModus("weihnachten") === "preview" ? mitSilkVorschau(lagerFarben) : lagerFarben) : lagerFarben.filter((f) => !f.glanz);
   const { lieferzeit: LIEFERZEIT_TEXT, wunschtextPausiert } = await holeEinstellungen();
   const bestellbar = istBestellbar(p);
   // Halloween-Ansicht: Halloween-Artikel oder Aufruf aus der Halloween-Kategorie (dann auch Zurück-Link, Thema und Titelbild im Halloween-Stil)
