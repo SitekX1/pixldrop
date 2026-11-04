@@ -38,7 +38,9 @@ export default async function Produktseite({ params, searchParams }: Props) {
   if (!p) notFound();
   const lagerFarben = await holeFarben();
   // Silk-PLA nur bei Weihnachtsartikeln (dort als eigene Gruppe); in der Vorschau mit Platzhaltern, bis die Spulen im Lager stehen.
-  const farben = p.gruppe === "weihnachten" ? (saisonModus("weihnachten") === "preview" ? mitSilkVorschau(lagerFarben) : lagerFarben) : lagerFarben.filter((f) => !f.glanz);
+  // Silk-Spulen kommen erst am 13.01. (nach der Saison): Gruppe aus, bis sie geliefert sind -> SILK_AKTIV auf true setzen.
+  const SILK_AKTIV = false;
+  const farben = p.gruppe === "weihnachten" && SILK_AKTIV ? (saisonModus("weihnachten") === "preview" ? mitSilkVorschau(lagerFarben) : lagerFarben) : lagerFarben.filter((f) => !f.glanz);
   const { lieferzeit: LIEFERZEIT_TEXT, wunschtextPausiert } = await holeEinstellungen();
   const bestellbar = istBestellbar(p);
   // Halloween-Ansicht: Halloween-Artikel oder Aufruf aus der Halloween-Kategorie (dann auch Zurück-Link, Thema und Titelbild im Halloween-Stil)
