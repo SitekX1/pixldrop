@@ -86,7 +86,7 @@ const LED = TEXTE_LED; // Wortlaut zentral in lib/shop/config.ts (GPSR Art. 19, 
 const MATERIAL = "PLA"; // alle Shop-Artikel sind PLA (Alex 16.10.); PETG nur bei individuellen Anfragen auf Angebot
 const HITZE = hitzeHinweis(MATERIAL, true); // alle Artikel mit HITZE sind Untersetzer
 // Preise (Alex, 2026-10-15, Karla-Kalkulation): je Artikel direkt bei preisCent. Kork: 30 Cent je Untersetzer, nicht im Grundpreis.
-const AUFPREIS_BOX_CENT = 490; // Box: Set 14,90 -> 19,80 EUR, Einzel 5,90 -> 10,80 EUR
+const AUFPREIS_BOX_CENT = 390; // Box: Set 11,90 -> 15,80 EUR, Einzel 4,90 -> 8,80 EUR (Alex/Karla 04.11.2026)
 // Kork-Unterseite (selbstklebend, 90 mm; Einkauf 24,90 EUR / 100 Stk = 0,25 EUR je Stueck).
 // KORK_LIEFERBAR auf false setzen, solange der Kork nicht geliefert ist: dann verschwindet die Option.
 const KORK_LIEFERBAR = true;
@@ -134,7 +134,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Fünf Untersetzer für Montag bis Freitag, damit der Tisch sauber bleibt. Auf Wunsch mit passender Box, in die du die Untersetzer hineinstellst. Auf der Unterseite der Box sitzt ein QR-Code zu meinen Songs auf Spotify.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "set", grundfarbe: "#4fb894",
-    preisCent: 1490, masse: null, material: MATERIAL,
+    preisCent: 1190, masse: null, material: MATERIAL,
     optionen: [
       { id: "box", label: "Box", optionen: [{ id: "ohne", label: "Ohne Box" }, { id: "mit", label: "Mit Box zum Hineinstellen", aufpreisCent: AUFPREIS_BOX_CENT }] },
       ...korbGruppe(150),
@@ -149,7 +149,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein einzelner Untersetzer mit deinem Wochentag, 90 mm Durchmesser. Wähle den Tag. Du möchtest alle fünf? Dann gibt es das Set Montag bis Freitag.",
     gruppe: "allgemein", kategorien: ["untersetzer"], form: "rund", grundfarbe: "#4fb894",
-    preisCent: 590, masse: null, material: MATERIAL,
+    preisCent: 490, masse: null, material: MATERIAL,
     optionen: [
       { id: "tag", label: "Wochentag", optionen: [{ id: "mo", label: "Montag" }, { id: "di", label: "Dienstag" }, { id: "mi", label: "Mittwoch" }, { id: "do", label: "Donnerstag" }, { id: "fr", label: "Freitag" }] },
       ...korbGruppe(30),
@@ -164,7 +164,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Stiftebecher in Tassenform mit Lamellenstruktur. Er hält Stifte, Pinsel oder Lineale ordentlich beisammen und sieht dabei aus wie dein Kaffee. Auf Wunsch mit einer Textzeile in einer von 25 Schriften; änderst du den Text, wird das Stück einzeln für dich gefertigt.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "tasse", grundfarbe: "#6b4423",
-    preisCent: 1090, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 990, masse: null, material: MATERIAL, optionen: [],
     personalisierung: { maxLaenge: 14, label: "Text auf der Tasse", beispiel: "Stifte", standardSchrift: "montserrat", flaeche: "becher" },
     hinweise: [KEIN_SPIELZEUG],
   },
@@ -187,7 +187,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Namensschild mit Ständer für den Schreibtisch: Dein Name steht groß in der Mitte, darunter dein Titel (vorbelegt sind „Eddie Pixldrop“ und „Content Creator“). Die Schrift ist bündig ins Schild eingelegt. Du wählst Schrift, Schildfarbe und Schriftfarbe, die Vorschau zeigt das Schild nahezu genau so; die Position der Schrift wird beim Druck bei Bedarf um wenige Millimeter angepasst.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1c1c1c",
-    preisCent: 1490, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 1290, masse: null, material: MATERIAL, optionen: [],
     personalisierung: {
       maxLaenge: 40, label: "Text auf dem Schild", beispiel: "Eddie Pixldrop", standardSchrift: "montserrat", fuellt: true, schriftJeZeile: true,
       zeilen: [
@@ -258,7 +258,7 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein offener Kürbis-Halter. Das LED-Teelicht kommt von oben hinein, fertig. Der einfachste und günstigste Weg zur Deko.",
     gruppe: "allgemein", kategorien: ["halloween", "sonstiges"], form: "teelicht", grundfarbe: "#ff8a1f",
-    preisCent: 790, masse: null, material: MATERIAL, optionen: [],
+    preisCent: 490, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
@@ -294,11 +294,11 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Ein Kürbis als Herbstdeko: 18 geschwungene Lamellen laufen wie gedreht um den Körper, oben sitzt ein gebogener Strunk mit gebrochener Spitze. Der Kürbis steht sicher auf einer flachen Bodenfläche und passt auf Fensterbank, Sideboard oder Esstisch. Er ist ein reines Deko-Stück ohne Öffnung, ein Teelicht passt nicht hinein. Körper und Strunk werden getrennt gedruckt und von mir zusammengesteckt und verklebt. Die Oberfläche ist fein und leicht rau, die Lamellen sieht man auch im Streiflicht. Du wählst die Größe (Mittel ca. 11 cm, Klein ca. 6 cm hoch) und die Farbe für Kürbis und Strunk getrennt aus Olivgrün, Weiß und Lattebraun. Die Bilder zeigen Beispiele (Mittel in Latte mit weißem Strunk, Klein in Olivgrün mit Latte-Strunk).",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "laterne", grundfarbe: "#d9731a",
-    preisCent: 690, masse: null, material: MATERIAL, // Preise (Alex/Karla 18.10.): klein 6,90 (nie mehr), mittel 11,90; Maße stehen in den Größen-Optionen
+    preisCent: 490, masse: null, material: MATERIAL, // Preise (Alex/Karla 18.10.): klein 4,90, mittel 8,90 (Alex/Karla 04.11.2026, vorher 6,90/11,90); Maße stehen in den Größen-Optionen
     teile: [{ id: "koerper", label: "Kürbis", referenz: "#d3b7a7" }, { id: "strunk", label: "Strunk", referenz: "#f4f1ea" }], // Standard = Latte + weißer Strunk (wie das Beispielfoto)
     festeFarben: FARBEN_DESIGN_KUERBIS,
     optionen: [
-      { id: "kuerbisgroesse", label: "Größe", optionen: [{ id: "klein", label: "Klein (55 × 57 mm)" }, { id: "mittel", label: "Mittel (110 × 115 mm)", aufpreisCent: 500 }] },
+      { id: "kuerbisgroesse", label: "Größe", optionen: [{ id: "klein", label: "Klein (55 × 57 mm)" }, { id: "mittel", label: "Mittel (110 × 115 mm)", aufpreisCent: 400 }] },
     ],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
