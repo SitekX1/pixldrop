@@ -348,9 +348,9 @@ export const PRODUKTE: Produkt[] = [
     slug: "weihnachtskugel-schneeflocke",
     name: "Weihnachtskugel Schneeflocke",
     kurz: "Netzkugel mit aufgesetzter Schneeflocke, zweiteilig zum Auseinandernehmen, als Baumschmuck oder kleines Geschenk.",
-    beschreibung: "Eine Kugel aus feinem Gittergewebe (Durchmesser ca. 90 mm) mit Oese zum Aufhaengen und einer Schneeflocke auf der Vorderseite. Die beiden Haelften lassen sich auseinandernehmen: Man kann kleine Geschenke oder einen Geldschein hineinlegen. Kugel und Schneeflocke gibt es in Farben deiner Wahl, zum Beispiel Creme mit weisser Flocke oder Gruen mit weisser Flocke. Das feine Netz ist filigran: bitte vorsichtig behandeln. Schnur und Inhalt sind nicht dabei.",
+    beschreibung: "Eine Kugel aus feinem Gittergewebe (Durchmesser ca. 80 mm, mit Schraubkopf und Oese 110 mm hoch) mit einer Schneeflocke auf der Vorderseite. Die beiden Haelften werden mit dem Drehverschluss oben zusammengehalten und lassen sich auseinandernehmen: Man kann kleine Geschenke oder einen Geldschein hineinlegen. Kugel und Schneeflocke gibt es in Farben deiner Wahl, zum Beispiel Creme mit weisser Flocke oder Gruen mit weisser Flocke. Das feine Netz ist filigran: bitte vorsichtig behandeln. Schnur und Inhalt sind nicht dabei.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "baumschmuck", form: "rund", grundfarbe: "#d3c5a3",
-    preisCent: 490, masse: "90 × 90 × 112", material: MATERIAL, optionen: [], // Preis und Hoehe vorlaeufig (Alex prueft Mass beim Testdruck)
+    preisCent: 490, masse: "80 × 80 × 110", material: MATERIAL, optionen: [], // Masse von Alex 04.11. (Durchmesser 80, mit Schraubkopf 110); Preis 4,90 vorlaeufig
     teile: [{ id: "kugel", label: "Kugel", referenz: "#d3c5a3" }, { id: "flocke", label: "Schneeflocke", referenz: "#ffffff" }], // Standard = Creme + weisse Flocke (wie das Beispielfoto)
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
