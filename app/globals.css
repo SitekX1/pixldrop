@@ -1238,21 +1238,41 @@ footer {
 @keyframes spc-glow { from { opacity: 0.6; transform: scale(0.96); } to { opacity: 1; transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .spc-bokeh, .spc-mondglow { animation: none; } }
 /* Startseiten-Kachel: Weihnachtshälfte "Coming soon" (rechts unten, diagonal geteilt wie zuvor Halloween) */
+/* Startseiten-Kachel: Weihnachtshälfte "Coming soon" (rechts unten, diagonal geteilt wie zuvor Halloween). Bilder: public/shop/weihnachten */
 .shop-promo-wn {
-  position: absolute; inset: 0; z-index: 1; overflow: hidden;
+  position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #0f1f2a;
   clip-path: polygon(64% 0, 100% 0, 100% 100%, 26% 100%);
-  background: radial-gradient(70% 70% at 80% 10%, rgba(240, 187, 85, 0.22) 0%, transparent 60%), linear-gradient(160deg, #1f3b4a 0%, #0f1f2a 100%);
 }
-.shop-promo-wn-schnee {
-  position: absolute; inset: 0; opacity: 0.7;
-  background-image: radial-gradient(circle, #fff 0 1.2px, transparent 1.6px), radial-gradient(circle, #fff 0 0.9px, transparent 1.3px);
-  background-size: 46px 46px, 31px 31px; background-position: 0 0, 14px 20px;
+.shop-promo-wn-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 70% 100%; display: block; }
+.shop-promo-wn-santa { position: absolute; right: 2%; bottom: 9%; width: 34%; height: auto; z-index: 1; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45)); }
+.shop-promo-wn-dunkel { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(100deg, rgba(8, 20, 30, 0.7) 0, rgba(8, 20, 30, 0.25) 50%, rgba(8, 20, 30, 0) 70%); }
+.shop-promo-wn-bokeh { position: absolute; z-index: 2; right: -6%; top: -8%; width: 60%; height: auto; opacity: 0.55; mix-blend-mode: screen; pointer-events: none; }
+.spc-flocke {
+  position: absolute; top: 0; z-index: 3; pointer-events: none; opacity: .85; animation: spc-fall 11s linear infinite;
+  background: url("/shop/weihnachten/flocken-atlas.webp") calc(var(--k, 0) * 100% / 7) 0 / 800% 200% no-repeat;
 }
+@keyframes spc-fall { from { transform: translate(0, -10%); } 50% { transform: translate(8px, 520%); } to { transform: translate(-4px, 1050%); } }
+@media (prefers-reduced-motion: reduce) { .spc-flocke { display: none; } }
 .shop-promo-wntext {
-  position: absolute; left: 66%; top: 36%; font-size: 4cqw; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
-  color: #ffd27a; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  position: absolute; left: 67%; top: 28%; z-index: 4; font-size: 3.3cqw; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase;
+  color: #fff4e0; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
 }
-.shop-promo-soon {
-  position: absolute; left: 68%; top: 52%; padding: 0.35em 1.1em; font-size: 2.6cqw; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-  color: #fff4e0; background: #a3202a; border-radius: 999px; box-shadow: 0 0 0 2px #f0bb55, 0 4px 10px rgba(0, 0, 0, 0.45); transform: rotate(-3deg);
+.shop-promo-wn-siegel { left: 66%; top: 42%; }
+/* Weihnachtliches Coming-soon-Siegel (Schleifenband, Cranberry + Gold) */
+.wn-siegel-wrap { position: absolute; z-index: 6; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5)); transform: rotate(-3deg); pointer-events: none; }
+.wn-siegel {
+  position: relative; display: inline-flex; align-items: center; gap: 0.5em; overflow: hidden; isolation: isolate;
+  padding: 0.5em 1.5em 0.55em; font-family: Georgia, serif; font-style: italic; font-weight: 600;
+  font-size: clamp(10px, 3.2cqw, 24px); line-height: 1.1; color: #fff4e0; background: #f0bb55; white-space: nowrap;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 0.7em) 50%, 100% 100%, 0 100%, 0.7em 50%);
 }
+.wn-siegel::before { content: ""; position: absolute; inset: 2px; z-index: -1; background: #a3202a; clip-path: polygon(0 0, 100% 0, calc(100% - 0.7em) 50%, 100% 100%, 0 100%, 0.7em 50%); }
+.wn-siegel-stern { flex: none; width: 0.7em; height: 0.7em; color: #f0bb55; }
+.wn-siegel-text { text-shadow: 0 1px 0 rgba(60, 0, 8, 0.5); }
+.wn-siegel::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 45%; z-index: 1; pointer-events: none;
+  background: linear-gradient(105deg, rgba(255, 244, 214, 0) 0%, rgba(255, 244, 214, 0.55) 50%, rgba(255, 244, 214, 0) 100%);
+  transform: translateX(-130%) skewX(-18deg); animation: wn-glanz 5s cubic-bezier(0.45, 0, 0.2, 1) 1.2s infinite;
+}
+@keyframes wn-glanz { 0% { transform: translateX(-130%) skewX(-18deg); } 30%, 100% { transform: translateX(330%) skewX(-18deg); } }
+@media (prefers-reduced-motion: reduce) { .wn-siegel::after { animation: none; opacity: 0; } }

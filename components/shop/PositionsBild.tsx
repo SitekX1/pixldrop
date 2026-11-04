@@ -4,7 +4,7 @@ import { SCHRIFTEN } from "@/lib/shop/schriften";
 import { formatAusOptionen, istFormatSchluessel, standardFormat, zeilenAnzahl } from "@/lib/shop/textformat";
 import ProductImage from "./ProductImage";
 import FotoMiniatur, { miniaturModus } from "./FotoMiniatur";
-import { fotosFuer, liveIdx, MIT_AUFDRUCK, TAG_FOTO } from "@/lib/shop/fotos";
+import { coverFuer, fotosFuer, liveIdx, MIT_AUFDRUCK, TAG_FOTO } from "@/lib/shop/fotos";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilHexe } from "@/lib/shop/teilfarben";
 import { LINIENFARBE_KEY } from "@/lib/shop/textfarbe";
@@ -16,6 +16,12 @@ export function kombiVon(p: Produkt, a: Auswahl) {
 
 /** Vorschau einer Warenkorb-/Bon-Position: Farbe, Text, Schrift, Fett/Kursiv und Größe wie die Live-Vorschau im Kaufbereich. */
 export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Muster", farben }: { p: Produkt; a: Auswahl; farbeHex?: string; textfarbeHex?: string; typ?: string; /** Lagerfarben: nötig für mehrteilige Artikel (teilFarben) */ farben?: Farbe[] }) {
+  // Warenkorb, Zusammenfassung und Bon zeigen immer das Titelbild des Artikels (Alex 04.11.2026); Wunschtext und Farbe stehen als Zeilen im Bon.
+  const cover = coverFuer(p.slug);
+  if (cover) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img className="shop-img" src={cover} alt={`${p.name}, Titelbild`} width={1100} height={1100} loading="lazy" decoding="async" style={{ display: "block", width: "100%", height: "auto", aspectRatio: "1 / 1", objectFit: "cover" }} />;
+  }
   const pers = p.personalisierung;
   const schrift = pers ? SCHRIFTEN.find((s) => s.id === (pers.festeSchrift ?? a.schriftId)) : undefined;
   const titelSchrift = pers?.schriftJeZeile ? SCHRIFTEN.find((s) => s.id === a.optionen[SCHRIFT_TITEL_KEY]) : undefined;
