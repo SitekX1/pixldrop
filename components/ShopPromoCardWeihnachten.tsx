@@ -15,7 +15,7 @@ const FLOCKEN = [8, 22, 38, 55, 70, 88].map((x, i) => ({ x, d: 9 + i * 1.1, dela
 export default function ShopPromoCardWeihnachten({ modus }: { modus: "preview" | "sale" }) {
   const t = SAISONEN.weihnachten.texte;
   return (
-    <TrackedLink href="/3d-druck" className="card spc" event="shop-click">
+    <TrackedLink href="/3d-druck?kategorie=weihnachten&quelle=pixldrop-kachel" className="card spc" event="shop-click">
       <div className="card-glow" />
       <div className="spc-bild" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
