@@ -90,13 +90,14 @@ export function aktiveSaison(jetzt: Date = new Date()): SaisonId | null {
 
 /**
  * Modus einer Saison: "off" (nicht aktiv), "preview" (sichtbar, nicht bestellbar), "sale" (bestellbar).
- * Weihnachten: Env SHOP_SAISON_MODUS=preview|sale (Standard preview). Halloween: SHOP_HALLOWEEN=off|preview|sale (Standard preview, alte Env).
+ * Weihnachten: Env SHOP_SAISON_MODUS=preview|sale (Standard sale). Halloween: SHOP_HALLOWEEN=off|preview|sale (Standard preview, alte Env).
  */
 export function saisonModus(id: SaisonId | null, jetzt: Date = new Date()): SaisonModus {
   if (!id || aktiveSaison(jetzt) !== id) return "off";
   const env = typeof process !== "undefined" ? process.env : undefined;
   const v = id === "halloween" ? env?.SHOP_HALLOWEEN : env?.SHOP_SAISON_MODUS;
-  return v === "off" || v === "sale" || v === "preview" ? v : "preview";
+  // Weihnachten ist ab Livegang bestellbar (Alex 05.11.): ohne Env gilt "sale". Halloween (alte Env) bleibt bei "preview".
+  return v === "off" || v === "sale" || v === "preview" ? v : id === "weihnachten" ? "sale" : "preview";
 }
 
 /** Modus der gerade aktiven Saison (oder "off"). */
