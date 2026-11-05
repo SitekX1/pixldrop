@@ -54,6 +54,8 @@ export const TEXTE = {
   versandHinweis: "Versandkosten werden im Warenkorb angezeigt (Lieferung nur innerhalb Deutschlands)",
   lieferzeitHinweis: "Lieferzeit: Druckzeit plus Versand, genaue Angabe in der Bestellbestätigung",
   schriftHinweis: "Die Vorschau ist eine Annäherung. Die Position deiner Schrift darf beim Druck um bis zu 3 mm verschoben werden, zum Beispiel damit sie mittig auf dem Stück sitzt, soweit das für dich zumutbar ist. Text, Schrift, Farben und Größenstufe bleiben wie in der Vorschau.",
+  // Weihnachtsartikel: Fotos sind nie umgefärbt (Alex 05.11.), gedruckt wird in der gewählten Farbe.
+  bildHinweisWeihnachten: "Die Fotos zeigen Beispielstücke aus meiner Fertigung. Gedruckt wird in der Farbe, die du ausgewählt hast. Farbton und Glanz können durch Bildschirm, Licht und Filament-Charge leicht abweichen. Maßgeblich ist die Farbbezeichnung, die du im Warenkorb siehst.",
   bildHinweis: "Die Bilder zeigen Beispielstücke aus meiner Fertigung. Wird ein Foto in deiner gewählten Farbe angezeigt, ist es digital bearbeitet und kein Foto deines fertigen Stücks. Farbton und Glanz können durch Bildschirm, Licht und Filament-Charge leicht abweichen. Maßgeblich ist die Farbbezeichnung, die du im Warenkorb siehst.",
   kleinunternehmer: "Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer",
   keinSpielzeug: "Kein Spielzeug. Enthält Kleinteile bzw. kann zerbrechen: von Kleinkindern fernhalten.",

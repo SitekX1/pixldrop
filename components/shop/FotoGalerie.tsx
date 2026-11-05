@@ -18,7 +18,7 @@ const vorbereiten = (src: string, modus: UmfaerbModus) => vorbereiteFoto(src, mo
 // Galerie-Hauptbild: echte Fotos als Blättergalerie, dazu die Live-Vorschau ("Deine Wahl").
 // Ändert der Kunde die Farbe, wird das Foto in dieser Farbe gezeigt (Licht und Struktur bleiben).
 // Artikel mit Wunschtext (MIT_AUFDRUCK) zeigen Text und Farben direkt auf dem Foto; ein extra "Deine Wahl Live"-Knopf entfällt überall.
-export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorText, cover }: { /** Cover-Bild der Übersicht als erstes Galeriebild; Farb-/Textwahl wechselt automatisch auf das umfärbbare Foto */ cover?: Foto; /** Standardtext: erscheint sofort als Aufdruck, bevor der Kaufbereich geladen ist (Handy, langsames Netz) */ vorText?: string; slug: string; form: Form; grundfarbe: string; fotos: Foto[]; name: string }) {
+export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorText, cover, bildHinweis = TEXTE.bildHinweis }: { /** Hinweistext unter der Galerie (Weihnachten: ohne Umfärbe-Satz) */ bildHinweis?: string; /** Cover-Bild der Übersicht als erstes Galeriebild; Farb-/Textwahl wechselt automatisch auf das umfärbbare Foto */ cover?: Foto; /** Standardtext: erscheint sofort als Aufdruck, bevor der Kaufbereich geladen ist (Handy, langsames Netz) */ vorText?: string; slug: string; form: Form; grundfarbe: string; fotos: Foto[]; name: string }) {
   const wRoh = useVorschauWerte();
   const w = wRoh.text === undefined && vorText ? { ...wRoh, text: vorText, family: wRoh.family ?? "var(--font-sf-montserrat), sans-serif" } : wRoh;
   const [idx, setIdx] = useState(0); // -1 = Live-Vorschau
@@ -139,7 +139,7 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorTe
             : ohneUmfaerben ? (foto.alt.includes("Kork") ? "Foto: Beispielstück mit Kork (Option, siehe Auswahl). " : "Foto: Beispielstück. ")
             : zeigeCanvas ? "Foto in deiner Farbe (bearbeitet). " : "Foto: Beispielstück. ")
           : "Vorschau (gezeichnet, kein Foto). "}
-        <strong>Wichtig:</strong> {TEXTE.bildHinweis}
+        <strong>Wichtig:</strong> {bildHinweis}
       </p>
     </div>
   );

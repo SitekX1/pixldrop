@@ -109,7 +109,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
           );
         })}
       </ul>
-      <p className="muted">{TEXTE.bildHinweis}</p>
+      <p className="muted">{korb.every((a) => von(a.slug)?.gruppe === "weihnachten") ? TEXTE.bildHinweisWeihnachten : TEXTE.bildHinweis}</p>
       </div>
 
       <aside ref={zusRef} className="shop-zwei-r shop-form" aria-label="Zusammenfassung">

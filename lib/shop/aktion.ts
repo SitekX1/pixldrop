@@ -29,7 +29,9 @@ export function pruefeAktionscode(roh: unknown, jetzt: Date = new Date()): Aktio
   const a = AKTIONEN.find((x) => x.code === code);
   if (!a) return { ok: false, grund: "unbekannt" };
   const t = jetzt.getTime();
-  if (t < Date.parse(a.von)) return { ok: false, grund: "noch_nicht" };
+  // Vorschau-Deployments (Branch weihnachten) ignorieren den Starttermin, damit Alex vor dem Livegang testen kann; Production nie.
+  const vorschau = typeof process !== "undefined" && process.env?.VERCEL_ENV === "preview";
+  if (!vorschau && t < Date.parse(a.von)) return { ok: false, grund: "noch_nicht" };
   if (t > Date.parse(a.bis)) return { ok: false, grund: "abgelaufen" };
   return { ok: true, aktion: a };
 }
