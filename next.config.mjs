@@ -8,11 +8,12 @@ const nextConfig = {
     ],
   },
   // Kurze Links fuer Profile (Bio): zaehlen die Herkunft, ohne "?" im sichtbaren Link.
+  // Weihnachtszeit (bis 06.01.2027): Profil-Links fuehren direkt in die Weihnachts-Kollektion. Danach wieder auf "/3d-druck?quelle=..." zurueckstellen.
   async redirects() {
     return [
-      { source: "/tiktok", destination: "/3d-druck?quelle=tiktok", permanent: false },
-      { source: "/insta", destination: "/3d-druck?quelle=instagram", permanent: false },
-      { source: "/shop", destination: "/3d-druck?quelle=kurzlink", permanent: false },
+      { source: "/tiktok", destination: "/3d-druck?kategorie=weihnachten&quelle=tiktok", permanent: false },
+      { source: "/insta", destination: "/3d-druck?kategorie=weihnachten&quelle=instagram", permanent: false },
+      { source: "/shop", destination: "/3d-druck?kategorie=weihnachten&quelle=kurzlink", permanent: false },
     ];
   },
   async headers() {
