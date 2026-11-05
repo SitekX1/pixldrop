@@ -4,6 +4,7 @@ import { Abschnitt } from "@/components/shop/RechtText";
 import { ENTWURF_MODUS, entwurfTitel, formatPreis } from "@/lib/shop/config";
 import { VERSAND_BRIEF, VERSAND_PREISE } from "@/lib/shop/versand";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
+import { weihnachtsFristText } from "@/lib/shop/weihnachtsfrist";
 
 export const dynamic = "force-dynamic"; // Lieferzeit kommt aus den Shop-Einstellungen
 export const metadata = { title: entwurfTitel("Versand & Zahlung") };
@@ -31,6 +32,7 @@ export default async function Versand() {
           ]} />
           <Abschnitt titel="Lieferzeit" absaetze={[
             `${lieferzeit} Bei Individuellem nach Anfrage steht die Frist im Angebot.`,
+            ...(weihnachtsFristText() ? [`**Weihnachten:** ${weihnachtsFristText()}`] : []),
           ]} />
           <Abschnitt titel="Zahlung" absaetze={[
             "**PayPal, sofort bei Bestellung** (Vorkasse). Nach „Zahlungspflichtig bestellen“ wirst du direkt zu PayPal weitergeleitet. Der Kaufvertrag kommt mit meiner **Bestellbestätigung per E-Mail** nach erfolgter Zahlung zustande. PayPal bietet je nach Verfügbarkeit weitere Optionen (z. B. Lastschrift, Karte) an; es gelten PayPals Bedingungen.",
