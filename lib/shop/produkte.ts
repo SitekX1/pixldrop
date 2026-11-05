@@ -331,8 +331,8 @@ export const PRODUKTE: Produkt[] = [
     beschreibung: "Ein Engel als Weihnachtsdeko: schlichtes, fein gerilltes Kleid, runder Kopf und angesteckte Fluegel. Es gibt ihn gross und klein. Du waehlst einen davon oder beide als Set. Reines Deko-Stueck zum Hinstellen.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#e3cfae",
     preisCent: 490, masse: null, material: MATERIAL,
-    // Preise (Alex/Karla 04.11.): klein 4,90 (Basis), gross 6,90 (+2,00), Set 8,90 (+4,00; einzeln zusammen 11,80).
-    optionen: [{ id: "engelgroesse", label: "Größe", optionen: [{ id: "klein", label: "Kleiner Engel (ca. 105 mm hoch)" }, { id: "gross", label: "Großer Engel (ca. 125 mm hoch)", aufpreisCent: 200 }, { id: "set", label: "Set: klein und groß", aufpreisCent: 400 }] }],
+    // Preise (Alex/Karla 04.11.): klein 4,90 (Basis), gross 5,90 (+1,00), Set 7,90 (+3,00; einzeln zusammen 10,80); Alex/Karla 05.11.
+    optionen: [{ id: "engelgroesse", label: "Größe", optionen: [{ id: "klein", label: "Kleiner Engel (ca. 105 mm hoch)" }, { id: "gross", label: "Großer Engel (ca. 125 mm hoch)", aufpreisCent: 100 }, { id: "set", label: "Set: klein und groß", aufpreisCent: 300 }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
