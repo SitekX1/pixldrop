@@ -129,6 +129,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
         </p>
       )}
       {gesperrtNamen.length > 0 && <p className="shop-cart-gesperrt" role="status">Zur Kasse geht es erst, wenn du entfernt hast: {gesperrtNamen.join(", ")}.</p>}
+      {versandFehlt && !fehlt && <p className="muted" role="note">Bitte wähle oben eine Versandart, dann geht es zur Kasse.</p>}
       <div className="shop-actions" style={{ marginTop: 0 }}>
         {fehlt ? (
           <button type="button" className="shop-btn" aria-disabled="true">Zur Kasse</button>

@@ -320,8 +320,8 @@ export const PRODUKTE: Produkt[] = [
     beschreibung: "Ein Rentier als Weihnachtsdeko: Der Koerper ist fein gerillt, der Kopf traegt ein filigranes Geweih. Es gibt zwei Ausfuehrungen, eine mit gedrehten und eine mit geraden Rillen. Du waehlst eine einzeln oder beide als Set. Reines Deko-Stueck fuer Fensterbank, Sideboard oder Esstisch.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#d9c3a0",
     preisCent: 390, masse: "35 × 37 × 100", material: MATERIAL,
-    // Preise (Alex/Karla 04.11., Masse statt Marge): einzeln 3,90, Set 5,90 (= +2,00). Erste Option = Einzelpreis.
-    optionen: [{ id: "ausfuehrung", label: "Ausführung", optionen: [{ id: "gedreht", label: "Rentier mit gedrehten Rillen" }, { id: "gerade", label: "Rentier mit geraden Rillen" }, { id: "set", label: "Set: beide Rentiere", aufpreisCent: 200 }] }],
+    // Preise (Alex/Karla 04.11., Masse statt Marge): einzeln 3,90, Set 6,50 (= +2,60; Alex 05.11., vorher 5,90). Erste Option = Einzelpreis.
+    optionen: [{ id: "ausfuehrung", label: "Ausführung", optionen: [{ id: "gedreht", label: "Rentier mit gedrehten Rillen" }, { id: "gerade", label: "Rentier mit geraden Rillen" }, { id: "set", label: "Set: beide Rentiere", aufpreisCent: 260 }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
   {
