@@ -133,6 +133,11 @@ export default function ProductBuy({
   const individuell = istIndividuell(produkt, text, formatOpt);
   const hatAufpreis = produkt.optionen.some((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0));
   const livePreis = hatAufpreis ? formatPreis(einzelpreisCent(produkt, opt)) : preisText;
+  // Gibt es genau eine (Pflicht-)Optionsgruppe mit Aufpreisen (Ausführung, Größe, Set), zeigen die Optionen den fertigen Preis statt "+ x €".
+  const aufpreisGruppen = produkt.optionen.filter((g) => g.optionen.some((o) => (o.aufpreisCent ?? 0) > 0));
+  const preisGruppe = aufpreisGruppen.length === 1 && !aufpreisGruppen[0].optional && produkt.preisCent != null ? aufpreisGruppen[0] : null;
+  const gewaehltLabel = preisGruppe?.optionen.find((o) => o.id === opt[preisGruppe.id])?.label ?? "";
+  const preisEinheit = produkt.form === "set" || /\bset\b/i.test(produkt.name) || /^set\b|\b\d+ (kugeln|bäume)/i.test(gewaehltLabel) ? "für das Set" : "pro Stück";
   const setzeVorschau = useVorschauSetzen();
   const beispielText = (zeilen[0] ?? "").trim().slice(0, 9) || pers?.beispiel || "Abc";
   const vorFarbe = (teile ? teilFarbe(teile[0].id)?.hex : farbe?.hex) ?? produkt.grundfarbe;
@@ -423,11 +428,11 @@ export default function ProductBuy({
             {g.optionen.map((o) => (
               <label key={o.id} className="shop-option">
                 <input type="radio" name={`opt-${g.id}`} value={o.id} checked={opt[g.id] === o.id} onChange={() => setOpt({ ...opt, [g.id]: o.id })} />
-                <span>{o.label}{(o.aufpreisCent ?? 0) > 0 ? ` (+ ${formatPreis(o.aufpreisCent!)})` : ""}</span>
+                <span>{o.label}{preisGruppe === g ? ` (${formatPreis(produkt.preisCent! + (o.aufpreisCent ?? 0))})` : (o.aufpreisCent ?? 0) > 0 ? ` (+ ${formatPreis(o.aufpreisCent!)})` : ""}</span>
               </label>
             ))}
           </div>
-          {hatAufpreis && gi === produkt.optionen.length - 1 && <p aria-live="polite" style={{ marginTop: 6 }}><strong>Dein Preis: {livePreis}</strong> {produkt.form === "set" || /set/i.test(produkt.name) ? "pro Set" : "pro Stück"}</p>}
+          {hatAufpreis && gi === produkt.optionen.length - 1 && <p aria-live="polite" style={{ marginTop: 6 }}><strong>Dein Preis: {livePreis}</strong> {preisEinheit}</p>}
         </fieldset>
       ))}
 

@@ -13,9 +13,9 @@ export interface Aktion {
   label: string;
 }
 
-// Zeitraum bei Livegang eintragen (14 Tage ab Start der Weihnachts-Aktion).
+// Zeitraum: 14 Tage ab 06.11.2026 (Alex 05.11.), letzter Tag 19.11.
 export const AKTIONEN: Aktion[] = [
-  { code: "WEIHNACHTEN10", prozent: 10, von: "2026-11-06T00:00:00+01:00", bis: "2026-11-20T23:59:59+01:00", label: "Weihnachts-Aktion" },
+  { code: "WEIHNACHTEN10", prozent: 10, von: "2026-11-06T00:00:00+01:00", bis: "2026-11-19T23:59:59+01:00", label: "Weihnachts-Aktion" },
 ];
 
 export const normalisiereCode = (roh: unknown): string => (typeof roh === "string" ? roh.trim().toUpperCase().replace(/\s+/g, "") : "");
