@@ -18,6 +18,10 @@ export const AKTIONEN: Aktion[] = [
   { code: "WEIHNACHTEN10", prozent: 10, von: "2026-11-06T00:00:00+01:00", bis: "2026-11-19T23:59:59+01:00", label: "Weihnachts-Aktion" },
 ];
 
+/** Datum als "06.11.2026" in deutscher Zeit (für Texte). */
+export const datumDe = (iso: string): string =>
+  new Date(iso).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Berlin" });
+
 export const normalisiereCode = (roh: unknown): string => (typeof roh === "string" ? roh.trim().toUpperCase().replace(/\s+/g, "") : "");
 
 export type AktionPruefung =

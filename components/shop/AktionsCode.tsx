@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ladeAktionscode, speichereAktionscode } from "@/lib/shop/auswahl";
+import { AKTIONEN, datumDe } from "@/lib/shop/aktion";
 
 // Aktionscode im Warenkorb: Prüfung über /api/shop/aktion (nur Vorschau), verbindlich rechnet der Server bei der Bestellung.
-export interface AktionStand { code: string; prozent: number }
+export interface AktionStand { code: string; prozent: number; bis?: string }
 
 export function useAktionscode() {
   const [aktion, setAktion] = useState<AktionStand | null>(null);
@@ -16,8 +17,8 @@ export function useAktionscode() {
     setLaedt(true);
     try {
       const res = await fetch(`/api/shop/aktion?code=${encodeURIComponent(code)}`, { cache: "no-store" });
-      const j = (await res.json()) as { ok?: boolean; code?: string; prozent?: number; error?: string };
-      if (j.ok && j.code && typeof j.prozent === "number") { setAktion({ code: j.code, prozent: j.prozent }); speichereAktionscode(j.code); setMeldung(""); }
+      const j = (await res.json()) as { ok?: boolean; code?: string; prozent?: number; bis?: string; error?: string };
+      if (j.ok && j.code && typeof j.prozent === "number") { setAktion({ code: j.code, prozent: j.prozent, bis: j.bis }); speichereAktionscode(j.code); setMeldung(""); }
       else { setAktion(null); speichereAktionscode(null); if (!still) setMeldung(j.error ?? "Der Code konnte nicht geprüft werden."); }
     } catch {
       if (!still) setMeldung("Der Code konnte gerade nicht geprüft werden. Bitte versuch es noch einmal.");
@@ -31,11 +32,14 @@ export function useAktionscode() {
 export function AktionsCodeFeld({ stand }: { stand: ReturnType<typeof useAktionscode> }) {
   const [eingabe, setEingabe] = useState("");
   const { aktion, meldung, laedt, pruefe, loese } = stand;
+  const a = AKTIONEN[0];
+  // Nach Aktionsende gibt es kein Feld mehr (der Server lehnt abgelaufene Codes ohnehin ab).
+  if (!aktion && a && Date.now() > Date.parse(a.bis)) return null;
   if (aktion) {
     return (
       <div className="shop-field" role="status">
         <span className="shop-label">Aktionscode</span>
-        <p className="muted" style={{ margin: 0 }}>{aktion.code} eingelöst: {aktion.prozent} % auf den Warenwert (ohne Versand). <button type="button" className="shop-link" onClick={loese}>Entfernen</button></p>
+        <p className="muted" style={{ margin: 0 }}>{aktion.code} eingelöst: {aktion.prozent} % auf den Warenwert (ohne Versand), bereits in den Artikelpreisen berücksichtigt.{aktion.bis ? ` Aktion gilt bis ${datumDe(aktion.bis)}.` : ""} <button type="button" className="shop-link" onClick={loese}>Entfernen</button></p>
       </div>
     );
   }
@@ -46,6 +50,7 @@ export function AktionsCodeFeld({ stand }: { stand: ReturnType<typeof useAktions
         <input id="aktionscode" className="shop-input" value={eingabe} onChange={(e) => setEingabe(e.target.value)} autoCapitalize="characters" autoComplete="off" spellCheck={false} aria-describedby={meldung ? "aktionscode-meldung" : undefined} />
         <button type="submit" className="shop-btn shop-btn--ghost shop-btn--small" disabled={laedt}>Einlösen</button>
       </div>
+      {a && <p className="muted" style={{ margin: 0 }}>Weihnachts-Aktion vom {datumDe(a.von)} bis {datumDe(a.bis)}: Mit dem Code {a.code} sparst du {a.prozent} % auf den Warenwert deiner Bestellung, nicht auf die Versandkosten. Gilt für Artikel im Shop-Warenkorb, nicht für Angebote nach Anfrage. Ein Code pro Bestellung.</p>}
       {meldung && <p id="aktionscode-meldung" className="shop-cart-gesperrt" role="alert" style={{ margin: 0 }}>{meldung}</p>}
     </form>
   );

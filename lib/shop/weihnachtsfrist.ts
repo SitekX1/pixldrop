@@ -1,16 +1,17 @@
-// Bestellschluss für Lieferung vor Weihnachten (Alex 05.11.2026): Garantie endet am 13.12.2026 um 00:00 (letzter garantierter Bestelltag Sa 12.12.).
-// Reine Funktion für Server und Browser. Wortlaut vor Veröffentlichung von Dr. Justus prüfen lassen.
+// Hinweis zur Lieferung vor Weihnachten (Alex 05.11.2026, Wortlaut nach Dr. Justus: keine Garantie/Zusage der Ankunft, nur Übergabe an den Paketdienst bis zu einem Datum).
+// Reine Funktion für Server und Browser. Das Versanddatum (18.12.) ist ein Vorschlag von Justus, Alex legt es nach Druckkapazität fest.
 
-export const WEIHNACHT_GARANTIE_BIS = "2026-12-13T00:00:00+01:00";
+export const WEIHNACHT_BESTELLUNG_BIS = "2026-12-13T00:00:00+01:00"; // Bestellungen bis einschließlich 12.12.2026
+export const WEIHNACHT_VERSAND_BIS_TEXT = "18.12.2026";
 
-/** Hinweis zur Lieferung vor Weihnachten; nach Fristende die Absage der Garantie, ab 27.12. kein Hinweis mehr. */
+/** Hinweis zur Lieferung vor Weihnachten; ab 13.12. sachlicher Verweis auf die normale Lieferzeit, ab 27.12. kein Hinweis mehr. */
 export function weihnachtsFristText(jetzt: Date = new Date()): string | null {
   const t = jetzt.getTime();
-  if (t < Date.parse(WEIHNACHT_GARANTIE_BIS)) {
-    return "Bestellst du bis einschließlich 12.12.2026, liefere ich garantiert vor Weihnachten (Zahlung bei Bestellung, Versand innerhalb Deutschlands).";
+  if (t < Date.parse(WEIHNACHT_BESTELLUNG_BIS)) {
+    return `Lieferung vor Weihnachten: Bestellungen, die du bis einschließlich 12.12.2026 abschickst (Standardartikel, Zahlung sofort per PayPal), gebe ich bis spätestens ${WEIHNACHT_VERSAND_BIS_TEXT} an den Paketdienst bzw. die Post. Wie lange Hermes, DHL oder die Post danach brauchen, kann ich nicht beeinflussen; vor Weihnachten ist oft viel los. Einen festen Zustelltermin sage ich deshalb nicht zu. Brauchst du das Geschenk zu einem bestimmten Termin, schreib mir vorher an as@sitekx.de. Das gilt nicht für Individuelles nach Anfrage; dort steht die Frist im Angebot.`;
   }
   if (t < Date.parse("2026-12-27T00:00:00+01:00")) {
-    return "Bestellungen nach dem 12.12.2026: Eine Lieferung vor Weihnachten kann ich nicht mehr garantieren. Ich versuche es, wenn es zeitlich passt.";
+    return "Bestellungen ab dem 13.12.2026: Ob die Lieferung noch vor Weihnachten klappt, kann ich nicht zusagen. Es gilt die normale Lieferzeit (siehe oben). Wenn es für dein Geschenk knapp ist, schreib mir vorher kurz an as@sitekx.de.";
   }
   return null;
 }
