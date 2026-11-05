@@ -447,3 +447,40 @@ test("Design-Kuerbis: Groesse + feste Farbpalette fuer Kuerbis und Strunk getren
   const ohne = berechneWarenkorb([{ slug: "design-kuerbis", menge: 1, optionen: { kuerbisgroesse: "mittel" } }], ctx({ produkte: PRODUKTE }));
   assert.ok(ohne.ok && ohne.wert.positionen[0].optionen["Kürbis"] === "Lattebraun" && ohne.wert.positionen[0].optionen["Strunk"] === "Weiß", "Standard Latte + weißer Strunk");
 });
+
+// ---- Aktionscode (WEIHNACHTEN10, 10 % auf den Warenwert, nie auf den Versand) ----
+const IM_ZEITRAUM = new Date("2026-11-10T12:00:00+01:00");
+
+test("Aktionscode: 10 % auf Einzelpreise (gerundet), Versand bleibt, Positionspreise sind reduziert", () => {
+  const r = berechneRoh([pos()], ctx({ jetzt: IM_ZEITRAUM }), "hermes", " weihnachten10 ");
+  assert.ok(r.ok);
+  assert.equal(r.wert.positionen[0].einzelpreisCent, 1161); // 1290 * 0,9
+  assert.equal(r.wert.summeWarenCent, 2322);
+  assert.equal(r.wert.gesamtCent, 2322 + 410);
+  assert.deepEqual(r.wert.aktion, { code: "WEIHNACHTEN10", prozent: 10, rabattCent: 258 });
+});
+
+test("Aktionscode: echte Weihnachtspreise (Netzkugel 4,90 -> 4,41, 3er-Set 12,90 -> 11,61), Set 3 Kugeln mit Menge 1", () => {
+  const echt = ctx({ produkte: PRODUKTE, jetzt: IM_ZEITRAUM });
+  const eine = berechneRoh([{ slug: "weihnachtskugel-schneeflocke", menge: 1, farbeId: "schwarz", optionen: { kugelanzahl: "eins" } }], echt, "hermes", "WEIHNACHTEN10");
+  assert.ok(eine.ok);
+  assert.equal(eine.wert.positionen[0].einzelpreisCent, 441);
+  const drei = berechneRoh([{ slug: "weihnachtskugel-schneeflocke", menge: 1, farbeId: "schwarz", optionen: { kugelanzahl: "drei" } }], echt, "hermes", "WEIHNACHTEN10");
+  assert.ok(drei.ok);
+  assert.equal(drei.wert.positionen[0].einzelpreisCent, 1161);
+});
+
+test("Aktionscode: unbekannt, abgelaufen und noch nicht gültig lehnen ab, kein Code = voller Preis", () => {
+  const falsch = berechneRoh([pos()], ctx({ jetzt: IM_ZEITRAUM }), "hermes", "GRATIS");
+  assert.ok(!falsch.ok);
+  assert.equal(falsch.fehler.code, "aktion_ungueltig");
+  const spaet = berechneRoh([pos()], ctx({ jetzt: new Date("2026-11-21T00:00:00+01:00") }), "hermes", "WEIHNACHTEN10");
+  assert.ok(!spaet.ok);
+  assert.equal(spaet.fehler.code, "aktion_ungueltig");
+  const frueh = berechneRoh([pos()], ctx({ jetzt: new Date("2026-11-05T12:00:00+01:00") }), "hermes", "WEIHNACHTEN10");
+  assert.ok(!frueh.ok);
+  const ohne = berechneRoh([pos()], ctx({ jetzt: IM_ZEITRAUM }), "hermes", "");
+  assert.ok(ohne.ok);
+  assert.equal(ohne.wert.summeWarenCent, 2580);
+  assert.equal(ohne.wert.aktion, undefined);
+});

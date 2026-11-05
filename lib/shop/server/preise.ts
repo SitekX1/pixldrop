@@ -12,6 +12,7 @@ import {
 } from "../textformat";
 import { LINIENFARBE_HINWEIS, LINIENFARBE_KEY, TEXTFARBE_HINWEIS, TEXTFARBE_KEY, automatischeLinienfarbe, textfarbeErlaubt } from "../textfarbe";
 import { istVersandArt, versandOptionen, type VersandArt, type VersandPosition } from "../versand";
+import { AKTION_FEHLER, normalisiereCode, pruefeAktionscode, rabattiereCent } from "../aktion";
 
 export const MAX_MENGE = 20;
 export const MAX_POSITIONEN = 10;
@@ -23,6 +24,8 @@ export interface Kontext {
   /** Aktuell vorraetige Farben aus dem Lager. null = Lager nicht lesbar -> Bestellung ablehnen. */
   farben: Farbe[] | null;
   bestellbar: (p: Produkt) => boolean;
+  /** Test-Hook: Zeitpunkt für die Prüfung des Aktionscodes (Standard: jetzt). */
+  jetzt?: Date;
 }
 
 export type FehlerCode =
@@ -41,7 +44,8 @@ export type FehlerCode =
   | "text_unzulaessig"
   | "text_passt_nicht"
   | "option_ungueltig"
-  | "zu_teuer";
+  | "zu_teuer"
+  | "aktion_ungueltig";
 
 export interface PreisFehler {
   code: FehlerCode;
@@ -70,6 +74,8 @@ export interface Warenkorb {
   versandLabel: string;
   gesamtCent: number;
   individuell: boolean;
+  /** Angewendeter Aktionscode: Rabatt in Cent insgesamt (die Positionspreise sind schon reduziert). */
+  aktion?: { code: string; prozent: number; rabattCent: number };
 }
 
 export type Ergebnis<T> = { ok: true; wert: T } | { ok: false; fehler: PreisFehler };
@@ -97,7 +103,7 @@ export function farbeId(name: string): string {
  * `versandart` kommt vom Client (nur "hermes" | "dhl" | "brief"); der Betrag wird ausschliesslich aus
  * versandOptionen(...) (lib/shop/versand.ts) bestimmt, nie vom Client uebernommen.
  */
-export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: unknown): Ergebnis<Warenkorb> {
+export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: unknown, aktionscode?: unknown): Ergebnis<Warenkorb> {
   if (!Array.isArray(eingabe) || eingabe.length < 1 || eingabe.length > MAX_POSITIONEN) {
     return fehler("ungueltig", "Der Warenkorb ist leer oder zu groß.");
   }
@@ -105,6 +111,14 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
     return fehler("lager_nicht_lesbar", "Die Farben sind gerade nicht abrufbar. Bitte versuch es später noch einmal.");
   }
 
+  // Aktionscode (optional): ein eingegebener, aber ungültiger Code lehnt die Bestellung ab, damit niemand ohne Rabatt zahlt, der ihn erwartet.
+  let aktion: { code: string; prozent: number } | null = null;
+  if (normalisiereCode(aktionscode) !== "") {
+    const pr = pruefeAktionscode(aktionscode, ctx.jetzt);
+    if (!pr.ok) return fehler("aktion_ungueltig", AKTION_FEHLER[pr.grund]);
+    aktion = { code: pr.aktion.code, prozent: pr.aktion.prozent };
+  }
+  let rabatt = 0;
   const positionen: BerechnetePosition[] = [];
   const versandPos: VersandPosition[] = [];
   let summe = 0;
@@ -262,7 +276,9 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       return fehler("text_ungueltig", "Für diesen Artikel ist ein Text erforderlich.");
     }
 
-    const einzel = einzelpreisCent(produkt, optIn) ?? produkt.preisCent;
+    const normal = einzelpreisCent(produkt, optIn) ?? produkt.preisCent;
+    const einzel = aktion && normal != null ? rabattiereCent(normal, aktion.prozent) : normal;
+    if (aktion && normal != null) rabatt += (normal - einzel!) * menge;
     summe += einzel * menge;
     versandPos.push({ slug: produkt.slug, menge, optionen: optIn });
     positionen.push({
@@ -299,6 +315,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       versandLabel: versand.label,
       gesamtCent: gesamt,
       individuell: positionen.some((p) => p.individuell),
+      ...(aktion ? { aktion: { code: aktion.code, prozent: aktion.prozent, rabattCent: rabatt } } : {}),
     },
   };
 }

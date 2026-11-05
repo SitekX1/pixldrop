@@ -148,12 +148,37 @@ const ROH: Record<string, Roh> = {
     },
     briefFaehig: false, stueckJeMenge: 1,
   },
-  "weihnachtsbaum": { teile: [{ mm: [60, 60, 106], g: 13, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  "weihnachtsbaum": {
+    teile: [{ mm: [60, 60, 106], g: 13, anz: 1, rund: true }],
+    teileGruppe: "baumanzahl",
+    teileJeGroesse: {
+      eins: [{ mm: [60, 60, 106], g: 13, anz: 1, rund: true }],
+      drei: [{ mm: [60, 60, 106], g: 13, anz: 3, rund: true }],
+    },
+    briefFaehig: false, stueckJeMenge: 1,
+  },
   "deko-schale": { teile: [{ mm: [200, 101, 14], g: 61, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
   // Kugel: Durchmesser 90 mm, Höhe ca. 115 mm (Alex 04.11.).
-  "weihnachtskugel": { teile: [{ mm: [90, 90, 115], g: 67, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  "weihnachtskugel": {
+    teile: [{ mm: [90, 90, 115], g: 67, anz: 1, rund: true }],
+    teileGruppe: "sternanzahl",
+    teileJeGroesse: {
+      eins: [{ mm: [90, 90, 115], g: 67, anz: 1, rund: true }],
+      zwei: [{ mm: [90, 90, 115], g: 67, anz: 2, rund: true }],
+    },
+    briefFaehig: false, stueckJeMenge: 1,
+  },
   // Netzkugel Schneeflocke: Durchmesser 80 mm, Hoehe 110 mm mit Schraubkopf (Alex 04.11.). Gramm: 12,23 g und 46 min laut Bambu Studio (Alex), aufgerundet.
-  "weihnachtskugel-schneeflocke": { teile: [{ mm: [80, 80, 110], g: 13, anz: 1, rund: true }], briefFaehig: false, stueckJeMenge: 1 },
+  "weihnachtskugel-schneeflocke": {
+    teile: [{ mm: [80, 80, 110], g: 13, anz: 1, rund: true }],
+    teileGruppe: "kugelanzahl",
+    teileJeGroesse: {
+      eins: [{ mm: [80, 80, 110], g: 13, anz: 1, rund: true }],
+      zwei: [{ mm: [80, 80, 110], g: 13, anz: 2, rund: true }],
+      drei: [{ mm: [80, 80, 110], g: 13, anz: 3, rund: true }],
+    },
+    briefFaehig: false, stueckJeMenge: 1,
+  },
   // Engel (Alex 04.11.): groß 125 mm hoch, 80 mm breit mit Flügeln; klein 105 mm hoch, 70 mm breit. Tiefe = Breite angenommen. Gramm = Bambu-Wert ohne Flügel + ca. 5 g Flügel-Puffer (36,24 / 23,47 g ohne Flügel).
   "weihnachtsengel": {
     teile: [{ mm: [70, 70, 105], g: 28.5, anz: 1, rund: true }],

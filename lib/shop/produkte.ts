@@ -341,16 +341,19 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Zweiteilige Kugel mit Stern- und Tannenbaum-Ausschnitten, fuer ein LED-Teelicht oder als Ueberraschungskugel.",
     beschreibung: "Eine Kugel mit Oese (Durchmesser ca. 90 mm), die sich in zwei Haelften oeffnen laesst. Die Wand hat Ausschnitte in Stern- und Tannenbaumform: Mit einem LED-Teelicht leuchtet sie stimmungsvoll, ausserdem kann man sie mit kleinen Ueberraschungen befuellen. Fuer Baum, Tisch und Zuhause. LED-Teelicht und Schnur sind nicht dabei.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "baumschmuck", form: "rund", grundfarbe: "#e8d4a8",
-    preisCent: 890, masse: "90 × 90 × 115", material: MATERIAL, optionen: [], // 8,90 ohne LED-Teelicht (Partnerlink auf der Produktseite)
+    preisCent: 890, masse: "90 × 90 × 115", material: MATERIAL, // 8,90 ohne LED-Teelicht (Partnerlink auf der Produktseite); 2 Kugeln 15,90 (+7,00), Karla 05.11.
+    optionen: [{ id: "sternanzahl", label: "Menge", optionen: [{ id: "eins", label: "1 Kugel" }, { id: "zwei", label: "Set: 2 Kugeln", aufpreisCent: 700 }] }],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
   {
     slug: "weihnachtskugel-schneeflocke",
     name: "Weihnachtskugel Schneeflocke",
     kurz: "Netzkugel mit aufgesetzter Schneeflocke, zweiteilig zum Auseinandernehmen, als Baumschmuck oder kleines Geschenk.",
-    beschreibung: "Eine Kugel aus feinem Gittergewebe (Durchmesser ca. 80 mm, mit Schraubkopf und Oese 110 mm hoch) mit einer Schneeflocke auf der Vorderseite. Die beiden Haelften werden mit dem Drehverschluss oben zusammengehalten und lassen sich auseinandernehmen: Man kann kleine Geschenke oder einen Geldschein hineinlegen. Kugel und Schneeflocke gibt es in Farben deiner Wahl, zum Beispiel Creme mit weisser Flocke oder Gruen mit weisser Flocke. Das feine Netz ist filigran: bitte vorsichtig behandeln. Schnur und Inhalt sind nicht dabei.",
+    beschreibung: "Eine Kugel aus feinem Gittergewebe (Durchmesser ca. 80 mm, mit Schraubkopf und Oese 110 mm hoch) mit einer Schneeflocke auf der Vorderseite. Die beiden Haelften werden mit dem Drehverschluss oben zusammengehalten und lassen sich auseinandernehmen: Man kann kleine Geschenke oder einen Geldschein hineinlegen. Kugel und Schneeflocke gibt es in Farben deiner Wahl, zum Beispiel Creme mit weisser Flocke oder Gruen mit weisser Flocke. Das feine Netz ist filigran: bitte vorsichtig behandeln. Als Set gibt es 2 oder 3 Kugeln, dann alle in derselben Farbe. Schnur und Inhalt sind nicht dabei.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "baumschmuck", form: "rund", grundfarbe: "#d3c5a3",
-    preisCent: 490, masse: "80 × 80 × 110", material: MATERIAL, optionen: [], // Masse von Alex 04.11. (Durchmesser 80, mit Schraubkopf 110); Preis 4,90 vorlaeufig
+    preisCent: 490, masse: "80 × 80 × 110", material: MATERIAL, // Masse von Alex 04.11. (Durchmesser 80, mit Schraubkopf 110)
+    // Sets (Karla 05.11.): 1 Kugel 4,90 (Basis), 2 Kugeln 8,90 (+4,00), 3 Kugeln 12,90 (+8,00); im Set alle Kugeln in derselben Farbe
+    optionen: [{ id: "kugelanzahl", label: "Menge", optionen: [{ id: "eins", label: "1 Kugel" }, { id: "zwei", label: "Set: 2 Kugeln", aufpreisCent: 400 }, { id: "drei", label: "Set: 3 Kugeln", aufpreisCent: 800 }] }],
     teile: [{ id: "kugel", label: "Kugel", referenz: "#d3c5a3" }, { id: "flocke", label: "Schneeflocke", referenz: "#ffffff" }], // Standard = Creme + weisse Flocke (wie das Beispielfoto)
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
@@ -369,7 +372,8 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Gerillter Deko-Weihnachtsbaum im nordischen Stil, in der Farbe deiner Wahl.",
     beschreibung: "Ein stilisierter Weihnachtsbaum aus vier Rundungen mit feiner Rillenstruktur und schlanker Spitze, im nordischen Stil. Es gibt ihn in einer Groesse, du waehlst die Farbe. Als Tisch- und Fensterdeko. Reines Deko-Stueck.",
     gruppe: "weihnachten", kategorien: ["weihnachten", "sonstiges"], unterkategorie: "tischdeko", form: "rund", grundfarbe: "#c9d3a8",
-    preisCent: 390, masse: "60 × 60 × 106", material: MATERIAL, optionen: [],
+    preisCent: 390, masse: "60 × 60 × 106", material: MATERIAL, // 3 Baeume 9,90 (+6,00), Karla 05.11.
+    optionen: [{ id: "baumanzahl", label: "Menge", optionen: [{ id: "eins", label: "1 Baum" }, { id: "drei", label: "Set: 3 Bäume", aufpreisCent: 600 }] }],
     personalisierung: null, hinweise: [KEIN_SPIELZEUG],
   },
 ];

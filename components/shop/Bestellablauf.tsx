@@ -8,7 +8,8 @@ import { SCHRIFTEN, schriftZeilen } from "@/lib/shop/schriften";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilFarbenVon, teilFarbenText } from "@/lib/shop/teilfarben";
-import { gueltigeVersandart, ladeKorb, ladeVersandart, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
+import { gueltigeVersandart, ladeKorb, ladeVersandart, rabattCent, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
+import { useAktionscode } from "./AktionsCode";
 import { versandOptionenFuerKorb, VERSANDART_NAME } from "@/lib/shop/versand";
 import { SHOP_AKTIV, TEXTE, LIEFERZEIT_TEXT, formatPreis } from "@/lib/shop/config";
 import { pruefeWunschtext, TEXT_MELDUNG } from "@/lib/shop/textfilter";
@@ -46,6 +47,7 @@ export default function Bestellablauf({
 }: { schritt: 1 | 2 | 3; produkte: Produkt[]; farben: Farbe[]; zahlung?: string; lieferzeit?: string | null; pausiert?: boolean; pauseText?: string; wunschtextPausiert?: boolean }) {
   const router = useRouter();
   const [korb, setKorb] = useState<Korb>([]);
+  const akt = useAktionscode();
   const [geladen, setGeladen] = useState(false);
   const [daten, setDaten] = useState<Daten>(LEER);
   const [agb, setAgb] = useState(false);
@@ -113,7 +115,8 @@ export default function Bestellablauf({
   const versandOptionen = versandOptionenFuerKorb(korb);
   const versand = gueltigeVersandart(versandOptionen, versandWahl);
   const versandText = versand ? `${versand.art === "brief" ? "Brief (Deutsche Post)" : versand.label}${versand.tracking ? ", mit Sendungsverfolgung" : ", ohne Sendungsverfolgung"}` : "";
-  const gesamt = zwischen != null && versand ? zwischen + versand.cent : null;
+  const rabatt = zwischen != null && akt.aktion ? rabattCent(korb, (s, a) => { const x = produkte.find((q) => q.slug === s); return x ? einzelpreisCent(x, a.optionen) : undefined; }, akt.aktion.prozent) : 0;
+  const gesamt = zwischen != null && versand ? zwischen - rabatt + versand.cent : null;
   const ausgenommen = pos.filter(({ a, p }) => istIndividuell(p, a.text, a.optionen));
   const individuell = ausgenommen.length > 0;
   const wunschGesperrt = wunschtextPausiert && pos.some(({ p }) => !!p.personalisierung);
@@ -163,9 +166,9 @@ export default function Bestellablauf({
       return;
     }
     setToken(t);
-    const inhalt = { korb, daten, versandart: versand.art };
+    const inhalt = { korb, daten, versandart: versand.art, aktion: akt.aktion?.code ?? null };
     const key = idempotenzKeyFuer(JSON.stringify(inhalt));
-    const r = await sendeBestellung(baueBestellung({ token: t, idempotenzKey: key, auswahl: korb, kunde: daten, agb, verzicht: individuell && verzicht, website, versandart: versand?.art }));
+    const r = await sendeBestellung(baueBestellung({ token: t, idempotenzKey: key, auswahl: korb, kunde: daten, agb, verzicht: individuell && verzicht, website, versandart: versand?.art, aktionscode: akt.aktion?.code }));
     if (r.ok && istPaypalUrl(r.approveUrl)) {
       window.location.href = r.approveUrl; // Button bleibt gesperrt bis die Seite wechselt
       return;
@@ -244,6 +247,7 @@ export default function Bestellablauf({
       </ul>
       <dl className="shop-cart-sum">
         <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
+{rabatt > 0 && akt.aktion && <div><dt>Aktionscode {akt.aktion.code} (−{akt.aktion.prozent} %)</dt><dd>−{formatPreis(rabatt)}</dd></div>}
         <div><dt>Versand ({versand ? VERSANDART_NAME[versand.art] : "Deutschland"})</dt><dd>{versand ? formatPreis(versand.cent) : "auf Anfrage"}</dd></div>
         <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div>
       </dl>
@@ -347,6 +351,7 @@ export default function Bestellablauf({
               </ul>
               <dl>
                 <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
+{rabatt > 0 && akt.aktion && <div><dt>Aktionscode {akt.aktion.code} (−{akt.aktion.prozent} %)</dt><dd>−{formatPreis(rabatt)}</dd></div>}
                 {versand && <div><dt>Versandart</dt><dd>{versandText}</dd></div>}
                 <div><dt>Versand ({versand ? VERSANDART_NAME[versand.art] : "Deutschland"})</dt><dd>{versand ? formatPreis(versand.cent) : "auf Anfrage"}</dd></div>
               </dl>

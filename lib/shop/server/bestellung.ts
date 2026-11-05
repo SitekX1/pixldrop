@@ -102,7 +102,7 @@ export async function legeBestellungAn(
     return fehler(422, "ungueltig", "Ungültige Anfrage.");
   }
 
-  const korb = berechneWarenkorb(e.positionen, ctx.kontext, e.versandart);
+  const korb = berechneWarenkorb(e.positionen, ctx.kontext, e.versandart, e.aktionscode);
   if (!korb.ok) {
     const status = korb.fehler.code === "lager_nicht_lesbar" ? 503 : 422;
     return fehler(status, korb.fehler.code, korb.fehler.meldung);
@@ -166,6 +166,11 @@ export async function legeBestellungAn(
         console.error("Shop: Bestellung abgelehnt, Grund:", res.grund ?? "unbekannt");
         return fehler(500, "intern", "Die Bestellung ist gerade nicht möglich.");
     }
+  }
+
+  // Aktionscode im Ereignisprotokoll festhalten (Positionspreise sind schon reduziert, Bon und PayPal rechnen mit ihnen).
+  if (w.aktion && res.wiederholt !== true) {
+    await ereignis(deps, res.id, "benachrichtigung", { typ: "aktionscode", code: w.aktion.code, prozent: w.aktion.prozent, rabatt_cent: w.aktion.rabattCent });
   }
 
   return starteZahlung(deps, {

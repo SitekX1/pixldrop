@@ -5,7 +5,8 @@ import { einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilFarbenText } from "@/lib/shop/teilfarben";
-import { aendereMenge, entferne, gueltigeVersandart, ladeKorb, ladeVersandart, speichereKorb, speichereVersandart, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
+import { aendereMenge, entferne, gueltigeVersandart, ladeKorb, ladeVersandart, rabattCent, speichereKorb, speichereVersandart, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
+import { AktionsCodeFeld, useAktionscode } from "./AktionsCode";
 import { TEXTE, formatPreis } from "@/lib/shop/config";
 import { versandOptionenFuerKorb, type VersandArt } from "@/lib/shop/versand";
 import VersandWahl from "./VersandWahl";
@@ -21,6 +22,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
   const [versandWahl, setVersandWahl] = useState<string | null>(null);
   const [versandMeldung, setVersandMeldung] = useState("");
   const zusRef = useRef<HTMLElement>(null);
+  const akt = useAktionscode();
 
   useEffect(() => { setKorb(ladeKorb()); setVersandWahl(ladeVersandart()); setGeladen(true); }, []);
   const versandOptionen = versandOptionenFuerKorb(korb);
@@ -48,7 +50,8 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
   const fehlt = korb.some((a) => !von(a.slug)) || gesperrtNamen.length > 0;
   const zwischen = zwischensummeCent(korb, (s, a) => { const x = von(s); return x ? einzelpreisCent(x, a.optionen) : undefined; });
   const versandFehlt = !versand && versandOptionen.length > 1;
-  const gesamt = zwischen != null && versand ? zwischen + versand.cent : null;
+  const rabatt = zwischen != null && akt.aktion ? rabattCent(korb, (s, a) => { const x = von(s); return x ? einzelpreisCent(x, a.optionen) : undefined; }, akt.aktion.prozent) : 0;
+  const gesamt = zwischen != null && versand ? zwischen - rabatt + versand.cent : null;
   const ausgenommen = korb.flatMap((a) => { const p = von(a.slug); return p && istIndividuell(p, a.text, a.optionen) ? [p.name] : []; });
 
   return (
@@ -112,10 +115,12 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
       <aside ref={zusRef} className="shop-zwei-r shop-form" aria-label="Zusammenfassung">
       <VersandWahl optionen={versandOptionen} gewaehlt={(versand?.art as VersandArt) ?? null} fehler={versandFehlt ? versandMeldung : undefined}
         onWahl={(a) => { setVersandWahl(a); speichereVersandart(a); setVersandMeldung(""); }} />
+      <AktionsCodeFeld stand={akt} />
       <dl className="shop-cart-sum">
         <div><dt>Zwischensumme</dt><dd>{zwischen != null ? formatPreis(zwischen) : "auf Anfrage"}</dd></div>
+        {rabatt > 0 && akt.aktion && <div><dt>Aktionscode {akt.aktion.code} (−{akt.aktion.prozent} %)</dt><dd>−{formatPreis(rabatt)}</dd></div>}
         <div><dt>Versand (Deutschland)</dt><dd>{versand ? formatPreis(versand.cent) : versandFehlt ? "bitte Versandart wählen" : "auf Anfrage"}</dd></div>
-        <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : versandFehlt ? (zwischen != null ? `${formatPreis(zwischen)} zzgl. Versand` : "zzgl. Versand") : "auf Anfrage"}</dd></div>
+        <div className="gesamt"><dt>Gesamt</dt><dd>{gesamt != null ? formatPreis(gesamt) : versandFehlt ? (zwischen != null ? `${formatPreis(zwischen - rabatt)} zzgl. Versand` : "zzgl. Versand") : "auf Anfrage"}</dd></div>
       </dl>
       <p className="muted">{TEXTE.kleinunternehmer}</p>
       {ausgenommen.length > 0 && (

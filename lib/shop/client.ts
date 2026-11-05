@@ -60,7 +60,7 @@ export function neuerIdempotenzKey(): string {
   return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 }
 
-export function baueBestellung(p: { token: string; idempotenzKey: string; auswahl: Auswahl | Auswahl[]; kunde: Kunde; agb: boolean; verzicht: boolean; website?: string; versandart?: string }) {
+export function baueBestellung(p: { token: string; idempotenzKey: string; auswahl: Auswahl | Auswahl[]; kunde: Kunde; agb: boolean; verzicht: boolean; website?: string; versandart?: string; aktionscode?: string }) {
   const k = p.kunde;
   const liste = Array.isArray(p.auswahl) ? p.auswahl : [p.auswahl];
   return {
@@ -69,6 +69,8 @@ export function baueBestellung(p: { token: string; idempotenzKey: string; auswah
     idempotenzKey: p.idempotenzKey,
     // Nur die Art ("hermes" | "dhl" | "brief"), nie ein Betrag; der Server rechnet den Preis selbst.
     ...(p.versandart ? { versandart: p.versandart } : {}),
+    // Nur der Code; der Server prüft ihn und rechnet den Rabatt selbst.
+    ...(p.aktionscode ? { aktionscode: p.aktionscode } : {}),
     positionen: liste.map((a) => {
       const mitText = a.text.trim() !== "";
       return {

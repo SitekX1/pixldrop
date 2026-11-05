@@ -1,3 +1,4 @@
+import { rabattiereCent } from "./aktion";
 // Warenkorb (Artikel, Farbe, Text, Menge) nur im sessionStorage dieses Tabs.
 // Technisch erforderlich, wird nirgendwohin übertragen. Keine Kundendaten (Adresse, Mail).
 export interface Auswahl {
@@ -83,6 +84,23 @@ export function speichereVersandart(art: string | null) {
     if (art) sessionStorage.setItem(VERSAND_KEY, art);
     else sessionStorage.removeItem(VERSAND_KEY);
   } catch { /* Speicher gesperrt: Auswahl bleibt im Tab-Zustand */ }
+}
+// Eingelöster Aktionscode (nur der Code, nie ein Betrag), ebenfalls nur im sessionStorage dieses Tabs.
+const AKTION_KEY = "shop-aktionscode-v1";
+export function ladeAktionscode(): string | null {
+  try { return sessionStorage.getItem(AKTION_KEY); } catch { return null; }
+}
+export function speichereAktionscode(code: string | null) {
+  try {
+    if (code) sessionStorage.setItem(AKTION_KEY, code);
+    else sessionStorage.removeItem(AKTION_KEY);
+  } catch { /* Speicher gesperrt: Code bleibt im Tab-Zustand */ }
+}
+/** Rabatt in Cent für die Anzeige (Einzelpreise werden je Stück gerundet, wie auf dem Server). */
+export function rabattCent(korb: Korb, preisVon: (slug: string, a: Auswahl) => number | null | undefined, prozent: number): number {
+  let r = 0;
+  for (const a of korb) { const p = preisVon(a.slug, a); if (p != null) r += (p - rabattiereCent(p, prozent)) * a.menge; }
+  return r;
 }
 /**
  * Gültige Versandart: Bei genau einer Option (Brief) ist sie fest zugewiesen. Bei mehreren Optionen (Hermes/DHL)
