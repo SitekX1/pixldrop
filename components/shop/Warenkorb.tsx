@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "@/lib/shop/produkte";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
@@ -23,6 +24,8 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
   const [versandMeldung, setVersandMeldung] = useState("");
   const zusRef = useRef<HTMLElement>(null);
   const akt = useAktionscode();
+  const router = useRouter();
+  const versandDlg = useRef<HTMLDialogElement>(null);
 
   useEffect(() => { setKorb(ladeKorb()); setVersandWahl(ladeVersandart()); setGeladen(true); }, []);
   const versandOptionen = versandOptionenFuerKorb(korb);
@@ -134,16 +137,29 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
         {fehlt ? (
           <button type="button" className="shop-btn" aria-disabled="true">Zur Kasse</button>
         ) : versandFehlt ? (
-          <button type="button" className="shop-btn" aria-disabled="true" onClick={() => {
-            setVersandMeldung("Bitte Versandart wählen.");
-            requestAnimationFrame(() => zusRef.current?.querySelector<HTMLInputElement>('input[name="versandart"]')?.focus());
-          }}>Zur Kasse</button>
+          <button type="button" className="shop-btn" onClick={() => versandDlg.current?.showModal()}>Zur Kasse</button>
         ) : (
           <Link className="shop-btn" href="/3d-druck/bestellung?schritt=2">Zur Kasse</Link>
         )}
         <Link className="shop-link" href="/3d-druck#stuecke">Weiter einkaufen</Link>
       </div>
       </aside>
+      <dialog ref={versandDlg} className="shop-dialog" aria-labelledby="versand-dlg-titel">
+        <div className="shop-dialog-head">
+          <h2 id="versand-dlg-titel">Bitte Versandart wählen</h2>
+          <button type="button" className="shop-dialog-close" aria-label="Schließen" onClick={() => versandDlg.current?.close()}>×</button>
+        </div>
+        <p>Bevor es zur Kasse geht, brauchen wir noch, wie dein Paket reisen soll. Tippe auf eine Versandart, dann geht es direkt weiter.</p>
+        <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+          {versandOptionen.map((o) => (
+            <button key={o.art} type="button" className="shop-btn shop-btn--block shop-btn--ghost" onClick={() => {
+              setVersandWahl(o.art); speichereVersandart(o.art); setVersandMeldung("");
+              versandDlg.current?.close();
+              router.push("/3d-druck/bestellung?schritt=2");
+            }}>{o.label}: {formatPreis(o.cent)}</button>
+          ))}
+        </div>
+      </dialog>
     </div>
   );
 }
