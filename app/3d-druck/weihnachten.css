@@ -266,6 +266,13 @@
 /* Aktions-Banner (Alex' Bild) unter dem Hero: ab 640 px sichtbar, dann entfaellt der rote Textstreifen (Info steht im Bild) */
 .wn-banner { display: none; }
 @media (min-width: 640px) {
-  .wn-banner { display: block; width: 100%; height: auto; aspect-ratio: 1400 / 771; border-radius: 18px; margin: 0 0 24px; }
+  /* Alle Kanten weich ausgeblendet (Maske) und etwas ruhiger im Ton, damit das Bild in Hero und Seitenhintergrund übergeht; oben ragt es leicht in den Hero */
+  .wn-banner {
+    display: block; width: 100%; height: auto; aspect-ratio: 1400 / 771; margin: -24px 0 8px; position: relative; z-index: 1; pointer-events: none;
+    filter: saturate(0.86) brightness(0.93);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 6%, #000 88%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 6%, #000 88%, transparent 100%);
+    -webkit-mask-composite: source-in; mask-composite: intersect;
+  }
   .wn-banner ~ .wn-aktion { display: none; }
 }
