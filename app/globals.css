@@ -1276,3 +1276,5 @@ footer {
 }
 @keyframes wn-glanz { 0% { transform: translateX(-130%) skewX(-18deg); } 30%, 100% { transform: translateX(330%) skewX(-18deg); } }
 @media (prefers-reduced-motion: reduce) { .wn-siegel::after { animation: none; opacity: 0; } }
+.spc-aktion { display: block; width: calc(100% + 32px); max-width: none; height: auto; margin: -16px -16px 14px; border-radius: 24px 24px 0 0; }
+.spc-bild[hidden] { display: none; }
