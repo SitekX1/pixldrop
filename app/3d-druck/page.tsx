@@ -23,6 +23,9 @@ import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 // Saison-Status hängt vom Datum ab: pro Anfrage auswerten, nicht beim Build einfrieren.
 export const dynamic = "force-dynamic";
 
+// Später ins Weihnachtssortiment aufgenommene Artikel (Alex 06.11.): in der Kollektion hinter den Weihnachtsartikeln.
+const NACHTRAG = new Set(["kuerbis-teelichthalter", "design-kuerbis"]);
+
 export default async function ShopUebersicht({ searchParams }: { searchParams: Promise<{ kategorie?: string }> }) {
   const { kategorie } = await searchParams;
   const saisonId = aktiveSaison();
@@ -42,7 +45,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const nurWeihnacht = weihnachten && aktiv === "weihnachten";
   const gruppiert = aktiv === "alle" && modus !== "off" && liste.some(istSaisonArtikel) && liste.some((p) => !istSaisonArtikel(p));
   const normal = gruppiert ? liste.filter((p) => !istSaisonArtikel(p)) : (nurWeihnacht ? [] : liste);
-  const saison = gruppiert ? liste.filter(istSaisonArtikel) : (nurWeihnacht ? [...liste].sort((x, y) => Number(y.gruppe === "weihnachten") - Number(x.gruppe === "weihnachten")) : []);
+  const saison = gruppiert ? liste.filter(istSaisonArtikel) : (nurWeihnacht ? [...liste].sort((x, y) => Number(NACHTRAG.has(x.slug)) - Number(NACHTRAG.has(y.slug))) : []);
   const halloween = aktiv === "halloween";
   // Läuft die Aktion, steht das Aktionsbild (Kachel) vor "Etwas Eigenes?"
   const aktionVorn = weihnachten && aktiv === "alle" && modus === "sale" && !!AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis);
