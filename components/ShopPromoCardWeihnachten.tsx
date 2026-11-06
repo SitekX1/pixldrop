@@ -2,7 +2,7 @@ import { Bricolage_Grotesque, Fraunces } from "next/font/google";
 import TrackedLink from "@/components/TrackedLink";
 import WeihnachtenSiegel from "@/components/WeihnachtenSiegel";
 import { SAISONEN } from "@/lib/shop/saison";
-import { AKTIONEN } from "@/lib/shop/aktion";
+import { AKTIONEN, datumDe } from "@/lib/shop/aktion";
 
 const titel = Bricolage_Grotesque({ subsets: ["latin", "latin-ext"], weight: ["800"], display: "swap" });
 const serif = Fraunces({ subsets: ["latin"], weight: ["600"], style: ["italic"], display: "swap", preload: false });
@@ -34,9 +34,12 @@ export default function ShopPromoCardWeihnachten({ modus }: { modus: "preview" |
           <span key={i} className="spc-flocke" style={{ left: `${f.x}%`, width: f.s, height: f.s, ["--k" as string]: f.k, animationDuration: `${f.d}s`, animationDelay: `${f.delay}s` }} />
         ))}
         <WeihnachtenSiegel text={t.kachelBadge[modus]} className="spc-siegel" fontClass={serif.className} />
-        {aktionBanner && <span className="wn-badge spc-aktion"><span className="wn-badge-bild" /></span>}
         <span className={`spc-titel ${titel.className}`}>Weihnachten<br />aus dem 3D-Drucker</span>
       </div>
+      {aktionBanner && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="spc-banner" src="/shop/weihnachten/aktion-banner.webp" alt={`Weihnachts-Aktion: 10 % auf alle Weihnachtsartikel mit dem Code ${AKTIONEN[0].code}, ${datumDe(AKTIONEN[0].von)} bis ${datumDe(AKTIONEN[0].bis)}`} width={1600} height={535} loading="lazy" decoding="async" />
+      )}
       <div className="eyebrow-small">Advent 2026 &middot; selbst gedruckt</div>
       <h3>Weihnachten aus dem 3D-Drucker</h3>
       <p>

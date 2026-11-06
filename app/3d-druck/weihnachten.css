@@ -263,17 +263,9 @@
 .wn-aktion-text p { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: #fff8e8; }
 .wn-aktion-code { display: inline-block; padding: 2px 10px; border-radius: 8px; background: #fff8e8; color: #8f1420; font-weight: 900; letter-spacing: 0.08em; }
 @media (max-width: 520px) { .wn-aktion { flex-direction: column; align-items: flex-start; gap: 8px; } }
-/* Aktions-Banner im Hero: <900 px Hut-Badge (.wn-badge aus globals.css), >=900 px Haengeschild mit Baendchen */
-.wn-hero-aktion { position: absolute; z-index: 3; right: 12px; bottom: 16px; width: clamp(96px, 29vw, 140px); transform: rotate(4deg); }
-.wn-schild { display: none; }
-@media (min-width: 640px) and (max-width: 899px) { .wn-hero-aktion { width: clamp(120px, 18vw, 150px); } }
-@media (min-width: 900px) {
-  .wn-hero-aktion { display: none; }
-  .wn-schild { display: block; position: absolute; z-index: 5; top: 72px; right: 24px; width: clamp(400px, 30vw, 460px); aspect-ratio: 1600 / 535; pointer-events: none; transform: rotate(-1.5deg); transform-origin: 50% 0; filter: drop-shadow(0 6px 14px rgba(8, 18, 26, 0.5)); animation: wn-schild-ein var(--wn-slow) var(--wn-ease-out) 900ms both; }
-  .wn-schild::before { content: ""; position: absolute; inset: -4%; background: rgba(10, 22, 32, 0.4); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent), linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent), linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent); -webkit-mask-composite: source-in; mask-composite: intersect; }
-  .wn-schild-bild { position: absolute; inset: 0; display: block; width: 100%; height: 100%; -webkit-mask-image: radial-gradient(ellipse 62% 66% at 50% 50%, #000 62%, transparent 100%), linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent); mask-image: radial-gradient(ellipse 62% 66% at 50% 50%, #000 62%, transparent 100%), linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent); -webkit-mask-composite: source-in; mask-composite: intersect; }
-  /* Baendchen: zwei Goldlinien zu einem Aufhaenger mit Stern (Bezug zum Siegel) */
-  .wn-schild-band { position: absolute; left: 32%; right: 32%; top: -40px; height: 40px; background: linear-gradient(to top right, transparent calc(50% - 1px), #e8c36a calc(50% - 1px), #e8c36a calc(50% + 1px), transparent calc(50% + 1px)) left / 50% 100% no-repeat, linear-gradient(to top left, transparent calc(50% - 1px), #e8c36a calc(50% - 1px), #e8c36a calc(50% + 1px), transparent calc(50% + 1px)) right / 50% 100% no-repeat; }
-  .wn-schild-band::after { content: ""; position: absolute; left: 50%; top: -6px; width: 12px; height: 12px; margin-left: -6px; background: #f0bb55; clip-path: polygon(50% 0, 62% 38%, 100% 38%, 69% 60%, 80% 100%, 50% 74%, 20% 100%, 31% 60%, 0 38%, 38% 38%); }
+/* Aktions-Banner (Alex' Bild) unter dem Hero: ab 640 px sichtbar, dann entfaellt der rote Textstreifen (Info steht im Bild) */
+.wn-banner { display: none; }
+@media (min-width: 640px) {
+  .wn-banner { display: block; width: 100%; height: auto; aspect-ratio: 1600 / 535; border-radius: 18px; margin: 0 0 24px; }
+  .wn-banner ~ .wn-aktion { display: none; }
 }
-@keyframes wn-schild-ein { from { opacity: 0; transform: translateY(-10px) rotate(-3.5deg); } to { opacity: 1; transform: rotate(-1.5deg); } }

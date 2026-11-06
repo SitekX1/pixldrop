@@ -11,7 +11,7 @@ import WeihnachtenBuehne from "@/components/shop/WeihnachtenBuehne";
 import WeihnachtenKachel from "@/components/shop/WeihnachtenKachel";
 import WeihnachtenHinweis from "@/components/shop/WeihnachtenHinweis";
 import AktionsBanner from "@/components/shop/AktionsBanner";
-import { AKTIONEN } from "@/lib/shop/aktion";
+import { AKTIONEN, datumDe } from "@/lib/shop/aktion";
 import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
 import { aktiveSaison, saisonModus } from "@/lib/shop/saison";
@@ -50,19 +50,10 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
     <ShopShell theme={halloween ? "halloween" : undefined} saison={weihnachten ? "weihnachten" : !halloween && hwModus !== "off" ? "halloween-dark" : undefined} ton="nacht" banner={<PauseBanner />} zurueck={aktiv === "alle" ? "pixldrop" : "shop"}>
       <div className="shop-wrap">
         {weihnachten ? (
+          <>
           <section className="shop-hero wn-hero" aria-labelledby="titel">
             <WeihnachtenBuehne />
             <div className="wn-scrim" aria-hidden="true" />
-            {modus === "sale" && AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis) && (
-              <>
-                <span className="wn-badge wn-hero-aktion" aria-hidden="true"><span className="wn-badge-bild" /></span>
-                <span className="wn-schild" aria-hidden="true">
-                  <span className="wn-schild-band" />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="wn-schild-bild" src="/shop/weihnachten/aktion-banner.webp" alt="" width={1600} height={535} decoding="async" fetchPriority="low" />
-                </span>
-              </>
-            )}
             <div className="wn-text">
               <p className="shop-overline">Advent 2026 &middot; selbst gedruckt</p>
               <h1 id="titel">Schicht für Schicht <em>Weihnachten.</em></h1>
@@ -77,6 +68,11 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
               </div>
             </div>
           </section>
+          {modus === "sale" && AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis) && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="wn-banner" src="/shop/weihnachten/aktion-banner.webp" alt={`Weihnachts-Aktion: 10 % auf alle Weihnachtsartikel mit dem Code ${AKTIONEN[0].code}, ${datumDe(AKTIONEN[0].von)} bis ${datumDe(AKTIONEN[0].bis)}`} width={1600} height={535} loading="lazy" decoding="async" />
+          )}
+          </>
         ) : halloween ? (
           <section className="shop-hero" style={{ minHeight: 0, paddingTop: 12 }} aria-labelledby="titel">
             <p className="shop-overline" style={{ color: "#ff8a1f" }}>Halloween-Kollektion</p>
