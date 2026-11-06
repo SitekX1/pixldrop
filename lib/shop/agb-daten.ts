@@ -15,7 +15,10 @@ export interface AgbAbschnitt { titel: string; a: string[] }
 const versandText = versandPreisUebersicht(formatPreis);
 /** Lieferzeit kommt zur Laufzeit aus den Shop-Einstellungen (Panel); Standard: Konstante aus config.ts. */
 export function agbAbschnitte(lieferzeit: string | null = LIEFERZEIT_TEXT): AgbAbschnitt[] {
-const zustellText = lieferzeit ? `**${lieferzeit}**` : "die bei jedem Artikel und auf der Übersichtsseite vor Abgabe der Bestellung angegebene Zeit";
+const lieferzeitText = lieferzeit
+  ? `**${lieferzeit}** ab Vertragsschluss (Bestellbestätigung)`
+  : "bei jedem Artikel und auf der Übersichtsseite vor Abgabe der Bestellung angegeben, gerechnet ab Vertragsschluss (Bestellbestätigung)";
+
 return [
   { titel: "1. Geltungsbereich und Anbieter", a: [
     "(1) Diese Bedingungen gelten für alle Verträge über den Kauf und die Anfertigung von 3D-gedruckten Gegenständen, die du über den Shop unter pixldrop.de/3d-druck oder über eine individuelle Anfrage mit **Alexander Sitek, Richard-Strauss-Straße 4, 86663 Asbach-Bäumenheim, E-Mail: as@sitekx.de** (nachfolgend „ich“) schließt.",
@@ -54,7 +57,7 @@ return [
   ] },
   { titel: "6. Lieferung und Lieferzeit", a: [
     "(1) Ich liefere an die von dir angegebene Lieferadresse in Deutschland; Versandart (Hermes, DHL oder, bei flachen Untersetzern ohne Box, Brief der Deutschen Post) und Dienstleister: siehe „Versand & Zahlung“.",
-    `(2) Ich bearbeite und verschicke deine Bestellung in der Regel innerhalb von 1 bis 2 Werktagen nach Vertragsschluss (Bestellbestätigung). Die Zustellung dauert danach üblicherweise ${zustellText}. Sie liegt beim Paketdienst, den ich nicht beeinflussen kann; eine feste Lieferfrist ist damit nicht zugesagt. Bei Anfertigungen nach Ziffer 10 steht die Frist im Angebot.`,
+    `(2) Die Lieferzeit beträgt ${lieferzeitText}. Bei Anfertigungen nach Ziffer 10 steht die Frist im Angebot.`,
     "(3) Ist eine gewählte Farbe nach Vertragsschluss nicht mehr vorrätig, informiere ich dich unverzüglich. Du kannst dann eine Alternative wählen oder vom Vertrag zurücktreten; beim Rücktritt erstatte ich dir den gezahlten Betrag einschließlich der Versandkosten vollständig. Gesetzliche Rechte bleiben unberührt.",
     "(4) Ich liefere vollständige Bestellungen in einer Sendung. Teillieferungen erfolgen nur, wenn sie für dich zumutbar sind und keine zusätzlichen Versandkosten entstehen.",
     "(5) Die Gefahr (Verlust, Beschädigung auf dem Transportweg) geht bei Versand an dich als Verbraucher erst mit der **Übergabe der Ware an dich** über (§ 475 Abs. 2 BGB). Das gilt für Paket und Brief gleichermaßen.",
