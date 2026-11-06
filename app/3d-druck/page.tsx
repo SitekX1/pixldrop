@@ -54,8 +54,14 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
             <WeihnachtenBuehne />
             <div className="wn-scrim" aria-hidden="true" />
             {modus === "sale" && AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis) && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img className="wn-hero-aktion" src="/shop/weihnachten/aktion-banner.webp" alt="" width={1600} height={535} decoding="async" />
+              <>
+                <span className="wn-badge wn-hero-aktion" aria-hidden="true"><span className="wn-badge-bild" /></span>
+                <span className="wn-schild" aria-hidden="true">
+                  <span className="wn-schild-band" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="wn-schild-bild" src="/shop/weihnachten/aktion-banner.webp" alt="" width={1600} height={535} decoding="async" fetchPriority="low" />
+                </span>
+              </>
             )}
             <div className="wn-text">
               <p className="shop-overline">Advent 2026 &middot; selbst gedruckt</p>
