@@ -44,7 +44,7 @@ export interface Antwort {
   body: Record<string, unknown>;
 }
 
-const AGB_VERSION = "2026-10-16";
+const AGB_VERSION = "2026-11-06";
 
 function obj(v: unknown): Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {};

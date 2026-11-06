@@ -7,7 +7,7 @@ import { LIEFERZEIT_TEXT, formatPreis } from "./config";
 import { versandPreisUebersicht } from "./versand";
 
 export const AGB_TITEL = "Allgemeine Geschäftsbedingungen für den Online-Shop „3D-Druck“";
-export const AGB_STAND = "Stand: 16. Oktober 2026";
+export const AGB_STAND = "Stand: 6. November 2026";
 
 export interface AgbAbschnitt { titel: string; a: string[] }
 
@@ -47,6 +47,7 @@ return [
     "(1) Alle Preise sind Endpreise in Euro. Aufgrund der Kleinunternehmerregelung nach § 19 UStG wird **keine Umsatzsteuer erhoben und nicht ausgewiesen**.",
     `(2) Zusätzlich zum Warenpreis fallen Versandkosten an (nur Deutschland). Sie hängen von Größe und Menge der Bestellung und der Versandart ab (zurzeit: ${versandText}). Den genauen Betrag der für deine Bestellung möglichen Versandart(en) siehst du vor Abgabe der Bestellung auf der Übersichtsseite; bei Hermes und DHL wählst du die Versandart selbst. Eine versandkostenfreie Lieferung gibt es nicht.`,
     "(3) Tischschild, individueller Untersetzer und Stiftetasse bestellst du im Shop mit änderbarem Wunschtext und freier Schriftwahl aus der im Shop angebotenen Schriftliste zum Preis der Artikelseite. Für alles Weitere (z. B. Logo, Bild, Schriften außerhalb dieser Liste, Sonderfarben oder -maße, Anfertigung nach Vorlage) gibt es keinen Festpreis im Shop: **Preis nach Anfrage**, siehe Ziffer 10. Es entstehen keine weiteren Zusatzentgelte für die Zahlung.",
+    "(4) **Aktionscodes:** Zeitweise biete ich Aktionscodes an (zurzeit „WEIHNACHTEN10“: 10 % auf den Warenwert der Weihnachtsartikel, nicht auf die Versandkosten und nicht auf andere Artikel, gültig für Bestellungen im Shop vom 06.11.2026 bis einschließlich 19.11.2026). Maßgeblich ist der Zeitpunkt, zu dem du die Bestellung absendest. Pro Bestellung kann ein Code verwendet werden. Der Rabatt ist in den Artikelpreisen deiner Bestellung bereits abgezogen; diese Preise sind die Vertragspreise. Auf Angebote nach Ziffer 10 gelten Aktionscodes nicht. Ein Anspruch auf Barauszahlung des Rabatts besteht nicht. Bei Widerruf oder Rückabwicklung erstatte ich den von dir tatsächlich gezahlten Betrag.",
   ] },
   { titel: "5. Zahlung", a: [
     "(1) Die Zahlung erfolgt **sofort bei Bestellung per PayPal** (Vorkasse). Nach „Zahlungspflichtig bestellen“ wirst du zu PayPal weitergeleitet. PayPal bietet dort je nach Verfügbarkeit weitere Zahlungsoptionen an (z. B. Lastschrift, Karte); es gelten die Bedingungen von PayPal.",
@@ -56,7 +57,7 @@ return [
   ] },
   { titel: "6. Lieferung und Lieferzeit", a: [
     "(1) Ich liefere an die von dir angegebene Lieferadresse in Deutschland; Versandart (Hermes, DHL oder, bei flachen Untersetzern ohne Box, Brief der Deutschen Post) und Dienstleister: siehe „Versand & Zahlung“.",
-    `(2) Die Lieferzeit beträgt ${lieferzeitText}. Bei Anfertigungen nach Ziffer 10 steht die Frist im Angebot.`,
+    `(2) Ich bearbeite und verschicke deine Bestellung in der Regel innerhalb von 1 bis 2 Werktagen nach Vertragsschluss (Bestellbestätigung). Danach dauert die Zustellung durch den Paketdienst üblicherweise ${lieferzeitText}; die Zustellung selbst kann ich nicht beeinflussen. Bei Anfertigungen nach Ziffer 10 steht die Frist im Angebot.`,
     "(3) Ist eine gewählte Farbe nach Vertragsschluss nicht mehr vorrätig, informiere ich dich unverzüglich. Du kannst dann eine Alternative wählen oder vom Vertrag zurücktreten; beim Rücktritt erstatte ich dir den gezahlten Betrag einschließlich der Versandkosten vollständig. Gesetzliche Rechte bleiben unberührt.",
     "(4) Ich liefere vollständige Bestellungen in einer Sendung. Teillieferungen erfolgen nur, wenn sie für dich zumutbar sind und keine zusätzlichen Versandkosten entstehen.",
     "(5) Die Gefahr (Verlust, Beschädigung auf dem Transportweg) geht bei Versand an dich als Verbraucher erst mit der **Übergabe der Ware an dich** über (§ 475 Abs. 2 BGB). Das gilt für Paket und Brief gleichermaßen.",

@@ -7,6 +7,8 @@ import "server-only";
 // Vorlage: D:\Apps\3D-Druck\shop\recht-texte\bestellbestaetigung-mail.md (Variante B).
 
 import { LIEFERZEIT_TEXT } from "../config";
+import { AKTIONEN } from "../aktion";
+import { PRODUKTE } from "../produkte";
 import { AGB_TEXT } from "./agb-text";
 import { ANGEBOT_TEXTE } from "../angebot-texte";
 import { SCHRIFTEN } from "../schriften";
@@ -151,6 +153,20 @@ export interface MailPosition {
   individuell?: boolean | null;
 }
 
+/**
+ * Hinweis zum Aktionscode in der Bestätigung (Justus B4): Die Artikelpreise enthalten den Rabatt bereits. Der Code wird nicht in der
+ * Bestellung gespeichert (nur im Ereignisprotokoll), deshalb als Wenn-Satz und nur bei Weihnachtsartikeln, die im Aktionszeitraum bestellt wurden.
+ */
+export function aktionsHinweis(b: Pick<MailBestellung, "positionen" | "erstellt_am">): string | null {
+  const a = AKTIONEN[0];
+  if (!a) return null;
+  const t = b.erstellt_am ? Date.parse(b.erstellt_am) : Date.now();
+  if (!(t >= Date.parse(a.von) && t <= Date.parse(a.bis))) return null;
+  const namen = new Set(PRODUKTE.filter((p) => p.gruppe === "weihnachten").map((p) => p.name));
+  if (!b.positionen.some((p) => namen.has(p.name))) return null;
+  return `Falls du den Aktionscode ${a.code} verwendet hast: Die Artikelpreise oben enthalten den Rabatt (−${a.prozent} % auf den Warenwert der Weihnachtsartikel, ohne Versand) bereits.`;
+}
+
 export interface MailBestellung {
   nummer: string;
   name: string;
@@ -292,6 +308,7 @@ export function bestaetigungsMail(
     `${versandZeile(b)}: ${eur(b.versand_cent)}`,
     `Gesamtpreis: ${eur(b.gesamt_cent)}`,
     "Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer.",
+    ...(aktionsHinweis(b) ? [aktionsHinweis(b) as string] : []),
     "",
     "Lieferanschrift:",
     `${b.name}, ${b.strasse}, ${b.plz} ${b.ort}`,
@@ -394,7 +411,8 @@ function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
     `<tr><td class="txt" style="${TD}padding:3px 8px 3px 0;${fett ? "font-weight:bold;font-size:17px;padding-top:8px;" : ""}" align="right">${label}</td><td class="txt" align="right" style="${TD}padding:3px 0;white-space:nowrap;${fett ? "font-weight:bold;font-size:17px;padding-top:8px;" : ""}" width="110">${esc(wert)}</td></tr>`;
   const tabelle = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${zeilen}</table>` +
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;">${summe("Zwischensumme", eur(b.summe_waren_cent))}${summe(versandZeile(b), eur(b.versand_cent))}${summe("Gesamtpreis", eur(b.gesamt_cent), true)}</table>` +
-    absatz("Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer.", `font-size:12px;line-height:18px;color:${FARBE.gedimmt};margin:8px 0 0 0;text-align:right;`);
+    absatz("Preis gemäß § 19 UStG ohne Ausweis der Umsatzsteuer.", `font-size:12px;line-height:18px;color:${FARBE.gedimmt};margin:8px 0 0 0;text-align:right;`)
+    + (aktionsHinweis(b) ? absatz(aktionsHinweis(b) as string, `font-size:12px;line-height:18px;color:${FARBE.gedimmt};margin:6px 0 0 0;text-align:right;`) : "");
   // Kopfzeilen in EINER Tabellenzeile, Inhalte in der naechsten: die Ueberschriften stehen damit immer auf gleicher Hoehe (Outlook setzte sie versetzt).
   const kopfZelle = (kopf: string) =>
     `<td valign="top" width="50%" class="kopf" style="padding:0 12px 6px 0;font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:12px;line-height:16px;letter-spacing:1.4px;text-transform:uppercase;color:${FARBE.link};font-weight:bold;">${kopf}</td>`;
