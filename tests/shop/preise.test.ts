@@ -451,13 +451,14 @@ test("Design-Kuerbis: Groesse + feste Farbpalette fuer Kuerbis und Strunk getren
 // ---- Aktionscode (WEIHNACHTEN10, 10 % auf den Warenwert, nie auf den Versand) ----
 const IM_ZEITRAUM = new Date("2026-11-10T12:00:00+01:00");
 
-test("Aktionscode: 10 % auf Einzelpreise (gerundet), Versand bleibt, Positionspreise sind reduziert", () => {
-  const r = berechneRoh([pos()], ctx({ jetzt: IM_ZEITRAUM }), "hermes", " weihnachten10 ");
+test("Aktionscode: nur Weihnachtsartikel werden rabattiert (Einzelpreise gerundet), Standardartikel und Versand bleiben", () => {
+  const echt = ctx({ produkte: PRODUKTE, jetzt: IM_ZEITRAUM });
+  const kugel = { slug: "weihnachtskugel-schneeflocke", menge: 2, farbeId: "schwarz", optionen: { kugelanzahl: "eins" } };
+  const r = berechneRoh([kugel, pos()], echt, "hermes", " weihnachten10 ");
   assert.ok(r.ok);
-  assert.equal(r.wert.positionen[0].einzelpreisCent, 1161); // 1290 * 0,9
-  assert.equal(r.wert.summeWarenCent, 2322);
-  assert.equal(r.wert.gesamtCent, 2322 + 410);
-  assert.deepEqual(r.wert.aktion, { code: "WEIHNACHTEN10", prozent: 10, rabattCent: 258 });
+  assert.equal(r.wert.positionen[0].einzelpreisCent, 441); // 490 * 0,9
+  assert.equal(r.wert.positionen[1].einzelpreisCent, 990); // Standardartikel voller Preis
+  assert.equal(r.wert.aktion?.rabattCent, 98);
 });
 
 test("Aktionscode: echte Weihnachtspreise (Netzkugel 4,90 -> 4,41, 3er-Set 12,90 -> 11,61), Set 3 Kugeln mit Menge 1", () => {

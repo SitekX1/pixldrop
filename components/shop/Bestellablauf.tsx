@@ -115,7 +115,7 @@ export default function Bestellablauf({
   const versandOptionen = versandOptionenFuerKorb(korb);
   const versand = gueltigeVersandart(versandOptionen, versandWahl);
   const versandText = versand ? `${versand.art === "brief" ? "Brief (Deutsche Post)" : versand.label}${versand.tracking ? ", mit Sendungsverfolgung" : ", ohne Sendungsverfolgung"}` : "";
-  const rabatt = zwischen != null && akt.aktion ? rabattCent(korb, (s, a) => { const x = produkte.find((q) => q.slug === s); return x ? einzelpreisCent(x, a.optionen) : undefined; }, akt.aktion.prozent) : 0;
+  const rabatt = zwischen != null && akt.aktion ? rabattCent(korb, (s, a) => { const x = produkte.find((q) => q.slug === s); return x && x.gruppe === "weihnachten" ? einzelpreisCent(x, a.optionen) : undefined; }, akt.aktion.prozent) : 0;
   const gesamt = zwischen != null && versand ? zwischen - rabatt + versand.cent : null;
   const ausgenommen = pos.filter(({ a, p }) => istIndividuell(p, a.text, a.optionen));
   const individuell = ausgenommen.length > 0;

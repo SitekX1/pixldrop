@@ -53,7 +53,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
   const fehlt = korb.some((a) => !von(a.slug)) || gesperrtNamen.length > 0;
   const zwischen = zwischensummeCent(korb, (s, a) => { const x = von(s); return x ? einzelpreisCent(x, a.optionen) : undefined; });
   const versandFehlt = !versand && versandOptionen.length > 1;
-  const rabatt = zwischen != null && akt.aktion ? rabattCent(korb, (s, a) => { const x = von(s); return x ? einzelpreisCent(x, a.optionen) : undefined; }, akt.aktion.prozent) : 0;
+  const rabatt = zwischen != null && akt.aktion ? rabattCent(korb, (s, a) => { const x = von(s); return x && x.gruppe === "weihnachten" ? einzelpreisCent(x, a.optionen) : undefined; }, akt.aktion.prozent) : 0;
   const gesamt = zwischen != null && versand ? zwischen - rabatt + versand.cent : null;
   const ausgenommen = korb.flatMap((a) => { const p = von(a.slug); return p && istIndividuell(p, a.text, a.optionen) ? [p.name] : []; });
 

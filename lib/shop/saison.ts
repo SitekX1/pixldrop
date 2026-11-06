@@ -38,7 +38,7 @@ export const SAISONEN: Record<SaisonId, SaisonDef> = {
     texte: {
       badgeVorschau: "Bald im Shop",
       hinweisVorschau: "Die Weihnachtsstücke sind noch im Druck. Stöbern ist erlaubt, bestellen kannst du sie, sobald der Verkauf startet.",
-      kachelBadge: { preview: "Coming soon", sale: "Jetzt im Shop" },
+      kachelBadge: { preview: "Coming soon", sale: "−10 % Aktion" },
       kachelButton: { preview: "Vorab stöbern →", sale: "Zum Shop →" },
     },
   },

@@ -1,8 +1,8 @@
 // Hinweis zur Lieferung vor Weihnachten (Alex 05.11.2026, Wortlaut nach Dr. Justus: keine Garantie/Zusage der Ankunft, nur Übergabe an den Paketdienst bis zu einem Datum).
-// Reine Funktion für Server und Browser. Das Versanddatum (18.12.) ist ein Vorschlag von Justus, Alex legt es nach Druckkapazität fest.
+// Reine Funktion für Server und Browser. Versanddatum 15.12. von Alex festgelegt (06.11.).
 
 export const WEIHNACHT_BESTELLUNG_BIS = "2026-12-13T00:00:00+01:00"; // Bestellungen bis einschließlich 12.12.2026
-export const WEIHNACHT_VERSAND_BIS_TEXT = "18.12.2026";
+export const WEIHNACHT_VERSAND_BIS_TEXT = "15.12.2026";
 
 /** Hinweis zur Lieferung vor Weihnachten; ab 13.12. sachlicher Verweis auf die normale Lieferzeit, ab 27.12. kein Hinweis mehr. */
 export function weihnachtsFristText(jetzt: Date = new Date()): string | null {

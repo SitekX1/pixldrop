@@ -277,8 +277,8 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
     }
 
     const normal = einzelpreisCent(produkt, optIn) ?? produkt.preisCent;
-    const einzel = aktion && normal != null ? rabattiereCent(normal, aktion.prozent) : normal;
-    if (aktion && normal != null) rabatt += (normal - einzel!) * menge;
+    const einzel = aktion && normal != null && produkt.gruppe === "weihnachten" ? rabattiereCent(normal, aktion.prozent) : normal;
+    if (aktion && normal != null && produkt.gruppe === "weihnachten") rabatt += (normal - einzel!) * menge;
     summe += einzel * menge;
     versandPos.push({ slug: produkt.slug, menge, optionen: optIn });
     positionen.push({

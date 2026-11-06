@@ -39,7 +39,7 @@ export default function ShopPromoCardWeihnachten({ modus }: { modus: "preview" |
       <p>
         {modus === "preview"
           ? "Teelichthalter, Deko und Kleinigkeiten, gerade frisch im Druck. Der Verkauf startet bald, stöbern kannst du schon."
-          : "Teelichthalter, Deko und Kleinigkeiten für den Advent, frisch gedruckt und jetzt im Shop."}
+          : "Teelichthalter, Deko und Kleinigkeiten für den Advent, frisch gedruckt. Weihnachts-Aktion: 10 % auf alle Weihnachtsartikel mit dem Code WEIHNACHTEN10, 06.–19.11.2026."}
       </p>
       <span className="pill-btn spc-btn">{t.kachelButton[modus]}</span>
     </TrackedLink>

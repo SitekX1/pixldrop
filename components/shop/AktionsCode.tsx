@@ -39,7 +39,7 @@ export function AktionsCodeFeld({ stand }: { stand: ReturnType<typeof useAktions
     return (
       <div className="shop-field" role="status">
         <span className="shop-label">Aktionscode</span>
-        <p className="muted" style={{ margin: 0 }}>{aktion.code} eingelöst: {aktion.prozent} % auf den Warenwert (ohne Versand), bereits in den Artikelpreisen berücksichtigt.{aktion.bis ? ` Aktion gilt bis ${datumDe(aktion.bis)}.` : ""} <button type="button" className="shop-link" onClick={loese}>Entfernen</button></p>
+        <p className="muted" style={{ margin: 0 }}>{aktion.code} eingelöst: {aktion.prozent} % auf Weihnachtsartikel (ohne Versand), bereits in den Artikelpreisen berücksichtigt.{aktion.bis ? ` Aktion gilt bis ${datumDe(aktion.bis)}.` : ""} <button type="button" className="shop-link" onClick={loese}>Entfernen</button></p>
       </div>
     );
   }
@@ -50,7 +50,7 @@ export function AktionsCodeFeld({ stand }: { stand: ReturnType<typeof useAktions
         <input id="aktionscode" className="shop-input" value={eingabe} onChange={(e) => setEingabe(e.target.value)} autoCapitalize="characters" autoComplete="off" spellCheck={false} aria-describedby={meldung ? "aktionscode-meldung" : undefined} />
         <button type="submit" className="shop-btn shop-btn--ghost shop-btn--small" disabled={laedt}>Einlösen</button>
       </div>
-      {a && <p className="muted" style={{ margin: 0 }}>Weihnachts-Aktion vom {datumDe(a.von)} bis {datumDe(a.bis)}: Mit dem Code {a.code} sparst du {a.prozent} % auf den Warenwert deiner Bestellung, nicht auf die Versandkosten. Gilt für Artikel im Shop-Warenkorb, nicht für Angebote nach Anfrage. Ein Code pro Bestellung.</p>}
+      {a && <p className="muted" style={{ margin: 0 }}>Weihnachts-Aktion vom {datumDe(a.von)} bis {datumDe(a.bis)}: Mit dem Code {a.code} sparst du {a.prozent} % auf alle Weihnachtsartikel im Warenkorb, nicht auf die Versandkosten und nicht auf andere Artikel. Gilt nicht für Angebote nach Anfrage. Ein Code pro Bestellung.</p>}
       {meldung && <p id="aktionscode-meldung" className="shop-cart-gesperrt" role="alert" style={{ margin: 0 }}>{meldung}</p>}
     </form>
   );
