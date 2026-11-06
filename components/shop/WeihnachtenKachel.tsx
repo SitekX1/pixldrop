@@ -1,7 +1,7 @@
 import Link from "next/link";
 import WeihnachtenSiegel from "@/components/WeihnachtenSiegel";
 import { SAISONEN } from "@/lib/shop/saison";
-import { AKTIONEN } from "@/lib/shop/aktion";
+import { AKTIONEN, datumDe } from "@/lib/shop/aktion";
 
 // Klickbare Weihnachts-Kachel im Shop (Gegenstueck zur Halloween-Kachel): fuehrt in die Weihnachts-Kollektion (?kategorie=weihnachten).
 // Echte Nachtlandschaft + freigestellter Santa (Hufe im Vordergrund-Schnee), Coming-soon-Siegel, CTA. Ganze Kachel ist der Link.
@@ -11,6 +11,20 @@ export default function WeihnachtenKachel({ modus }: { modus: "preview" | "sale"
   const t = SAISONEN.weihnachten.texte;
   // Während der Aktion zeigt das Aktionsbild darüber schon "10 %": kein zweites Rabatt-Siegel
   const aktionLaeuft = modus === "sale" && !!AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis);
+  if (aktionLaeuft) {
+    const a = AKTIONEN[0];
+    // Während der Aktion ersetzt Alex' Aktionsbild die Szene der Kachel; weiche Kanten, darunter Pflichttext mit Code und Zeitraum
+    return (
+      <Link className="wn-kachel-aktion" href="/3d-druck?kategorie=weihnachten#stuecke">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/shop/weihnachten/aktion-kachel.webp" alt={`Weihnachts-Aktion: ${a.prozent} % auf alle Weihnachtsartikel mit dem Code ${a.code}, ${datumDe(a.von)} bis ${datumDe(a.bis)}`} width={1400} height={771} loading="lazy" decoding="async" />
+        <span className="wn-kachel-aktion-text">
+          <span>Code <strong>{a.code}</strong> im Warenkorb eingeben, gilt auf Weihnachtsartikel, nicht auf Versand. Aktion bis {datumDe(a.bis)}.</span>
+          <span className="wn-kachel-cta">Zur Kollektion<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
+        </span>
+      </Link>
+    );
+  }
   return (
     <Link className="wn-kachel" href="/3d-druck?kategorie=weihnachten#stuecke" aria-labelledby="wn-kachel-titel">
       <div className="wn-kachel-bild" aria-hidden="true">

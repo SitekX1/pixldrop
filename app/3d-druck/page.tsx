@@ -68,10 +68,6 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
               </div>
             </div>
           </section>
-          {modus === "sale" && AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis) && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img className="wn-banner" src="/shop/weihnachten/aktion-kachel.webp" alt={`Weihnachts-Aktion: 10 % auf alle Weihnachtsartikel mit dem Code ${AKTIONEN[0].code}, ${datumDe(AKTIONEN[0].von)} bis ${datumDe(AKTIONEN[0].bis)}`} width={1400} height={771} loading="lazy" decoding="async" />
-          )}
           </>
         ) : halloween ? (
           <section className="shop-hero" style={{ minHeight: 0, paddingTop: 12 }} aria-labelledby="titel">
@@ -103,7 +99,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
         {!halloween && !weihnachten && <HalloweenBanner modus={hwModus} />}
 
-        {weihnachten && modus === "sale" && <AktionsBanner />}
+        {weihnachten && modus === "sale" && aktiv !== "alle" && <AktionsBanner />}
 
         {!halloween && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
 
