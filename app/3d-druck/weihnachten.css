@@ -73,7 +73,12 @@
 .shop[data-saison="weihnachten"] .shop-foot a.shop-widerruf-btn { color: #14262f; background: #fff4e0; border-color: #fff4e0; }
 .shop[data-saison="weihnachten"] .shop-kontakt h2 { font: 700 0.9375rem/1.3 var(--shop-display); letter-spacing: 0; margin: 8px 0 6px; }
 .shop[data-saison="weihnachten"] .shop-kontakt-logo { height: 62px; width: auto; image-rendering: auto; }
-.shop[data-saison="weihnachten"][data-ton="papier"] .shop-kontakt-logo { background: #14262f; border-radius: 8px; padding: 4px 12px; }
+/* Papier-Ton (Warenkorb, Kasse, Rechtstexte): Kontaktkarte im Fuß dunkel wie der Fuß selbst, kein heller Kasten */
+.shop[data-saison="weihnachten"][data-ton="papier"] .shop-foot .shop-kontakt { background: rgba(255, 244, 224, 0.05); border-color: rgba(255, 244, 224, 0.18); color: #fff3d6; }
+.shop[data-saison="weihnachten"][data-ton="papier"] .shop-foot .shop-kontakt h2 { color: #fff4e0; }
+.shop[data-saison="weihnachten"][data-ton="papier"] .shop-foot .shop-kontakt a { color: #ffd98f; }
+.shop[data-saison="weihnachten"][data-ton="papier"] .shop-foot .shop-kontakt-logo { background: transparent; padding: 0; }
+.shop[data-saison="weihnachten"][data-ton="papier"] .shop-foot .muted { color: rgba(255, 243, 214, 0.7); }
 .wn-fuss-link a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; font-size: 0.875rem; color: var(--shop-muted) !important; }
 
 /* ---------- Buttons, Karten, Marken ---------- */
