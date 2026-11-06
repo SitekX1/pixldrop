@@ -275,3 +275,14 @@
 .wn-kachel-aktion:focus-visible { outline: 3px solid var(--shop-focus); outline-offset: 3px; border-radius: 12px; }
 @media (hover: hover) and (pointer: fine) { .wn-kachel-aktion:hover .wn-kachel-cta svg { transform: translateX(3px); } }
 @media (max-width: 639px) { .wn-kachel-aktion img { aspect-ratio: auto; } .wn-kachel-aktion-cta { position: static; margin: 4px 0 0 12px; } }
+/* Aktions-Banner (Kollektion): ab 640 px Alex' Bild mit weich ausgeblendeten Kanten und leichter Transparenz, darunter entfällt der Textstreifen (Handy: nur Textstreifen) */
+.wn-aktion-bild { display: none; }
+@media (min-width: 640px) {
+  .wn-aktion-bild {
+    display: block; width: 100%; height: auto; aspect-ratio: 1600 / 535; margin: 0 0 16px; opacity: 0.88; pointer-events: none;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%);
+    -webkit-mask-composite: source-in; mask-composite: intersect;
+  }
+  .wn-aktion-bild + .wn-aktion { display: none; }
+}
