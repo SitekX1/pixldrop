@@ -256,7 +256,7 @@
 }
 
 /* Aktionsstreifen (Weihnachts-Aktion): Rabatt, Code und Zeitraum gut sichtbar */
-.wn-aktion { display: flex; align-items: center; gap: 20px; margin: 0 0 24px; padding: 18px 22px; border-radius: 18px; color: #fff8e8; background: radial-gradient(circle at 12% 20%, #c0272d 0, #8f1420 60%, #5e0b16 100%); border: 3px solid #e8c36a; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); }
+.wn-aktion { display: flex; align-items: center; gap: 20px; margin: 0 0 24px; padding: 18px 22px; border-radius: 18px; color: #fff8e8; background: radial-gradient(circle at 12% 20%, rgba(192, 39, 45, 0.5) 0, rgba(143, 20, 32, 0.38) 60%, rgba(94, 11, 22, 0.3) 100%); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); border: 1px solid rgba(232, 195, 106, 0.55); box-shadow: none; }
 .wn-aktion-gross { flex: none; margin: 0; font: 900 clamp(2.5rem, 9vw, 4rem)/1 var(--wn-serif, Georgia, serif); color: #f6d77f; text-shadow: 0 3px 0 #6b1220; }
 .wn-aktion-text { min-width: 0; }
 .wn-aktion-text h2 { margin: 0 0 6px; font: 700 clamp(1.1rem, 3.6vw, 1.4rem)/1.2 var(--wn-serif, Georgia, serif); color: #fff8e8; }

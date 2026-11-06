@@ -103,7 +103,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
         {weihnachten && modus === "sale" && aktiv !== "alle" && <AktionsBanner />}
 
-        {!halloween && !aktionVorn && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
+        {!halloween && !aktionVorn && !nurWeihnacht && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
 
         {weihnachten && aktiv === "alle" && modus !== "off" && <WeihnachtenKachel modus={modus === "sale" ? "sale" : "preview"} />}
 
@@ -149,6 +149,9 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
           </div>
         )}
         </div>
+
+        {/* In der Weihnachts-Kollektion gehören die Artikel nach oben; "Etwas Eigenes?" folgt darunter */}
+        {!halloween && nurWeihnacht && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
 
         {halloween && (
           <p className="shop-individuell-teaser">
