@@ -15,6 +15,7 @@ import { holeFarben, mitSilkVorschau } from "@/lib/shop/farben";
 import { formatPreis, halloweenModus, TEXTE } from "@/lib/shop/config";
 import { saisonModus } from "@/lib/shop/saison";
 import { weihnachtsFristText } from "@/lib/shop/weihnachtsfrist";
+import { AKTIONEN, datumDe } from "@/lib/shop/aktion";
 import { VERSAND_BRIEF, VERSAND_PREISE, VERSAND_PRODUKTE } from "@/lib/shop/versand";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
 
@@ -74,6 +75,7 @@ export default async function Produktseite({ params, searchParams }: Props) {
                 <li>{TEXTE.kleinunternehmer}</li>
                 <li>{p.nurAnfrage ? "Preis, Versand und Lieferzeit stehen im Angebot per E-Mail" : `zzgl. ${versandHinweisText}`}</li>
                 {!p.nurAnfrage && <li>{LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}</li>}
+                {!p.nurAnfrage && p.gruppe === "weihnachten" && AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis) && <li><strong>Weihnachts-Aktion: {AKTIONEN[0].prozent} % mit dem Code {AKTIONEN[0].code}</strong> (im Warenkorb eingeben, bis {datumDe(AKTIONEN[0].bis)}, nicht auf Versandkosten).</li>}
                 {!p.nurAnfrage && p.gruppe === "weihnachten" && weihnachtsFristText() && <li><strong>{weihnachtsFristText()}</strong></li>}
                 <li><Link className="shop-link" href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               </ul>
@@ -125,6 +127,7 @@ export default async function Produktseite({ params, searchParams }: Props) {
               <ul>
                 <li>{p.nurAnfrage ? "Preis, Versand und Lieferzeit stehen im Angebot per E-Mail" : versandHinweisText}</li>
                 {!p.nurAnfrage && <li>{LIEFERZEIT_TEXT ?? TEXTE.lieferzeitHinweis}</li>}
+                {!p.nurAnfrage && p.gruppe === "weihnachten" && AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis) && <li><strong>Weihnachts-Aktion: {AKTIONEN[0].prozent} % mit dem Code {AKTIONEN[0].code}</strong> (im Warenkorb eingeben, bis {datumDe(AKTIONEN[0].bis)}, nicht auf Versandkosten).</li>}
                 {!p.nurAnfrage && p.gruppe === "weihnachten" && weihnachtsFristText() && <li><strong>{weihnachtsFristText()}</strong></li>}
                 <li>Standardware: 14 Tage Widerruf. Bei individuellem Text besteht kein Widerrufsrecht.</li>
                 <li><Link className="shop-link" style={{ minHeight: 0 }} href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>

@@ -10,6 +10,7 @@ import HeroEddie from "@/components/shop/HeroEddie";
 import WeihnachtenBuehne from "@/components/shop/WeihnachtenBuehne";
 import WeihnachtenKachel from "@/components/shop/WeihnachtenKachel";
 import WeihnachtenHinweis from "@/components/shop/WeihnachtenHinweis";
+import AktionsBanner from "@/components/shop/AktionsBanner";
 import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
 import { aktiveSaison, saisonModus } from "@/lib/shop/saison";
@@ -94,6 +95,8 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
 
         {!halloween && !weihnachten && <HalloweenBanner modus={hwModus} />}
+
+        {weihnachten && modus === "sale" && <AktionsBanner />}
 
         {!halloween && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
 
