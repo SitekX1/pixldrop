@@ -43,6 +43,8 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const normal = gruppiert ? liste.filter((p) => !istSaisonArtikel(p)) : (nurWeihnacht ? [] : liste);
   const saison = gruppiert ? liste.filter(istSaisonArtikel) : (nurWeihnacht ? liste : []);
   const halloween = aktiv === "halloween";
+  // Läuft die Aktion, steht das Aktionsbild (Kachel) vor "Etwas Eigenes?"
+  const aktionVorn = weihnachten && aktiv === "alle" && modus === "sale" && !!AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis);
   const karte = (p: (typeof liste)[number], i: number) => (
     <ProductCard key={p.slug} p={p} farben={farben} gesperrt={wunschtextPausiert && !!p.personalisierung} vorschau={modus === "preview"} halloweenSicht={halloween} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
   );
@@ -101,9 +103,11 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
         {weihnachten && modus === "sale" && aktiv !== "alle" && <AktionsBanner />}
 
-        {!halloween && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
+        {!halloween && !aktionVorn && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
 
         {weihnachten && aktiv === "alle" && modus !== "off" && <WeihnachtenKachel modus={modus === "sale" ? "sale" : "preview"} />}
+
+        {!halloween && aktionVorn && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
 
         <div id="stuecke" className="shop-stuecke">
         {(halloween || nurWeihnacht) && <p className="shop-alle-link"><Link href="/3d-druck#stuecke">&larr; Alle Stücke</Link></p>}
