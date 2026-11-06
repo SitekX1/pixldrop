@@ -267,7 +267,7 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Der einfache Einstieg: LED-Teelicht von oben einsetzen.",
     beschreibung:
       "Ein offener Kürbis-Halter. Das LED-Teelicht kommt von oben hinein, fertig. Der einfachste und günstigste Weg zur Deko.",
-    gruppe: "allgemein", kategorien: ["halloween", "sonstiges"], form: "teelicht", grundfarbe: "#ff8a1f",
+    gruppe: "allgemein", kategorien: ["halloween", "weihnachten", "sonstiges"], form: "teelicht", grundfarbe: "#ff8a1f",
     preisCent: 490, masse: null, material: MATERIAL, optionen: [],
     personalisierung: null, hinweise: [LED, KEIN_SPIELZEUG],
   },
@@ -303,7 +303,7 @@ export const PRODUKTE: Produkt[] = [
     kurz: "Moderner Deko-Kürbis mit geschwungenen Lamellen in zwei Größen, Farbe für Kürbis und Strunk frei wählbar.",
     beschreibung:
       "Ein Kürbis als Herbstdeko: 18 geschwungene Lamellen laufen wie gedreht um den Körper, oben sitzt ein gebogener Strunk mit gebrochener Spitze. Der Kürbis steht sicher auf einer flachen Bodenfläche und passt auf Fensterbank, Sideboard oder Esstisch. Er ist ein reines Deko-Stück ohne Öffnung, ein Teelicht passt nicht hinein. Körper und Strunk werden getrennt gedruckt und von mir zusammengesteckt und verklebt. Die Oberfläche ist fein und leicht rau, die Lamellen sieht man auch im Streiflicht. Du wählst die Größe (Mittel ca. 11 cm, Klein ca. 6 cm hoch) und die Farbe für Kürbis und Strunk getrennt aus Olivgrün, Weiß und Lattebraun. Die Bilder zeigen Beispiele (Mittel in Latte mit weißem Strunk, Klein in Olivgrün mit Latte-Strunk).",
-    gruppe: "allgemein", kategorien: ["sonstiges"], form: "laterne", grundfarbe: "#d9731a",
+    gruppe: "allgemein", kategorien: ["weihnachten", "sonstiges"], form: "laterne", grundfarbe: "#d9731a",
     preisCent: 490, masse: null, material: MATERIAL, // Preise (Alex/Karla 18.10.): klein 4,90, mittel 8,90 (Alex/Karla 04.11.2026, vorher 6,90/11,90); Maße stehen in den Größen-Optionen
     teile: [{ id: "koerper", label: "Kürbis", referenz: "#d3b7a7" }, { id: "strunk", label: "Strunk", referenz: "#f4f1ea" }], // Standard = Latte + weißer Strunk (wie das Beispielfoto)
     festeFarben: FARBEN_DESIGN_KUERBIS,

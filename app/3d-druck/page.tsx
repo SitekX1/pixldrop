@@ -11,6 +11,7 @@ import WeihnachtenBuehne from "@/components/shop/WeihnachtenBuehne";
 import WeihnachtenKachel from "@/components/shop/WeihnachtenKachel";
 import WeihnachtenHinweis from "@/components/shop/WeihnachtenHinweis";
 import AktionsBanner from "@/components/shop/AktionsBanner";
+import BereichMerker from "@/components/shop/BereichMerker";
 import { AKTIONEN, datumDe } from "@/lib/shop/aktion";
 import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
@@ -41,7 +42,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const nurWeihnacht = weihnachten && aktiv === "weihnachten";
   const gruppiert = aktiv === "alle" && modus !== "off" && liste.some(istSaisonArtikel) && liste.some((p) => !istSaisonArtikel(p));
   const normal = gruppiert ? liste.filter((p) => !istSaisonArtikel(p)) : (nurWeihnacht ? [] : liste);
-  const saison = gruppiert ? liste.filter(istSaisonArtikel) : (nurWeihnacht ? liste : []);
+  const saison = gruppiert ? liste.filter(istSaisonArtikel) : (nurWeihnacht ? [...liste].sort((x, y) => Number(y.gruppe === "weihnachten") - Number(x.gruppe === "weihnachten")) : []);
   const halloween = aktiv === "halloween";
   // Läuft die Aktion, steht das Aktionsbild (Kachel) vor "Etwas Eigenes?"
   const aktionVorn = weihnachten && aktiv === "alle" && modus === "sale" && !!AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis);
@@ -109,6 +110,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
         {!halloween && aktionVorn && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
 
+        <BereichMerker kategorie={aktiv} />
         <div id="stuecke" className="shop-stuecke">
         {(halloween || nurWeihnacht) && <p className="shop-alle-link"><Link href="/3d-druck#stuecke">&larr; Alle Stücke</Link></p>}
         {weihnachten && modus === "preview" && aktiv !== "alle" && <WeihnachtenHinweis />}

@@ -6,7 +6,7 @@ import { einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
 import { teilFarbenText } from "@/lib/shop/teilfarben";
-import { aendereMenge, entferne, gueltigeVersandart, ladeKorb, ladeVersandart, rabattCent, speichereKorb, speichereVersandart, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
+import { weiterEinkaufenHref, aendereMenge, entferne, gueltigeVersandart, ladeKorb, ladeVersandart, rabattCent, speichereKorb, speichereVersandart, zwischensummeCent, type Korb } from "@/lib/shop/auswahl";
 import { AktionsCodeFeld, useAktionscode } from "./AktionsCode";
 import { TEXTE, formatPreis } from "@/lib/shop/config";
 import { versandOptionenFuerKorb, type VersandArt } from "@/lib/shop/versand";
@@ -19,6 +19,8 @@ import PositionsBild, { kombiVon } from "./PositionsBild";
 export default function Warenkorb({ produkte, farben, wunschtextPausiert = false }: { produkte: Produkt[]; farben: Farbe[]; wunschtextPausiert?: boolean }) {
   const [korb, setKorb] = useState<Korb>([]);
   const [geladen, setGeladen] = useState(false);
+  const [weiterHref, setWeiterHref] = useState("/3d-druck#stuecke");
+  useEffect(() => { setWeiterHref(weiterEinkaufenHref()); }, []);
   const [meldung, setMeldung] = useState("");
   const [versandWahl, setVersandWahl] = useState<string | null>(null);
   const [versandMeldung, setVersandMeldung] = useState("");
@@ -141,7 +143,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
         ) : (
           <Link className="shop-btn" href="/3d-druck/bestellung?schritt=2">Zur Kasse</Link>
         )}
-        <Link className="shop-link" href="/3d-druck#stuecke">Weiter einkaufen</Link>
+        <Link className="shop-link" href={weiterHref}>Weiter einkaufen</Link>
       </div>
       </aside>
       <dialog ref={versandDlg} className="shop-dialog" aria-labelledby="versand-dlg-titel">

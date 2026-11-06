@@ -85,6 +85,17 @@ export function speichereVersandart(art: string | null) {
     else sessionStorage.removeItem(VERSAND_KEY);
   } catch { /* Speicher gesperrt: Auswahl bleibt im Tab-Zustand */ }
 }
+// Zuletzt besuchte Shop-Übersicht ("weihnachten", "alle", ...): "Weiter einkaufen" führt dorthin zurück (nur sessionStorage dieses Tabs).
+const BEREICH_KEY = "shop-bereich-v1";
+export function speichereShopBereich(kategorie: string): void {
+  try { sessionStorage.setItem(BEREICH_KEY, kategorie); } catch { /* ohne Speicher: Standardlink */ }
+}
+export function weiterEinkaufenHref(fallbackKategorie?: string): string {
+  let k: string | null = null;
+  try { k = sessionStorage.getItem(BEREICH_KEY); } catch { /* ignorieren */ }
+  k = k ?? fallbackKategorie ?? null;
+  return k && k !== "alle" ? `/3d-druck?kategorie=${encodeURIComponent(k)}#stuecke` : "/3d-druck#stuecke";
+}
 // Eingelöster Aktionscode (nur der Code, nie ein Betrag), ebenfalls nur im sessionStorage dieses Tabs.
 const AKTION_KEY = "shop-aktionscode-v1";
 export function ladeAktionscode(): string | null {

@@ -19,7 +19,7 @@ import { TEXTE } from "@/lib/shop/config";
 import { pruefeWunschtext } from "@/lib/shop/textfilter";
 import { LINIENFARBE_HINWEIS, LINIENFARBE_KEY, TEXTFARBE_HINWEIS, TEXTFARBE_KEY, automatischeLinienfarbe, automatischeTextfarbe, textfarbeErlaubt } from "@/lib/shop/textfarbe";
 import { standardTeilFarben, teilQuelle } from "@/lib/shop/teilfarben";
-import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
+import { fuegeHinzu, ladeKorb, speichereKorb, weiterEinkaufenHref } from "@/lib/shop/auswahl";
 
 /** Lagerfarbe, die der Fotofarbe am nächsten liegt (Voreinstellung = Foto ohne Umfärbung); null, wenn keine nah genug ist. */
 function nahsteFarbe(farben: Farbe[], hex: string): Farbe | undefined {
@@ -60,6 +60,8 @@ export default function ProductBuy({
   // null = Kunde hat keine Stufe gewählt: dann gilt automatisch die größte, die noch passt.
   const [groesseWahl, setGroesseWahl] = useState<GroesseId | null>(null);
   const [hinzu, setHinzu] = useState<{ ok: boolean; menge: number } | null>(null);
+  const [weiterHref, setWeiterHref] = useState("/3d-druck#stuecke");
+  useEffect(() => { setWeiterHref(weiterEinkaufenHref(produkt.gruppe === "weihnachten" ? "weihnachten" : undefined)); }, [produkt.gruppe]);
 
   const [bestaetigt, setBestaetigt] = useState(false);
   const bestaetigtTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -460,7 +462,7 @@ export default function ProductBuy({
             )}
             <div className="shop-actions" style={{ marginTop: 0 }}>
               <Link className="shop-btn" href="/3d-druck/warenkorb">Zum Warenkorb</Link>
-              <Link className="shop-btn shop-btn--ghost" href="/3d-druck#stuecke">Weiter einkaufen</Link>
+              <Link className="shop-btn shop-btn--ghost" href={weiterHref}>Weiter einkaufen</Link>
             </div>
           </div>
         )}
