@@ -11,6 +11,7 @@ import WeihnachtenBuehne from "@/components/shop/WeihnachtenBuehne";
 import WeihnachtenKachel from "@/components/shop/WeihnachtenKachel";
 import WeihnachtenHinweis from "@/components/shop/WeihnachtenHinweis";
 import AktionsBanner from "@/components/shop/AktionsBanner";
+import { AKTIONEN } from "@/lib/shop/aktion";
 import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
 import { aktiveSaison, saisonModus } from "@/lib/shop/saison";
@@ -52,6 +53,10 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
           <section className="shop-hero wn-hero" aria-labelledby="titel">
             <WeihnachtenBuehne />
             <div className="wn-scrim" aria-hidden="true" />
+            {modus === "sale" && AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis) && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className="wn-hero-aktion" src="/shop/weihnachten/aktion-banner.webp" alt="" width={1600} height={535} decoding="async" />
+            )}
             <div className="wn-text">
               <p className="shop-overline">Advent 2026 &middot; selbst gedruckt</p>
               <h1 id="titel">Schicht für Schicht <em>Weihnachten.</em></h1>

@@ -19,11 +19,7 @@ export default function ShopPromoCardWeihnachten({ modus }: { modus: "preview" |
   return (
     <TrackedLink href="/3d-druck?kategorie=weihnachten&quelle=pixldrop-kachel" className="card spc" event="shop-click">
       <div className="card-glow" />
-      {aktionBanner && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="spc-aktion" src="/shop/weihnachten/aktion-banner.webp" alt="Weihnachts-Aktion: 10 % auf alle Weihnachtsartikel. Code WEIHNACHTEN10 im Warenkorb eingeben, gültig vom 06.11. bis 19.11.2026, nicht auf Versandkosten und nicht auf andere Artikel." width={1600} height={535} loading="lazy" decoding="async" />
-      )}
-      <div className="spc-bild" aria-hidden="true" hidden={aktionBanner || undefined}>
+      <div className="spc-bild" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="spc-bg" src={BG} alt="" width={1024} height={572} loading="lazy" decoding="async" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -37,7 +33,11 @@ export default function ShopPromoCardWeihnachten({ modus }: { modus: "preview" |
         {FLOCKEN.map((f, i) => (
           <span key={i} className="spc-flocke" style={{ left: `${f.x}%`, width: f.s, height: f.s, ["--k" as string]: f.k, animationDuration: `${f.d}s`, animationDelay: `${f.delay}s` }} />
         ))}
-        {!aktionBanner && <WeihnachtenSiegel text={t.kachelBadge[modus]} className="spc-siegel" fontClass={serif.className} />}
+        <WeihnachtenSiegel text={t.kachelBadge[modus]} className="spc-siegel" fontClass={serif.className} />
+        {aktionBanner && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="spc-aktion" src="/shop/weihnachten/aktion-banner.webp" alt="" width={1600} height={535} decoding="async" />
+        )}
         <span className={`spc-titel ${titel.className}`}>Weihnachten<br />aus dem 3D-Drucker</span>
       </div>
       <div className="eyebrow-small">Advent 2026 &middot; selbst gedruckt</div>

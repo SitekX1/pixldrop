@@ -1276,5 +1276,4 @@ footer {
 }
 @keyframes wn-glanz { 0% { transform: translateX(-130%) skewX(-18deg); } 30%, 100% { transform: translateX(330%) skewX(-18deg); } }
 @media (prefers-reduced-motion: reduce) { .wn-siegel::after { animation: none; opacity: 0; } }
-.spc-aktion { display: block; width: calc(100% + 32px); max-width: none; height: auto; margin: -16px -16px 14px; border-radius: 24px 24px 0 0; }
-.spc-bild[hidden] { display: none; }
+.spc-aktion { position: absolute; z-index: 5; top: 4%; right: 3%; width: 58%; height: auto; opacity: 0.92; border-radius: 10px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45); pointer-events: none; }
