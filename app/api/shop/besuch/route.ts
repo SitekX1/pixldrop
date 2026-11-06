@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     if (!seite.startsWith("/")) return NextResponse.json({ ok: false }, { status: 400 });
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) return NextResponse.json({ ok: false }, { status: 204 });
+    if (!url || !key) return new NextResponse(null, { status: 204 }); // 204 darf keinen Body haben, sonst landet es im catch (400)
     const { bot, geraet } = klassifiziere(req.headers.get("user-agent") ?? "");
     const supabase = createClient(url, key, { auth: { persistSession: false } });
     await supabase.from("pixldrop_link_clicks").insert({
