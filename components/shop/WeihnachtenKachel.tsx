@@ -1,6 +1,7 @@
 import Link from "next/link";
 import WeihnachtenSiegel from "@/components/WeihnachtenSiegel";
 import { SAISONEN } from "@/lib/shop/saison";
+import { AKTIONEN } from "@/lib/shop/aktion";
 
 // Klickbare Weihnachts-Kachel im Shop (Gegenstueck zur Halloween-Kachel): fuehrt in die Weihnachts-Kollektion (?kategorie=weihnachten).
 // Echte Nachtlandschaft + freigestellter Santa (Hufe im Vordergrund-Schnee), Coming-soon-Siegel, CTA. Ganze Kachel ist der Link.
@@ -8,6 +9,8 @@ const BG = "/shop/weihnachten/hintergrund-nacht.webp";
 
 export default function WeihnachtenKachel({ modus }: { modus: "preview" | "sale" }) {
   const t = SAISONEN.weihnachten.texte;
+  // Während der Aktion zeigt das Aktionsbild darüber schon "10 %": kein zweites Rabatt-Siegel
+  const aktionLaeuft = modus === "sale" && !!AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis);
   return (
     <Link className="wn-kachel" href="/3d-druck?kategorie=weihnachten#stuecke" aria-labelledby="wn-kachel-titel">
       <div className="wn-kachel-bild" aria-hidden="true">
@@ -21,7 +24,7 @@ export default function WeihnachtenKachel({ modus }: { modus: "preview" | "sale"
         <img className="wn-kb wn-kb-vorn" src={BG} alt="" width={1024} height={572} loading="lazy" decoding="async" />
         <span className="wn-kdunkel" />
       </div>
-      <WeihnachtenSiegel text={t.kachelBadge[modus]} className="wn-kachel-siegel" />
+      {!aktionLaeuft && <WeihnachtenSiegel text={t.kachelBadge[modus]} className="wn-kachel-siegel" />}
       <div className="wn-kachel-text">
         <p className="shop-overline">Advent 2026 &middot; selbst gedruckt</p>
         <h2 id="wn-kachel-titel">Weihnachts-Kollektion</h2>

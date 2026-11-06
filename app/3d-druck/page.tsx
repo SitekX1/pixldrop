@@ -70,7 +70,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
           </section>
           {modus === "sale" && AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis) && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="wn-banner" src="/shop/weihnachten/aktion-banner.webp" alt={`Weihnachts-Aktion: 10 % auf alle Weihnachtsartikel mit dem Code ${AKTIONEN[0].code}, ${datumDe(AKTIONEN[0].von)} bis ${datumDe(AKTIONEN[0].bis)}`} width={1600} height={535} loading="lazy" decoding="async" />
+            <img className="wn-banner" src="/shop/weihnachten/aktion-kachel.webp" alt={`Weihnachts-Aktion: 10 % auf alle Weihnachtsartikel mit dem Code ${AKTIONEN[0].code}, ${datumDe(AKTIONEN[0].von)} bis ${datumDe(AKTIONEN[0].bis)}`} width={1400} height={771} loading="lazy" decoding="async" />
           )}
           </>
         ) : halloween ? (

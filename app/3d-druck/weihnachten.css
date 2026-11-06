@@ -266,6 +266,6 @@
 /* Aktions-Banner (Alex' Bild) unter dem Hero: ab 640 px sichtbar, dann entfaellt der rote Textstreifen (Info steht im Bild) */
 .wn-banner { display: none; }
 @media (min-width: 640px) {
-  .wn-banner { display: block; width: 100%; height: auto; aspect-ratio: 1600 / 535; border-radius: 18px; margin: 0 0 24px; }
+  .wn-banner { display: block; width: 100%; height: auto; aspect-ratio: 1400 / 771; border-radius: 18px; margin: 0 0 24px; }
   .wn-banner ~ .wn-aktion { display: none; }
 }
