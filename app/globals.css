@@ -1278,3 +1278,4 @@ footer {
 @media (prefers-reduced-motion: reduce) { .wn-siegel::after { animation: none; opacity: 0; } }
 /* Aktions-Banner (Alex' Bild) als eigener Streifen in der Startseiten-Kachel */
 img.spc-banner { display: block; width: 100%; max-width: 100%; min-width: 0; height: auto; aspect-ratio: 1600 / 535; border-radius: 12px; margin: 0 0 14px; }
+.spc-aktion-bild { display: block; width: calc(100% + 32px); max-width: none; height: auto; margin: -16px -16px 14px; border-radius: 24px 24px 0 0; }

@@ -19,26 +19,28 @@ export default function ShopPromoCardWeihnachten({ modus }: { modus: "preview" |
   return (
     <TrackedLink href="/3d-druck?kategorie=weihnachten&quelle=pixldrop-kachel" className="card spc" event="shop-click">
       <div className="card-glow" />
-      <div className="spc-bild" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="spc-bg" src={BG} alt="" width={1024} height={572} loading="lazy" decoding="async" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="spc-sled" src="/shop/weihnachten/santa-gelandet.webp" alt="" width={950} height={268} loading="lazy" decoding="async" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="spc-bg spc-bg-vorn" src={BG} alt="" width={1024} height={572} loading="lazy" decoding="async" />
-        <span className="spc-dunkel" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="spc-bokeh" src="/shop/weihnachten/bokeh.webp" alt="" width={640} height={349} loading="lazy" decoding="async" />
-        <span className="spc-mondglow" />
-        {FLOCKEN.map((f, i) => (
-          <span key={i} className="spc-flocke" style={{ left: `${f.x}%`, width: f.s, height: f.s, ["--k" as string]: f.k, animationDuration: `${f.d}s`, animationDelay: `${f.delay}s` }} />
-        ))}
-        <WeihnachtenSiegel text={t.kachelBadge[modus]} className="spc-siegel" fontClass={serif.className} />
-        <span className={`spc-titel ${titel.className}`}>Weihnachten<br />aus dem 3D-Drucker</span>
-      </div>
-      {aktionBanner && (
+      {aktionBanner ? (
+        // Alex' fertiges Aktionsbild (Szene, Titel und Aktion in einem Bild, 06.11.2026); nach Aktionsende wieder die animierte Szene
         // eslint-disable-next-line @next/next/no-img-element
-        <img className="spc-banner" src="/shop/weihnachten/aktion-banner.webp" alt={`Weihnachts-Aktion: 10 % auf alle Weihnachtsartikel mit dem Code ${AKTIONEN[0].code}, ${datumDe(AKTIONEN[0].von)} bis ${datumDe(AKTIONEN[0].bis)}`} width={1600} height={535} loading="lazy" decoding="async" />
+        <img className="spc-aktion-bild" src="/shop/weihnachten/aktion-kachel.webp" alt={`Weihnachten aus dem 3D-Drucker. Weihnachts-Aktion: 10 % auf alle Weihnachtsartikel mit dem Code ${AKTIONEN[0].code}, ${datumDe(AKTIONEN[0].von)} bis ${datumDe(AKTIONEN[0].bis)}`} width={1400} height={771} loading="lazy" decoding="async" />
+      ) : (
+        <div className="spc-bild" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="spc-bg" src={BG} alt="" width={1024} height={572} loading="lazy" decoding="async" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="spc-sled" src="/shop/weihnachten/santa-gelandet.webp" alt="" width={950} height={268} loading="lazy" decoding="async" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="spc-bg spc-bg-vorn" src={BG} alt="" width={1024} height={572} loading="lazy" decoding="async" />
+          <span className="spc-dunkel" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="spc-bokeh" src="/shop/weihnachten/bokeh.webp" alt="" width={640} height={349} loading="lazy" decoding="async" />
+          <span className="spc-mondglow" />
+          {FLOCKEN.map((f, i) => (
+            <span key={i} className="spc-flocke" style={{ left: `${f.x}%`, width: f.s, height: f.s, ["--k" as string]: f.k, animationDuration: `${f.d}s`, animationDelay: `${f.delay}s` }} />
+          ))}
+          <WeihnachtenSiegel text={t.kachelBadge[modus]} className="spc-siegel" fontClass={serif.className} />
+          <span className={`spc-titel ${titel.className}`}>Weihnachten<br />aus dem 3D-Drucker</span>
+        </div>
       )}
       <div className="eyebrow-small">Advent 2026 &middot; selbst gedruckt</div>
       <h3>Weihnachten aus dem 3D-Drucker</h3>
