@@ -98,13 +98,13 @@
 .shop-alex--ohne { grid-template-columns: minmax(0, 1fr) !important; }
 
 /* ---------- Hero v2: echte Bilder (Nachtlandschaft + Santa), Landung in der Mitte, halb hinter der Überschrift ---------- */
-.wn-hero { position: relative; isolation: isolate; display: block; padding-top: 0; min-height: 700px; }
+.wn-hero { position: relative; isolation: isolate; display: block; padding-top: 0; min-height: 0; }
 .wn-buehne { position: absolute; top: 0; bottom: 0; left: 50%; width: 100vw; margin-left: -50vw; z-index: 0; pointer-events: none; }
 .wn-bild { position: absolute; inset: 0; overflow: hidden; contain: layout paint; background: var(--shop-bg); }
 .wn-hg { position: absolute; display: block; max-width: none; height: auto; user-select: none; }
 .wn-verlauf { position: absolute; inset: 0; z-index: 4; background: linear-gradient(to bottom, var(--shop-bg) 0, rgba(15, 31, 42, 0) 44px, rgba(15, 31, 42, 0) var(--wn-v1, 185px), var(--shop-bg) var(--wn-v2, 288px)); }
 .wn-scrim { position: absolute; top: 0; bottom: 0; left: 50%; width: 100vw; margin-left: -50vw; z-index: 1; pointer-events: none; background: radial-gradient(ellipse 70% 38% at 38% 30%, rgba(9, 20, 29, 0.5), rgba(9, 20, 29, 0) 100%); }
-.wn-text { position: relative; z-index: 6; display: grid; gap: 14px; justify-items: start; padding-top: 76px; padding-bottom: 36px; }
+.wn-text { position: relative; z-index: 6; display: grid; gap: 14px; justify-items: start; padding-top: 76px; padding-bottom: 12px; }
 .wn-hero h1 { max-width: 13ch; text-shadow: 0 2px 18px rgba(8, 18, 26, 0.9), 0 0 3px rgba(8, 18, 26, 0.7); }
 .wn-hero h1 em { font-style: italic; font-weight: 600; color: var(--shop-honey); }
 .wn-hero p.lead { font-size: 1.0625rem; max-width: 30ch; color: var(--shop-ink); text-shadow: 0 1px 12px rgba(8, 18, 26, 0.95), 0 0 3px rgba(8, 18, 26, 0.8); }

@@ -70,7 +70,6 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
               </p>
               <div className="shop-hero-actions">
                 <a className="shop-btn" href="#stuecke">Stücke ansehen</a>
-                <Link className="shop-link" href="/3d-druck/anfrage">Etwas Eigenes anfragen</Link>
               </div>
             </div>
           </section>
