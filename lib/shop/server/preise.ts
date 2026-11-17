@@ -15,7 +15,7 @@ import { istVersandArt, versandOptionen, type VersandArt, type VersandPosition }
 import { AKTION_FEHLER, normalisiereCode, pruefeAktionscode, rabattiereCent } from "../aktion";
 
 export const MAX_MENGE = 20;
-export const MAX_POSITIONEN = 10;
+export const MAX_POSITIONEN = 20; // Bubble-Buchstaben: jeder Buchstabe eine Position, ganze Namen
 export const MAX_GESAMT_CENT = 200_000;
 
 export interface Kontext {

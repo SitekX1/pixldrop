@@ -144,7 +144,7 @@ const BUBBLE_FARBEN: [string, string, string][] = [
   ["grau", "Grau", "#808080"], ["schwarz", "Schwarz", "#1c1c1c"], ["puderblau", "Puderblau", "#b8e3e9"], ["hellblau", "Hellblau", "#4fc3f7"],
   ["tuerkis", "Türkis", "#00acc1"], ["cyan", "Cyan", "#1e64d0"], ["violett", "Violett", "#7b1fa2"], ["feuerrot", "Feuerrot", "#d32f2f"],
   ["sunny-orange", "Sunny Orange", "#ed7334"], ["orange", "Orange", "#f57c00"], ["gruen", "Grün", "#2ca300"], ["olivgruen", "Olivgrün", "#5a6d3d"],
-  ["rot-silk", "Rot Silk", "#d32f2f"], ["gold-silk", "Gold Silk", "#d4af37"], ["blau-silk", "Blau Silk", "#1e64d0"], ["candy-gruen-silk", "Candy Grün Silk", "#388e3c"],
+  ["rot-silk", "Rot Silk", "#b71c1c"], ["gold-silk", "Gold Silk", "#d4af37"], ["blau-silk", "Blau Silk", "#2a4fc0"], ["candy-gruen-silk", "Candy Grün Silk", "#388e3c"],
 ];
 const FARBEN_BUBBLE: Farbkombination[] = BUBBLE_FARBEN.map(([id, name, hex]) => ({ id, label: name, farben: [{ name, hex }] }));
 const BUBBLE_ZEICHEN = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"].map((c) => ({ id: c.toLowerCase(), label: c }))
