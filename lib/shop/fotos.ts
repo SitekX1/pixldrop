@@ -13,6 +13,7 @@ const ALT: Record<string, string[]> = {
     "So bringst du die Bubble Buchstaben an: Klebepad, positionieren, fertig",
     "Name EMILIA aus Bubble Buchstaben an der Kinderzimmerwand",
     "Name EMILIA aus bunten Bubble Buchstaben auf dem Holzboden (Beispielbild)",
+    "Bubble Buchstaben selbst bemalen: vorbereiten, gestalten, fertig (Farben und Pinsel nicht dabei)",
     "Name EMILIA aus gedruckten Bubble Buchstaben auf Eichenholz (Foto)",
     "Name LINA aus gedruckten Bubble Buchstaben auf Eichenholz (Foto)",
   ],
@@ -117,7 +118,7 @@ const ALT: Record<string, string[]> = {
 };
 
 /** Dateinummern in Anzeigereihenfolge, wenn sie von 1, 2, 3 ... abweicht (Stiftebecher: Frontsicht leer 8, Seite 6, Draufsicht 7). */
-export const FOTO_DATEIEN: Record<string, number[]> = { "stiftebecher-tasse": [8, 6, 7], "skelett-beweglich": [4, 5], "design-kuerbis": [5, 6], "spruch-untersetzer": [3], "wochentags-untersetzer-set": [7], "namensschild": [5, 6, 7] };
+export const FOTO_DATEIEN: Record<string, number[]> = { "bubble-buchstabe": [1, 2, 3, 4, 5, 6, 7, 10, 8, 9], "stiftebecher-tasse": [8, 6, 7], "skelett-beweglich": [4, 5], "design-kuerbis": [5, 6], "spruch-untersetzer": [3], "wochentags-untersetzer-set": [7], "namensschild": [5, 6, 7] };
 /** Index (Anzeigereihenfolge) des Fotos, das die Live-Vorschau ist (umgefärbt, mit Aufdruck); Standard 0. */
 export const LIVE_FOTO: Record<string, number> = { "namensschild": 2 };
 export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
