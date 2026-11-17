@@ -158,12 +158,12 @@ export const PRODUKTE: Produkt[] = [
     beschreibung:
       "Dein Buchstabe, rund und weich wie ein Kissen. Ich drucke jeden Buchstaben einzeln für dich, in der Farbe, die zu deinem Raum passt. So bestellst du: Höhe wählen, Buchstabe, Zahl oder Zeichen wählen, Farbe wählen, Oberfläche wählen. Für einen ganzen Namen legst du jeden Buchstaben einzeln in den Warenkorb. Material: PLA, matte Oberfläche (die Silk-Farben glänzen leicht). Die Rückseite ist flach, mit Klebepad oder doppelseitigem Klebeband lässt sich der Buchstabe an Wand, Tür oder Regal anbringen. Befestigungsmaterial liegt nicht bei, die Buchstaben stehen nicht von selbst. Die Oberfläche gibt es glatt (klassisch, matt, ebenmäßig) oder als Struktur (fein texturiert, verdeckt kleine Unebenheiten vom Drucken, wirkt lebendig); beide kosten dasselbe. Höhe wie gewählt, die Breite ist je nach Buchstabe unterschiedlich. Bei 3D-Druck sind feine Schichtlinien normal. Farben können je nach Bildschirm leicht abweichen. Jedes Stück wird frisch für dich gedruckt.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "rund", grundfarbe: "#e9b8a0",
-    preisCent: 150, masse: null, material: MATERIAL, bestseller: true,
-    // Preise (Alex 17.11.2026, wie Etsy ohne Sale): 3 cm 1,50 | 5 cm 2,50 | 8 cm 3,50 | 10 cm 4,50 | 12 cm 5,50 | 15 cm 7,50. Erste Option = Grundpreis.
+    preisCent: 109, masse: null, material: MATERIAL, bestseller: true,
+    // Preise (Alex 17.11.2026, wie Etsy; 3 cm auf 1,09 korrigiert): 3 cm 1,09 | 5 cm 2,50 | 8 cm 3,50 | 10 cm 4,50 | 12 cm 5,50 | 15 cm 7,50. Erste Option = Grundpreis.
     optionen: [
       { id: "hoehe", label: "Höhe", optionen: [
-        { id: "h3", label: "3 cm" }, { id: "h5", label: "5 cm", aufpreisCent: 100 }, { id: "h8", label: "8 cm", aufpreisCent: 200 },
-        { id: "h10", label: "10 cm", aufpreisCent: 300 }, { id: "h12", label: "12 cm", aufpreisCent: 400 }, { id: "h15", label: "15 cm", aufpreisCent: 600 },
+        { id: "h3", label: "3 cm" }, { id: "h5", label: "5 cm", aufpreisCent: 141 }, { id: "h8", label: "8 cm", aufpreisCent: 241 },
+        { id: "h10", label: "10 cm", aufpreisCent: 341 }, { id: "h12", label: "12 cm", aufpreisCent: 441 }, { id: "h15", label: "15 cm", aufpreisCent: 641 },
       ] },
       { id: "zeichen", label: "Buchstabe / Zeichen", optionen: BUBBLE_ZEICHEN },
       { id: "oberflaeche", label: "Oberfläche", optionen: [{ id: "glatt", label: "Glatt" }, { id: "struktur", label: "Struktur (Fuzzy Skin)" }] },
