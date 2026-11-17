@@ -24,6 +24,8 @@ export interface Kontext {
   /** Aktuell vorraetige Farben aus dem Lager. null = Lager nicht lesbar -> Bestellung ablehnen. */
   farben: Farbe[] | null;
   bestellbar: (p: Produkt) => boolean;
+  /** Vom Shop-Betreiber gesperrte Kombinations-/Farb-IDs (leere Spule); fehlt = nichts gesperrt. */
+  farbenAus?: readonly string[];
   /** Test-Hook: Zeitpunkt für die Prüfung des Aktionscodes (Standard: jetzt). */
   jetzt?: Date;
 }
@@ -148,6 +150,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       // Artikel mit genau einer festen Farbe (Halloween-Untersetzer): ohne Angabe gilt diese
       kombi = kid === undefined && produkt.kombinationen.length === 1 ? produkt.kombinationen[0] : typeof kid === "string" ? produkt.kombinationen.find((k) => k.id === kid) : undefined;
       if (!kombi) return fehler("farbe_ungueltig", "Bitte wähle eine Farbkombination.");
+      if (ctx.farbenAus?.includes(kombi.id)) return fehler("farbe_ungueltig", `Die Farbe „${kombi.label}“ ist gerade nicht lieferbar. Bitte wähle eine andere.`);
     } else if (produkt.teile) {
       // Mehrteilig: je Teil eine vorrätige PLA-Lagerfarbe; fehlt ein Teil, gilt die Standardfarbe (wie im Browser: ähnlichste Lagerfarbe zur Referenz, z. B. Orange/Schwarz)
       const roh2 = roh.teilFarben;

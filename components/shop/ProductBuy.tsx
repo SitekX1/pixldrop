@@ -34,11 +34,11 @@ function hell(hex: string) {
 }
 
 export default function ProductBuy({
-  produkt, farben, bestellbar, preisText, wunschPause = false,
-}: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string; wunschPause?: boolean }) {
+  produkt, farben, bestellbar, preisText, wunschPause = false, farbenAus = [],
+}: { produkt: Produkt; farben: Farbe[]; bestellbar: boolean; preisText: string; wunschPause?: boolean; farbenAus?: string[] }) {
   const kombis = produkt.kombinationen;
   const [farbeId, setFarbeId] = useState<string | null>(kombis || produkt.teile ? null : (produkt.slug in ORIGINALFARBE ? nahsteFarbe(farben, ORIGINALFARBE[produkt.slug]) : produkt.linienfarbe ? farben.find((f) => /^schwarz/i.test(f.name.trim())) : undefined)?.id ?? farben[0]?.id ?? null);
-  const [kombiId, setKombiId] = useState<string | null>(kombis?.[0].id ?? null);
+  const [kombiId, setKombiId] = useState<string | null>((kombis?.find((k) => !farbenAus.includes(k.id)) ?? kombis?.[0])?.id ?? null);
   const kombi = kombis?.find((k) => k.id === kombiId);
   // Mehrteilige Artikel (Kürbis): je Teil eine eigene Lagerfarbe, Standard = ähnlichste Farbe zur Referenz (orange / schwarz).
   const teile = produkt.teile;
@@ -164,6 +164,7 @@ export default function ProductBuy({
       requestAnimationFrame(() => document.getElementById("t-filter")?.scrollIntoView({ block: "center" }));
       return;
     }
+    if (kombi && farbenAus.includes(kombi.id)) return; // gesperrte Farbe (Spule leer)
     const r = fuegeHinzu(ladeKorb(), {
       slug: produkt.slug,
       farbeId,
@@ -302,13 +303,13 @@ export default function ProductBuy({
       ) : kombis ? (
         <fieldset className="shop-step">
           <legend>{nurEinzelfarben(produkt) ? "Farbe" : "Farbkombination"}</legend>
-          <div className="shop-kombis">
+          <div className={kombis.length > 8 ? "shop-kombis shop-kombis--dicht" : "shop-kombis"}>
             {kombis.map((k) => (
-              <label key={k.id} className="shop-kombi">
-                <input type="radio" name="farbkombi" value={k.id} checked={kombiId === k.id} onChange={() => setKombiId(k.id)} />
+              <label key={k.id} className="shop-kombi" style={farbenAus.includes(k.id) ? { opacity: 0.45 } : undefined}>
+                <input type="radio" name="farbkombi" value={k.id} checked={kombiId === k.id} disabled={farbenAus.includes(k.id)} onChange={() => setKombiId(k.id)} />
                 <span className="shop-kombi-karte">
                   <span className="shop-kombi-punkte" aria-hidden="true">{k.farben.map((f) => <i key={f.name} style={{ background: f.hex }} />)}</span>
-                  <span className="shop-kombi-label">{k.label}</span>
+                  <span className="shop-kombi-label" style={farbenAus.includes(k.id) ? { textDecoration: "line-through" } : undefined}>{k.label}{farbenAus.includes(k.id) ? " (gerade nicht lieferbar)" : ""}</span>
                 </span>
               </label>
             ))}

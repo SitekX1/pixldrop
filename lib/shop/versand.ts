@@ -190,6 +190,20 @@ const ROH: Record<string, Roh> = {
     },
     briefFaehig: false, stueckJeMenge: 1,
   },
+  // Bubble-Buchstaben (Alex 17.11.2026): immer Paket. Dicke je Höhe aus dem Größenbild (0,8/1,4/2,2/2,8/3,3 cm, 15 cm geschätzt 4 cm), Breite ~0,9 x Höhe, Gramm GESCHÄTZT (M 5 cm ca. 10 g, wächst mit Höhe hoch 3) bis gewogen.
+  "bubble-buchstabe": {
+    teile: [{ mm: [30, 27, 8], g: 2.5, anz: 1 }],
+    teileGruppe: "hoehe",
+    teileJeGroesse: {
+      h3: [{ mm: [30, 27, 8], g: 2.5, anz: 1 }],
+      h5: [{ mm: [50, 45, 14], g: 10, anz: 1 }],
+      h8: [{ mm: [80, 72, 22], g: 41, anz: 1 }],
+      h10: [{ mm: [100, 90, 28], g: 80, anz: 1 }],
+      h12: [{ mm: [120, 108, 33], g: 138, anz: 1 }],
+      h15: [{ mm: [150, 135, 40], g: 270, anz: 1 }],
+    },
+    briefFaehig: false, stueckJeMenge: 1,
+  },
 };
 /** Unbekannter Slug: grosszuegiger Quader, nie Brief. */
 const UNBEKANNT: Roh = { teile: [{ mm: [200, 150, 100], g: 300, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 };

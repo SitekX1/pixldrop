@@ -8,6 +8,7 @@ import type { Deps } from "./bestellung";
 import type { Kontext } from "./preise";
 import { sichtbareProdukte, istBestellbar } from "../produkte";
 import { holeLagerFarben } from "../farben";
+import { holeEinstellungen } from "./einstellungen";
 
 export class NichtEingerichtet extends Error {
   constructor(public readonly fehlend: string[]) {
@@ -49,5 +50,6 @@ export async function standardKontext(): Promise<Kontext> {
     produkte: sichtbareProdukte(),
     farben: await holeLagerFarben(),
     bestellbar: istBestellbar,
+    farbenAus: (await holeEinstellungen()).farbenAus,
   };
 }

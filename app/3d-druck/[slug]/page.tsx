@@ -43,7 +43,7 @@ export default async function Produktseite({ params, searchParams }: Props) {
   // Silk-Spulen kommen erst am 13.01. (nach der Saison): Gruppe aus, bis sie geliefert sind -> SILK_AKTIV auf true setzen.
   const SILK_AKTIV = false;
   const farben = p.gruppe === "weihnachten" && SILK_AKTIV ? (saisonModus("weihnachten") === "preview" ? mitSilkVorschau(lagerFarben) : lagerFarben) : lagerFarben.filter((f) => !f.glanz);
-  const { lieferzeit: LIEFERZEIT_TEXT, wunschtextPausiert } = await holeEinstellungen();
+  const { lieferzeit: LIEFERZEIT_TEXT, wunschtextPausiert, farbenAus } = await holeEinstellungen();
   const bestellbar = istBestellbar(p);
   // Halloween-Ansicht: Halloween-Artikel oder Aufruf aus der Halloween-Kategorie (dann auch Zurück-Link, Thema und Titelbild im Halloween-Stil)
   const halloween = p.gruppe === "halloween" || (kategorie === "halloween" && halloweenModus() !== "off");
@@ -80,7 +80,7 @@ export default async function Produktseite({ params, searchParams }: Props) {
                 <li><Link className="shop-link" href="/3d-druck/versand-zahlung">Versand &amp; Zahlung</Link></li>
               </ul>
             </div>
-            <ProductBuy produkt={p} farben={farben} bestellbar={bestellbar} preisText={preis} wunschPause={wunschtextPausiert && !!p.personalisierung} />
+            <ProductBuy produkt={p} farben={farben} bestellbar={bestellbar} preisText={preis} wunschPause={wunschtextPausiert && !!p.personalisierung} farbenAus={farbenAus} />
             <p className="shop-bildkurz muted">Fotos sind Beispielstücke. Maßgeblich ist die Farbbezeichnung, die du im Warenkorb siehst.</p>
             <p className="shop-sicher-kurz">Kein Spielzeug, hitzeempfindlich: <a className="shop-link" style={{ minHeight: 0 }} href="#sicherheit">Sicherheitshinweise</a></p>
           </div>

@@ -13,6 +13,8 @@ export interface ShopEinstellungen {
   pauseText: string;
   pauseBis: string | null;
   wunschtextPausiert: boolean;
+  /** Farb-IDs, die Alex im Panel gesperrt hat (Spule leer): Bubble-Buchstaben, durchgestrichen und nicht bestellbar. */
+  farbenAus: string[];
 }
 
 export const STANDARD_PAUSE_TEXT =
@@ -26,6 +28,7 @@ export const FALLBACK: ShopEinstellungen = {
   pauseText: STANDARD_PAUSE_TEXT,
   pauseBis: null,
   wunschtextPausiert: false,
+  farbenAus: [],
 };
 
 const TTL_MS = 45_000;
@@ -55,6 +58,7 @@ export function normalisiere(roh: unknown): ShopEinstellungen {
     pauseText,
     pauseBis: bis,
     wunschtextPausiert: bool(o.wunschtext_pausiert),
+    farbenAus: typeof o.bubble_farben_aus === "string" ? o.bubble_farben_aus.split(",").map((x) => x.trim().toLowerCase()).filter((x) => /^[a-z0-9-]{1,40}$/.test(x)).slice(0, 60) : [],
   };
 }
 

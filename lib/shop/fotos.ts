@@ -4,6 +4,18 @@ import type { UmfaerbModus } from "./umfaerben";
 export interface Foto { src: string; alt: string }
 
 const ALT: Record<string, string[]> = {
+  // Titelbild (Cover) zuerst, danach die Etsy-Infobilder (Alphabet, Farben, Größen, Oberfläche, Anbringen, Wand, Beispiel) und zwei echte Fotos vom Druck (Alex 17.11.2026)
+  "bubble-buchstabe": [
+    "Bubble Buchstaben und Zahlen in vielen Farben auf einem Teller, Alphabet von A bis Z",
+    "Die 24 Farben der Bubble Buchstaben als Herzen im Überblick",
+    "Größen und Dicken der Bubble Buchstaben von 3 bis 12 cm im Vergleich",
+    "Oberfläche glatt und Struktur im Vergleich am Buchstaben A",
+    "So bringst du die Bubble Buchstaben an: Klebepad, positionieren, fertig",
+    "Name EMILIA aus Bubble Buchstaben an der Kinderzimmerwand",
+    "Name EMILIA aus bunten Bubble Buchstaben auf dem Holzboden (Beispielbild)",
+    "Name EMILIA aus gedruckten Bubble Buchstaben auf Eichenholz (Foto)",
+    "Name LINA aus gedruckten Bubble Buchstaben auf Eichenholz (Foto)",
+  ],
   // Titelbild (Cover) zuerst, danach 7.webp (Aufbewahrungsbox, Option „Mit Box“); keine Umfärbung, die Farbkombination ist nur eine Auswahl
   "wochentags-untersetzer-set": [
     "Aufbewahrungsbox für die Wochentags-Untersetzer, Option „Mit Box“",
@@ -112,6 +124,7 @@ export const liveIdx = (slug: string): number => LIVE_FOTO[slug] ?? 0;
 
 /** Produkte mit eigenem Cover-Bild für die Shop-Übersicht (public/shop/cover/<slug>.webp, 1100 × 1100). Die Galerie auf der Produktseite bleibt unverändert. Slug hier eintragen, sobald die Datei liegt. */
 export const COVER: string[] = [
+  "bubble-buchstabe",
   "weihnachtsbaum",
   "deko-schale",
   "weihnachts-rentier",

@@ -136,7 +136,42 @@ const KOMBI_WOCHENTAG: Farbkombination[] = [
   { id: "schwarz-violett-tuerkis", label: "Schwarz / Violett / Türkis", farben: [SCHWARZ, VIOLETT, TUERKIS] },
 ];
 
+// Bubble-Buchstaben: feste Farbpalette wie auf Etsy (Alex 17.11.2026), keine Lagerprüfung. Ist eine Spule leer, sperrt Alex die Farbe im Panel
+// (shop_einstellungen "bubble_farben_aus", Farb-IDs kommagetrennt): sie erscheint durchgestrichen und ist nicht bestellbar.
+const BUBBLE_FARBEN: [string, string, string][] = [
+  ["weiss", "Weiß", "#ffffff"], ["elfenbein", "Elfenbein", "#fffff0"], ["hellbeige", "Hellbeige", "#f0e0d6"], ["beige", "Beige", "#d7c4a3"],
+  ["latte", "Latte", "#d3b7a7"], ["eiche", "Eiche", "#c2a59a"], ["lehm", "Lehm", "#978f81"], ["braun", "Braun", "#6d4c41"],
+  ["grau", "Grau", "#808080"], ["schwarz", "Schwarz", "#1c1c1c"], ["puderblau", "Puderblau", "#b8e3e9"], ["hellblau", "Hellblau", "#4fc3f7"],
+  ["tuerkis", "Türkis", "#00acc1"], ["cyan", "Cyan", "#1e64d0"], ["violett", "Violett", "#7b1fa2"], ["feuerrot", "Feuerrot", "#d32f2f"],
+  ["sunny-orange", "Sunny Orange", "#ed7334"], ["orange", "Orange", "#f57c00"], ["gruen", "Grün", "#2ca300"], ["olivgruen", "Olivgrün", "#5a6d3d"],
+  ["rot-silk", "Rot Silk", "#d32f2f"], ["gold-silk", "Gold Silk", "#d4af37"], ["blau-silk", "Blau Silk", "#1e64d0"], ["candy-gruen-silk", "Candy Grün Silk", "#388e3c"],
+];
+const FARBEN_BUBBLE: Farbkombination[] = BUBBLE_FARBEN.map(([id, name, hex]) => ({ id, label: name, farben: [{ name, hex }] }));
+const BUBBLE_ZEICHEN = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"].map((c) => ({ id: c.toLowerCase(), label: c }))
+  .concat([{ id: "komma", label: "Komma ," }, { id: "punkt", label: "Punkt ." }, { id: "bindestrich", label: "Bindestrich -" }]);
+
 export const PRODUKTE: Produkt[] = [
+  {
+    slug: "bubble-buchstabe",
+    name: "Bubble Buchstabe",
+    kurz: "Dein Buchstabe, rund und weich wie ein Kissen. 3D-Druck in 24 Farben, 3 bis 15 cm hoch.",
+    beschreibung:
+      "Dein Buchstabe, rund und weich wie ein Kissen. Ich drucke jeden Buchstaben einzeln für dich, in der Farbe, die zu deinem Raum passt. So bestellst du: Höhe wählen, Buchstabe, Zahl oder Zeichen wählen, Farbe wählen, Oberfläche wählen. Für einen ganzen Namen legst du jeden Buchstaben einzeln in den Warenkorb. Material: PLA, matte Oberfläche (die Silk-Farben glänzen leicht). Die Rückseite ist flach, mit Klebepad oder doppelseitigem Klebeband lässt sich der Buchstabe an Wand, Tür oder Regal anbringen. Befestigungsmaterial liegt nicht bei, die Buchstaben stehen nicht von selbst. Die Oberfläche gibt es glatt (klassisch, matt, ebenmäßig) oder als Struktur (fein texturiert, verdeckt kleine Unebenheiten vom Drucken, wirkt lebendig); beide kosten dasselbe. Höhe wie gewählt, die Breite ist je nach Buchstabe unterschiedlich. Bei 3D-Druck sind feine Schichtlinien normal. Farben können je nach Bildschirm leicht abweichen. Jedes Stück wird frisch für dich gedruckt.",
+    gruppe: "allgemein", kategorien: ["sonstiges"], form: "rund", grundfarbe: "#e9b8a0",
+    preisCent: 150, masse: null, material: MATERIAL, bestseller: true,
+    // Preise (Alex 17.11.2026, wie Etsy ohne Sale): 3 cm 1,50 | 5 cm 2,50 | 8 cm 3,50 | 10 cm 4,50 | 12 cm 5,50 | 15 cm 7,50. Erste Option = Grundpreis.
+    optionen: [
+      { id: "hoehe", label: "Höhe", optionen: [
+        { id: "h3", label: "3 cm" }, { id: "h5", label: "5 cm", aufpreisCent: 100 }, { id: "h8", label: "8 cm", aufpreisCent: 200 },
+        { id: "h10", label: "10 cm", aufpreisCent: 300 }, { id: "h12", label: "12 cm", aufpreisCent: 400 }, { id: "h15", label: "15 cm", aufpreisCent: 600 },
+      ] },
+      { id: "zeichen", label: "Buchstabe / Zeichen", optionen: BUBBLE_ZEICHEN },
+      { id: "oberflaeche", label: "Oberfläche", optionen: [{ id: "glatt", label: "Glatt" }, { id: "struktur", label: "Struktur (Fuzzy Skin)" }] },
+    ],
+    kombinationen: FARBEN_BUBBLE,
+    personalisierung: null,
+    hinweise: ["Kein Spielzeug. Nicht für Kinder unter 3 Jahren. Kleine Buchstaben (3 und 5 cm) sind Kleinteile mit Verschluckungsgefahr: von Kleinkindern fernhalten.", "Rückseite flach zum Aufkleben (Klebepad oder doppelseitiges Klebeband, nicht dabei). Buchstaben stehen nicht von selbst."],
+  },
   {
     slug: "wochentags-untersetzer-set",
     name: "Wochentags-Untersetzer-Set Mo–Fr",
@@ -421,6 +456,7 @@ const ARTIKELNR: Record<string, string> = {
   "deko-schale": "PD-021",
   "weihnachtsbaum": "PD-022",
   "weihnachtskugel-schneeflocke": "PD-023",
+  "bubble-buchstabe": "PD-024",
 };
 export function artikelnummer(slug: string): string | null { return ARTIKELNR[slug] ?? null; }
 /** Teelichtfach (aus dem Modell gemessen): nur Artikel mit offenem Fach. */
