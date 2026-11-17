@@ -17,7 +17,7 @@ export default function ShopPromoCardWeihnachten({ modus }: { modus: "preview" |
   const t = SAISONEN.weihnachten.texte;
   const aktionBanner = modus === "sale" && AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis);
   return (
-    <TrackedLink href="/3d-druck?kategorie=weihnachten&quelle=pixldrop-kachel" className="card spc" event="shop-click">
+    <TrackedLink href="/3d-druck?quelle=pixldrop-kachel" className="card spc" event="shop-click">
       <div className="card-glow" />
       {aktionBanner ? (
         // Alex' fertiges Aktionsbild (Szene, Titel und Aktion in einem Bild, 06.11.2026); nach Aktionsende wieder die animierte Szene
