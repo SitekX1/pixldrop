@@ -19,3 +19,8 @@ as $function$
 $function$;
 -- Grants wie bisher (create or replace behaelt sie); zur Sicherheit:
 grant execute on function public.shop_einstellungen_lesen() to anon, authenticated;
+
+-- Erlaubte Schluessel der Tabelle (Pruefregel) um bubble_farben_aus erweitern; ohne das lehnt die DB das Speichern aus dem Panel ab.
+alter table public.shop_einstellungen drop constraint shop_einstellungen_schluessel_chk;
+alter table public.shop_einstellungen add constraint shop_einstellungen_schluessel_chk
+  check (schluessel = any (array['lieferzeit_text','bestellung_pausiert','pause_text','pause_bis','wunschtext_pausiert','bubble_farben_aus']));
