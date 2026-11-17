@@ -1,7 +1,7 @@
 import "server-only";
 // Shop-Einstellungen aus der DB (Panel-Reiter "Einstellungen"): Lieferzeit, Bestellpause, Wunschtext-Pause.
 // Lesen per anon-RPC public.shop_einstellungen_lesen() (nur oeffentliche Werte, kein Geheimnis noetig).
-// Kurzer In-Memory-Cache (45 s je Serverinstanz); bei Fehler/fehlender Konfiguration gilt der Fallback
+// Kurzer In-Memory-Cache (10 s je Serverinstanz); bei Fehler/fehlender Konfiguration gilt der Fallback
 // (Lieferzeit aus config.ts, NICHT pausiert), damit ein DB-Ausfall den Shop nicht von selbst sperrt.
 import { LIEFERZEIT_TEXT } from "../config";
 import { leseEnv, type ShopEnv } from "./env";
@@ -31,7 +31,7 @@ export const FALLBACK: ShopEinstellungen = {
   farbenAus: [],
 };
 
-const TTL_MS = 45_000;
+const TTL_MS = 10_000;
 const TIMEOUT_MS = 3_000;
 let cache: { bis: number; wert: ShopEinstellungen } | null = null;
 
