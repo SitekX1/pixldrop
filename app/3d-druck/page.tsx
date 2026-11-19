@@ -12,7 +12,6 @@ import WeihnachtenKachel from "@/components/shop/WeihnachtenKachel";
 import WeihnachtenHinweis from "@/components/shop/WeihnachtenHinweis";
 import AktionsBanner from "@/components/shop/AktionsBanner";
 import BereichMerker from "@/components/shop/BereichMerker";
-import { AKTIONEN, datumDe } from "@/lib/shop/aktion";
 import Ring from "@/components/shop/Ring";
 import { halloweenModus } from "@/lib/shop/config";
 import { aktiveSaison, saisonModus } from "@/lib/shop/saison";
@@ -47,8 +46,6 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
   const normal = gruppiert ? liste.filter((p) => !istSaisonArtikel(p)) : (nurWeihnacht ? [] : liste);
   const saison = gruppiert ? liste.filter(istSaisonArtikel) : (nurWeihnacht ? [...liste].sort((x, y) => Number(NACHTRAG.has(x.slug)) - Number(NACHTRAG.has(y.slug))) : []);
   const halloween = aktiv === "halloween";
-  // Läuft die Aktion, steht das Aktionsbild (Kachel) vor "Etwas Eigenes?"
-  const aktionVorn = weihnachten && aktiv === "alle" && modus === "sale" && !!AKTIONEN[0] && Date.now() <= Date.parse(AKTIONEN[0].bis);
   const karte = (p: (typeof liste)[number], i: number) => (
     <ProductCard key={p.slug} p={p} farben={farben} gesperrt={wunschtextPausiert && !!p.personalisierung} vorschau={modus === "preview"} halloweenSicht={halloween} erste={i === 0 && aktiv === "alle" && !!p.bestseller} />
   );
@@ -106,11 +103,7 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
 
         {weihnachten && modus === "sale" && aktiv !== "alle" && <AktionsBanner />}
 
-        {!halloween && !aktionVorn && !nurWeihnacht && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
-
         {weihnachten && aktiv === "alle" && modus !== "off" && <WeihnachtenKachel modus={modus === "sale" ? "sale" : "preview"} />}
-
-        {!halloween && aktionVorn && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
 
         <BereichMerker kategorie={aktiv} />
         <div id="stuecke" className="shop-stuecke">
@@ -154,8 +147,8 @@ export default async function ShopUebersicht({ searchParams }: { searchParams: P
         )}
         </div>
 
-        {/* In der Weihnachts-Kollektion gehören die Artikel nach oben; "Etwas Eigenes?" folgt darunter */}
-        {!halloween && nurWeihnacht && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
+        {/* "Etwas Eigenes?" steht immer unter dem letzten Artikel, damit die Artikel (zuerst Bubble Buchstabe) direkt nach Aktions-Kachel/Hero sichtbar sind */}
+        {!halloween && <IndividuellBanner pausiert={bestellungPausiert} linien={weihnachten} />}
 
         {halloween && (
           <p className="shop-individuell-teaser">

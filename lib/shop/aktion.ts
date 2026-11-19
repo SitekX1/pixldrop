@@ -13,9 +13,9 @@ export interface Aktion {
   label: string;
 }
 
-// Zeitraum: 14 Tage ab 06.11.2026 (Alex 05.11.), letzter Tag 19.11.
+// Zeitraum: ab 06.11.2026 (Alex 05.11.), letzter Tag ursprünglich 19.11., auf Alex' Wunsch am 19.11. bis 30.11.2026 verlängert.
 export const AKTIONEN: Aktion[] = [
-  { code: "WEIHNACHTEN10", prozent: 10, von: "2026-11-06T00:00:00+01:00", bis: "2026-11-19T23:59:59+01:00", label: "Weihnachts-Aktion" },
+  { code: "WEIHNACHTEN10", prozent: 10, von: "2026-11-06T00:00:00+01:00", bis: "2026-11-30T23:59:59+01:00", label: "Weihnachts-Aktion" },
 ];
 
 /** Datum als "06.11.2026" in deutscher Zeit (für Texte). */

@@ -475,7 +475,7 @@ test("Aktionscode: unbekannt, abgelaufen und noch nicht gültig lehnen ab, kein 
   const falsch = berechneRoh([pos()], ctx({ jetzt: IM_ZEITRAUM }), "hermes", "GRATIS");
   assert.ok(!falsch.ok);
   assert.equal(falsch.fehler.code, "aktion_ungueltig");
-  const spaet = berechneRoh([pos()], ctx({ jetzt: new Date("2026-11-21T00:00:00+01:00") }), "hermes", "WEIHNACHTEN10");
+  const spaet = berechneRoh([pos()], ctx({ jetzt: new Date("2026-12-01T00:00:00+01:00") }), "hermes", "WEIHNACHTEN10");
   assert.ok(!spaet.ok);
   assert.equal(spaet.fehler.code, "aktion_ungueltig");
   const frueh = berechneRoh([pos()], ctx({ jetzt: new Date("2026-11-05T12:00:00+01:00") }), "hermes", "WEIHNACHTEN10");
