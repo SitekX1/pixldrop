@@ -4,9 +4,12 @@
 import {
   Bricolage_Grotesque, Montserrat, Oswald, Dancing_Script, Pacifico, Caveat, Satisfy, Lobster,
   Permanent_Marker, Bangers, Creepster, Righteous, Playfair_Display, Cinzel, Fraunces,
+  Inter, Libre_Baskerville, Cormorant_Garamond, Great_Vibes, League_Gothic, Open_Sans, Outfit, Arimo, Courier_Prime, Mansalva,
 } from "next/font/google";
 import localFont from "next/font/local";
 
+// Schlichte Sans der neuen Startseite (Inter, SIL OFL 1.1 laut Google Fonts): variable Schrift, selbst gehostet, Subset latin.
+const sans = Inter({ subsets: ["latin"], variable: "--font-shop-sans", display: "swap" });
 const display = Bricolage_Grotesque({
   subsets: ["latin", "latin-ext"], weight: ["600", "700", "800"], variable: "--font-shop-display", display: "swap",
 });
@@ -28,6 +31,18 @@ const righteous = Righteous({ subsets: ["latin"], weight: ["400"], variable: "--
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["700", "900"], style: ["normal", "italic"], variable: "--font-sf-playfair", display: "swap", preload: false });
 const cinzel = Cinzel({ subsets: ["latin"], weight: ["700", "900"], variable: "--font-sf-cinzel", display: "swap", preload: false });
 
+// Schriften für die geplanten Wandbuchstaben (Liste: lib/shop/schriften-wand.ts). Alle SIL OFL 1.1 laut Google Fonts (Belege durch Justus offen).
+// preload:false = erst geladen, wenn ein Element die Schrift nutzt. Playfair, Montserrat, Dancing Script teilen sich die Variablen oben.
+const wBaskerville = Libre_Baskerville({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-wand-baskerville", display: "swap", preload: false });
+const wCormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-wand-cormorant", display: "swap", preload: false });
+const wGreatVibes = Great_Vibes({ subsets: ["latin"], weight: "400", variable: "--font-wand-greatvibes", display: "swap", preload: false });
+const wLeague = League_Gothic({ subsets: ["latin"], variable: "--font-wand-league", display: "swap", preload: false });
+const wOpenSans = Open_Sans({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-wand-opensans", display: "swap", preload: false });
+const wOutfit = Outfit({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-wand-outfit", display: "swap", preload: false });
+const wArimo = Arimo({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-wand-arimo", display: "swap", preload: false });
+const wCourier = Courier_Prime({ subsets: ["latin"], weight: ["700"], variable: "--font-wand-courier", display: "swap", preload: false });
+const wMansalva = Mansalva({ subsets: ["latin"], weight: "400", variable: "--font-wand-mansalva", display: "swap", preload: false });
+
 // 14 zusätzliche Schriften (Eko Bimantara / Khurasan), Dateien UNVERÄNDERT aus ./fonts-frei, selbst gehostet.
 // Lizenzen: siehe SCHRIFTEN-LIZENZEN.md (recht-texte im 3D-Druck-Ordner). preload:false = geladen erst, wenn ein Element die Schrift nutzt.
 const artsyF = localFont({ src: "./fonts-frei/artsy-morning.otf", weight: "400", style: "normal", variable: "--font-sf-artsy", display: "swap", preload: false, fallback: ["cursive"] });
@@ -45,6 +60,7 @@ const winterF = localFont({ src: "./fonts-frei/winter-draw.ttf", weight: "400", 
 const dragonF = localFont({ src: "./fonts-frei/wood-dragon.ttf", weight: "400", style: "normal", variable: "--font-sf-dragon", display: "swap", preload: false, fallback: ["cursive"] });
 
 export const fontVariablen = [
+  sans, wBaskerville, wCormorant, wGreatVibes, wLeague, wOpenSans, wOutfit, wArimo, wCourier, wMansalva,
   display, fraunces, montserrat, oswald, dancing, pacifico, caveat, satisfy, lobster, marker, bangers, creepster, righteous, playfair, cinzel,
   artsyF, bulbearF, oldwestF, rosemartinF, roundexF, startstoryF, streetyearF, sallyF, travelliaF, veganF, dramaF, winterF, dragonF,
 ].map((f) => f.variable).join(" ");
