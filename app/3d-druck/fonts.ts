@@ -2,7 +2,7 @@
 // Lizenz aller Schriften: SIL Open Font License 1.1 (laut Google Fonts; vor Livegang je Schrift belegen).
 // next/font verlangt literale Optionen (kein Spread).
 import {
-  Bricolage_Grotesque, Montserrat, Oswald, Dancing_Script, Pacifico, Caveat, Satisfy, Lobster,
+  Montserrat, Oswald, Dancing_Script, Pacifico, Caveat, Satisfy, Lobster,
   Permanent_Marker, Bangers, Creepster, Righteous, Playfair_Display, Cinzel, Fraunces,
   Inter, Libre_Baskerville, Cormorant_Garamond, Great_Vibes, Outfit, Arimo, Courier_Prime, Mansalva,
 } from "next/font/google";
@@ -10,9 +10,8 @@ import localFont from "next/font/local";
 
 // Schlichte Sans der neuen Startseite (Inter, SIL OFL 1.1 laut Google Fonts): variable Schrift, selbst gehostet, Subset latin.
 const sans = Inter({ subsets: ["latin"], variable: "--font-shop-sans", display: "swap" });
-const display = Bricolage_Grotesque({
-  subsets: ["latin", "latin-ext"], weight: ["600", "700", "800"], variable: "--font-shop-display", display: "swap",
-});
+// Bricolage Grotesque lokal (variable Datei 600-800, SIL OFL 1.1): next/font/google bricht bei dieser Schrift den Turbopack-Build auf Vercel.
+const display = localFont({ src: "./fonts-frei/bricolage-grotesque-latin.woff2", weight: "600 800", style: "normal", variable: "--font-shop-display", display: "swap", fallback: ["system-ui", "sans-serif"] });
 // Fraunces (Weihnachts-Überschriften): statischer Schnitt 600 normal + kursiv statt voller Variable-Font; nur Subset latin (Deutsch vollständig), lädt dank unicode-range nur bei Bedarf.
 // Lizenz: SIL OFL 1.1 laut Google Fonts (vor Livegang belegen, siehe SCHRIFTEN-LIZENZEN.md).
 const fraunces = Fraunces({ subsets: ["latin"], weight: ["600"], style: ["normal", "italic"], variable: "--font-shop-serif", display: "swap" });
