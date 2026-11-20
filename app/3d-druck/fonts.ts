@@ -4,7 +4,7 @@
 import {
   Bricolage_Grotesque, Montserrat, Oswald, Dancing_Script, Pacifico, Caveat, Satisfy, Lobster,
   Permanent_Marker, Bangers, Creepster, Righteous, Playfair_Display, Cinzel, Fraunces,
-  Inter, Libre_Baskerville, Cormorant_Garamond, Great_Vibes, League_Gothic, Open_Sans, Outfit, Arimo, Courier_Prime, Mansalva,
+  Inter, Libre_Baskerville, Cormorant_Garamond, Great_Vibes, Outfit, Arimo, Courier_Prime, Mansalva,
 } from "next/font/google";
 import localFont from "next/font/local";
 
@@ -36,8 +36,6 @@ const cinzel = Cinzel({ subsets: ["latin"], weight: ["700", "900"], variable: "-
 const wBaskerville = Libre_Baskerville({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-wand-baskerville", display: "swap", preload: false });
 const wCormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-wand-cormorant", display: "swap", preload: false });
 const wGreatVibes = Great_Vibes({ subsets: ["latin"], weight: "400", variable: "--font-wand-greatvibes", display: "swap", preload: false });
-const wLeague = League_Gothic({ subsets: ["latin"], variable: "--font-wand-league", display: "swap", preload: false });
-const wOpenSans = Open_Sans({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-wand-opensans", display: "swap", preload: false });
 const wOutfit = Outfit({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-wand-outfit", display: "swap", preload: false });
 const wArimo = Arimo({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-wand-arimo", display: "swap", preload: false });
 const wCourier = Courier_Prime({ subsets: ["latin"], weight: ["700"], variable: "--font-wand-courier", display: "swap", preload: false });
@@ -60,7 +58,7 @@ const winterF = localFont({ src: "./fonts-frei/winter-draw.ttf", weight: "400", 
 const dragonF = localFont({ src: "./fonts-frei/wood-dragon.ttf", weight: "400", style: "normal", variable: "--font-sf-dragon", display: "swap", preload: false, fallback: ["cursive"] });
 
 export const fontVariablen = [
-  sans, wBaskerville, wCormorant, wGreatVibes, wLeague, wOpenSans, wOutfit, wArimo, wCourier, wMansalva,
+  sans, wBaskerville, wCormorant, wGreatVibes, wOutfit, wArimo, wCourier, wMansalva,
   display, fraunces, montserrat, oswald, dancing, pacifico, caveat, satisfy, lobster, marker, bangers, creepster, righteous, playfair, cinzel,
   artsyF, bulbearF, oldwestF, rosemartinF, roundexF, startstoryF, streetyearF, sallyF, travelliaF, veganF, dramaF, winterF, dragonF,
 ].map((f) => f.variable).join(" ");
