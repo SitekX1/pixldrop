@@ -25,6 +25,11 @@
 .shop[data-look="modern"] .shop-foot { margin-top: 64px; }
 .shop[data-look="modern"] .shop-foot::before { background: #161513; box-shadow: 0 0 0 100vmax #161513; }
 .shop[data-look="modern"] .shop-foot a:not(.shop-widerruf-btn) { color: #FBFAF8; }
+/* Kontaktkasten im dunklen Fuß: heller Text auf dunkler Karte (vorher weißer Link auf heller Karte, unlesbar) */
+.shop[data-look="modern"] .shop-foot .shop-kontakt { background: #23211d; border-color: #3a3732; color: #E9E4DA; }
+.shop[data-look="modern"] .shop-foot .shop-kontakt h2 { color: #FBFAF8; }
+.shop[data-look="modern"] .shop-foot .shop-kontakt a { color: #FBFAF8; text-decoration: underline; }
+.shop[data-look="modern"] .shop-foot .muted { color: #B9B3A6; }
 
 /* ---------- Hinweisstreifen + Kopf ---------- */
 .sx-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 14px; padding: 8px 0; border-bottom: 1px solid var(--sx-line); font-size: 12px; line-height: 1.4; color: var(--sx-mute); }
