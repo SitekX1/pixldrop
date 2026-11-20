@@ -10,20 +10,36 @@ import ShopBesuch from "./ShopBesuch";
 
 // Shell: Kopf (Zurück-Link: Shop-Startseite → PixlDrop, alle anderen Seiten → Shop), Inhalt, Fuß. Theme ("halloween") per data-theme am Wrapper (Token-Austausch).
 export default function ShopShell({
-  children, theme, saison, banner, zurueck = "shop", ton = "papier",
-}: { children: React.ReactNode; theme?: "halloween"; saison?: "halloween-dark" | "weihnachten"; banner?: React.ReactNode; zurueck?: "shop" | "pixldrop"; ton?: "nacht" | "papier" }) {
+  children, theme, saison, banner, zurueck = "shop", ton = "papier", look, nav,
+}: { children: React.ReactNode; theme?: "halloween"; saison?: "halloween-dark" | "weihnachten"; banner?: React.ReactNode; zurueck?: "shop" | "pixldrop"; ton?: "nacht" | "papier"; look?: "modern"; nav?: React.ReactNode }) {
   // Ist Weihnachten die aktive Saison, tragen alle Shopseiten das Weihnachts-Theme (Ton "papier" zum Lesen/Zahlen, "nacht" mit Kulisse).
-  const wn = !theme && !saison && aktiveSaison() === "weihnachten";
+  // look="modern" (Startseite): helle, ruhige Oberfläche ohne Saison-Dunkelwelt, eigener Kopf (Styles: app/3d-druck/start.css).
+  const wn = !look && !theme && !saison && aktiveSaison() === "weihnachten";
   const saisonAttr = wn ? "weihnachten" : saison;
   const weihnachten = saisonAttr === "weihnachten";
   return (
-    <div className="shop" data-theme={theme} data-saison={saisonAttr} data-ton={weihnachten ? ton : undefined}>
+    <div className="shop" data-look={look} data-theme={theme} data-saison={saisonAttr} data-ton={weihnachten ? ton : undefined}>
       {saisonAttr === "halloween-dark" && <HalloweenDunkel />}
       {weihnachten && <WeihnachtenKulisse ton={ton} />}
       {theme === "halloween" && <HalloweenHintergrund />}
       <ShopBesuch />
       <a className="shop-skip" href="#inhalt">Zum Inhalt springen</a>
       {banner}
+      {look === "modern" ? (
+        <div className="shop-wrap">
+          <div className="sx-top">
+            <span>Auf Bestellung gedruckt, Lieferung in Deutschland</span>
+            <Link href="/3d-druck/widerruf#widerrufsfunktion">Vertrag widerrufen</Link>
+          </div>
+          <header className="sx-head">
+            <Link className="sx-logo" href="/3d-druck" aria-label={`${SHOP_NAME}, 3D-Druck, zur Shop-Startseite`}>
+              <span translate="no">{SHOP_NAME}</span><small aria-hidden="true">3D-Druck</small>
+            </Link>
+            {nav}
+            <WarenkorbLink />
+          </header>
+        </div>
+      ) : (
       <div className="shop-wrap">
         <header className="shop-head">
           {weihnachten ? (
@@ -38,6 +54,7 @@ export default function ShopShell({
           </span>
         </header>
       </div>
+      )}
       <main id="inhalt" tabIndex={-1} style={{ outline: "none" }}>{children}</main>
       <div className="shop-wrap">
         <footer className="shop-foot">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./shop.css";
 import "./weihnachten.css";
+import "./start.css";
 import { fontVariablen } from "./fonts";
 import { SHOP_SICHTBAR } from "@/lib/shop/config";
 
