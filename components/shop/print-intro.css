@@ -1,0 +1,85 @@
+.pi {
+  --pi-bg: #f1ece4;
+  --pi-ink: #161513;
+  --pi-wall: #8d877c;
+  --pi-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --pi-logo: min(46vw, 210px);
+  --pi-fs: min(13.2vw, 4.6rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.5rem 0.75rem 2rem;
+  background: var(--pi-bg);
+  color: var(--pi-ink);
+  overflow-x: clip;
+  min-height: calc(var(--pi-logo) + var(--pi-fs) * 2.7 + 5rem);
+}
+.pi-logo { position: relative; width: var(--pi-logo); height: var(--pi-logo); flex: none; }
+.pi-logo-img {
+  display: block; width: 100%; height: 100%;
+  clip-path: inset(0 0 0 0);
+  animation: pi-reveal 3.4s 0.3s linear both;
+}
+.pi-head {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 0;
+  animation: pi-rise 3.4s 0.3s linear both;
+  pointer-events: none;
+}
+.pi-sweep {
+  position: absolute; left: 0; right: 0; top: -39px; height: 40px;
+  animation: pi-sweep 0.68s 0.3s ease-in-out 5 alternate both;
+}
+.pi-sweep svg { position: absolute; left: 50%; top: 0; margin-left: -60px; }
+.pi-line {
+  position: absolute; left: 0; right: 0; top: 39px; height: 2px;
+  background: var(--pi-ink); opacity: 0.55;
+}
+.pi-title {
+  margin: 0; text-align: center;
+  font-family: 'Arial Black', 'Helvetica Neue', Impact, sans-serif;
+  font-weight: 900; text-transform: uppercase;
+  line-height: 1; letter-spacing: 0.01em;
+  font-size: var(--pi-fs);
+  height: calc(var(--pi-fs) * 2.7);
+  width: 100%;
+}
+.pi-row { display: block; white-space: nowrap; }
+.pi-row-1 { font-size: 0.6em; margin-top: 0.18em; }
+.pi-word { display: inline-block; margin: 0 0.12em; }
+.pi-ch {
+  display: inline-block;
+  text-shadow: 1px 1px 0 var(--pi-wall), 2px 2px 0 var(--pi-wall), 3px 3px 0 var(--pi-wall),
+    4px 4px 0 var(--pi-wall), 5px 5px 0 var(--pi-wall), 6px 6px 0 var(--pi-wall);
+  animation: pi-in-l 1s calc(0.3s + var(--i) * 0.1s) var(--pi-ease) both;
+}
+.pi-ch.from-r { animation-name: pi-in-r; }
+@keyframes pi-in-l {
+  from { transform: translate3d(-60vw, 0, 0) rotate(-14deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes pi-in-r {
+  from { transform: translate3d(60vw, 0, 0) rotate(14deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes pi-reveal { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes pi-rise {
+  0% { transform: translate3d(0, 0, 0); opacity: 1; }
+  92% { transform: translate3d(0, calc(var(--pi-logo) * -0.92), 0); opacity: 1; }
+  100% { transform: translate3d(0, calc(var(--pi-logo) * -1), 0); opacity: 0; }
+}
+@keyframes pi-sweep { from { transform: translate3d(-36%, 0, 0); } to { transform: translate3d(36%, 0, 0); } }
+
+@media (min-width: 900px) {
+  .pi {
+    --pi-logo: 260px; --pi-fs: 5.4rem;
+    flex-direction: row; justify-content: center; gap: 3rem;
+    padding: 2.5rem 2rem; min-height: 340px;
+  }
+  .pi-title { width: auto; text-align: left; }
+  .pi-row { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pi-logo-img, .pi-ch { animation: none; }
+  .pi-head { display: none; }
+}
