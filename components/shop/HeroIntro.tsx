@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState, type ComponentType } from "react";
+import { createPortal } from "react-dom";
 import "./print-intro.css";
 
 // Vollbild-3D-Intro vor der Startseite (PrintIntro, reines three.js). Das Modul wird erst nach der Hydration per import()
@@ -23,8 +24,9 @@ export default function HeroIntro() {
     try { window.sessionStorage.setItem(KEY, "1"); } catch { /* gesperrt */ }
     setPhase((p) => (p === "aus" || p === "weg" ? p : "weg"));
   }, []);
-  const abbruch = useCallback(() => setPhase("aus"), []);
+  const abbruch = useCallback(() => { setPhase("aus"); }, []);
 
+  useEffect(() => { console.info("DBG phase", phase); }, [phase]);
   // Entscheidung nach der Hydration
   useEffect(() => {
     let reduziert = false, gesehen = false, debug = false;
@@ -35,7 +37,7 @@ export default function HeroIntro() {
     if (reduziert || (gesehen && !debug)) { setPhase("aus"); return; }
     setPhase("laden");
     let tot = false;
-    const notfall = window.setTimeout(() => { if (!tot) setPhase("aus"); }, 4500);
+    const notfall = window.setTimeout(() => { if (!tot) { setPhase("aus"); } }, 4500);
     import("./PrintIntro")
       .then((m) => { if (tot) return; window.clearTimeout(notfall); setIntro(() => m.default); setPhase("an"); })
       .catch(() => { window.clearTimeout(notfall); if (!tot) setPhase("aus"); });
@@ -87,9 +89,11 @@ export default function HeroIntro() {
       </>
     );
   }
-  return (
+  // Per Portal direkt an body: der Startseiten-Hauptbereich bildet einen eigenen Stapelkontext (start.css), darin würde das Intro unter der Kopfzeile liegen.
+  return createPortal(
     <div className="pi-overlay" data-phase={phase} role="presentation">
       <Intro onEnde={() => setPhase((p) => (p === "an" ? "ende" : p))} onFehler={abbruch} onSkip={fertig} />
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -382,8 +382,8 @@ export default function PrintIntro({ onEnde, onFehler, onSkip }: Props) {
       // Ein- und Ausfahren des Druckers
       const inP = easeOutCubic(clamp01(t / 1.0))
       const outP = easeInCubic(clamp01((t - T_EXIT0) / (T_EXIT1 - T_EXIT0)))
-      const upShift = (1 - inP) * 9 + outP * 10
-      const downShift = (1 - inP) * 9 + outP * 9
+      const upShift = (1 - inP) * 14 + outP * 26
+      const downShift = (1 - inP) * 14 + outP * 26
       base.position.y = -downShift
       const headY = (pp < 1 ? printY : yTop) + upShift
       gantry.position.y = headY
