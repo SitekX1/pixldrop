@@ -69,6 +69,7 @@ export default async function ShopUebersicht() {
     <ShopShell look="modern" nav={nav} banner={<PauseBanner />}>
       <div className="shop-wrap">
         <BereichMerker kategorie="alle" />
+        <HeroIntro />
         <LogoMarke />
 
         <section className="sx-hero" aria-labelledby="titel">
@@ -89,7 +90,6 @@ export default async function ShopUebersicht() {
           <div className="sx-hero-bild">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={cover("bubble-buchstabe")} alt="Bubble Buchstaben in vielen Farben, Alphabet von A bis Z" width={1100} height={1100} fetchPriority="high" decoding="async" />
-            <HeroIntro />
           </div>
         </section>
 
