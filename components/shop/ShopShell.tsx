@@ -33,6 +33,8 @@ export default function ShopShell({
           </div>
           <header className="sx-head">
             <Link className="sx-logo" href="/3d-druck" aria-label={`${SHOP_NAME}, 3D-Druck, zur Shop-Startseite`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="sx-logo-marke" src="/shop/logo-pixldrop-3d.webp" alt="" width={52} height={52} />
               <span translate="no">{SHOP_NAME}</span><small aria-hidden="true">3D-Druck</small>
             </Link>
             {nav}

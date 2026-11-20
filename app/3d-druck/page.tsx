@@ -3,6 +3,7 @@ import ShopShell from "@/components/shop/ShopShell";
 import PauseBanner from "@/components/shop/PauseBanner";
 import KontaktDialog from "@/components/shop/KontaktDialog";
 import BereichMerker from "@/components/shop/BereichMerker";
+import LogoMarke from "@/components/shop/LogoMarke";
 import StartKarte from "@/components/shop/StartKarte";
 import HeroIntro from "@/components/shop/HeroIntro";
 import { aktiveSaison, saisonModus } from "@/lib/shop/saison";
@@ -68,6 +69,7 @@ export default async function ShopUebersicht() {
     <ShopShell look="modern" nav={nav} banner={<PauseBanner />}>
       <div className="shop-wrap">
         <BereichMerker kategorie="alle" />
+        <LogoMarke />
 
         <section className="sx-hero" aria-labelledby="titel">
           <div className="sx-hero-tx">

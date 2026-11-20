@@ -29,8 +29,10 @@
 /* ---------- Hinweisstreifen + Kopf ---------- */
 .sx-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 14px; padding: 8px 0; border-bottom: 1px solid var(--sx-line); font-size: 12px; line-height: 1.4; color: var(--sx-mute); }
 .shop .sx-top a { color: var(--sx-mute); text-decoration: underline; text-underline-offset: 2px; display: inline-flex; align-items: center; min-height: 28px; }
+.sx-logo-marke { flex: none; display: block; width: 44px; height: 44px; object-fit: contain; }
+@media (min-width: 900px) { .sx-logo-marke { width: 52px; height: 52px; } }
 .sx-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 0; min-height: 64px; }
-.shop .sx-logo { display: inline-flex; align-items: baseline; gap: 8px; min-height: 44px; align-items: center; color: var(--sx-ink); text-decoration: none; font-weight: 700; font-size: 21px; letter-spacing: -.03em; }
+.shop .sx-logo { display: inline-flex; gap: 10px; min-height: 44px; align-items: center; color: var(--sx-ink); text-decoration: none; font-weight: 700; font-size: 21px; letter-spacing: -.03em; }
 .sx-logo small { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--sx-mute); }
 .sx-nav { display: none; gap: 26px; font-size: 14px; font-weight: 500; }
 .shop .sx-nav a { color: var(--sx-mute); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; transition: color var(--sx-fast) ease; }
@@ -67,8 +69,8 @@
 .shop .sx-hero-tx > p { color: var(--sx-mute); max-width: 36ch; margin-bottom: 20px; font-size: 15px; line-height: 1.5; }
 .shop .sx-perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 22px 0 0; font-size: 12px; color: var(--sx-mute); text-align: left; line-height: 1.35; }
 .sx-perks b { display: block; color: var(--sx-ink); font-weight: 600; font-size: 12.5px; }
-.sx-hero-bild { position: relative; aspect-ratio: 1 / 1; width: 78%; margin: 12px auto 0; border-radius: 18px 18px 0 0; overflow: hidden; background: var(--sx-card2); box-shadow: 0 20px 50px -20px rgba(60, 40, 10, .35); }
-.sx-hero-bild > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sx-hero-bild { position: relative; aspect-ratio: 1 / 1; width: 78%; margin: 12px auto 16px; padding: 10px; box-sizing: border-box; border-radius: 18px; overflow: hidden; background: var(--sx-card2); box-shadow: 0 20px 50px -20px rgba(60, 40, 10, .35); }
+.sx-hero-bild > img { display: block; width: 100%; height: 100%; object-fit: contain; }
 /* Platz für das Intro: liegt über dem Foto, blendet nach dem Ende aus (nur opacity) */
 .sx-intro { position: absolute; inset: 0; z-index: 2; background: var(--sx-card); opacity: 1; transition: opacity 240ms var(--sx-out); cursor: pointer; display: grid; place-items: center; }
 .sx-intro[data-phase="weg"] { opacity: 0; pointer-events: none; }
@@ -76,7 +78,7 @@
 @media (min-width: 820px) {
   .sx-hero { grid-template-columns: 1.05fr 1fr; min-height: 480px; align-items: end; }
   .sx-hero-tx { padding: 56px 48px; align-self: center; }
-  .sx-hero-bild { width: 78%; margin: 36px 48px 0 auto; aspect-ratio: 1 / 1.05; }
+  .sx-hero-bild { width: 78%; margin: 36px 48px 36px auto; aspect-ratio: 1 / 1; padding: 14px; }
   .shop .sx-perks { grid-template-columns: repeat(3, auto); justify-content: start; gap: 36px; }
 }
 
@@ -180,3 +182,14 @@
   .shop[data-look="modern"] *, .shop[data-look="modern"] *::before, .shop[data-look="modern"] *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
   .shop .sx-btn:active, .sx-card:active .sx-card-img, .sx-cat:active i { transform: none; }
 }
+
+/* ---------- Hintergrundmarke (nur Startseite): Parallax über scroll-linked Animation, nur transform ---------- */
+.shop[data-look="modern"] main { position: relative; z-index: 0; }
+.sx-marke { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.sx-marke img { position: absolute; left: 50%; top: 22vh; width: 90vw; max-width: none; height: auto; opacity: .06; transform: translate(-50%, 0); }
+@media (min-width: 900px) { .sx-marke img { width: 60vw; max-width: 900px; top: 12vh; } }
+@supports (animation-timeline: scroll()) {
+  .sx-marke img { animation: sx-marke-par linear both; animation-timeline: scroll(root block); }
+}
+@keyframes sx-marke-par { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -35vh); } }
+@media (prefers-reduced-motion: reduce) { .sx-marke img { animation: none !important; transform: translate(-50%, 0); } }
