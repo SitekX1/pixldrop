@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import ShopShell from "@/components/shop/ShopShell";
 import ProductImage from "@/components/shop/ProductImage";
 import Beschreibung from "@/components/shop/Beschreibung";
+import BubbleKonfigurator from "@/components/shop/BubbleKonfigurator";
 import Galerie from "@/components/shop/Galerie";
 import FotoGalerie from "@/components/shop/FotoGalerie";
 import { coverFuer, coverIstFoto1, fotosFuer } from "@/lib/shop/fotos";
@@ -87,6 +88,7 @@ export default async function Produktseite({ params, searchParams }: Props) {
           </div>
         </div>
         </VorschauProvider>
+        {p.slug === "bubble-buchstabe" && <BubbleKonfigurator produkt={p} farbenAus={farbenAus} bestellbar={bestellbar} />}
         <section className="shop-detailbereich" aria-labelledby="details">
           <h2 id="details">Details</h2>
           <div className="shop-detailraster">

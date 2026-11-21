@@ -250,3 +250,36 @@
 .shop[data-look="modern"] .shop-price { font-weight: 700; letter-spacing: -.02em; }
 .shop[data-look="modern"] .shop-note, .shop[data-look="modern"] .shop-widerruf { border-radius: 8px; }
 .shop[data-look="modern"] .shop-btn { border-radius: 8px; }
+
+/* ===== Bubble-Konfigurator (Kinderzimmer-Wand) ===== */
+.shop-bk { margin: 8px 0 48px; display: grid; gap: 20px; }
+.shop-bk-kopf h2 { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 700; letter-spacing: -.02em; margin: 6px 0 8px; }
+.shop-bk-sub { max-width: 62ch; color: var(--sx-mute); font-size: .95rem; line-height: 1.55; margin: 0; }
+.shop-bk-raster { display: grid; gap: 20px; }
+@media (min-width: 960px) { .shop-bk-raster { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: start; } }
+.shop-bk-wand { border-radius: 14px; overflow: hidden; border: 1px solid var(--sx-line); background: #fff; }
+.shop-bk-bild { container-type: inline-size; position: relative; aspect-ratio: 16 / 10; overflow: hidden;
+  background:
+    linear-gradient(to bottom, transparent 0 82%, #f7f3ec 82% 85.5%, #d9c3a3 85.5% 100%),
+    radial-gradient(70% 55% at 85% 18%, rgba(255,255,255,.7), transparent 70%),
+    linear-gradient(170deg, #f0e6d6 0%, #e8dac6 100%); }
+.shop-bk-bild::before { content: ""; position: absolute; right: 7%; top: 8%; width: 16%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fbefe6, #f3d9d0); opacity: .75; }
+.shop-bk-bild::after { content: ""; position: absolute; left: 6%; top: 10%; width: 11%; aspect-ratio: 1.4; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #fbf6ee; opacity: .8; box-shadow: 4cqw 1cqw 0 -1cqw #fbf6ee; }
+.shop-bk-reihe { position: absolute; left: 0; right: 0; top: 14%; height: 62%; display: flex; align-items: center; justify-content: center; }
+.shop-bk-reihe > * { flex: none; }
+.shop-bk-b { display: block; background-size: 100% 100%; background-repeat: no-repeat; background-blend-mode: multiply; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+.shop-bk-reihe { filter: drop-shadow(.5cqw .8cqw .7cqw rgba(60, 40, 20, .28)); }
+.shop-bk-leer { color: #8a8478; font-size: 3cqw; }
+.shop-bk-massstab { position: absolute; left: 4cqw; bottom: 17%; display: flex; align-items: center; gap: 1.2cqw; font: 600 2.2cqw/1 var(--shop-display); color: #5b5547; }
+.shop-bk-massstab i { display: block; height: 1.1cqw; border: 1px solid #5b5547; border-top: 0; min-width: 6px; }
+.shop-bk-steuer { display: grid; gap: 16px; align-content: start; }
+.shop-bk-feld { display: grid; gap: 8px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.shop-bk-feld > span, .shop-bk-feld > legend { font: 600 .88rem/1.2 var(--shop-display); padding: 0; }
+.shop-bk-feld > span em { font-style: normal; font-weight: 400; color: var(--sx-mute); }
+.shop-bk-feld input.shop-input { text-transform: uppercase; letter-spacing: .06em; font-weight: 600; border-radius: 8px; }
+.shop-bk-hinweis { margin: 0; font-size: .85rem; color: var(--sx-mute); }
+.shop-bk-summe { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid var(--sx-line); }
+.shop-bk-summe strong { display: block; font-size: 1.6rem; letter-spacing: -.02em; line-height: 1.1; }
+.shop-bk-summe span { display: block; font-size: .82rem; color: var(--sx-mute); margin-top: 2px; }
+.shop-bk-summe .shop-btn[disabled] { opacity: .45; cursor: not-allowed; }
+.shop-bk-klein { margin: 0; font-size: .78rem; line-height: 1.5; color: var(--sx-mute); }
