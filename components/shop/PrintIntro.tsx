@@ -187,7 +187,7 @@ export default function PrintIntro({ onEnde, onFehler, onSkip }: Props) {
     let logoTex: THREE.Texture | null = null
     const addLayers = (tex: THREE.Texture) => {
       for (let i = 0; i < LAYERS; i++) {
-        const c = 0.52 + 0.48 * (1 - i / (LAYERS - 1)) // hintere Schichten dunkler: sichtbare Druckschichten an der Kante
+        const c = 0.26 + 0.2 * (1 - i / (LAYERS - 1)) // Licht (Hemisphere + Umgebung) ergibt ca. das 2,2-fache: Vorderseite so auf ca. 1,0 abgestimmt, sonst ausgewaschen; hintere Schichten dunkler: sichtbare Druckschichten an der Kante
         const m = new THREE.MeshStandardMaterial({ map: i === 0 ? tex : tex, color: new THREE.Color(c, c, c), roughness: 0.9, metalness: 0, alphaTest: 0.5, clippingPlanes: [clip] })
         m.alphaToCoverage = true
         const mesh = new THREE.Mesh(circle, m)
