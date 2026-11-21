@@ -76,13 +76,13 @@ export default async function ShopUebersicht() {
           <div className="sx-hero-tx">
             <span className="sx-pill">Bestseller</span>
             <h1 id="titel">Dein Name.<br />Deine Wand.</h1>
-            <p>Bubble Buchstaben in 24 Farben, auf Bestellung gedruckt. Höhe, Farbe und Oberfläche wählst du selbst, den Preis siehst du sofort.</p>
+            <p>Bubble Buchstaben in 23 Farben, auf Bestellung gedruckt. Höhe, Farbe und Oberfläche wählst du selbst, den Preis siehst du sofort.</p>
             <div className="sx-row">
               <Link className="sx-btn" href="/3d-druck/bubble-buchstabe">Buchstaben gestalten</Link>
               <a className="sx-btn sx-btn--o" href="#lieblinge">Alle Produkte</a>
             </div>
             <ul className="sx-perks">
-              <li><b>24 Farben</b>zum Aussuchen</li>
+              <li><b>23 Farben</b>zum Aussuchen</li>
               <li><b>Selbst gedruckt</b>auf Bestellung</li>
               <li><b>3 bis 15 cm</b>Höhe wählbar</li>
             </ul>

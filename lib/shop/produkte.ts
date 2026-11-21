@@ -139,13 +139,14 @@ const KOMBI_WOCHENTAG: Farbkombination[] = [
 // Bubble-Buchstaben: feste Farbpalette wie auf Etsy (Alex 17.11.2026), keine Lagerprüfung. Ist eine Spule leer, sperrt Alex die Farbe im Panel
 // (shop_einstellungen "bubble_farben_aus", Farb-IDs kommagetrennt): sie erscheint durchgestrichen und ist nicht bestellbar.
 const BUBBLE_FARBEN: [string, string, string][] = [
-  ["weiss", "Weiß", "#ffffff"], ["elfenbein", "Elfenbein", "#fffff0"], ["hellbeige", "Hellbeige", "#f0e0d6"], ["beige", "Beige", "#d7c4a3"],
-  ["latte", "Latte", "#d3b7a7"], ["eiche", "Eiche", "#c2a59a"], ["lehm", "Lehm", "#978f81"], ["braun", "Braun", "#6d4c41"],
-  ["grau", "Grau", "#808080"], ["schwarz", "Schwarz", "#1c1c1c"], ["puderblau", "Puderblau", "#b8e3e9"], ["hellblau", "Hellblau", "#4fc3f7"],
-  ["tuerkis", "Türkis", "#00acc1"], ["cyan", "Cyan", "#1e64d0"], ["violett", "Violett", "#7b1fa2"], ["feuerrot", "Feuerrot", "#d32f2f"],
-  ["sunny-orange", "Sunny Orange", "#ed7334"], ["orange", "Orange", "#f57c00"], ["gruen", "Grün", "#2ca300"], ["olivgruen", "Olivgrün", "#5a6d3d"],
-  ["rot-silk", "Rot Silk", "#b71c1c"], ["gold-silk", "Gold Silk", "#d4af37"], ["blau-silk", "Blau Silk", "#2a4fc0"], ["candy-gruen-silk", "Candy Grün Silk", "#388e3c"],
+  ["weiss", "Weiß", "#ffffff"], ["elfenbein", "Elfenbein", "#f4f1e8"], ["hellbeige", "Hautton", "#f6dfc6"], ["beige", "Beige", "#e4d8bc"],
+  ["latte", "Latte", "#d3b7a7"], ["eiche", "Eiche", "#c2a59a"], ["lehm", "Clay", "#978f81"], ["braun", "Braun", "#a8785a"],
+  ["grau", "Grau", "#8e9089"], ["schwarz", "Schwarz", "#1a1a1a"], ["puderblau", "Puderblau", "#b8e3e9"], ["hellblau", "Hellblau", "#4fc3f7"],
+  ["tuerkis", "Türkis", "#00acc1"], ["cyan", "Cyan", "#1f8fd6"], ["violett", "Violett", "#7b1fa2"], ["feuerrot", "Feuerrot", "#d32f2f"],
+  ["sunny-orange", "Orange", "#ed7334"], ["gruen", "Grün", "#2ca300"], ["olivgruen", "Olivgrün", "#5a6d3d"],
+  ["rot-silk", "Rot Silk", "#d02727"], ["gold-silk", "Gold Silk", "#f4a925"], ["blau-silk", "Blau Silk", "#008bda"], ["candy-gruen-silk", "Candy Grün Silk", "#018814"],
 ];
+// Farb-IDs bleiben stabil (Panel-Sperre, alte Bestellungen): "hellbeige" heißt jetzt Hautton, "lehm" Clay, "sunny-orange" Orange; "orange" (Bambu) entfällt.
 const FARBEN_BUBBLE: Farbkombination[] = BUBBLE_FARBEN.map(([id, name, hex]) => ({ id, label: name, farben: [{ name, hex }] }));
 const BUBBLE_ZEICHEN = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"].map((c) => ({ id: c.toLowerCase(), label: c }))
   .concat([{ id: "komma", label: "Komma ," }, { id: "punkt", label: "Punkt ." }, { id: "bindestrich", label: "Bindestrich -" }]);
@@ -154,7 +155,7 @@ export const PRODUKTE: Produkt[] = [
   {
     slug: "bubble-buchstabe",
     name: "Bubble Buchstabe",
-    kurz: "Dein Buchstabe, rund und weich wie ein Kissen. 3D-Druck in 24 Farben, 3 bis 15 cm hoch.",
+    kurz: "Dein Buchstabe, rund und weich wie ein Kissen. 3D-Druck in 23 Farben, 3 bis 15 cm hoch.",
     beschreibung:
       "Dein Buchstabe, rund und weich wie ein Kissen. Ich drucke jeden Buchstaben einzeln für dich, in der Farbe, die zu deinem Raum passt. So bestellst du: Höhe wählen, Buchstabe, Zahl oder Zeichen wählen, Farbe wählen, Oberfläche wählen. Für einen ganzen Namen legst du jeden Buchstaben einzeln in den Warenkorb. Material: PLA, matte Oberfläche (die Silk-Farben glänzen leicht). Die Rückseite ist flach, mit Klebepad oder doppelseitigem Klebeband lässt sich der Buchstabe an Wand, Tür oder Regal anbringen. Befestigungsmaterial liegt nicht bei, die Buchstaben stehen nicht von selbst. Die Oberfläche gibt es glatt (klassisch, matt, ebenmäßig) oder als Struktur (fein texturiert, verdeckt kleine Unebenheiten vom Drucken, wirkt lebendig); beide kosten dasselbe. Höhe wie gewählt, die Breite ist je nach Buchstabe unterschiedlich. Bei 3D-Druck sind feine Schichtlinien normal. Farben können je nach Bildschirm leicht abweichen. Jedes Stück wird frisch für dich gedruckt.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "rund", grundfarbe: "#e9b8a0",
