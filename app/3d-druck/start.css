@@ -75,7 +75,8 @@
 .shop .sx-perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 22px 0 0; font-size: 12px; color: var(--sx-mute); text-align: left; line-height: 1.35; }
 .sx-perks b { display: block; color: var(--sx-ink); font-weight: 600; font-size: 12.5px; }
 .sx-hero-bild { position: relative; aspect-ratio: 1 / 1; width: 78%; margin: 12px auto 16px; padding: 10px; box-sizing: border-box; border-radius: 18px; overflow: hidden; background: var(--sx-card2); box-shadow: 0 20px 50px -20px rgba(60, 40, 10, .35); }
-.sx-hero-bild > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.sx-hero-bild > a { display: block; width: 100%; height: 100%; }
+.sx-hero-bild img { display: block; width: 100%; height: 100%; object-fit: contain; }
 /* Platz für das Intro: liegt über dem Foto, blendet nach dem Ende aus (nur opacity) */
 .sx-intro { position: absolute; inset: 0; z-index: 2; background: var(--sx-card); opacity: 1; transition: opacity 240ms var(--sx-out); cursor: pointer; display: grid; place-items: center; }
 .sx-intro[data-phase="weg"] { opacity: 0; pointer-events: none; }

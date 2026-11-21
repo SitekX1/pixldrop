@@ -78,7 +78,7 @@ export default async function ShopUebersicht() {
             <h1 id="titel">Dein Name.<br />Deine Wand.</h1>
             <p>Bubble Buchstaben in 23 Farben, auf Bestellung gedruckt. Höhe, Farbe und Oberfläche wählst du selbst, den Preis siehst du sofort.</p>
             <div className="sx-row">
-              <Link className="sx-btn" href="/3d-druck/bubble-buchstabe">Buchstaben gestalten</Link>
+              <Link className="sx-btn" href="/3d-druck/bubble-buchstabe#bk-titel">Buchstaben gestalten</Link>
               <a className="sx-btn sx-btn--o" href="#lieblinge">Alle Produkte</a>
             </div>
             <ul className="sx-perks">
@@ -88,8 +88,10 @@ export default async function ShopUebersicht() {
             </ul>
           </div>
           <div className="sx-hero-bild">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={cover("bubble-buchstabe")} alt="Bubble Buchstaben in vielen Farben, Alphabet von A bis Z" width={1100} height={1100} fetchPriority="high" decoding="async" />
+            <Link href="/3d-druck/bubble-buchstabe#bk-titel" aria-label="Zum Konfigurator: Buchstaben gestalten">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={cover("bubble-buchstabe")} alt="Bubble Buchstaben in vielen Farben, Alphabet von A bis Z" width={1100} height={1100} fetchPriority="high" decoding="async" />
+            </Link>
           </div>
         </section>
 
