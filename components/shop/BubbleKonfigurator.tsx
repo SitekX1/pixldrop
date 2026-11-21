@@ -65,7 +65,6 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
   const proz = (cm: number) => `${(cm / wandCm) * 100}cqw`;
   const anzahl = zeichen.filter((z) => z.farbe).length;
   const summeCent = anzahl * h.cent;
-  const massstab = wandCm <= 80 ? 10 : wandCm <= 120 ? 20 : wandCm <= 250 ? 50 : 100;
 
   function inKorb() {
     if (!anzahl || !bestellbar) return;
@@ -124,9 +123,7 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
                 ) : <span key={i} style={{ width: proz(h.cm * 0.55), height: 1 }} />,
               )}
             </div>
-            <div className="shop-bk-massstab" aria-hidden="true">
-              <i style={{ width: proz(massstab) }} /><span>{massstab} cm</span>
-            </div>
+            <div className="shop-bk-hoehe" aria-hidden="true">Buchstaben {h.cm} cm hoch · Wand ca. {Math.round(wandCm)} cm breit</div>
           </div>
         </div>
 

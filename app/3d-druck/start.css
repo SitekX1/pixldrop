@@ -266,7 +266,7 @@
 .shop-bk-bild.shop-bk-bild--foto::before, .shop-bk-bild.shop-bk-bild--foto::after { content: none; }
 .shop-bk-foto { position: absolute; height: auto; display: block; pointer-events: none; user-select: none; }
 .shop-bk-bild--foto .shop-bk-reihe { z-index: 1; }
-.shop-bk-bild--foto .shop-bk-massstab { z-index: 2; }
+.shop-bk-hoehe { position: absolute; left: 3cqw; bottom: 3cqw; z-index: 2; padding: .9cqw 2cqw; border-radius: 99px; background: rgba(255, 255, 255, .82); color: #4a4437; font: 600 max(10px, 2.1cqw)/1.2 var(--shop-display); letter-spacing: .01em; backdrop-filter: blur(4px); }
 .shop-bk-bild { container-type: inline-size; position: relative; aspect-ratio: 16 / 10; overflow: hidden;
   background:
     linear-gradient(to bottom, transparent 0 82%, #f7f3ec 82% 85.5%, #d9c3a3 85.5% 100%),
