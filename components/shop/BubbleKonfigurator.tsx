@@ -13,6 +13,8 @@ type Masse = Record<string, { breiteMm: number; hoeheMm: number; untenMm: number
 const M = masse as Masse;
 const H_PX = 360; // Sprite-Höhe für 60 mm Buchstabenhöhe (siehe Renderskript)
 const MAX_ZEICHEN = 12;
+const FOTO_CM = 140; // Breite der Wand im Foto /shop/kinderzimmer-wand.webp (geschätzt)
+const FOTO_ZEILE = 0.342; // Höhe der Buchstabenzeile im Foto (Anteil der Fotohöhe), dort wurde das Wort entfernt
 // Zeichen -> Sprite-Schlüssel / Warenkorb-ID (Buchstaben A-Z bleiben groß im Sprite-Schlüssel, Ziffern und Satzzeichen wie im Shop)
 const SONDER: Record<string, string> = { ",": "komma", ".": "punkt", "-": "bindestrich" };
 const spriteKey = (c: string) => SONDER[c] ?? c;
@@ -57,7 +59,9 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
   const cmV = (c: string) => (M[spriteKey(c)].untenMm / 60) * h.cm;
   const cmH = (c: string) => (M[spriteKey(c)].pxHoehe / H_PX) * h.cm;
   const gesamtCm = zeichen.reduce((s, z) => s + (z.c === " " ? h.cm * 0.55 : cmB(z.c)), 0);
-  const wandCm = Math.max(70, Math.ceil((gesamtCm * 1.35) / 10) * 10);
+  // Das Wandfoto zeigt ca. FOTO_CM cm Wand. Wird der Text breiter, wird das Foto verkleinert (Maßstab bleibt echt) und läuft an den Rändern in die Wandfarbe aus.
+  const wandCm = Math.max(FOTO_CM, Math.ceil((gesamtCm * 1.25) / 10) * 10);
+  const sk = FOTO_CM / wandCm; // Foto-Maßstab 0..1
   const proz = (cm: number) => `${(cm / wandCm) * 100}cqw`;
   const anzahl = zeichen.filter((z) => z.farbe).length;
   const summeCent = anzahl * h.cent;
@@ -96,7 +100,15 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
 
       <div className="shop-bk-raster">
         <div className="shop-bk-wand" role="img" aria-label={`Vorschau: ${sauber || "dein Wort"} in ${h.cm} cm Höhe an einer Kinderzimmer-Wand`}>
-          <div className="shop-bk-bild" style={{ ["--wand-cm" as string]: wandCm }}>
+          <div className="shop-bk-bild shop-bk-bild--foto" style={{ ["--wand-cm" as string]: wandCm }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="shop-bk-foto" src="/shop/kinderzimmer-wand.webp" alt="" decoding="async"
+              style={{
+                width: `${sk * 100}cqw`, left: `${(100 - sk * 100) / 2}cqw`, top: `${36 * 0.625 - FOTO_ZEILE * sk * 100}cqw`,
+                ...(sk < 0.98 ? { WebkitMaskImage: "linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)", maskImage: "linear-gradient(to right, transparent, #000 7%, #000 93%, transparent)" } : {}),
+              }}
+            />
             <div className="shop-bk-reihe" style={{ gap: 0 }}>
               {zeichen.length === 0 && <span className="shop-bk-leer">Gib oben einen Namen ein</span>}
               {zeichen.map((z, i) =>

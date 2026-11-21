@@ -259,6 +259,14 @@
 .shop-bk-raster { display: grid; gap: 20px; }
 @media (min-width: 960px) { .shop-bk-raster { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: start; } }
 .shop-bk-wand { border-radius: 14px; overflow: hidden; border: 1px solid var(--sx-line); background: #fff; }
+/* Vorschau bleibt beim Scrollen oben stehen, damit man darunter Höhe, Farbe usw. wählen kann, ohne hochzuscrollen */
+.shop-bk-wand { position: sticky; top: 8px; z-index: 6; box-shadow: 0 10px 24px -14px rgba(60, 40, 10, .45); }
+@media (min-width: 960px) { .shop-bk-wand { top: 84px; } }
+.shop-bk-bild--foto { background: linear-gradient(to bottom, transparent 0 82%, #f1ede6 82% 85.5%, #cdb48f 85.5% 100%), #e4e1da; }
+.shop-bk-bild.shop-bk-bild--foto::before, .shop-bk-bild.shop-bk-bild--foto::after { content: none; }
+.shop-bk-foto { position: absolute; height: auto; display: block; pointer-events: none; user-select: none; }
+.shop-bk-bild--foto .shop-bk-reihe { z-index: 1; }
+.shop-bk-bild--foto .shop-bk-massstab { z-index: 2; }
 .shop-bk-bild { container-type: inline-size; position: relative; aspect-ratio: 16 / 10; overflow: hidden;
   background:
     linear-gradient(to bottom, transparent 0 82%, #f7f3ec 82% 85.5%, #d9c3a3 85.5% 100%),
@@ -266,7 +274,7 @@
     linear-gradient(170deg, #f0e6d6 0%, #e8dac6 100%); }
 .shop-bk-bild::before { content: ""; position: absolute; right: 7%; top: 8%; width: 16%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fbefe6, #f3d9d0); opacity: .75; }
 .shop-bk-bild::after { content: ""; position: absolute; left: 6%; top: 10%; width: 11%; aspect-ratio: 1.4; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #fbf6ee; opacity: .8; box-shadow: 4cqw 1cqw 0 -1cqw #fbf6ee; }
-.shop-bk-reihe { position: absolute; left: 0; right: 0; top: 14%; height: 62%; display: flex; align-items: center; justify-content: center; }
+.shop-bk-reihe { position: absolute; left: 0; right: 0; top: 36%; height: 0; display: flex; align-items: center; justify-content: center; }
 .shop-bk-reihe > * { flex: none; }
 .shop-bk-b { display: block; background-size: 100% 100%; background-repeat: no-repeat; background-blend-mode: multiply; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
 .shop-bk-reihe { filter: drop-shadow(.5cqw .8cqw .7cqw rgba(60, 40, 20, .28)); }

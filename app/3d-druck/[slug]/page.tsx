@@ -61,6 +61,8 @@ export default async function Produktseite({ params, searchParams }: Props) {
     <ShopShell banner={<PauseBanner />}>
       <div className="shop-wrap" style={{ paddingBottom: 96 }}>
         <Link className="shop-crumb" href={halloween ? "/3d-druck" : "/3d-druck"}>← Alle Stücke</Link>
+        {/* Konfigurator ganz oben: Vorschau bleibt beim Scrollen stehen, darunter Höhe/Oberfläche wählen; einzelne Zeichen bestellt man weiter unten */}
+        {p.slug === "bubble-buchstabe" && <BubbleKonfigurator produkt={p} farbenAus={farbenAus} bestellbar={bestellbar} />}
         <VorschauProvider>
         <div className="shop-product">
           <Galerie bild={fotosFuer(p.slug).length ? <FotoGalerie bildHinweis={p.gruppe === "weihnachten" ? TEXTE.bildHinweisWeihnachten : TEXTE.bildHinweis} cover={coverFuer(p.slug, halloween) && !coverIstFoto1(p.slug, halloween) ? { src: coverFuer(p.slug, halloween)!, alt: `${p.name}, Titelbild` } : undefined} vorText={p.personalisierung?.standardText} slug={p.slug} form={p.form} grundfarbe={p.grundfarbe} fotos={fotosFuer(p.slug)} name={p.name} /> : <><LiveProductImage form={p.form} grundfarbe={p.grundfarbe} /><p className="shop-fotohinweis"><strong>Wichtig:</strong> {TEXTE.bildHinweis}</p></>} preis={preis} chips={[p.material, ...(p.masse ? [`ca. ${p.masse} mm`] : [])]} />
@@ -88,7 +90,6 @@ export default async function Produktseite({ params, searchParams }: Props) {
           </div>
         </div>
         </VorschauProvider>
-        {p.slug === "bubble-buchstabe" && <BubbleKonfigurator produkt={p} farbenAus={farbenAus} bestellbar={bestellbar} />}
         <section className="shop-detailbereich" aria-labelledby="details">
           <h2 id="details">Details</h2>
           <div className="shop-detailraster">
