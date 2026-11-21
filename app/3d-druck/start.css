@@ -188,13 +188,8 @@
   .shop .sx-btn:active, .sx-card:active .sx-card-img, .sx-cat:active i { transform: none; }
 }
 
-/* ---------- Hintergrundmarke (nur Startseite): Parallax über scroll-linked Animation, nur transform ---------- */
+/* ---------- Hintergrundmarke (nur Startseite): fest in der Bildschirmmitte, bewegt sich nicht ---------- */
 .shop[data-look="modern"] main { position: relative; z-index: 0; }
 .sx-marke { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-.sx-marke img { position: absolute; left: 50%; top: 22vh; width: 90vw; max-width: none; height: auto; opacity: .06; transform: translate(-50%, 0); }
-@media (min-width: 900px) { .sx-marke img { width: 60vw; max-width: 900px; top: 12vh; } }
-@supports (animation-timeline: scroll()) {
-  .sx-marke img { animation: sx-marke-par linear both; animation-timeline: scroll(root block); }
-}
-@keyframes sx-marke-par { from { transform: translate(-50%, 0); } to { transform: translate(-50%, -35vh); } }
-@media (prefers-reduced-motion: reduce) { .sx-marke img { animation: none !important; transform: translate(-50%, 0); } }
+.sx-marke img { position: absolute; left: 50%; top: 50%; width: 90vw; max-width: none; height: auto; opacity: .06; transform: translate(-50%, -50%); }
+@media (min-width: 900px) { .sx-marke img { width: 60vw; max-width: 900px; } }
