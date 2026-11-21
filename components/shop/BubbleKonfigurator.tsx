@@ -9,10 +9,14 @@ import { KOMBI_KEY, type Produkt } from "@/lib/shop/produkte";
 import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
 import { formatPreis } from "@/lib/shop/config";
 
-type Masse = Record<string, { breiteMm: number; hoeheMm: number; pxBreite: number; pxHoehe: number; padPx: number }>;
+type Masse = Record<string, { breiteMm: number; hoeheMm: number; untenMm: number; pxBreite: number; pxHoehe: number; padPx: number }>;
 const M = masse as Masse;
 const H_PX = 360; // Sprite-Höhe für 60 mm Buchstabenhöhe (siehe Renderskript)
 const MAX_ZEICHEN = 12;
+// Zeichen -> Sprite-Schlüssel / Warenkorb-ID (Buchstaben A-Z bleiben groß im Sprite-Schlüssel, Ziffern und Satzzeichen wie im Shop)
+const SONDER: Record<string, string> = { ",": "komma", ".": "punkt", "-": "bindestrich" };
+const spriteKey = (c: string) => SONDER[c] ?? c;
+const zeichenId = (c: string) => SONDER[c] ?? c.toLowerCase();
 
 // Reihenfolge wie auf dem Cover (Dunkelblau, Petrol, Orange, Hellblau, Rosa, Flieder), aber mit den echten Lagerfarben.
 const PALETTE: { id: string; name: string; hex: string }[] = [
@@ -38,9 +42,9 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
   const frei = PALETTE.filter((p) => !farbenAus.includes(p.id));
   const palette = frei.length ? frei : PALETTE;
 
-  // Eingabe: nur A-Z und Leerzeichen (Zahlen/Zeichen werden unten einzeln bestellt)
-  const sauber = text.toUpperCase().replace(/[^A-Z ]/g, "").replace(/ +/g, " ").slice(0, MAX_ZEICHEN);
-  const ignoriert = text.length > 0 && text.toUpperCase().replace(/ /g, "").replace(/[A-Z]/g, "").length > 0;
+  // Eingabe: A-Z, 0-9, Komma, Punkt, Bindestrich und Leerzeichen (alles andere, z. B. Umlaute, bestellst du unten einzeln)
+  const sauber = text.toUpperCase().replace(/[^A-Z0-9 .,-]/g, "").replace(/ +/g, " ").slice(0, MAX_ZEICHEN);
+  const ignoriert = text.length > 0 && text.toUpperCase().replace(/ /g, "").replace(/[A-Z0-9.,-]/g, "").length > 0;
 
   const zeichen = useMemo(() => {
     let k = 0;
@@ -48,8 +52,10 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
   }, [sauber, palette]);
 
   // Maße in cm: Sprite-Breite = pxBreite/H_PX * Höhe
-  const cmB = (c: string) => (M[c].pxBreite / H_PX) * h.cm;
-  const cmH = (c: string) => (M[c].pxHoehe / H_PX) * h.cm;
+  const cmB = (c: string) => (M[spriteKey(c)].pxBreite / H_PX) * h.cm;
+  // Höhenlage wie im Druckmodell (Komma hängt unter die Grundlinie, Bindestrich sitzt in der Mitte)
+  const cmV = (c: string) => (M[spriteKey(c)].untenMm / 60) * h.cm;
+  const cmH = (c: string) => (M[spriteKey(c)].pxHoehe / H_PX) * h.cm;
   const gesamtCm = zeichen.reduce((s, z) => s + (z.c === " " ? h.cm * 0.55 : cmB(z.c)), 0);
   const wandCm = Math.max(70, Math.ceil((gesamtCm * 1.35) / 10) * 10);
   const proz = (cm: number) => `${(cm / wandCm) * 100}cqw`;
@@ -70,7 +76,7 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
     for (const e of zaehler.values()) {
       const r = fuegeHinzu(korb, {
         slug: produkt.slug, farbeId: null,
-        optionen: { hoehe: hid, zeichen: e.c.toLowerCase(), oberflaeche: glatt ? "glatt" : "struktur", [KOMBI_KEY]: e.farbe },
+        optionen: { hoehe: hid, zeichen: zeichenId(e.c), oberflaeche: glatt ? "glatt" : "struktur", [KOMBI_KEY]: e.farbe },
         text: "", schriftId: null, menge: e.n,
       });
       if (!r.ok) { setMeldung({ ok: false, text: "Der Warenkorb ist voll (höchstens 20 verschiedene Positionen). Bestelle bitte in zwei Runden." }); return; }
@@ -98,9 +104,9 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
                   <span
                     key={i} className="shop-bk-b"
                     style={{
-                      width: proz(cmB(z.c)), height: proz(cmH(z.c)),
-                      backgroundImage: `url(/shop/bubble/${z.c}.webp)`, backgroundColor: z.farbe.hex,
-                      WebkitMaskImage: `url(/shop/bubble/${z.c}.webp)`, maskImage: `url(/shop/bubble/${z.c}.webp)`,
+                      width: proz(cmB(z.c)), height: proz(cmH(z.c)), position: "relative", top: proz(-cmV(z.c)),
+                      backgroundImage: `url(/shop/bubble/${spriteKey(z.c)}.webp)`, backgroundColor: z.farbe.hex,
+                      WebkitMaskImage: `url(/shop/bubble/${spriteKey(z.c)}.webp)`, maskImage: `url(/shop/bubble/${spriteKey(z.c)}.webp)`,
                     }}
                   />
                 ) : <span key={i} style={{ width: proz(h.cm * 0.55), height: 1 }} />,
@@ -114,10 +120,10 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
 
         <div className="shop-bk-steuer">
           <label className="shop-bk-feld">
-            <span>Dein Wort oder Name <em>(bis {MAX_ZEICHEN} Zeichen, A bis Z)</em></span>
+            <span>Dein Wort oder Name <em>(bis {MAX_ZEICHEN} Zeichen: A bis Z, 0 bis 9, Komma, Punkt, Bindestrich)</em></span>
             <input className="shop-input" value={text} maxLength={MAX_ZEICHEN + 6} autoCapitalize="characters" autoComplete="off" spellCheck={false} onChange={(e) => { setText(e.target.value); setMeldung(null); }} />
           </label>
-          {ignoriert && <p className="shop-bk-hinweis">Hier gehen nur Buchstaben von A bis Z. Zahlen, Satzzeichen und Umlaute bestellst du darunter einzeln.</p>}
+          {ignoriert && <p className="shop-bk-hinweis">Hier gehen Buchstaben von A bis Z, Zahlen, Komma, Punkt und Bindestrich. Umlaute und andere Zeichen bestellst du darunter einzeln.</p>}
 
           <fieldset className="shop-bk-feld">
             <legend>Höhe</legend>
