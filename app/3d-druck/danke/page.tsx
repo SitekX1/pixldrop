@@ -1,6 +1,5 @@
 import Link from "next/link";
 import ShopShell from "@/components/shop/ShopShell";
-import EddieSchnitt from "@/components/shop/EddieSchnitt";
 import Ring from "@/components/shop/Ring";
 import { TEXTE } from "@/lib/shop/config";
 import { holeEinstellungen } from "@/lib/shop/server/einstellungen";
@@ -56,7 +55,6 @@ export default async function Danke({ searchParams }: { searchParams: Promise<{ 
               <li><strong>Druck und Versand</strong>Lieferzeit: {lieferzeit ?? TEXTE.lieferzeitHinweis}. Ich drucke und verpacke selbst.</li>
             </ol>
           </section>
-          <EddieSchnitt className="shop-eddie-mini" />
           <Link className="shop-btn" href="/3d-druck">Zurück zu den Stücken</Link>
         </section>
       </div>

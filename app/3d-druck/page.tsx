@@ -56,7 +56,7 @@ export default async function ShopUebersicht() {
     { id: "wand", label: "Wandtexte", sub: "Bald verfügbar" },
     ...(zeigeTechnik ? [{ id: "technik" as const, label: "Technik", sub: "Bald" }] : []),
     ...(zeigeWn ? [{ id: "weihnachten" as const, label: "Weihnachten", sub: aktionLaeuft ? "Aktion" : "Advent", bild: cover("weihnachtskugel") }] : []),
-    { id: "lieblinge", label: "Lieblingsstücke", sub: "Eddie & Spaß", bild: cover("wochentags-untersetzer-set") },
+    { id: "lieblinge", label: "Lieblingsstücke", sub: "Spaß & Besonderes", bild: cover("wochentags-untersetzer-set") },
   ];
 
   const nav = (
@@ -198,7 +198,7 @@ export default async function ShopUebersicht() {
           </section>
         )}
 
-        {/* 5. Lieblingsstücke: alles mit Eddie und Spaß, ganz hinten */}
+        {/* 5. Lieblingsstücke: alles Verspielte und Besondere, ganz hinten */}
         <section id="lieblinge" className="sx-sec" aria-labelledby="h-lieblinge">
           <div className="sx-hd"><h2 id="h-lieblinge">{BEREICH_NAME.lieblinge}</h2><span className="sx-hd-sub">Untersetzer, Schilder und Deko mit Humor</span></div>
           {gruppen.lieblinge.length > 0 ? (

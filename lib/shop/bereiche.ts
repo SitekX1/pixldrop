@@ -20,7 +20,7 @@ export const BEREICH_NAME: Record<BereichId, string> = {
   lieblinge: "Lieblingsstücke",
 };
 
-/** Zuordnung Artikel → Bereich. Weihnachtsartikel im Weihnachtsbereich, alles mit Eddie/Spaß hinten in den Lieblingsstücken. */
+/** Zuordnung Artikel → Bereich. Weihnachtsartikel im Weihnachtsbereich, alles Verspielte/Besondere hinten in den Lieblingsstücken. */
 export function bereichFuer(p: Produkt): BereichId {
   if (p.slug === "bubble-buchstabe") return "bubble";
   if (p.gruppe === "weihnachten") return "weihnachten";
