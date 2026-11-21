@@ -4,10 +4,12 @@
 // Echte extrudierte Buchstaben (PIXLDROP / 3D DRUCK SHOP) fliegen von links und rechts herein und rasten ein,
 // ein 3D-Drucker-Portal druckt dabei Schicht für Schicht das Logo (Clipping-Ebene von unten nach oben) und fährt dann
 // aus dem Bild. Warmes Wandlicht mit weichen Schatten (Shadow-Map 1024).
-// Glyphen: lib/introGlyphs.json (Montserrat SemiBold, SIL OFL 1.1, per fontTools vorab erzeugt, keine Laufzeit-Requests).
+// Glyphen: lib/introGlyphs.json (Libre Baskerville Bold, SIL OFL 1.1, per fontTools vorab erzeugt, keine Laufzeit-Requests).
 // Debug (nur Entwicklung): ?introT=2.5 friert die Szene bei 2,5 s ein (für Screenshots). Im Produktions-Build wirkungslos.
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import glyphData from '@/lib/introGlyphs.json'
 
 type Props = { onEnde?: () => void; onFehler?: () => void; onSkip?: () => void }
@@ -199,55 +201,79 @@ export default function PrintIntro({ onEnde, onFehler, onSkip }: Props) {
       }
     }
 
-    // ---------- Drucker ----------
-    const metalDark = new THREE.MeshStandardMaterial({ color: 0x2a2825, roughness: 0.6, metalness: 0.25 })
-    const metalMid = new THREE.MeshStandardMaterial({ color: 0x3b3935, roughness: 0.55, metalness: 0.3 })
-    const alu = new THREE.MeshStandardMaterial({ color: 0xc4bfb5, roughness: 0.4, metalness: 0.7 })
-    const brass = new THREE.MeshStandardMaterial({ color: 0xc9a24a, roughness: 0.35, metalness: 0.8 })
-    const orangeMat = new THREE.MeshStandardMaterial({ color: ORANGE, roughness: 0.6, emissive: ORANGE, emissiveIntensity: 0.35 })
-    const hot = new THREE.MeshBasicMaterial({ color: 0xff8a2c })
-    const filMat = new THREE.MeshStandardMaterial({ color: 0x8fb8a0, roughness: 0.5 })
-    const bx = (w: number, h: number, d: number, m: THREE.Material) => {
-      const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.castShadow = true; o.receiveShadow = true; return o
-    }
+    // ---------- Drucker (Bambu-artig: abgerundete Gehäuseteile, Aluminium, Messing, Spule mit PTFE-Schlauch) ----------
+    const pmrem = new THREE.PMREMGenerator(renderer)
+    const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04)
+    scene.environment = envRT.texture
+    scene.environmentIntensity = 0.55
 
-    const base = new THREE.Group() // Platte + Schienen
+    const metalDark = new THREE.MeshStandardMaterial({ color: 0x24231f, roughness: 0.42, metalness: 0.35 })
+    const metalMid = new THREE.MeshStandardMaterial({ color: 0x3a3833, roughness: 0.5, metalness: 0.3 })
+    const alu = new THREE.MeshStandardMaterial({ color: 0xcfcac0, roughness: 0.32, metalness: 0.85 })
+    const brass = new THREE.MeshStandardMaterial({ color: 0xd2a94c, roughness: 0.28, metalness: 0.9 })
+    const orangeMat = new THREE.MeshStandardMaterial({ color: ORANGE, roughness: 0.5, emissive: ORANGE, emissiveIntensity: 0.3 })
+    const hot = new THREE.MeshBasicMaterial({ color: 0xff8a2c })
+    const filMat = new THREE.MeshStandardMaterial({ color: 0xff7a1a, roughness: 0.45 })
+    const tubeMat = new THREE.MeshStandardMaterial({ color: 0x2d2b27, roughness: 0.4, metalness: 0.1 })
+    const rr = (w: number, h: number, d: number, r: number) => new RoundedBoxGeometry(w, h, d, 3, Math.max(0.004, Math.min(r, w / 2 - 0.002, h / 2 - 0.002, d / 2 - 0.002)))
+    const bx = (w: number, h: number, d: number, m: THREE.Material, r = 0.05) => {
+      const o = new THREE.Mesh(rr(w, h, d, r), m); o.castShadow = true; o.receiveShadow = true; return o
+    }
+    const resizeBox = (o: THREE.Mesh, w: number, h: number, d: number, r: number) => { o.geometry.dispose(); o.geometry = rr(w, h, d, r) }
+
+    const base = new THREE.Group() // Platte + Schienen + Spulenhalter
     scene.add(base)
-    const plate = bx(1, 0.3, 1.8, metalDark)
-    const plateTop = bx(1, 0.06, 1.5, metalMid)
-    const railL = bx(0.17, 1, 0.4, metalDark)
-    const railR = bx(0.17, 1, 0.4, metalDark)
-    const footL = bx(0.7, 0.18, 1.2, metalDark)
-    const footR = bx(0.7, 0.18, 1.2, metalDark)
-    const strip = bx(1, 0.05, 0.05, orangeMat)
-    base.add(plate, plateTop, railL, railR, footL, footR, strip)
+    const plate = bx(1, 0.3, 1.8, metalDark, 0.12)
+    const plateTop = bx(1, 0.06, 1.5, metalMid, 0.03)
+    const railL = bx(0.17, 1, 0.4, metalDark, 0.07)
+    const railR = bx(0.17, 1, 0.4, metalDark, 0.07)
+    const footL = bx(0.7, 0.18, 1.2, metalDark, 0.08)
+    const footR = bx(0.7, 0.18, 1.2, metalDark, 0.08)
+    const strip = bx(1, 0.05, 0.05, orangeMat, 0.02)
+    const rodGeo = new THREE.CylinderGeometry(0.035, 0.035, 1, 14)
+    const rodL = new THREE.Mesh(rodGeo, alu)
+    const rodR = new THREE.Mesh(rodGeo, alu)
+    base.add(plate, plateTop, railL, railR, footL, footR, strip, rodL, rodR)
+
+    // Spulenhalter oben auf der linken Schiene: Spule mit Filament, dreht sich beim Drucken
+    const spool = new THREE.Group()
+    const flangeGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.05, 40)
+    const flangeMat = new THREE.MeshStandardMaterial({ color: 0x2f2d29, roughness: 0.5, metalness: 0.1 })
+    const flangeGlass = new THREE.MeshStandardMaterial({ color: 0x2f2d29, roughness: 0.2, metalness: 0.1, transparent: true, opacity: 0.28, depthWrite: false })
+    for (const z of [-0.2, 0.2]) { const f = new THREE.Mesh(flangeGeo, z > 0 ? flangeGlass : flangeMat); f.rotation.x = Math.PI / 2; f.position.z = z; f.castShadow = z < 0; spool.add(f) }
+    const wound = new THREE.Mesh(new THREE.CylinderGeometry(0.78, 0.78, 0.36, 40), filMat); wound.rotation.x = Math.PI / 2; wound.castShadow = true; spool.add(wound)
+    const core = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.4, 28), metalMid); core.rotation.x = Math.PI / 2; spool.add(core)
+    for (let i = 0; i < 3; i++) { const sp = bx(0.5, 0.06, 0.06, metalMid, 0.02); sp.position.z = 0.22; sp.rotation.z = (i * Math.PI) / 3; spool.add(sp) }
+    const spoolArm = bx(0.16, 0.5, 0.16, metalDark, 0.05)
+    base.add(spool, spoolArm)
 
     const gantry = new THREE.Group() // Querträger (fährt mit der Druckhöhe)
     scene.add(gantry)
-    const cross = bx(1, 0.3, 0.32, metalDark)
-    const crossTop = bx(1, 0.05, 0.34, orangeMat)
+    const cross = bx(1, 0.3, 0.32, alu, 0.09)
+    const crossTop = bx(1, 0.05, 0.34, orangeMat, 0.02)
     gantry.add(cross, crossTop)
 
     const head = new THREE.Group() // Schlitten + Hotend, Ursprung = Düsenspitze
     gantry.add(head)
-    const nozzle = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.3, 20), brass)
-    nozzle.rotation.x = Math.PI; nozzle.position.y = 0.15; nozzle.castShadow = true
-    const heater = bx(0.4, 0.22, 0.32, brass); heater.position.y = 0.41
-    const heaterGlow = bx(0.42, 0.05, 0.34, orangeMat); heaterGlow.position.y = 0.41
+    const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.13, 0.26, 24), brass)
+    nozzle.rotation.x = Math.PI; nozzle.position.y = 0.13; nozzle.castShadow = true
+    const heater = bx(0.38, 0.2, 0.3, brass, 0.06); heater.position.y = 0.38
+    const heaterGlow = bx(0.4, 0.04, 0.32, orangeMat, 0.015); heaterGlow.position.y = 0.38
     head.add(nozzle, heater, heaterGlow)
-    for (let i = 0; i < 5; i++) { const f = bx(0.52, 0.035, 0.44, alu); f.position.y = 0.6 + i * 0.1; head.add(f) }
-    const carriage = bx(1.1, 1.0, 0.34, metalDark); carriage.position.set(0, 1.05, 0.1)
-    const fanBox = bx(0.92, 0.82, 0.46, metalMid); fanBox.position.set(0, 0.98, 0.5)
-    const fanFace = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.05, 28), metalDark)
+    for (let i = 0; i < 5; i++) { const f = bx(0.5, 0.03, 0.42, alu, 0.012); f.position.y = 0.56 + i * 0.09; head.add(f) }
+    const carriage = bx(1.1, 1.0, 0.34, metalDark, 0.14); carriage.position.set(0, 1.05, 0.1)
+    const fanBox = bx(0.92, 0.82, 0.46, metalMid, 0.16); fanBox.position.set(0, 0.98, 0.5)
+    const shroud = bx(0.95, 0.18, 0.5, orangeMat, 0.07); shroud.position.set(0, 0.52, 0.5)
+    const fanFace = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.05, 32), metalDark)
     fanFace.rotation.x = Math.PI / 2; fanFace.position.set(0, 0.98, 0.76)
     const fanSpin = new THREE.Group(); fanSpin.position.set(0, 0.98, 0.8)
-    for (let i = 0; i < 5; i++) {
-      const bl = bx(0.3, 0.1, 0.02, alu); bl.position.x = 0.15
-      const piv = new THREE.Group(); piv.rotation.z = (i * Math.PI * 2) / 5; piv.add(bl); fanSpin.add(piv)
+    for (let i = 0; i < 7; i++) {
+      const bl = bx(0.3, 0.1, 0.02, alu, 0.01); bl.position.x = 0.15
+      const piv = new THREE.Group(); piv.rotation.z = (i * Math.PI * 2) / 7; piv.add(bl); fanSpin.add(piv)
     }
-    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.06, 16), orangeMat)
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.06, 20), orangeMat)
     hub.rotation.x = Math.PI / 2; hub.position.set(0, 0.98, 0.82)
-    const tipDot = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 10), hot); tipDot.position.y = 0.01
+    const tipDot = new THREE.Mesh(new THREE.SphereGeometry(0.05, 14, 10), hot); tipDot.position.y = 0.01
     // Leuchten der Düsenspitze (weicher Schein)
     const gc = document.createElement('canvas'); gc.width = gc.height = 64
     const gx = gc.getContext('2d')!
@@ -257,14 +283,17 @@ export default function PrintIntro({ onEnde, onFehler, onSkip }: Props) {
     const glowTex = new THREE.CanvasTexture(gc); glowTex.colorSpace = THREE.SRGBColorSpace
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, depthWrite: false, transparent: true }))
     glow.scale.setScalar(0.95); glow.position.set(0, 0.04, 0.12)
-    head.add(carriage, fanBox, fanFace, fanSpin, hub, tipDot, glow)
+    head.add(carriage, fanBox, shroud, fanFace, fanSpin, hub, tipDot, glow)
 
-    const filament = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1, 8), filMat)
+    // PTFE-Schlauch von der Spule zum Druckkopf (wird je Frame neu als Kurve gebaut)
+    const filament = new THREE.Mesh(new THREE.BufferGeometry(), tubeMat)
     filament.castShadow = true
+    filament.frustumCulled = false
     scene.add(filament)
+    const spoolPos = new THREE.Vector3()
 
     // ---------- Layout (Hochformat gestapelt, Querformat Logo links / Text rechts) ----------
-    const L = { R: 2.5, lx: 0, ly: 0, LZ: 0.9, rowY: [0, 0], rowCx: 0, rowS: [0, 0], cx: 0, cy: 0, k: 1, top: 6 }
+    const L = { R: 2.5, lx: 0, ly: 0, LZ: 0.9, rowY: [0, 0], rowCx: 0, rowS: [0, 0], cx: 0, cy: 0, k: 1, top: 6, spoolTop: 0 }
     let dist = 20
     const STAND = 0.22
     const applyLayout = (w: number, h: number) => {
@@ -282,10 +311,10 @@ export default function PrintIntro({ onEnde, onFehler, onSkip }: Props) {
         L.rowY[0] = cap2 / 2 + 0.75 + cap1 / 2
         L.ly = L.rowY[0] + cap1 / 2 + 1.0 + L.R + 0.3
         L.lx = 0
-        const yMin = -cap2 / 2 - 0.3, yMax = L.ly + L.R + 1.0
+        const yMin = -cap2 / 2 - 0.3, yMax = L.ly + L.R + 3.4
         L.cy = (yMin + yMax) / 2
         L.cx = 0
-        needW = 8.4; needH = yMax - yMin + 1.2
+        needW = 8.4; needH = yMax - yMin + 1.0
       } else {
         L.R = 2.35
         L.lx = -4.6
@@ -295,9 +324,9 @@ export default function PrintIntro({ onEnde, onFehler, onSkip }: Props) {
         L.ly = 0.1
         const left = L.lx - (L.R + 0.8), right = L.rowCx + W / 2
         L.cx = (left + right) / 2
-        const yMin = L.ly - L.R - 0.6, yMax = L.ly + L.R + 1.0
+        const yMin = L.ly - L.R - 0.6, yMax = L.ly + L.R + 3.4
         L.cy = (yMin + yMax) / 2
-        needW = right - left + 1.6; needH = yMax - yMin + 1.6
+        needW = right - left + 1.6; needH = yMax - yMin + 1.0
       }
       L.k = L.R / 2.4
       const th = Math.tan((FOV / 2) * (Math.PI / 180))
@@ -324,17 +353,31 @@ export default function PrintIntro({ onEnde, onFehler, onSkip }: Props) {
       const R = L.R
       const pw = R * 2 + 1.7
       const plateY = L.ly - R - 0.15
-      plate.scale.x = pw; plate.position.set(L.lx, plateY, L.LZ - 0.1)
-      plateTop.scale.x = pw - 0.25; plateTop.position.set(L.lx, plateY + 0.18, L.LZ - 0.1)
-      strip.scale.x = pw; strip.position.set(L.lx, plateY - 0.1, L.LZ + 0.72)
+      resizeBox(plate, pw, 0.3, 1.8, 0.12); plate.position.set(L.lx, plateY, L.LZ - 0.1)
+      resizeBox(plateTop, pw - 0.25, 0.06, 1.5, 0.03); plateTop.position.set(L.lx, plateY + 0.18, L.LZ - 0.1)
+      resizeBox(strip, pw, 0.05, 0.05, 0.02); strip.position.set(L.lx, plateY - 0.1, L.LZ + 0.72)
       const rx = R + 0.62
       const railH = 2 * R + 1.9
       const railY = plateY + 0.15 + railH / 2
       for (const [r, f, sx] of [[railL, footL, -1], [railR, footR, 1]] as const) {
-        r.scale.y = railH; r.position.set(L.lx + sx * rx, railY, L.LZ + 0.35)
+        resizeBox(r, 0.17, railH, 0.4, 0.07); r.position.set(L.lx + sx * rx, railY, L.LZ + 0.35)
         f.position.set(L.lx + sx * rx, plateY - 0.02, L.LZ + 0.05)
       }
-      cross.scale.x = rx * 2 + 0.24; crossTop.scale.x = rx * 2 + 0.24
+      resizeBox(cross, rx * 2 + 0.24, 0.3, 0.32, 0.09); resizeBox(crossTop, rx * 2 + 0.24, 0.05, 0.34, 0.02)
+      for (const [rod, sx] of [[rodL, -1], [rodR, 1]] as const) {
+        rod.scale.y = railH - 0.3; rod.position.set(L.lx + sx * (rx - 0.02), railY, L.LZ + 0.58)
+      }
+      // Spule auf der linken Schiene (liegt oberhalb der Schiene, Achse zur Kamera)
+      const spoolR = 0.9
+      const railTop = railY + railH / 2
+      const sk = Math.max(0.8, L.k)
+      spool.scale.setScalar(sk)
+      const spoolX = L.lx - rx + 0.55 * sk
+      const spoolY = railTop + 0.95 * sk
+      spool.position.set(spoolX, spoolY, L.LZ + 0.35)
+      resizeBox(spoolArm, 0.16, spoolY - railTop + 0.1, 0.16, 0.05)
+      spoolArm.position.set(spoolX, (spoolY + railTop) / 2, L.LZ + 0.2)
+      L.spoolTop = spool.position.y + spoolR * sk
       cross.position.set(L.lx, 1.35 * L.k, 0.1 * L.k + 0.3)
       crossTop.position.set(L.lx, 1.35 * L.k + 0.17, 0.1 * L.k + 0.3)
       head.scale.setScalar(L.k)
@@ -394,16 +437,23 @@ export default function PrintIntro({ onEnde, onFehler, onSkip }: Props) {
       gantry.position.x = 0
       logoGroup.visible = t > T_PRINT0 - 0.05
 
-      // Filament: von oben außerhalb des Bildes zum Druckkopf
-      tmp.set(head.position.x, headY + 1.55 * L.k, L.LZ + 0.1 * L.k + 0.12)
-      const topY = L.cy + 14
-      const from = new THREE.Vector3(L.lx + (L.cx - L.lx) * 0.3, topY, tmp.z + 0.2)
-      const dir = tmp.clone().sub(from)
-      const len = dir.length()
-      filament.position.copy(from).addScaledVector(dir, 0.5)
-      filament.scale.set(1, len, 1)
-      filament.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize())
+      // PTFE-Schlauch: von der Spule (oben links) im Bogen zum Druckkopf
+      const kk = Math.max(0.8, L.k)
+      const sx0 = L.lx - (L.R + 0.62) + 0.55 * kk, sy0 = base.position.y + L.spoolTop - 0.05 * kk
+      spoolPos.set(sx0, sy0, L.LZ + 0.35)
+      const ex = head.position.x, ey = headY + 1.55 * L.k, ez = L.LZ + 0.1 * L.k + 0.12
+      const arcY = Math.max(sy0, ey) + 0.8
+      const curve = new THREE.CatmullRomCurve3([
+        spoolPos.clone(),
+        new THREE.Vector3(sx0 + 0.15, sy0 + 0.55, L.LZ + 0.5),
+        new THREE.Vector3((sx0 + ex) / 2, arcY, L.LZ + 0.55),
+        new THREE.Vector3(ex, ey + 0.55, ez + 0.1),
+        new THREE.Vector3(ex, ey, ez),
+      ], false, 'catmullrom', 0.4)
+      filament.geometry.dispose()
+      filament.geometry = new THREE.TubeGeometry(curve, 36, 0.045 * kk, 8, false)
       filament.visible = t > 0.2 && outP < 0.99
+      spool.rotation.z = pp > 0 && pp < 1 ? -t * 1.4 : spool.rotation.z
 
       fanSpin.rotation.z = -t * 26
       glow.material.opacity = 0.75 + Math.sin(t * 17) * 0.12
@@ -477,7 +527,7 @@ export default function PrintIntro({ onEnde, onFehler, onSkip }: Props) {
         if (Array.isArray(mat)) mat.forEach((x) => x.dispose()); else mat?.dispose()
       })
       geoCache.forEach((v) => v.geo.dispose())
-      logoTex?.dispose(); glowTex.dispose(); depthMat.dispose(); circle.dispose()
+      logoTex?.dispose(); glowTex.dispose(); depthMat.dispose(); circle.dispose(); envRT.dispose(); pmrem.dispose(); flangeGeo.dispose(); rodGeo.dispose()
       logoMats.forEach((m) => m.dispose())
       renderer.dispose()
       renderer.forceContextLoss()
