@@ -56,9 +56,9 @@ export default async function Produktseite({ params, searchParams }: Props) {
   const preis = p.nurAnfrage ? TEXTE.preisAnfrage : `${hatAufpreis ? "ab " : ""}${formatPreis(p.preisCent)}`;
 
   return (
-    <ShopShell theme={halloween ? "halloween" : undefined} ton={weihnachtsArtikel ? "nacht" : "papier"} banner={<PauseBanner />}>
+    <ShopShell banner={<PauseBanner />}>
       <div className="shop-wrap" style={{ paddingBottom: 96 }}>
-        <Link className="shop-crumb" href={halloween ? "/3d-druck?kategorie=halloween#stuecke" : "/3d-druck#stuecke"}>← Alle Stücke</Link>
+        <Link className="shop-crumb" href={halloween ? "/3d-druck" : "/3d-druck"}>← Alle Stücke</Link>
         <VorschauProvider>
         <div className="shop-product">
           <Galerie bild={fotosFuer(p.slug).length ? <FotoGalerie bildHinweis={p.gruppe === "weihnachten" ? TEXTE.bildHinweisWeihnachten : TEXTE.bildHinweis} cover={coverFuer(p.slug, halloween) && !coverIstFoto1(p.slug, halloween) ? { src: coverFuer(p.slug, halloween)!, alt: `${p.name}, Titelbild` } : undefined} vorText={p.personalisierung?.standardText} slug={p.slug} form={p.form} grundfarbe={p.grundfarbe} fotos={fotosFuer(p.slug)} name={p.name} /> : <><LiveProductImage form={p.form} grundfarbe={p.grundfarbe} /><p className="shop-fotohinweis"><strong>Wichtig:</strong> {TEXTE.bildHinweis}</p></>} preis={preis} chips={[p.material, ...(p.masse ? [`ca. ${p.masse} mm`] : [])]} />

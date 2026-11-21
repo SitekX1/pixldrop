@@ -94,7 +94,7 @@ export default function Bestellablauf({
         {zahlung && ZAHLUNG_HINWEIS[zahlung] && <p className={zahlung === "unklar" ? "shop-alert" : "shop-demo"}>{ZAHLUNG_HINWEIS[zahlung]}</p>}
         <h2>{korb.length ? "Ein Artikel ist nicht mehr verfügbar." : "Noch nichts auf dem Tresen."}</h2>
         <p>{korb.length ? "Bitte prüfe deinen Warenkorb." : "Such dir ein Stück aus, dann geht es hier weiter."}</p>
-        <Link className="shop-btn" href={korb.length ? "/3d-druck/warenkorb" : "/3d-druck#stuecke"}>{korb.length ? "Zum Warenkorb" : "Alle Stücke ansehen"}</Link>
+        <Link className="shop-btn" href={korb.length ? "/3d-druck/warenkorb" : "/3d-druck"}>{korb.length ? "Zum Warenkorb" : "Alle Stücke ansehen"}</Link>
       </div>
     );
   }

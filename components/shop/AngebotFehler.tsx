@@ -25,7 +25,7 @@ export default function AngebotFehler({ code, meldung, nummer }: { code: Angebot
       <p>{meldung ?? ""}</p>
       <p>{HILFE[code]}</p>
       <a className="shop-btn" href={`mailto:as@sitekx.de?subject=${encodeURIComponent(nummer ? `Angebot ${nummer}` : "Mein Angebot")}`}>Mail an Alex</a>
-      <a className="shop-link" href="/3d-druck#stuecke">Zum Shop</a>
+      <a className="shop-link" href="/3d-druck">Zum Shop</a>
     </div>
   );
 }

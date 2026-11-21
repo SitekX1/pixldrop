@@ -12,7 +12,7 @@ export default function ShopNichtGefunden() {
           <EddieSchnitt className="shop-eddie-mini" />
           <h1 style={{ fontSize: "clamp(1.75rem, 7vw, 2.4rem)" }}>Hier ist&rsquo;s so leer wie Eddies Tasse um 7:55.</h1>
           <p>Diese Seite gibt es nicht (mehr).</p>
-          <Link className="shop-btn" href="/3d-druck#stuecke">Alle Stücke ansehen</Link>
+          <Link className="shop-btn" href="/3d-druck">Alle Stücke ansehen</Link>
         </div>
       </div>
     </ShopShell>

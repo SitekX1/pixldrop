@@ -15,7 +15,7 @@ export default async function Anfrage() {
   return (
     <ShopShell banner={<PauseBanner />}>
       <div className="shop-wrap" style={{ maxWidth: 720 }}>
-        <a className="shop-crumb" href="/3d-druck#stuecke">← Alle Stücke</a>
+        <a className="shop-crumb" href="/3d-druck">← Alle Stücke</a>
         <div style={{ display: "grid", gap: 14, margin: "8px 0 24px" }}>
           <p className="shop-overline">Individueller Druck · Preis nach Anfrage</p>
           <h1 style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)" }}>Du hast eine Idee? Ich drucke sie.</h1>

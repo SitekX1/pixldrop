@@ -10,10 +10,18 @@ import ShopBesuch from "./ShopBesuch";
 
 // Shell: Kopf (Zurück-Link: Shop-Startseite → PixlDrop, alle anderen Seiten → Shop), Inhalt, Fuß. Theme ("halloween") per data-theme am Wrapper (Token-Austausch).
 export default function ShopShell({
-  children, theme, saison, banner, zurueck = "shop", ton = "papier", look, nav,
+  children, theme, saison, banner, zurueck = "shop", ton = "papier", look = "modern", nav,
 }: { children: React.ReactNode; theme?: "halloween"; saison?: "halloween-dark" | "weihnachten"; banner?: React.ReactNode; zurueck?: "shop" | "pixldrop"; ton?: "nacht" | "papier"; look?: "modern"; nav?: React.ReactNode }) {
   // Ist Weihnachten die aktive Saison, tragen alle Shopseiten das Weihnachts-Theme (Ton "papier" zum Lesen/Zahlen, "nacht" mit Kulisse).
   // look="modern" (Startseite): helle, ruhige Oberfläche ohne Saison-Dunkelwelt, eigener Kopf (Styles: app/3d-druck/start.css).
+  const standardNav = (
+    <nav className="sx-nav" aria-label="Bereiche">
+      <Link href="/3d-druck#bubble">Bubble Buchstaben</Link>
+      <Link href="/3d-druck#wand">Wandbuchstaben</Link>
+      <Link href="/3d-druck#weihnachten">Weihnachten</Link>
+      <Link href="/3d-druck#lieblinge">Lieblingsstücke</Link>
+    </nav>
+  );
   const wn = !look && !theme && !saison && aktiveSaison() === "weihnachten";
   const saisonAttr = wn ? "weihnachten" : saison;
   const weihnachten = saisonAttr === "weihnachten";
@@ -37,7 +45,7 @@ export default function ShopShell({
               <img className="sx-logo-marke" src="/shop/logo-pixldrop-3d.webp" alt="" width={52} height={52} />
               <span translate="no">{SHOP_NAME}</span><small aria-hidden="true">3D-Druck</small>
             </Link>
-            {nav}
+            {nav ?? standardNav}
             <WarenkorbLink />
           </header>
         </div>
@@ -49,7 +57,7 @@ export default function ShopShell({
               <span className="wn-marke-name" translate="no">{SHOP_NAME}</span>
               <span className="wn-marke-sub" aria-hidden="true">3D-Druck</span>
             </Link>
-          ) : zurueck === "pixldrop" ? <a href="/">← PixlDrop</a> : <Link href="/3d-druck#stuecke">← 3D-Druck-Shop</Link>}
+          ) : zurueck === "pixldrop" ? <a href="/">← PixlDrop</a> : <Link href="/3d-druck">← 3D-Druck-Shop</Link>}
           <span className="shop-head-r">
             <Link className="shop-widerruf-btn" href="/3d-druck/widerruf#widerrufsfunktion">Vertrag widerrufen</Link>
             <WarenkorbLink />

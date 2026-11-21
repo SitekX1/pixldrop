@@ -19,7 +19,7 @@ import PositionsBild, { kombiVon } from "./PositionsBild";
 export default function Warenkorb({ produkte, farben, wunschtextPausiert = false }: { produkte: Produkt[]; farben: Farbe[]; wunschtextPausiert?: boolean }) {
   const [korb, setKorb] = useState<Korb>([]);
   const [geladen, setGeladen] = useState(false);
-  const [weiterHref, setWeiterHref] = useState("/3d-druck#stuecke");
+  const [weiterHref, setWeiterHref] = useState("/3d-druck");
   useEffect(() => { setWeiterHref(weiterEinkaufenHref()); }, []);
   const [meldung, setMeldung] = useState("");
   const [versandWahl, setVersandWahl] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
         {meldung && <p className="shop-demo">{meldung}</p>}
         <h2>Dein Warenkorb ist noch leer.</h2>
         <p>Such dir ein Stück aus, dann landet es hier.</p>
-        <Link className="shop-btn" href="/3d-druck#stuecke">Alle Stücke ansehen</Link>
+        <Link className="shop-btn" href="/3d-druck">Alle Stücke ansehen</Link>
       </div>
     );
   }

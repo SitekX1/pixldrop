@@ -60,7 +60,7 @@ export default function ProductBuy({
   // null = Kunde hat keine Stufe gewählt: dann gilt automatisch die größte, die noch passt.
   const [groesseWahl, setGroesseWahl] = useState<GroesseId | null>(null);
   const [hinzu, setHinzu] = useState<{ ok: boolean; menge: number } | null>(null);
-  const [weiterHref, setWeiterHref] = useState("/3d-druck#stuecke");
+  const [weiterHref, setWeiterHref] = useState("/3d-druck");
   useEffect(() => { setWeiterHref(weiterEinkaufenHref(produkt.gruppe === "weihnachten" ? "weihnachten" : undefined)); }, [produkt.gruppe]);
 
   const [bestaetigt, setBestaetigt] = useState(false);
