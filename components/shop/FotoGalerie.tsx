@@ -87,10 +87,30 @@ export default function FotoGalerie({ slug, form, grundfarbe, fotos, name, vorTe
   }, [aktiv, fotoSrc, modus, farbeSchluessel]);
   const zeigeCanvas = !!foto && aktiv && gefaerbtFuer === fotoSrc;
 
+  // Wischen links/rechts blättert durch die Bilder (Handy)
+  const wisch = useRef<{ x: number; y: number } | null>(null);
+  const blaettern = (d: number) => {
+    const n = fotos.length + off;
+    const pos = imCover ? 0 : idx + off;
+    const naechst = Math.max(0, Math.min(n - 1, pos + d));
+    if (naechst === pos) return;
+    if (cover && naechst === 0) setCoverZeigen(true); else { setCoverZeigen(false); setIdx(naechst - off); }
+  };
+
   return (
     <div>
       {foto ? (
-        <div className="shop-img">
+        <div
+          className="shop-img" style={{ touchAction: "pan-y" }}
+          onTouchStart={(e) => { const t = e.touches[0]; wisch.current = { x: t.clientX, y: t.clientY }; }}
+          onTouchEnd={(e) => {
+            const st = wisch.current; wisch.current = null;
+            if (!st) return;
+            const t = e.changedTouches[0];
+            const dx = t.clientX - st.x, dy = t.clientY - st.y;
+            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) blaettern(dx < 0 ? 1 : -1);
+          }}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="shop-foto" src={foto.src} alt={foto.alt} width={1100} height={1100} decoding="async" style={zeigeCanvas ? { visibility: "hidden" } : undefined} />
           {aktiv && (

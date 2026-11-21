@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ShopShell from "@/components/shop/ShopShell";
 import ProductImage from "@/components/shop/ProductImage";
+import Beschreibung from "@/components/shop/Beschreibung";
 import Galerie from "@/components/shop/Galerie";
 import FotoGalerie from "@/components/shop/FotoGalerie";
 import { coverFuer, coverIstFoto1, fotosFuer } from "@/lib/shop/fotos";
@@ -65,7 +66,7 @@ export default async function Produktseite({ params, searchParams }: Props) {
           <div className="shop-info">
             <p className="shop-overline">{halloween ? "Halloween-Kollektion" : weihnachtsArtikel ? "Weihnachts-Kollektion" : "3D-Druck"}</p>
             <h1 style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)", overflowWrap: "anywhere" }}>{p.name}</h1>
-            <p className="kurz">{p.beschreibung}</p>
+            <Beschreibung text={p.beschreibung} />
             {(halloween || saisonVorschau) && !bestellbar && (
               <p className="shop-note shop-note--warn" role="note">Vorschau: Dieser Artikel ist noch nicht bestellbar.</p>
             )}

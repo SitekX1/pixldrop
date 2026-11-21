@@ -193,3 +193,60 @@
 .sx-marke { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .sx-marke img { position: absolute; left: 50%; top: 50%; width: 90vw; max-width: none; height: auto; opacity: .06; transform: translate(-50%, -50%); }
 @media (min-width: 900px) { .sx-marke img { width: 60vw; max-width: 900px; } }
+
+/* ===== Produktseiten im modernen Look: ruhige, erwachsene Auswahl statt verspielter Kacheln ===== */
+.shop[data-look="modern"] .shop-info h1 { font-weight: 700; letter-spacing: -.02em; line-height: 1.05; }
+.shop[data-look="modern"] .shop-overline { font: 600 .75rem/1 var(--shop-display); letter-spacing: .14em; text-transform: uppercase; color: var(--sx-mute); }
+
+/* Beschreibung gegliedert: Einleitung, Zwischenüberschriften, nummerierte Schritte, Stichpunkte */
+.shop-beschr { display: grid; gap: 14px; max-width: 62ch; }
+.shop-beschr p { margin: 0; font-size: .97rem; line-height: 1.6; color: var(--sx-ink); }
+.shop-beschr .shop-beschr-lead { font-size: 1.1rem; line-height: 1.55; }
+.shop-beschr .shop-beschr-h { margin: 6px 0 -4px; font: 600 .72rem/1 var(--shop-display); letter-spacing: .14em; text-transform: uppercase; color: var(--sx-mute); }
+.shop-beschr ul, .shop-beschr ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.shop-beschr li { position: relative; padding-left: 22px; font-size: .94rem; line-height: 1.55; color: var(--sx-ink); }
+.shop-beschr ul li::before { content: ""; position: absolute; left: 4px; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--sx-ink); opacity: .55; }
+.shop-beschr ol { counter-reset: b; }
+.shop-beschr ol li { counter-increment: b; padding-left: 30px; }
+.shop-beschr ol li::before { content: counter(b); position: absolute; left: 0; top: .05em; width: 20px; height: 20px; border-radius: 6px; border: 1px solid var(--sx-ink); font: 600 .72rem/18px var(--shop-display); text-align: center; color: var(--sx-ink); }
+
+/* Auswahlkarten */
+.shop[data-look="modern"] .shop-step { padding: 20px !important; border: 1px solid var(--sx-line) !important; border-radius: 12px !important; box-shadow: none !important; background: #fff; gap: 14px; }
+.shop[data-look="modern"] .shop-step legend { font: 600 .98rem/1.2 var(--shop-display); gap: 10px; margin-bottom: 6px; letter-spacing: -.005em; }
+.shop[data-look="modern"] .shop-step legend::before { width: auto; height: auto; border-radius: 0; background: none; color: var(--sx-mute); font: 600 .72rem/1 var(--shop-display); letter-spacing: .08em; content: counter(schritt, decimal-leading-zero); }
+
+/* Optionen (Höhe, Zeichen, Oberfläche, Größe): flache Rechtecke */
+.shop[data-look="modern"] .shop-options { gap: 8px; }
+.shop[data-look="modern"] .shop-option span { min-height: 42px; padding: 0 14px; border: 1px solid #d6d0c5; border-radius: 8px; font: 500 .9rem/1 var(--shop-display); box-shadow: none; background: #fff; transition: border-color var(--sx-fast) var(--sx-out), background-color var(--sx-fast) var(--sx-out), color var(--sx-fast) var(--sx-out); }
+@media (hover: hover) { .shop[data-look="modern"] .shop-option:hover input:not(:checked) + span { border-color: var(--sx-ink); } }
+.shop[data-look="modern"] .shop-option input:checked + span { border-color: var(--sx-ink); background: var(--sx-ink); color: #FBFAF8; }
+
+/* Farbkombinationen / Einzelfarben: ruhige Zeilen mit kleinen Farbquadraten */
+.shop[data-look="modern"] .shop-kombis { gap: 8px; }
+.shop[data-look="modern"] .shop-kombi-karte { min-height: 46px; padding: 6px 12px; gap: 10px; border: 1px solid #d6d0c5; border-radius: 8px; box-shadow: none; background: #fff; transition: border-color var(--sx-fast) var(--sx-out), background-color var(--sx-fast) var(--sx-out); }
+@media (hover: hover) { .shop[data-look="modern"] .shop-kombi:hover input:not(:checked) + .shop-kombi-karte { border-color: var(--sx-ink); } }
+.shop[data-look="modern"] .shop-kombi input:checked + .shop-kombi-karte { border-color: var(--sx-ink); box-shadow: inset 0 0 0 1px var(--sx-ink); background: #FBFAF8; }
+.shop[data-look="modern"] .shop-kombi-label { font: 500 .9rem/1.25 var(--shop-display); }
+.shop[data-look="modern"] .shop-kombis--dicht .shop-kombi-label { font-size: .86rem; }
+.shop[data-look="modern"] .shop-kombi-punkte i { width: 18px; height: 18px; border-radius: 4px; margin-left: -4px; border: 1px solid #fff; box-shadow: 0 0 0 1px rgba(22,21,19,.18); }
+.shop[data-look="modern"] .shop-kombi-punkte i:first-child { margin-left: 0; }
+
+/* Farbpunkte (Schrift-/Linien-/Teilefarbe): kleiner, dünner Rahmen */
+.shop[data-look="modern"] .shop-swatches { gap: 8px; padding: 4px; }
+.shop[data-look="modern"] .shop-swatch { width: 40px; height: 40px; }
+.shop[data-look="modern"] .shop-swatch .dot { width: 30px; height: 30px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(22,21,19,.2); }
+.shop[data-look="modern"] .shop-swatch .dot svg { width: 16px; height: 16px; }
+.shop[data-look="modern"] .shop-swatch input:checked + .dot { outline: 2px solid var(--sx-ink); outline-offset: 2px; }
+
+/* Schriftauswahl */
+.shop[data-look="modern"] .shop-schrift { border: 1px solid #d6d0c5; border-radius: 8px; box-shadow: none; }
+.shop[data-look="modern"] .shop-schrift:has(input:checked) { border: 1px solid var(--sx-ink); box-shadow: inset 0 0 0 1px var(--sx-ink); background: #FBFAF8; padding: 16px 12px; }
+
+/* Menge */
+.shop[data-look="modern"] .shop-stepper button { border: 1px solid #d6d0c5; border-radius: 8px; box-shadow: none; width: 44px; height: 44px; font-size: 1.25rem; }
+.shop[data-look="modern"] .shop-stepper input { border-radius: 8px; }
+
+/* Preisbox, Hinweise und Kaufknopf */
+.shop[data-look="modern"] .shop-price { font-weight: 700; letter-spacing: -.02em; }
+.shop[data-look="modern"] .shop-note, .shop[data-look="modern"] .shop-widerruf { border-radius: 8px; }
+.shop[data-look="modern"] .shop-btn { border-radius: 8px; }
