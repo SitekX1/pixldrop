@@ -153,12 +153,12 @@ export default async function ShopUebersicht() {
             <div>
               <span className="sx-pill">Bald verfügbar</span>
               <h3>Dein Wort in Schrift an der Wand</h3>
-              <p>Wandtexte und Namen in eleganten Schriften, nach Maß gedruckt. Bestellen geht noch nicht. Wenn du etwas Bestimmtes im Kopf hast, schreib mir deine Anfrage.</p>
+              <p>Wandtexte und Namen in eleganten Schriften, nach Maß gedruckt. Probiere dein Wort an der Wand aus und schick mir deinen Entwurf als Anfrage. Bestellen geht noch nicht, du bekommst ein Angebot per E-Mail.</p>
             </div>
             {bestellungPausiert ? (
               <div><span className="sx-btn sx-btn--aus" role="link" aria-disabled="true">Anfrage</span><p className="sx-klein">Vorübergehend pausiert</p></div>
             ) : (
-              <Link className="sx-btn" href="/3d-druck/anfrage">Anfrage</Link>
+              <Link className="sx-btn" href="/3d-druck/wandbuchstaben">Konfigurator</Link>
             )}
           </div>
           <div className="sx-insp" role="list" aria-label="Inspiration für Wandbuchstaben">

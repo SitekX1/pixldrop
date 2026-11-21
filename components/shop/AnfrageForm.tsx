@@ -17,8 +17,8 @@ function hellFarbe(hex: string) {
   return 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255) > 150;
 }
 
-export default function AnfrageForm({ farben }: { farben: Farbe[] }) {
-  const [v, setV] = useState({ beschreibung: "", breite: "", tiefe: "", hoehe: "", farbe: "egal", name: "", email: "" });
+export default function AnfrageForm({ farben, vorbelegt = "" }: { farben: Farbe[]; vorbelegt?: string }) {
+  const [v, setV] = useState({ beschreibung: vorbelegt, breite: "", tiefe: "", hoehe: "", farbe: "egal", name: "", email: "" });
   const [dateien, setDateien] = useState<Vorschau[]>([]);
   const [datenschutz, setDatenschutz] = useState(false);
   const [rechte, setRechte] = useState(false);
