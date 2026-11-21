@@ -88,32 +88,32 @@ const ALT: Record<string, string[]> = {
   ],
   // Titelbild (Cover) zuerst, danach echte Fotos vom Druckbett (quadratisch zugeschnitten)
   "weihnachts-rentier": [
-    "Zwei Weihnachts-Rentiere, eines gruen-gelb verlaufend, eines in Creme",
+    "Zwei Weihnachts-Rentiere, eines grün-gelb verlaufend, eines in Creme",
     "Zwei Weihnachts-Rentiere von vorn",
     "Weihnachts-Rentier in Creme mit Geweih",
   ],
   "weihnachtsengel": [
-    "Zwei Weihnachtsengel in Creme und Gruen mit weissen Fluegeln",
-    "Zwei Weihnachtsengel vor weisser Wand auf Holz",
+    "Zwei Weihnachtsengel in Creme und Grün mit weißen Flügeln",
+    "Zwei Weihnachtsengel vor weißer Wand auf Holz",
   ],
   "weihnachtskugel": [
-    "Geoeffnete Weihnachtskugel mit Stern- und Tannenbaum-Ausschnitten",
-    "Geschlossene Weihnachtskugel mit Oese",
+    "Geöffnete Weihnachtskugel mit Stern- und Tannenbaum-Ausschnitten",
+    "Geschlossene Weihnachtskugel mit Öse",
     "Weihnachtskugel von der Seite",
   ],
   // Titelbild (Cover) zuerst, danach echte Fotos vom Druckbett (quadratisch zugeschnitten); Fotos zeigen die Creme-Ausfuehrung
   "weihnachtskugel-schneeflocke": [
-    "Netzkugel mit Schneeflocke in Creme und Weiss, schraeg von der Seite",
-    "Netzkugel mit weisser Schneeflocke von vorn",
-    "Netzkugel in Creme von der Seite, die beiden Haelften mit Rand",
+    "Netzkugel mit Schneeflocke in Creme und Weiß, schräg von der Seite",
+    "Netzkugel mit weißer Schneeflocke von vorn",
+    "Netzkugel in Creme von der Seite, die beiden Hälften mit Rand",
   ],
   "deko-schale": [
     "Deko-Schale mit Weihnachtskugel und zwei Rentieren (Deko nicht enthalten), nah",
     "Leere ovale Deko-Schale mit Wellenrand",
   ],
   "weihnachtsbaum": [
-    "Zwei gerillte Weihnachtsbaeume in Gruen und Creme, schraeg von vorn",
-    "Zwei gerillte Weihnachtsbaeume in Gruen und Creme, nah",
+    "Zwei gerillte Weihnachtsbäume in Grün und Creme, schräg von vorn",
+    "Zwei gerillte Weihnachtsbäume in Grün und Creme, nah",
   ],
 };
 
