@@ -7,7 +7,7 @@ const ALT: Record<string, string[]> = {
   // Titelbild (Cover) zuerst, danach die Etsy-Infobilder (Alphabet, Farben, Größen, Oberfläche, Anbringen, Wand, Beispiel) und zwei echte Fotos vom Druck (Alex 17.11.2026)
   "bubble-buchstabe": [
     "Bubble Buchstaben und Zahlen in vielen Farben auf einem Teller, Alphabet von A bis Z",
-    "Die 24 Farben der Bubble Buchstaben als Herzen im Überblick",
+    "Die 23 Farben der Bubble Buchstaben als Herzen im Überblick",
     "Größen und Dicken der Bubble Buchstaben von 3 bis 12 cm im Vergleich",
     "Oberfläche glatt und Struktur im Vergleich am Buchstaben A",
     "So bringst du die Bubble Buchstaben an: Klebepad, positionieren, fertig",
