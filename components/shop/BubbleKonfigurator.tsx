@@ -123,14 +123,6 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
                 ) : <span key={i} style={{ width: proz(h.cm * 0.55), height: 1 }} />,
               )}
             </div>
-            <div className="shop-bk-vergleich" aria-hidden="true">
-              <div className="shop-bk-vg-reihe">
-                <i className="vg-handy" style={{ width: proz(7.1), height: proz(14.7) }} />
-                <i className="vg-karte" style={{ width: proz(8.56), height: proz(5.4) }} />
-                <i className="vg-stift" style={{ width: proz(1), height: proz(17.5) }} />
-              </div>
-              <span>Handy, Karte, Stift (echte Größe)</span>
-            </div>
             <div className="shop-bk-hoehe" aria-hidden="true">Buchstaben {h.cm} cm hoch</div>
           </div>
         </div>

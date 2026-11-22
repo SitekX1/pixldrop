@@ -267,15 +267,6 @@
 .shop-bk-foto { position: absolute; height: auto; display: block; pointer-events: none; user-select: none; }
 .shop-bk-bild--foto .shop-bk-reihe { z-index: 1; }
 .shop-bk-hoehe { position: absolute; right: 3cqw; bottom: 3cqw; z-index: 2; padding: .9cqw 2cqw; border-radius: 99px; background: rgba(255, 255, 255, .86); color: #4a4437; font: 700 max(10px, 2.2cqw)/1.2 var(--shop-display); letter-spacing: .01em; backdrop-filter: blur(4px); }
-/* Größenvergleich: Alltagsgegenstände im selben Maßstab wie die Buchstaben (cm -> cqw über die Wandbreite) */
-.shop-bk-vergleich { position: absolute; left: 3cqw; bottom: 3cqw; z-index: 2; display: grid; gap: .8cqw; justify-items: start; padding: 1.4cqw 2cqw .9cqw; border-radius: 2cqw; background: rgba(255, 255, 255, .78); backdrop-filter: blur(4px); }
-.shop-bk-vergleich > span { font: 600 max(8px, 1.5cqw)/1.2 var(--shop-display); color: #5b5547; }
-.shop-bk-vg-reihe { display: flex; align-items: flex-end; gap: 1.6cqw; }
-.shop-bk-vg-reihe i { display: block; flex: none; box-shadow: .25cqw .4cqw .6cqw rgba(40, 30, 20, .3); }
-.vg-handy { background: linear-gradient(160deg, #3a3a3e, #1d1d20); border-radius: 12% / 6%; box-shadow: inset 0 0 0 .22cqw #6a6a70, .25cqw .4cqw .6cqw rgba(40, 30, 20, .3) !important; }
-.vg-karte { background: linear-gradient(120deg, #6f8f78, #9db8a2); border-radius: 7%; position: relative; }
-.vg-karte::after { content: ""; position: absolute; left: 12%; top: 30%; width: 18%; height: 24%; border-radius: 18%; background: linear-gradient(135deg, #e9d9a8, #c9a66b); }
-.vg-stift { background: linear-gradient(90deg, #e8b92f 0 34%, #f4cf4d 34% 66%, #d9a41f 66%); clip-path: polygon(0 0, 100% 0, 100% 90%, 50% 100%, 0 90%); border-radius: 1px 1px 0 0; box-shadow: none !important; }
 .shop-bk-bild { container-type: inline-size; position: relative; aspect-ratio: 16 / 10; overflow: hidden;
   background:
     linear-gradient(to bottom, transparent 0 82%, #f7f3ec 82% 85.5%, #d9c3a3 85.5% 100%),
