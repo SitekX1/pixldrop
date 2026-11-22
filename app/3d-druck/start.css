@@ -158,6 +158,9 @@
 
 .sx-bald { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; padding: 24px 22px; border-radius: 20px; background: var(--sx-card2); }
 .sx-bald--ruhig { background: var(--sx-card); }
+.sx-bald--bild { align-items: stretch; padding: 12px 12px 22px; }
+.sx-bald-bild { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px; display: block; }
+.sx-bald--bild > div { padding: 0 10px; }
 .shop .sx-bald h3 { font-weight: 600; font-size: 22px; line-height: 1.15; letter-spacing: -.025em; margin: 12px 0 6px; }
 .shop .sx-bald p { color: var(--sx-mute); max-width: 52ch; font-size: 15px; }
 .sx-insp { display: flex; gap: 10px; overflow-x: auto; margin-top: 12px; scrollbar-width: none; scroll-snap-type: x proximity; }
@@ -319,3 +322,8 @@
 .shop-wk-text-feld { top: 0; height: 56%; z-index: 1; }
 .shop-wk .shop-bk-feld textarea.shop-input { min-height: 0; height: 74px; }
 .shop-bk-link { background: none; border: 0; padding: 0; font: inherit; color: var(--sx-ink); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+@media (min-width: 820px) {
+  .sx-bald--bild { flex-direction: row; align-items: center; padding: 14px; gap: 36px; }
+  .sx-bald--bild .sx-bald-bild { width: 58%; flex: none; }
+  .sx-bald--bild > div { padding: 0 18px 0 0; }
+}

@@ -54,7 +54,7 @@ export default async function ShopUebersicht() {
   const bereiche: { id: BereichId; label: string; sub: string; bild?: string }[] = [
     { id: "bubble", label: "Buchstaben", sub: "Bubble", bild: cover("bubble-buchstabe") },
     { id: "wand", label: "Wandtexte", sub: "Bald verfügbar", bild: "/shop/inspiration/wand-kachel.webp" },
-    ...(zeigeTechnik ? [{ id: "technik" as const, label: "Technik", sub: "Bald" }] : []),
+    ...(zeigeTechnik ? [{ id: "technik" as const, label: "Technik", sub: "Bald", bild: "/shop/inspiration/led-kachel.webp" }] : []),
     ...(zeigeWn ? [{ id: "weihnachten" as const, label: "Weihnachten", sub: aktionLaeuft ? "Aktion" : "Advent", bild: cover("weihnachtskugel") }] : []),
     { id: "lieblinge", label: "Lieblingsstücke", sub: "Spaß & Besonderes", bild: cover("wochentags-untersetzer-set") },
   ];
@@ -180,11 +180,13 @@ export default async function ShopUebersicht() {
             {gruppen.technik.length > 0 ? (
               <ul className="sx-grid" aria-label="Technik-Artikel">{gruppen.technik.map(karte)}</ul>
             ) : (
-              <div className="sx-bald sx-bald--ruhig">
+              <div className="sx-bald sx-bald--ruhig sx-bald--bild">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="sx-bald-bild" src="/shop/inspiration/led-banner.webp" alt="LED-Profile für stilvolles Licht, hier unter einem Küchenschrank" width={1400} height={788} loading="lazy" decoding="async" />
                 <div>
                   <span className="sx-pill">Bald</span>
                   <h3>Praktisches für Technik und Alltag</h3>
-                  <p>Halter, Profile und Kleinteile, die ein Problem lösen. Hier kommt demnächst das Erste.</p>
+                  <p>Halter, Profile und Kleinteile, die ein Problem lösen. Als Erstes kommen die LED-Profile.</p>
                 </div>
               </div>
             )}
