@@ -114,10 +114,12 @@
 .sx-aktion-klein { font-size: 12px; opacity: .65; margin: 0 0 24px; line-height: 1.45; }
 .sx-aktion-bild { position: absolute; right: 16px; top: 16px; width: 80px; height: 80px; border-radius: 14px; object-fit: cover; }
 .shop .sx-aktion :focus-visible { outline-color: #FBFAF8; }
+.shop .sx-aktion .sx-aktion-klein { margin-bottom: 0; }
+.shop .sx-aktion .sx-aktion-tx .sx-btn { margin-top: 22px; align-self: flex-start; }
 @media (min-width: 820px) {
   .sx-aktion { padding: 44px 48px; min-height: 340px; display: flex; align-items: center; }
   .shop .sx-aktion h2 { font-size: 36px; max-width: 18ch; }
-  .sx-aktion-klein { margin-bottom: 30px; }
+  .shop .sx-aktion .sx-aktion-tx .sx-btn { margin-top: 28px; }
   .sx-aktion-tx { max-width: 54%; }
   .sx-aktion-bild { top: 0; bottom: 0; right: 0; left: auto; width: 46%; height: 100%; border-radius: 0; object-position: center 76%;
     -webkit-mask-image: linear-gradient(to right, transparent 0, #000 30%); mask-image: linear-gradient(to right, transparent 0, #000 30%); }
