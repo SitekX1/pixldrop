@@ -185,8 +185,8 @@ export default async function ShopUebersicht() {
                 <img className="sx-bald-bild" src="/shop/inspiration/led-banner.webp" alt="LED-Profile für stilvolles Licht, hier unter einem Küchenschrank" width={1400} height={788} loading="lazy" decoding="async" />
                 <div>
                   <span className="sx-pill">Bald</span>
-                  <h3>Praktisches für Technik und Alltag</h3>
-                  <p>Halter, Profile und Kleinteile, die ein Problem lösen. Als Erstes kommen die LED-Profile.</p>
+                  <h3>LED-Profil mit Blende</h3>
+                  <p>Ein Profil für LED-Streifen mit Abdeckung, im 3D-Drucker gefertigt. Kommt bald in den Shop.</p>
                 </div>
               </div>
             )}
