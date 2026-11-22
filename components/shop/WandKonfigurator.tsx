@@ -33,32 +33,36 @@ function abdunkeln(hex: string, f = 0.62) {
 
 export default function WandKonfigurator() {
   const [schriftId, setSchriftId] = useState(WAND_SCHRIFTEN[0].id);
-  const [schrift2Id, setSchrift2Id] = useState<string | null>(null); // null = wie Zeile 1
+  const [schriftOv, setSchriftOv] = useState<(string | null)[]>([null, null, null]); // null = wie Zeile 1
   const [farbeId, setFarbeId] = useState("schwarz");
   const [cm, setCm] = useState(15);
-  const [cm2, setCm2] = useState<number | null>(null); // null = wie Zeile 1
-  const [aktiv, setAktiv] = useState<0 | 1>(0);
+  const [cmOv, setCmOv] = useState<(number | null)[]>([null, null, null]); // null = wie Zeile 1
+  const [aktiv, setAktiv] = useState(0);
   const [oberflaecheId, setOberflaecheId] = useState("glatt");
   const [schreibweise, setSchreibweise] = useState<"eingabe" | "erster-gross">("eingabe");
   const oberflaeche = OBERFLAECHEN.find((o) => o.id === oberflaecheId)!;
   const farbe = FARBEN.find((f) => f.id === farbeId)!;
 
-  const [text, setText] = useState("Willkommen");
-  const zeilen = useMemo(() => text.replace(/[^\p{L}\p{N} .,!&'\n-]/gu, "").split("\n").slice(0, 2).map((z) => z.slice(0, 20)), [text]);
+  const [texte, setTexte] = useState(["Willkommen", "", ""]);
+  const [anzahl, setAnzahl] = useState(1); // sichtbare Textfelder (1 bis 3)
+  const zeilen = useMemo(() => texte.slice(0, anzahl).map((z) => z.replace(/[^\p{L}\p{N} .,!&'-]/gu, "").slice(0, 20)), [texte, anzahl]);
   const leer = zeilen.every((z) => !z.trim());
-  const zwei = !!zeilen[1]?.trim();
-  const akt = zwei ? aktiv : 0;
-  const ids = [schriftId, schrift2Id ?? schriftId];
-  const cms = [cm, cm2 ?? cm];
-  const mitSchreibweise = ids.slice(0, zwei ? 2 : 1).some((id) => SCHREIBSCHRIFTEN.has(id));
+  const eintraege = zeilen.map((z, i) => ({ z, i })).filter((e) => e.z.trim()); // Zeilen mit Text (Feld-Index bleibt erhalten)
+  const zwei = eintraege.length > 1; // mehr als eine Zeile mit Text
+  const akt = zwei ? (eintraege.some((e) => e.i === aktiv) ? aktiv : eintraege[0].i) : (eintraege[0]?.i ?? 0);
+  const ids = [0, 1, 2].map((i) => (i === 0 ? schriftId : schriftOv[i] ?? schriftId));
+  const cms = [0, 1, 2].map((i) => (i === 0 ? cm : cmOv[i] ?? cm));
+  const gesetzt = (i: number, v: string) => setTexte((t) => t.map((x, k) => (k === i ? v.slice(0, 20) : x)));
+  const mitSchreibweise = eintraege.some((e) => SCHREIBSCHRIFTEN.has(ids[e.i]));
   const zeilenF = zeilen.map((z, i) => (schreibweise === "erster-gross" && SCHREIBSCHRIFTEN.has(ids[i]) ? ersterGross(z) : z));
   const schriftVon = (i: number) => WAND_SCHRIFTEN.find((s) => s.id === ids[i])!;
   const gewichtVon = (id: string) => (EINSTELLBAR_400.has(id) ? 400 : 700);
   const schrift = schriftVon(0);
   const aktId = ids[akt], aktCm = cms[akt];
-  const setzeSchrift = (id: string) => (akt === 0 ? setSchriftId(id) : setSchrift2Id(id));
-  const setzeCm = (h: number) => (akt === 0 ? setCm(h) : setCm2(h));
-  const anzeige = leer ? ["Dein Wort"] : zeilenF;
+  const setzeSchrift = (id: string) => (akt === 0 ? setSchriftId(id) : setSchriftOv((o) => o.map((x, k) => (k === akt ? id : x))));
+  const setzeCm = (h: number) => (akt === 0 ? setCm(h) : setCmOv((o) => o.map((x, k) => (k === akt ? h : x))));
+  const anzeige = leer ? [{ z: "Dein Wort", i: 0 }] : eintraege.map((e) => ({ z: zeilenF[e.i], i: e.i }));
+  const ueberschrieben = schriftOv.some((x) => x !== null) || cmOv.some((x) => x !== null);
 
   // Echte Höhe der Großbuchstaben (Anteil der Schriftgröße) je Schrift per Messung, damit "15 cm" auch bei Schreibschriften stimmt
   const textRef = useRef<HTMLDivElement>(null);
@@ -70,7 +74,7 @@ export default function WandKonfigurator() {
   useEffect(() => {
     let weg = false;
     (async () => {
-      for (let i = 0; i < 2; i++) {
+      for (let i = 0; i < 3; i++) {
         const el = zeilenRef.current[i];
         const id = idsKey.split("|")[i];
         if (!el || !id) continue;
@@ -85,7 +89,7 @@ export default function WandKonfigurator() {
       }
     })();
     return () => { weg = true; };
-  }, [idsKey, zwei]);
+  }, [idsKey, eintraege.map((e) => e.i).join(",")]);
 
   // Das Foto bleibt immer vollflächig (Wand = FOTO_CM breit). Ist das Wort zu groß für die Wand, wird es in der Vorschau verkleinert.
   const wandCm = FOTO_CM;
@@ -100,14 +104,14 @@ export default function WandKonfigurator() {
       const tcm = ((tr.width / br) * wandCm) / faktor;
       const hcm = ((tr.height / br) * wandCm) / faktor;
       setBreiteCm(tcm);
-      const ziel = Math.min(1, (0.9 * wandCm) / Math.max(tcm, 1), (0.34 * wandCm) / Math.max(hcm, 1));
+      const ziel = Math.min(1, (0.9 * wandCm) / Math.max(tcm, 1), (0.31 * wandCm) / Math.max(hcm, 1));
       if (Math.abs(ziel - faktor) > 0.003) setFaktor(ziel);
     };
     messen();
     const ro = new ResizeObserver(messen);
     ro.observe(t); ro.observe(b);
     return () => ro.disconnect();
-  }, [zeilen, idsKey, cm, cm2, caps, faktor]);
+  }, [zeilen, idsKey, cm, cmOv, caps, faktor]);
 
   const sk = 1;
   const cqw = (v: number) => `${(v / wandCm) * 100}cqw`;
@@ -117,8 +121,8 @@ export default function WandKonfigurator() {
   const schatten = [1, 2, 3, 4, 5, 6].map((k) => `${tiefe(k)} ${tiefe(k)} 0 ${dunkel}`).join(", ")
     + `, ${cqw(1.4)} ${cqw(2.2)} ${cqw(2.4)} rgba(40, 30, 20, .28)`;
 
-  const beschr = (i: number) => `Zeile ${i + 1} „${zeilenF[i].trim()}“ in ${schriftVon(i).name}, Höhe der Großbuchstaben ${cms[i]} cm`;
-  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? beschr(0) + "; " + beschr(1) : `„${zeilenF[0].trim()}“ in ${schrift.name}, Höhe der Großbuchstaben ${cm} cm`}, Farbe ${farbe.name}, Oberfläche ${oberflaeche.name}${mitSchreibweise ? `, Schreibweise ${schreibweise === "erster-gross" ? "erster Buchstabe groß, Rest klein" : "genau wie eingegeben"}` : ""}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
+  const beschr = (i: number) => `Zeile ${eintraege.findIndex((e) => e.i === i) + 1} „${zeilenF[i].trim()}“ in ${schriftVon(i).name}, Höhe der Großbuchstaben ${cms[i]} cm`;
+  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? eintraege.map((e) => beschr(e.i)).join("; ") : `„${(zeilenF[akt] ?? "").trim()}“ in ${schriftVon(akt).name}, Höhe der Großbuchstaben ${cms[akt]} cm`}, Farbe ${farbe.name}, Oberfläche ${oberflaeche.name}${mitSchreibweise ? `, Schreibweise ${schreibweise === "erster-gross" ? "erster Buchstabe groß, Rest klein" : "genau wie eingegeben"}` : ""}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
   const href = `/3d-druck/anfrage?entwurf=${encodeURIComponent(entwurf)}`;
   const markierung = (s: string) => ({ ["--wk-font" as string]: s });
 
@@ -137,17 +141,17 @@ export default function WandKonfigurator() {
         </filter>
       </svg>
       <div className="shop-bk-raster">
-        <div className="shop-bk-wand" role="img" aria-label={`Vorschau: ${zeilenF.join(" ")} in ${[...new Set(ids.slice(0, zwei ? 2 : 1).map((id) => WAND_SCHRIFTEN.find((s) => s.id === id)!.name))].join(" und ")}`}>
+        <div className="shop-bk-wand" role="img" aria-label={`Vorschau: ${anzeige.map((a) => a.z).join(" ")} in ${[...new Set(anzeige.map((a) => WAND_SCHRIFTEN.find((s) => s.id === ids[a.i])!.name))].join(" und ")}`}>
           <div ref={bildRef} className="shop-bk-bild shop-wk-bild">
             <div className="shop-wk-text-feld">
               <div
                 ref={textRef} className="shop-wk-text"
                 style={{ color: farbe.hex, textShadow: schatten, ...(oberflaecheId === "strukturiert" ? { filter: "url(#wk-fuzzy)" } : {}), ...markierung(schrift.family) }}
               >
-                {anzeige.map((z, i) => (
+                {anzeige.map(({ z, i }) => (
                   <div
                     key={i} ref={(el) => { zeilenRef.current[i] = el; }}
-                    style={{ fontFamily: schriftVon(i).family, fontWeight: gewichtVon(ids[i]), fontSize: cqw((cms[i] / capVon(ids[i])) * faktor), ...(leer ? { opacity: .35 } : {}) }}
+                    style={{ fontFamily: schriftVon(i).family, fontWeight: gewichtVon(ids[i]), fontSize: cqw((cms[i] / capVon(ids[i])) * faktor), ...(SCHREIBSCHRIFTEN.has(ids[i]) ? { letterSpacing: "0.14em", fontKerning: "none", fontVariantLigatures: "none" } : {}), ...(leer ? { opacity: .35 } : {}) }}
                   >{z || " "}</div>
                 ))}
               </div>
@@ -157,30 +161,43 @@ export default function WandKonfigurator() {
               className="shop-wk-foto" src="/shop/inspiration/wand-leer.webp" alt="" aria-hidden="true" width={1400} height={933}
               style={{ width: `${sk * 100}cqw`, left: `${(100 - sk * 100) / 2}cqw`, ...(sk < 0.98 ? { WebkitMaskImage: FADE, maskImage: FADE } : {}) }}
             />
-            <div className="shop-bk-hoehe">{zwei && cms[0] !== cms[1] ? `Zeile 1: ${cms[0]} cm · Zeile 2: ${cms[1]} cm` : `Buchstaben ${cm} cm hoch`}{faktor < 0.995 ? " · Vorschau verkleinert" : ""}</div>
+            <div className="shop-bk-hoehe">{zwei && new Set(eintraege.map((e) => cms[e.i])).size > 1 ? eintraege.map((e, k) => `Zeile ${k + 1}: ${cms[e.i]} cm`).join(" · ") : `Buchstaben ${cms[akt]} cm hoch`}{faktor < 0.995 ? " · Vorschau verkleinert" : ""}</div>
           </div>
         </div>
 
         <div className="shop-bk-steuer">
-          <label className="shop-bk-feld">
-            <span>Dein Wort <em>(bis 2 Zeilen, je 20 Zeichen)</em></span>
-            <textarea className="shop-input" rows={2} value={text} onChange={(e) => setText(e.target.value.slice(0, 40))} spellCheck={false} style={{ textTransform: "none", letterSpacing: "normal", resize: "none" }} />
-          </label>
+          <div className="shop-bk-feld">
+            <span>Dein Wort <em>(bis zu 3 Zeilen, je 20 Zeichen)</em></span>
+            {Array.from({ length: anzahl }).map((_, i) => (
+              <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", marginTop: i ? 8 : 0 }}>
+                <input
+                  className="shop-input" type="text" value={texte[i]} maxLength={20} spellCheck={false} aria-label={`Zeile ${i + 1}`} placeholder={i ? `Zeile ${i + 1} (optional)` : "Dein Wort"}
+                  onChange={(e) => gesetzt(i, e.target.value)} style={{ textTransform: "none", letterSpacing: "normal", flex: 1 }}
+                />
+                {i > 0 && i === anzahl - 1 && (
+                  <button type="button" className="shop-bk-link" aria-label={`Zeile ${i + 1} entfernen`} onClick={() => { gesetzt(i, ""); setAnzahl(i); setAktiv(0); }}>Entfernen</button>
+                )}
+              </div>
+            ))}
+            {anzahl < 3 && (
+              <button type="button" className="shop-bk-link" style={{ marginTop: 8, alignSelf: "flex-start" }} onClick={() => setAnzahl(anzahl + 1)}>+ Weitere Zeile hinzufügen</button>
+            )}
+          </div>
 
           {zwei && (
             <fieldset className="shop-bk-feld">
               <legend>Einstellen für</legend>
               <div className="shop-options">
-                {[0, 1].map((i) => (
-                  <label key={i} className="shop-option"><input type="radio" name="wk-zeile" checked={akt === i} onChange={() => setAktiv(i as 0 | 1)} /><span>Zeile {i + 1}: {zeilen[i].trim().slice(0, 10)}</span></label>
+                {eintraege.map((e, k) => (
+                  <label key={e.i} className="shop-option"><input type="radio" name="wk-zeile" checked={akt === e.i} onChange={() => setAktiv(e.i)} /><span>Zeile {k + 1}: {e.z.trim().slice(0, 10)}</span></label>
                 ))}
               </div>
-              <span className="shop-bk-klein">Jede Zeile kann eine eigene Schrift und Höhe haben. Zeile 2 folgt Zeile 1, bis du sie änderst.{(schrift2Id !== null || cm2 !== null) && <> <button type="button" className="shop-bk-link" onClick={() => { setSchrift2Id(null); setCm2(null); }}>Zeile 2 wie Zeile 1</button></>}</span>
+              <span className="shop-bk-klein">Jede Zeile kann eine eigene Schrift und Höhe haben. Weitere Zeilen folgen Zeile 1, bis du sie änderst.{ueberschrieben && <> <button type="button" className="shop-bk-link" onClick={() => { setSchriftOv([null, null, null]); setCmOv([null, null, null]); }}>Alle Zeilen wie Zeile 1</button></>}</span>
             </fieldset>
           )}
 
           <fieldset className="shop-bk-feld">
-            <legend>Schrift{zwei ? ` (Zeile ${akt + 1})` : ""}</legend>
+            <legend>Schrift{zwei ? ` (Zeile ${eintraege.findIndex((e) => e.i === akt) + 1})` : ""}</legend>
             <div className="shop-wk-schriften">
               {WAND_SCHRIFTEN.map((s) => (
                 <label key={s.id} className="shop-wk-schrift">
@@ -229,7 +246,7 @@ export default function WandKonfigurator() {
           </fieldset>
 
           <fieldset className="shop-bk-feld">
-            <legend>Höhe der Großbuchstaben{zwei ? ` (Zeile ${akt + 1})` : ""}</legend>
+            <legend>Höhe der Großbuchstaben{zwei ? ` (Zeile ${eintraege.findIndex((e) => e.i === akt) + 1})` : ""}</legend>
             <div className="shop-options">
               {HOEHEN.map((h) => (
                 <label key={h} className="shop-option"><input type="radio" name="wk-hoehe" checked={aktCm === h} onChange={() => setzeCm(h)} /><span>{h} cm</span></label>
