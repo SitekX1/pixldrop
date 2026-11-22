@@ -17,6 +17,10 @@ const FARBEN = [
 const HOEHEN = [8, 10, 12, 15, 20, 25, 30]; // cm, Höhe der Großbuchstaben
 const FOTO_CM = 150; // Annahme: der Schreibtisch im Foto ist ca. 150 cm breit
 const FADE = "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 14%)";
+const OBERFLAECHEN = [
+  { id: "glatt", name: "Glatt", info: "Klassisch glatt, feine Schichtlinien sind je nach Licht sichtbar." },
+  { id: "strukturiert", name: "Strukturiert", info: "Fuzzy Skin: fein raue, matte Oberfläche, die Schichtlinien und Fingerabdrücke kaschiert." },
+];
 const EINSTELLBAR_400 = new Set(["great-vibes", "mansalva"]); // Schriften nur in Regular (kein Fett)
 
 function abdunkeln(hex: string, f = 0.62) {
@@ -30,6 +34,8 @@ export default function WandKonfigurator() {
   const [schriftId, setSchriftId] = useState(WAND_SCHRIFTEN[0].id);
   const [farbeId, setFarbeId] = useState("schwarz");
   const [cm, setCm] = useState(15);
+  const [oberflaecheId, setOberflaecheId] = useState("glatt");
+  const oberflaeche = OBERFLAECHEN.find((o) => o.id === oberflaecheId)!;
   const schrift = WAND_SCHRIFTEN.find((s) => s.id === schriftId)!;
   const farbe = FARBEN.find((f) => f.id === farbeId)!;
   const gewicht = EINSTELLBAR_400.has(schriftId) ? 400 : 700;
@@ -85,7 +91,7 @@ export default function WandKonfigurator() {
   const schatten = [1, 2, 3, 4, 5, 6].map((k) => `${tiefe(k)} ${tiefe(k)} 0 ${dunkel}`).join(", ")
     + `, ${cqw(1.4)} ${cqw(2.2)} ${cqw(2.4)} rgba(40, 30, 20, .28)`;
 
-  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: „${zeilen.map((z) => z.trim()).filter(Boolean).join(" / ")}“, Schrift ${schrift.name}, Farbe ${farbe.name}, Höhe der Großbuchstaben ${cm} cm, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
+  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: „${zeilen.map((z) => z.trim()).filter(Boolean).join(" / ")}“, Schrift ${schrift.name}, Farbe ${farbe.name}, Oberfläche ${oberflaeche.name}, Höhe der Großbuchstaben ${cm} cm, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
   const href = `/3d-druck/anfrage?entwurf=${encodeURIComponent(entwurf)}`;
   const markierung = (s: string) => ({ ["--wk-font" as string]: s });
 
@@ -97,13 +103,19 @@ export default function WandKonfigurator() {
         <p className="shop-bk-sub">Tipp dein Wort ein, wähle Schrift, Farbe und Höhe. Die Vorschau zeigt die Buchstaben maßstäblich an einer Wand. Bestellen geht noch nicht: Du kannst deinen Entwurf als Anfrage an mich schicken und bekommst ein Angebot per E-Mail.</p>
       </div>
 
+      <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: "absolute" }}>
+        <filter id="wk-fuzzy" x="-2%" y="-5%" width="104%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
       <div className="shop-bk-raster">
         <div className="shop-bk-wand" role="img" aria-label={`Vorschau: ${zeilen.join(" ")} in ${schrift.name}, ${cm} cm hoch`}>
           <div ref={bildRef} className="shop-bk-bild shop-wk-bild">
             <div className="shop-wk-text-feld">
               <div
                 ref={textRef} className="shop-wk-text"
-                style={{ fontFamily: schrift.family, fontWeight: gewicht, fontSize: cqw(fontCm), color: farbe.hex, textShadow: schatten, ...markierung(schrift.family) }}
+                style={{ fontFamily: schrift.family, fontWeight: gewicht, fontSize: cqw(fontCm), color: farbe.hex, textShadow: schatten, ...(oberflaecheId === "strukturiert" ? { filter: "url(#wk-fuzzy)" } : {}), ...markierung(schrift.family) }}
               >
                 {leer ? <span style={{ opacity: .35 }}>Dein Wort</span> : zeilen.map((z, i) => <div key={i}>{z || " "}</div>)}
               </div>
@@ -149,6 +161,16 @@ export default function WandKonfigurator() {
               ))}
             </div>
             <span className="shop-bk-klein">{farbe.name} · matt, PLA</span>
+          </fieldset>
+
+          <fieldset className="shop-bk-feld">
+            <legend>Oberfläche</legend>
+            <div className="shop-options">
+              {OBERFLAECHEN.map((o) => (
+                <label key={o.id} className="shop-option"><input type="radio" name="wk-oberflaeche" checked={oberflaecheId === o.id} onChange={() => setOberflaecheId(o.id)} /><span>{o.name}</span></label>
+              ))}
+            </div>
+            <span className="shop-bk-klein">{oberflaeche.info}</span>
           </fieldset>
 
           <fieldset className="shop-bk-feld">
