@@ -320,5 +320,6 @@
 @media (hover: hover) { .shop-wk-schrift:hover input:not(:checked) + span { border-color: var(--sx-ink); } }
 .shop-wk .shop-bk-feld textarea.shop-input { border-radius: 8px; font-size: 1rem; }
 .shop-wk .shop-btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
-.shop-wk-text-feld { top: 3%; height: 42%; z-index: 1; }
+.shop-wk-text-feld { top: 0; height: 56%; z-index: 1; }
 .shop-wk .shop-bk-feld textarea.shop-input { min-height: 0; height: 74px; }
+.shop-bk-link { background: none; border: 0; padding: 0; font: inherit; color: var(--sx-ink); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }

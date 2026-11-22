@@ -30,38 +30,57 @@ function abdunkeln(hex: string, f = 0.62) {
 }
 
 export default function WandKonfigurator() {
-  const [text, setText] = useState("Willkommen");
   const [schriftId, setSchriftId] = useState(WAND_SCHRIFTEN[0].id);
+  const [schrift2Id, setSchrift2Id] = useState<string | null>(null); // null = wie Zeile 1
   const [farbeId, setFarbeId] = useState("schwarz");
   const [cm, setCm] = useState(15);
+  const [cm2, setCm2] = useState<number | null>(null); // null = wie Zeile 1
+  const [aktiv, setAktiv] = useState<0 | 1>(0);
   const [oberflaecheId, setOberflaecheId] = useState("glatt");
   const oberflaeche = OBERFLAECHEN.find((o) => o.id === oberflaecheId)!;
-  const schrift = WAND_SCHRIFTEN.find((s) => s.id === schriftId)!;
   const farbe = FARBEN.find((f) => f.id === farbeId)!;
-  const gewicht = EINSTELLBAR_400.has(schriftId) ? 400 : 700;
 
+  const [text, setText] = useState("Willkommen");
   const zeilen = useMemo(() => text.replace(/[^\p{L}\p{N} .,!&'\n-]/gu, "").split("\n").slice(0, 2).map((z) => z.slice(0, 20)), [text]);
   const leer = zeilen.every((z) => !z.trim());
+  const zwei = !!zeilen[1]?.trim();
+  const akt = zwei ? aktiv : 0;
+  const ids = [schriftId, schrift2Id ?? schriftId];
+  const cms = [cm, cm2 ?? cm];
+  const schriftVon = (i: number) => WAND_SCHRIFTEN.find((s) => s.id === ids[i])!;
+  const gewichtVon = (id: string) => (EINSTELLBAR_400.has(id) ? 400 : 700);
+  const schrift = schriftVon(0);
+  const aktId = ids[akt], aktCm = cms[akt];
+  const setzeSchrift = (id: string) => (akt === 0 ? setSchriftId(id) : setSchrift2Id(id));
+  const setzeCm = (h: number) => (akt === 0 ? setCm(h) : setCm2(h));
+  const anzeige = leer ? ["Dein Wort"] : zeilen;
 
-  // Echte Höhe der Großbuchstaben (Anteil der Schriftgröße) per Messung, damit "15 cm" auch bei Schreibschriften stimmt
+  // Echte Höhe der Großbuchstaben (Anteil der Schriftgröße) je Schrift per Messung, damit "15 cm" auch bei Schreibschriften stimmt
   const textRef = useRef<HTMLDivElement>(null);
   const bildRef = useRef<HTMLDivElement>(null);
-  const [cap, setCap] = useState(0.7);
+  const zeilenRef = useRef<(HTMLDivElement | null)[]>([]);
+  const [caps, setCaps] = useState<Record<string, number>>({});
+  const capVon = (id: string) => caps[id] ?? 0.7;
+  const idsKey = ids.join("|");
   useEffect(() => {
     let weg = false;
     (async () => {
-      const el = textRef.current;
-      if (!el) return;
-      const ff = getComputedStyle(el).fontFamily;
-      try { await document.fonts.load(`${gewicht} 100px ${ff}`, "H"); } catch { /* egal, Messung mit Ersatzschrift */ }
-      const c = document.createElement("canvas").getContext("2d");
-      if (!c) return;
-      c.font = `${gewicht} 100px ${ff}`;
-      const r = c.measureText("H").actualBoundingBoxAscent / 100;
-      if (!weg && r > 0.2 && r < 1.2) setCap(r);
+      for (let i = 0; i < 2; i++) {
+        const el = zeilenRef.current[i];
+        const id = idsKey.split("|")[i];
+        if (!el || !id) continue;
+        const g = gewichtVon(id);
+        const ff = getComputedStyle(el).fontFamily;
+        try { await document.fonts.load(`${g} 100px ${ff}`, "H"); } catch { /* egal, Messung mit Ersatzschrift */ }
+        const c = document.createElement("canvas").getContext("2d");
+        if (!c) return;
+        c.font = `${g} 100px ${ff}`;
+        const r = c.measureText("H").actualBoundingBoxAscent / 100;
+        if (!weg && r > 0.2 && r < 1.2) setCaps((alt) => (alt[id] === r ? alt : { ...alt, [id]: r }));
+      }
     })();
     return () => { weg = true; };
-  }, [schriftId, gewicht]);
+  }, [idsKey, zwei]);
 
   // Wandbreite so wählen, dass der Text hineinpasst (Maßstab bleibt in cm erhalten)
   const [wandCm, setWandCm] = useState(170);
@@ -73,17 +92,17 @@ export default function WandKonfigurator() {
       const rel = t.getBoundingClientRect().width / b.getBoundingClientRect().width; // Anteil der Wandbreite
       const tcm = rel * wandCm;
       setBreiteCm(tcm);
-      const soll = Math.max(150, Math.ceil((tcm * 1.35) / 10) * 10);
+      const hcm = (t.getBoundingClientRect().height / b.getBoundingClientRect().width) * wandCm; // Texthöhe in cm
+      const soll = Math.max(150, Math.ceil(Math.max(tcm * 1.35, hcm * 3) / 10) * 10);
       if (soll !== wandCm) setWandCm(soll);
     };
     messen();
     const ro = new ResizeObserver(messen);
     ro.observe(t); ro.observe(b);
     return () => ro.disconnect();
-  }, [zeilen, schriftId, cm, cap, wandCm]);
+  }, [zeilen, idsKey, cm, cm2, caps, wandCm]);
 
   const sk = FOTO_CM / wandCm; // Foto-Anteil: wird die Wand breiter als das Foto, schrumpft das Foto und blendet aus
-  const fontCm = cm / cap; // Schriftgröße in cm
   const cqw = (v: number) => `${(v / wandCm) * 100}cqw`;
   const dunkel = abdunkeln(farbe.hex);
   // Dicke ca. 10 mm: gestapelte Schatten nach rechts unten + weicher Wurf auf die Wand
@@ -91,7 +110,8 @@ export default function WandKonfigurator() {
   const schatten = [1, 2, 3, 4, 5, 6].map((k) => `${tiefe(k)} ${tiefe(k)} 0 ${dunkel}`).join(", ")
     + `, ${cqw(1.4)} ${cqw(2.2)} ${cqw(2.4)} rgba(40, 30, 20, .28)`;
 
-  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: „${zeilen.map((z) => z.trim()).filter(Boolean).join(" / ")}“, Schrift ${schrift.name}, Farbe ${farbe.name}, Oberfläche ${oberflaeche.name}, Höhe der Großbuchstaben ${cm} cm, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
+  const beschr = (i: number) => `Zeile ${i + 1} „${zeilen[i].trim()}“ in ${schriftVon(i).name}, Höhe der Großbuchstaben ${cms[i]} cm`;
+  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? beschr(0) + "; " + beschr(1) : `„${zeilen[0].trim()}“ in ${schrift.name}, Höhe der Großbuchstaben ${cm} cm`}, Farbe ${farbe.name}, Oberfläche ${oberflaeche.name}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
   const href = `/3d-druck/anfrage?entwurf=${encodeURIComponent(entwurf)}`;
   const markierung = (s: string) => ({ ["--wk-font" as string]: s });
 
@@ -110,14 +130,19 @@ export default function WandKonfigurator() {
         </filter>
       </svg>
       <div className="shop-bk-raster">
-        <div className="shop-bk-wand" role="img" aria-label={`Vorschau: ${zeilen.join(" ")} in ${schrift.name}, ${cm} cm hoch`}>
+        <div className="shop-bk-wand" role="img" aria-label={`Vorschau: ${zeilen.join(" ")} in ${[...new Set(ids.slice(0, zwei ? 2 : 1).map((id) => WAND_SCHRIFTEN.find((s) => s.id === id)!.name))].join(" und ")}`}>
           <div ref={bildRef} className="shop-bk-bild shop-wk-bild">
             <div className="shop-wk-text-feld">
               <div
                 ref={textRef} className="shop-wk-text"
-                style={{ fontFamily: schrift.family, fontWeight: gewicht, fontSize: cqw(fontCm), color: farbe.hex, textShadow: schatten, ...(oberflaecheId === "strukturiert" ? { filter: "url(#wk-fuzzy)" } : {}), ...markierung(schrift.family) }}
+                style={{ color: farbe.hex, textShadow: schatten, ...(oberflaecheId === "strukturiert" ? { filter: "url(#wk-fuzzy)" } : {}), ...markierung(schrift.family) }}
               >
-                {leer ? <span style={{ opacity: .35 }}>Dein Wort</span> : zeilen.map((z, i) => <div key={i}>{z || " "}</div>)}
+                {anzeige.map((z, i) => (
+                  <div
+                    key={i} ref={(el) => { zeilenRef.current[i] = el; }}
+                    style={{ fontFamily: schriftVon(i).family, fontWeight: gewichtVon(ids[i]), fontSize: cqw(cms[i] / capVon(ids[i])), ...(leer ? { opacity: .35 } : {}) }}
+                  >{z || " "}</div>
+                ))}
               </div>
             </div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -125,7 +150,7 @@ export default function WandKonfigurator() {
               className="shop-wk-foto" src="/shop/inspiration/wand-leer.webp" alt="" aria-hidden="true" width={1400} height={933}
               style={{ width: `${sk * 100}cqw`, left: `${(100 - sk * 100) / 2}cqw`, ...(sk < 0.98 ? { WebkitMaskImage: FADE, maskImage: FADE } : {}) }}
             />
-            <div className="shop-bk-hoehe">Buchstaben {cm} cm hoch</div>
+            <div className="shop-bk-hoehe">{zwei && cms[0] !== cms[1] ? `Zeile 1: ${cms[0]} cm · Zeile 2: ${cms[1]} cm` : `Buchstaben ${cm} cm hoch`}</div>
           </div>
         </div>
 
@@ -135,14 +160,26 @@ export default function WandKonfigurator() {
             <textarea className="shop-input" rows={2} value={text} onChange={(e) => setText(e.target.value.slice(0, 40))} spellCheck={false} style={{ textTransform: "none", letterSpacing: "normal", resize: "none" }} />
           </label>
 
+          {zwei && (
+            <fieldset className="shop-bk-feld">
+              <legend>Einstellen für</legend>
+              <div className="shop-options">
+                {[0, 1].map((i) => (
+                  <label key={i} className="shop-option"><input type="radio" name="wk-zeile" checked={akt === i} onChange={() => setAktiv(i as 0 | 1)} /><span>Zeile {i + 1}: {zeilen[i].trim().slice(0, 10)}</span></label>
+                ))}
+              </div>
+              <span className="shop-bk-klein">Jede Zeile kann eine eigene Schrift und Höhe haben. Zeile 2 folgt Zeile 1, bis du sie änderst.{(schrift2Id !== null || cm2 !== null) && <> <button type="button" className="shop-bk-link" onClick={() => { setSchrift2Id(null); setCm2(null); }}>Zeile 2 wie Zeile 1</button></>}</span>
+            </fieldset>
+          )}
+
           <fieldset className="shop-bk-feld">
-            <legend>Schrift</legend>
+            <legend>Schrift{zwei ? ` (Zeile ${akt + 1})` : ""}</legend>
             <div className="shop-wk-schriften">
               {WAND_SCHRIFTEN.map((s) => (
                 <label key={s.id} className="shop-wk-schrift">
-                  <input type="radio" name="wk-schrift" checked={schriftId === s.id} onChange={() => setSchriftId(s.id)} />
+                  <input type="radio" name="wk-schrift" checked={aktId === s.id} onChange={() => setzeSchrift(s.id)} />
                   <span style={{ fontFamily: s.family, fontWeight: EINSTELLBAR_400.has(s.id) ? 400 : 700 }}>
-                    <b>{(zeilen[0] || "Aa").trim().slice(0, 6) || "Aa"}</b>
+                    <b>{(zeilen[akt] || "Aa").trim().slice(0, 6) || "Aa"}</b>
                     <small>{s.name}</small>
                   </span>
                 </label>
@@ -174,10 +211,10 @@ export default function WandKonfigurator() {
           </fieldset>
 
           <fieldset className="shop-bk-feld">
-            <legend>Höhe der Großbuchstaben</legend>
+            <legend>Höhe der Großbuchstaben{zwei ? ` (Zeile ${akt + 1})` : ""}</legend>
             <div className="shop-options">
               {HOEHEN.map((h) => (
-                <label key={h} className="shop-option"><input type="radio" name="wk-hoehe" checked={cm === h} onChange={() => setCm(h)} /><span>{h} cm</span></label>
+                <label key={h} className="shop-option"><input type="radio" name="wk-hoehe" checked={aktCm === h} onChange={() => setzeCm(h)} /><span>{h} cm</span></label>
               ))}
             </div>
           </fieldset>
