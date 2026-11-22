@@ -41,7 +41,7 @@ export default function WandKonfigurator() {
   const [oberflaecheId, setOberflaecheId] = useState("glatt");
   const [schreibweise, setSchreibweise] = useState<"eingabe" | "erster-gross">("eingabe");
   const oberflaeche = OBERFLAECHEN.find((o) => o.id === oberflaecheId)!;
-  const farbe = FARBEN.find((f) => f.id === farbeId)!;
+  const [farbeOv, setFarbeOv] = useState<(string | null)[]>([null, null, null]); // null = wie Zeile 1
 
   const [texte, setTexte] = useState(["Willkommen", "", ""]);
   const [anzahl, setAnzahl] = useState(1); // sichtbare Textfelder (1 bis 3)
@@ -52,17 +52,21 @@ export default function WandKonfigurator() {
   const akt = zwei ? (eintraege.some((e) => e.i === aktiv) ? aktiv : eintraege[0].i) : (eintraege[0]?.i ?? 0);
   const ids = [0, 1, 2].map((i) => (i === 0 ? schriftId : schriftOv[i] ?? schriftId));
   const cms = [0, 1, 2].map((i) => (i === 0 ? cm : cmOv[i] ?? cm));
+  const farbIds = [0, 1, 2].map((i) => (i === 0 ? farbeId : farbeOv[i] ?? farbeId));
+  const farbeVon = (i: number) => FARBEN.find((f) => f.id === farbIds[i])!;
   const gesetzt = (i: number, v: string) => setTexte((t) => t.map((x, k) => (k === i ? v.slice(0, 20) : x)));
   const mitSchreibweise = eintraege.some((e) => SCHREIBSCHRIFTEN.has(ids[e.i]));
   const zeilenF = zeilen.map((z, i) => (schreibweise === "erster-gross" && SCHREIBSCHRIFTEN.has(ids[i]) ? ersterGross(z) : z));
   const schriftVon = (i: number) => WAND_SCHRIFTEN.find((s) => s.id === ids[i])!;
   const gewichtVon = (id: string) => (EINSTELLBAR_400.has(id) ? 400 : 700);
   const schrift = schriftVon(0);
+  const farbe = farbeVon(akt);
   const aktId = ids[akt], aktCm = cms[akt];
   const setzeSchrift = (id: string) => (akt === 0 ? setSchriftId(id) : setSchriftOv((o) => o.map((x, k) => (k === akt ? id : x))));
   const setzeCm = (h: number) => (akt === 0 ? setCm(h) : setCmOv((o) => o.map((x, k) => (k === akt ? h : x))));
   const anzeige = leer ? [{ z: "Dein Wort", i: 0 }] : eintraege.map((e) => ({ z: zeilenF[e.i], i: e.i }));
-  const ueberschrieben = schriftOv.some((x) => x !== null) || cmOv.some((x) => x !== null);
+  const setzeFarbe = (id: string) => (akt === 0 ? setFarbeId(id) : setFarbeOv((o) => o.map((x, k) => (k === akt ? id : x))));
+  const ueberschrieben = schriftOv.some((x) => x !== null) || cmOv.some((x) => x !== null) || farbeOv.some((x) => x !== null);
 
   // Echte Höhe der Großbuchstaben (Anteil der Schriftgröße) je Schrift per Messung, damit "15 cm" auch bei Schreibschriften stimmt
   const textRef = useRef<HTMLDivElement>(null);
@@ -115,14 +119,16 @@ export default function WandKonfigurator() {
 
   const sk = 1;
   const cqw = (v: number) => `${(v / wandCm) * 100}cqw`;
-  const dunkel = abdunkeln(farbe.hex);
   // Dicke ca. 10 mm: gestapelte Schatten nach rechts unten + weicher Wurf auf die Wand
   const tiefe = (k: number) => `${(k * 0.1) / wandCm * 100}cqw`;
-  const schatten = [1, 2, 3, 4, 5, 6].map((k) => `${tiefe(k)} ${tiefe(k)} 0 ${dunkel}`).join(", ")
-    + `, ${cqw(1.4)} ${cqw(2.2)} ${cqw(2.4)} rgba(40, 30, 20, .28)`;
+  const schattenVon = (i: number) => {
+    const dunkel = abdunkeln(farbeVon(i).hex);
+    return [1, 2, 3, 4, 5, 6].map((k) => `${tiefe(k)} ${tiefe(k)} 0 ${dunkel}`).join(", ")
+      + `, ${cqw(1.4)} ${cqw(2.2)} ${cqw(2.4)} rgba(40, 30, 20, .28)`;
+  };
 
-  const beschr = (i: number) => `Zeile ${eintraege.findIndex((e) => e.i === i) + 1} „${zeilenF[i].trim()}“ in ${schriftVon(i).name}, Höhe der Großbuchstaben ${cms[i]} cm`;
-  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? eintraege.map((e) => beschr(e.i)).join("; ") : `„${(zeilenF[akt] ?? "").trim()}“ in ${schriftVon(akt).name}, Höhe der Großbuchstaben ${cms[akt]} cm`}, Farbe ${farbe.name}, Oberfläche ${oberflaeche.name}${mitSchreibweise ? `, Schreibweise ${schreibweise === "erster-gross" ? "erster Buchstabe groß, Rest klein" : "genau wie eingegeben"}` : ""}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
+  const beschr = (i: number) => `Zeile ${eintraege.findIndex((e) => e.i === i) + 1} „${zeilenF[i].trim()}“ in ${schriftVon(i).name}, Höhe der Großbuchstaben ${cms[i]} cm, Farbe ${farbeVon(i).name}`;
+  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? eintraege.map((e) => beschr(e.i)).join("; ") : `„${(zeilenF[akt] ?? "").trim()}“ in ${schriftVon(akt).name}, Höhe der Großbuchstaben ${cms[akt]} cm, Farbe ${farbeVon(akt).name}`}, Oberfläche ${oberflaeche.name}${mitSchreibweise ? `, Schreibweise ${schreibweise === "erster-gross" ? "erster Buchstabe groß, Rest klein" : "genau wie eingegeben"}` : ""}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
   const href = `/3d-druck/anfrage?entwurf=${encodeURIComponent(entwurf)}`;
   const markierung = (s: string) => ({ ["--wk-font" as string]: s });
 
@@ -146,12 +152,12 @@ export default function WandKonfigurator() {
             <div className="shop-wk-text-feld">
               <div
                 ref={textRef} className="shop-wk-text"
-                style={{ color: farbe.hex, textShadow: schatten, ...(oberflaecheId === "strukturiert" ? { filter: "url(#wk-fuzzy)" } : {}), ...markierung(schrift.family) }}
+                style={{ ...(oberflaecheId === "strukturiert" ? { filter: "url(#wk-fuzzy)" } : {}), ...markierung(schrift.family) }}
               >
                 {anzeige.map(({ z, i }) => (
                   <div
                     key={i} ref={(el) => { zeilenRef.current[i] = el; }}
-                    style={{ fontFamily: schriftVon(i).family, fontWeight: gewichtVon(ids[i]), fontSize: cqw((cms[i] / capVon(ids[i])) * faktor), ...(SCHREIBSCHRIFTEN.has(ids[i]) ? { letterSpacing: "0.14em", fontKerning: "none", fontVariantLigatures: "none" } : {}), ...(leer ? { opacity: .35 } : {}) }}
+                    style={{ fontFamily: schriftVon(i).family, fontWeight: gewichtVon(ids[i]), fontSize: cqw((cms[i] / capVon(ids[i])) * faktor), color: farbeVon(i).hex, textShadow: schattenVon(i), ...(SCHREIBSCHRIFTEN.has(ids[i]) ? { letterSpacing: "0.14em", fontKerning: "none", fontVariantLigatures: "none" } : {}), ...(leer ? { opacity: .35 } : {}) }}
                   >{z || " "}</div>
                 ))}
               </div>
@@ -192,7 +198,7 @@ export default function WandKonfigurator() {
                   <label key={e.i} className="shop-option"><input type="radio" name="wk-zeile" checked={akt === e.i} onChange={() => setAktiv(e.i)} /><span>Zeile {k + 1}: {e.z.trim().slice(0, 10)}</span></label>
                 ))}
               </div>
-              <span className="shop-bk-klein">Jede Zeile kann eine eigene Schrift und Höhe haben. Weitere Zeilen folgen Zeile 1, bis du sie änderst.{ueberschrieben && <> <button type="button" className="shop-bk-link" onClick={() => { setSchriftOv([null, null, null]); setCmOv([null, null, null]); }}>Alle Zeilen wie Zeile 1</button></>}</span>
+              <span className="shop-bk-klein">Jede Zeile kann eine eigene Schrift, Farbe und Höhe haben. Weitere Zeilen folgen Zeile 1, bis du sie änderst.{ueberschrieben && <> <button type="button" className="shop-bk-link" onClick={() => { setSchriftOv([null, null, null]); setCmOv([null, null, null]); setFarbeOv([null, null, null]); }}>Alle Zeilen wie Zeile 1</button></>}</span>
             </fieldset>
           )}
 
@@ -223,11 +229,11 @@ export default function WandKonfigurator() {
           )}
 
           <fieldset className="shop-bk-feld">
-            <legend>Farbe</legend>
+            <legend>Farbe{zwei ? ` (Zeile ${eintraege.findIndex((e) => e.i === akt) + 1})` : ""}</legend>
             <div className="shop-swatches">
               {FARBEN.map((f) => (
                 <label key={f.id} className="shop-swatch" title={f.name}>
-                  <input type="radio" name="wk-farbe" aria-label={f.name} checked={farbeId === f.id} onChange={() => setFarbeId(f.id)} />
+                  <input type="radio" name="wk-farbe" aria-label={f.name} checked={farbIds[akt] === f.id} onChange={() => setzeFarbe(f.id)} />
                   <span className="dot" style={{ background: f.hex }} />
                 </label>
               ))}
