@@ -21,6 +21,8 @@ const OBERFLAECHEN = [
   { id: "glatt", name: "Glatt", info: "Klassisch glatt, feine Schichtlinien sind je nach Licht sichtbar." },
   { id: "strukturiert", name: "Strukturiert", info: "Fuzzy Skin: fein raue, matte Oberfläche, die Schichtlinien und Fingerabdrücke kaschiert." },
 ];
+const SCHREIBSCHRIFTEN = new Set(["great-vibes", "parisienne", "dancing-script", "marck-script"]); // nur hier wählbar: Schreibweise
+const ersterGross = (z: string) => { const t = z.toLowerCase(); const i = t.search(/\p{L}/u); return i < 0 ? t : t.slice(0, i) + t[i].toUpperCase() + t.slice(i + 1); };
 const EINSTELLBAR_400 = new Set(["great-vibes", "mansalva", "parisienne", "marck-script"]); // Schriften nur in Regular (kein Fett)
 
 function abdunkeln(hex: string, f = 0.62) {
@@ -37,6 +39,7 @@ export default function WandKonfigurator() {
   const [cm2, setCm2] = useState<number | null>(null); // null = wie Zeile 1
   const [aktiv, setAktiv] = useState<0 | 1>(0);
   const [oberflaecheId, setOberflaecheId] = useState("glatt");
+  const [schreibweise, setSchreibweise] = useState<"eingabe" | "erster-gross">("eingabe");
   const oberflaeche = OBERFLAECHEN.find((o) => o.id === oberflaecheId)!;
   const farbe = FARBEN.find((f) => f.id === farbeId)!;
 
@@ -47,13 +50,15 @@ export default function WandKonfigurator() {
   const akt = zwei ? aktiv : 0;
   const ids = [schriftId, schrift2Id ?? schriftId];
   const cms = [cm, cm2 ?? cm];
+  const mitSchreibweise = ids.slice(0, zwei ? 2 : 1).some((id) => SCHREIBSCHRIFTEN.has(id));
+  const zeilenF = zeilen.map((z, i) => (schreibweise === "erster-gross" && SCHREIBSCHRIFTEN.has(ids[i]) ? ersterGross(z) : z));
   const schriftVon = (i: number) => WAND_SCHRIFTEN.find((s) => s.id === ids[i])!;
   const gewichtVon = (id: string) => (EINSTELLBAR_400.has(id) ? 400 : 700);
   const schrift = schriftVon(0);
   const aktId = ids[akt], aktCm = cms[akt];
   const setzeSchrift = (id: string) => (akt === 0 ? setSchriftId(id) : setSchrift2Id(id));
   const setzeCm = (h: number) => (akt === 0 ? setCm(h) : setCm2(h));
-  const anzeige = leer ? ["Dein Wort"] : zeilen;
+  const anzeige = leer ? ["Dein Wort"] : zeilenF;
 
   // Echte Höhe der Großbuchstaben (Anteil der Schriftgröße) je Schrift per Messung, damit "15 cm" auch bei Schreibschriften stimmt
   const textRef = useRef<HTMLDivElement>(null);
@@ -112,8 +117,8 @@ export default function WandKonfigurator() {
   const schatten = [1, 2, 3, 4, 5, 6].map((k) => `${tiefe(k)} ${tiefe(k)} 0 ${dunkel}`).join(", ")
     + `, ${cqw(1.4)} ${cqw(2.2)} ${cqw(2.4)} rgba(40, 30, 20, .28)`;
 
-  const beschr = (i: number) => `Zeile ${i + 1} „${zeilen[i].trim()}“ in ${schriftVon(i).name}, Höhe der Großbuchstaben ${cms[i]} cm`;
-  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? beschr(0) + "; " + beschr(1) : `„${zeilen[0].trim()}“ in ${schrift.name}, Höhe der Großbuchstaben ${cm} cm`}, Farbe ${farbe.name}, Oberfläche ${oberflaeche.name}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
+  const beschr = (i: number) => `Zeile ${i + 1} „${zeilenF[i].trim()}“ in ${schriftVon(i).name}, Höhe der Großbuchstaben ${cms[i]} cm`;
+  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? beschr(0) + "; " + beschr(1) : `„${zeilenF[0].trim()}“ in ${schrift.name}, Höhe der Großbuchstaben ${cm} cm`}, Farbe ${farbe.name}, Oberfläche ${oberflaeche.name}${mitSchreibweise ? `, Schreibweise ${schreibweise === "erster-gross" ? "erster Buchstabe groß, Rest klein" : "genau wie eingegeben"}` : ""}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
   const href = `/3d-druck/anfrage?entwurf=${encodeURIComponent(entwurf)}`;
   const markierung = (s: string) => ({ ["--wk-font" as string]: s });
 
@@ -132,7 +137,7 @@ export default function WandKonfigurator() {
         </filter>
       </svg>
       <div className="shop-bk-raster">
-        <div className="shop-bk-wand" role="img" aria-label={`Vorschau: ${zeilen.join(" ")} in ${[...new Set(ids.slice(0, zwei ? 2 : 1).map((id) => WAND_SCHRIFTEN.find((s) => s.id === id)!.name))].join(" und ")}`}>
+        <div className="shop-bk-wand" role="img" aria-label={`Vorschau: ${zeilenF.join(" ")} in ${[...new Set(ids.slice(0, zwei ? 2 : 1).map((id) => WAND_SCHRIFTEN.find((s) => s.id === id)!.name))].join(" und ")}`}>
           <div ref={bildRef} className="shop-bk-bild shop-wk-bild">
             <div className="shop-wk-text-feld">
               <div
@@ -188,6 +193,17 @@ export default function WandKonfigurator() {
               ))}
             </div>
           </fieldset>
+
+          {mitSchreibweise && (
+            <fieldset className="shop-bk-feld">
+              <legend>Schreibweise</legend>
+              <div className="shop-options">
+                <label className="shop-option"><input type="radio" name="wk-schreibweise" checked={schreibweise === "eingabe"} onChange={() => setSchreibweise("eingabe")} /><span>Genau wie eingegeben</span></label>
+                <label className="shop-option"><input type="radio" name="wk-schreibweise" checked={schreibweise === "erster-gross"} onChange={() => setSchreibweise("erster-gross")} /><span>Erster Buchstabe groß, Rest klein</span></label>
+              </div>
+              <span className="shop-bk-klein">Bei Schreibschriften sind Großbuchstaben Zierformen für den Wortanfang.</span>
+            </fieldset>
+          )}
 
           <fieldset className="shop-bk-feld">
             <legend>Farbe</legend>
