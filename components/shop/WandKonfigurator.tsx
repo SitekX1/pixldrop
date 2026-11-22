@@ -82,27 +82,29 @@ export default function WandKonfigurator() {
     return () => { weg = true; };
   }, [idsKey, zwei]);
 
-  // Wandbreite so wählen, dass der Text hineinpasst (Maßstab bleibt in cm erhalten)
-  const [wandCm, setWandCm] = useState(170);
-  const [breiteCm, setBreiteCm] = useState(0);
+  // Das Foto bleibt immer vollflächig (Wand = FOTO_CM breit). Ist das Wort zu groß für die Wand, wird es in der Vorschau verkleinert.
+  const wandCm = FOTO_CM;
+  const [faktor, setFaktor] = useState(1);
+  const [breiteCm, setBreiteCm] = useState(0); // echte Breite des Wortes in cm (ohne Verkleinerung)
   useLayoutEffect(() => {
     const t = textRef.current, b = bildRef.current;
     if (!t || !b) return;
     const messen = () => {
-      const rel = t.getBoundingClientRect().width / b.getBoundingClientRect().width; // Anteil der Wandbreite
-      const tcm = rel * wandCm;
+      const br = b.getBoundingClientRect().width;
+      const tr = t.getBoundingClientRect();
+      const tcm = ((tr.width / br) * wandCm) / faktor;
+      const hcm = ((tr.height / br) * wandCm) / faktor;
       setBreiteCm(tcm);
-      const hcm = (t.getBoundingClientRect().height / b.getBoundingClientRect().width) * wandCm; // Texthöhe in cm
-      const soll = Math.max(150, Math.ceil(Math.max(tcm * 1.35, hcm * 3) / 10) * 10);
-      if (soll !== wandCm) setWandCm(soll);
+      const ziel = Math.min(1, (0.9 * wandCm) / Math.max(tcm, 1), (0.34 * wandCm) / Math.max(hcm, 1));
+      if (Math.abs(ziel - faktor) > 0.003) setFaktor(ziel);
     };
     messen();
     const ro = new ResizeObserver(messen);
     ro.observe(t); ro.observe(b);
     return () => ro.disconnect();
-  }, [zeilen, idsKey, cm, cm2, caps, wandCm]);
+  }, [zeilen, idsKey, cm, cm2, caps, faktor]);
 
-  const sk = FOTO_CM / wandCm; // Foto-Anteil: wird die Wand breiter als das Foto, schrumpft das Foto und blendet aus
+  const sk = 1;
   const cqw = (v: number) => `${(v / wandCm) * 100}cqw`;
   const dunkel = abdunkeln(farbe.hex);
   // Dicke ca. 10 mm: gestapelte Schatten nach rechts unten + weicher Wurf auf die Wand
@@ -140,7 +142,7 @@ export default function WandKonfigurator() {
                 {anzeige.map((z, i) => (
                   <div
                     key={i} ref={(el) => { zeilenRef.current[i] = el; }}
-                    style={{ fontFamily: schriftVon(i).family, fontWeight: gewichtVon(ids[i]), fontSize: cqw(cms[i] / capVon(ids[i])), ...(leer ? { opacity: .35 } : {}) }}
+                    style={{ fontFamily: schriftVon(i).family, fontWeight: gewichtVon(ids[i]), fontSize: cqw((cms[i] / capVon(ids[i])) * faktor), ...(leer ? { opacity: .35 } : {}) }}
                   >{z || " "}</div>
                 ))}
               </div>
@@ -150,7 +152,7 @@ export default function WandKonfigurator() {
               className="shop-wk-foto" src="/shop/inspiration/wand-leer.webp" alt="" aria-hidden="true" width={1400} height={933}
               style={{ width: `${sk * 100}cqw`, left: `${(100 - sk * 100) / 2}cqw`, ...(sk < 0.98 ? { WebkitMaskImage: FADE, maskImage: FADE } : {}) }}
             />
-            <div className="shop-bk-hoehe">{zwei && cms[0] !== cms[1] ? `Zeile 1: ${cms[0]} cm · Zeile 2: ${cms[1]} cm` : `Buchstaben ${cm} cm hoch`}</div>
+            <div className="shop-bk-hoehe">{zwei && cms[0] !== cms[1] ? `Zeile 1: ${cms[0]} cm · Zeile 2: ${cms[1]} cm` : `Buchstaben ${cm} cm hoch`}{faktor < 0.995 ? " · Vorschau verkleinert" : ""}</div>
           </div>
         </div>
 
