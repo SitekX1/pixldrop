@@ -53,7 +53,7 @@ export default async function ShopUebersicht() {
 
   const bereiche: { id: BereichId; label: string; sub: string; bild?: string }[] = [
     { id: "bubble", label: "Buchstaben", sub: "Bubble", bild: cover("bubble-buchstabe") },
-    { id: "wand", label: "Wandtexte", sub: "Bald verfügbar" },
+    { id: "wand", label: "Wandtexte", sub: "Bald verfügbar", bild: "/shop/inspiration/wand-kachel.webp" },
     ...(zeigeTechnik ? [{ id: "technik" as const, label: "Technik", sub: "Bald" }] : []),
     ...(zeigeWn ? [{ id: "weihnachten" as const, label: "Weihnachten", sub: aktionLaeuft ? "Aktion" : "Advent", bild: cover("weihnachtskugel") }] : []),
     { id: "lieblinge", label: "Lieblingsstücke", sub: "Spaß & Besonderes", bild: cover("wochentags-untersetzer-set") },
