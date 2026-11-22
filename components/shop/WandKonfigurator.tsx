@@ -21,7 +21,7 @@ const OBERFLAECHEN = [
   { id: "glatt", name: "Glatt", info: "Klassisch glatt, feine Schichtlinien sind je nach Licht sichtbar." },
   { id: "strukturiert", name: "Strukturiert", info: "Fuzzy Skin: fein raue, matte Oberfläche, die Schichtlinien und Fingerabdrücke kaschiert." },
 ];
-const EINSTELLBAR_400 = new Set(["great-vibes", "mansalva"]); // Schriften nur in Regular (kein Fett)
+const EINSTELLBAR_400 = new Set(["great-vibes", "mansalva", "parisienne", "marck-script"]); // Schriften nur in Regular (kein Fett)
 
 function abdunkeln(hex: string, f = 0.62) {
   const n = parseInt(hex.slice(1), 16);

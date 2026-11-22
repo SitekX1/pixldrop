@@ -26,6 +26,8 @@ export const WAND_SCHRIFTEN: WandSchrift[] = [
   { id: "outfit", name: "Outfit", lizenz: "OFL", kategorie: "elegant-gross", family: "var(--font-wand-outfit), system-ui, sans-serif", vorbild: "Aileron / Kenao Sans", druck: "Geometrisch, in Semibold/Bold gut druckbar" },
   { id: "arimo", name: "Arimo", lizenz: "OFL", kategorie: "zuhause-klein", family: "var(--font-wand-arimo), Arial, sans-serif", vorbild: "Arial", druck: "Arial-ähnlich (metrisch kompatibel), Bold unkritisch" },
   { id: "courier-prime", name: "Courier Prime", lizenz: "OFL", kategorie: "zuhause-klein", family: "var(--font-wand-courier), 'Courier New', monospace", vorbild: "Courier New", druck: "Schreibmaschine mit Serifen: nur Bold, ab ca. 6 cm" },
+  { id: "parisienne", name: "Parisienne", lizenz: "OFL", kategorie: "elegant-gross", family: "var(--font-wand-parisienne), cursive", vorbild: "Pinselschrift wie „beautiful“ (Referenzfoto)", druck: "Feine Pinselschrift mit dünnen Verbindungen: erst ab ca. 12 cm Höhe, Probedruck nötig" },
+  { id: "marck-script", name: "Marck Script", lizenz: "OFL", kategorie: "zuhause-klein", family: "var(--font-wand-marck), cursive", vorbild: "Pinselschrift wie „beautiful“ (Referenzfoto)", druck: "Aufrechte Pinselschrift, kräftiger Strich: ab ca. 8 cm gut druckbar" },
   { id: "mansalva", name: "Mansalva", lizenz: "OFL", kategorie: "zuhause-klein", family: "var(--font-wand-mansalva), cursive", vorbild: "Mansalva", druck: "Handschrift, Strich kräftig genug, enge Buchstabenabstände prüfen" },
   { id: "dancing-script", name: "Dancing Script", lizenz: "OFL", kategorie: "zuhause-klein", family: "var(--font-sf-dancing), cursive", vorbild: "Beyond Script", druck: "Schreibschrift, Bold ok, Verbindungen ab ca. 5 cm Höhe" },
 ];
