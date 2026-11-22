@@ -167,7 +167,7 @@ export default async function ShopUebersicht() {
             {WAND_INSPIRATION.length > 0
               ? WAND_INSPIRATION.map((f) => (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img key={f.src} role="listitem" src={f.src} alt={f.alt} width={800} height={1000} loading="lazy" decoding="async" />
+                  <img key={f.src} role="listitem" src={f.src} alt={f.alt} width={1400} height={933} loading="lazy" decoding="async" />
                 ))
               : [0, 1, 2, 3, 4].map((i) => <div key={i} role="listitem" className="sx-insp-ph"><span>Inspiration folgt</span></div>)}
           </div>

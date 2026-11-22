@@ -1,6 +1,6 @@
 "use client";
 // Konfigurator für Wandbuchstaben in Schrift (Design-Buchstaben): Wort eintippen, Schrift, Farbe und Höhe wählen,
-// Vorschau an einer weißen Wand mit Kommode, maßstäblich (Höhe der Großbuchstaben in cm, die Schrift wird real gemessen).
+// Vorschau am Foto einer weißen Wand mit Schreibtisch, maßstäblich (Höhe der Großbuchstaben in cm, die Schrift wird real gemessen).
 // Bestellbar ist das noch nicht: Der Entwurf geht als Anfrage an mich (Preis nach Angebot).
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -15,6 +15,8 @@ const FARBEN = [
   { id: "olivgruen", name: "Olivgrün", hex: "#5a6d3d" },
 ];
 const HOEHEN = [8, 10, 12, 15, 20, 25, 30]; // cm, Höhe der Großbuchstaben
+const FOTO_CM = 150; // Annahme: der Schreibtisch im Foto ist ca. 150 cm breit
+const FADE = "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 14%)";
 const EINSTELLBAR_400 = new Set(["great-vibes", "mansalva"]); // Schriften nur in Regular (kein Fett)
 
 function abdunkeln(hex: string, f = 0.62) {
@@ -74,6 +76,7 @@ export default function WandKonfigurator() {
     return () => ro.disconnect();
   }, [zeilen, schriftId, cm, cap, wandCm]);
 
+  const sk = FOTO_CM / wandCm; // Foto-Anteil: wird die Wand breiter als das Foto, schrumpft das Foto und blendet aus
   const fontCm = cm / cap; // Schriftgröße in cm
   const cqw = (v: number) => `${(v / wandCm) * 100}cqw`;
   const dunkel = abdunkeln(farbe.hex);
@@ -105,14 +108,12 @@ export default function WandKonfigurator() {
                 {leer ? <span style={{ opacity: .35 }}>Dein Wort</span> : zeilen.map((z, i) => <div key={i}>{z || " "}</div>)}
               </div>
             </div>
-            <div className="shop-wk-kommode" aria-hidden="true">
-              <i className="shop-wk-vase" /><i className="shop-wk-buch" />
-              <div className="shop-wk-korpus"><b /><b /><b /></div>
-              <u /><u />
-            </div>
-            <div className="shop-bk-massstab" aria-hidden="true">
-              <i style={{ width: cqw(50) }} /><span>50 cm</span>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="shop-wk-foto" src="/shop/inspiration/wand-leer.webp" alt="" aria-hidden="true" width={1400} height={933}
+              style={{ width: `${sk * 100}cqw`, left: `${(100 - sk * 100) / 2}cqw`, ...(sk < 0.98 ? { WebkitMaskImage: FADE, maskImage: FADE } : {}) }}
+            />
+            <div className="shop-bk-hoehe">Buchstaben {cm} cm hoch</div>
           </div>
         </div>
 
