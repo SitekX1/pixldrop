@@ -1,5 +1,4 @@
 import "server-only";
-import { WAND_LIEFERZEIT } from "../wand";
 // Gemeinsame Bausteine fuer Bestellung und Freigabe: Ereignisprotokoll und Vertragsbestaetigung an den Kunden.
 // (Eigene Datei, damit bestellung.ts und freigabe.ts sich nicht gegenseitig importieren muessen.)
 import type { Deps } from "./bestellung";
@@ -60,8 +59,7 @@ export async function sendeBestaetigung(deps: Deps, id: string): Promise<"gesend
       b.anfrage_id = a.anfrage_id ?? null;
     }
     // Lieferzeit aus den Shop-Einstellungen (Fallback config.ts); AGB-Anhang mit derselben Lieferzeit wie die Seite.
-    const lzEinst = (await holeEinstellungen(deps.env)).lieferzeit;
-    const lz = b.positionen.some((p) => p.name === "Wandbuchstaben") ? WAND_LIEFERZEIT : lzEinst; // Wandbuchstaben haben eine eigene, längere Lieferzeit
+    const lz = (await holeEinstellungen(deps.env)).lieferzeit;
     const mail = bestaetigungsMail(b, deps.pflichtangabenText, deps.pflichtangabenFreigegeben, {
       siteUrl: deps.env.siteUrl,
       lieferzeit: lz,

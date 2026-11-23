@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { WAND_LIEFERZEIT, WAND_SLUG, wandAnzeige } from "@/lib/shop/wand";
+import { WAND_SLUG, wandAnzeige } from "@/lib/shop/wand";
 import { einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "@/lib/shop/produkte";
 import { LINIENFARBE_KEY, TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import { SCHRIFTEN, schriftZeilen } from "@/lib/shop/schriften";
@@ -360,7 +360,7 @@ export default function Bestellablauf({
               <dl><div className="gesamt"><dt>Gesamtpreis</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div></dl>
               <div className="kleinteil">
                 <p>{TEXTE.kleinunternehmer}</p>
-                <p>Lieferzeit: {pos.some(({ p }) => p.slug === WAND_SLUG) ? WAND_LIEFERZEIT : (lieferzeit ?? TEXTE.lieferzeitHinweis)}. Lieferung nur innerhalb Deutschlands.</p>
+                <p>Lieferzeit: {lieferzeit ?? TEXTE.lieferzeitHinweis}. Lieferung nur innerhalb Deutschlands.</p>
                 <p>Zahlung: sofort per PayPal. {TEXTE.vertragsschluss}</p>
                 <p>
                   Widerruf: {individuell ? <><strong>vom Widerruf ausgenommen: {ausgenommen.map(({ p }) => p.name).join(", ")} mit deinem Text (nach deinen Vorgaben gefertigt, § 312g Abs. 2 Nr. 1 BGB).</strong>{pos.length > ausgenommen.length && " Alle anderen Positionen: 14 Tage Widerruf."}</> : "14 Tage Widerruf."}{" "}

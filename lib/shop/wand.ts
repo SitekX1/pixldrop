@@ -19,9 +19,6 @@ export const WAND_FARBEN = [
   { id: "schwarz", name: "Schwarz", hex: "#1a1a1a" },
   { id: "weiss", name: "Weiß", hex: "#fbfaf6" },
   { id: "beige", name: "Beige", hex: "#e4d8bc" },
-  { id: "grau", name: "Grau", hex: "#8e9089" },
-  { id: "braun", name: "Braun", hex: "#a8785a" },
-  { id: "olivgruen", name: "Olivgrün", hex: "#5a6d3d" },
 ] as const;
 
 /** Preis je Zeichen in Cent (Normalpreise des Vergleichsshops ohne dessen 25-%-Aktion, Alex 23.11.2026). */
@@ -236,6 +233,3 @@ export function wandAnzeige(v: unknown): string[] {
     `${w.oberflaeche === "glatt" ? "Glatt" : "Strukturiert"} · ${w.dickeMm} mm dick${w.rabattCent > 0 ? ` · ${WAND_RABATT_PROZENT} % Mengenrabatt eingerechnet` : ""}`,
   ];
 }
-
-/** Lieferzeit für Bestellungen mit Wandbuchstaben (jede Bestellung wird einzeln gedruckt). VORSCHLAG 5 bis 10 Werktage, Alex bestätigt noch. */
-export const WAND_LIEFERZEIT = "5-10 Werktage";
