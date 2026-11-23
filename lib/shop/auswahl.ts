@@ -20,6 +20,13 @@ export const MAX_POSITIONEN_KORB = 50;
 const KEY = "shop-korb-v1";
 const ALT_KEY = "shop-auswahl-v1"; // früher: genau ein Stück
 
+/** Positionen, wie der Server sie zählt: eine Wand-Konfiguration zählt je Zeile (eine DB-Position je Zeile). */
+function positionenVon(a: Auswahl): number {
+  if (a.slug !== "wandbuchstaben") return 1;
+  try { const z = (JSON.parse(a.optionen.wand ?? "null") as { zeilen?: unknown[] } | null)?.zeilen; return Array.isArray(z) ? Math.max(1, z.length) : 1; } catch { return 1; }
+}
+export const positionenImKorb = (korb: Korb): number => korb.reduce((s, a) => s + positionenVon(a), 0);
+
 export function gleichePosition(a: Auswahl, b: Auswahl): boolean {
   if (a.slug === "wandbuchstaben") return false; // jede Wand-Konfiguration bleibt eine eigene Position (Menge immer 1)
   return a.slug === b.slug && a.farbeId === b.farbeId && a.text === b.text && a.schriftId === b.schriftId
@@ -35,7 +42,7 @@ export function fuegeHinzu(korb: Korb, neu: Auswahl): { korb: Korb; ok: boolean 
     k[i] = { ...k[i], menge: Math.min(MAX_MENGE_POS, k[i].menge + neu.menge) };
     return { korb: k, ok: true };
   }
-  if (korb.length >= MAX_POSITIONEN_KORB) return { korb, ok: false };
+  if (positionenImKorb(korb) + positionenVon(neu) > MAX_POSITIONEN_KORB) return { korb, ok: false };
   return { korb: [...korb, { ...neu, menge: Math.min(MAX_MENGE_POS, Math.max(1, neu.menge)) }], ok: true };
 }
 export function aendereMenge(korb: Korb, index: number, menge: number): Korb {
