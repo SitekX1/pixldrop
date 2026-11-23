@@ -1,3 +1,4 @@
+import { WAND_SLUG, wandAusOptionen } from "./wand";
 // Produktdaten. Später durch DB/Supabase ersetzbar, die Typen bleiben gleich.
 // Keine erfundenen Maße, Gewichte oder Bewertungen: masse null = Maßblock wird nicht angezeigt.
 import { TEXTE } from "./config";
@@ -505,6 +506,7 @@ export function standardText(p: Produkt): string | null {
  * `optionen` bleibt als Parameter fuer bestehende Aufrufer, wird bewusst nicht ausgewertet.
  */
 export function istIndividuell(p: Produkt, text: string | null | undefined, _optionen?: Record<string, unknown> | null): boolean {
+  if (p.slug === WAND_SLUG) return !!_optionen?.wand; // Wandbuchstaben: immer nach Kundenangaben gefertigt
   const t = (text ?? "").trim();
   if (t === "" || !p.personalisierung) return false;
   return t !== standardText(p);
@@ -518,6 +520,7 @@ export function hatFormatwahl(optionen?: Record<string, unknown> | null): boolea
 
 /** Einzelpreis in Cent inkl. Aufpreisen der gewaehlten Optionen (id je Gruppe). null = Preis folgt. Gilt fuer Server und Anzeige. */
 export function einzelpreisCent(p: Produkt, optionen?: Record<string, unknown> | null): number | null {
+  if (p.slug === WAND_SLUG) return wandAusOptionen(optionen?.wand)?.gesamtCent ?? null; // Preis aus der Konfiguration (Zeilen + Rabatt)
   if (p.preisCent == null) return null;
   let s = p.preisCent;
   for (const g of p.optionen) {

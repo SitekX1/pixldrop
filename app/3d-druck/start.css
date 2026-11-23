@@ -327,3 +327,11 @@
   .sx-bald--bild .sx-bald-bild { width: 58%; flex: none; }
   .sx-bald--bild > div { padding: 0 18px 0 0; }
 }
+
+/* Wandbuchstaben: Preisaufstellung im Konfigurator */
+.shop-bk-preis { display: grid; gap: 8px; padding: 14px 0 4px; border-top: 1px solid var(--sx-line); }
+.shop-bk-posten { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.shop-bk-posten li { display: flex; justify-content: space-between; gap: 12px; font-size: .92rem; }
+.shop-bk-posten li strong { font-size: inherit; white-space: nowrap; }
+.shop-bk-gesamt { display: flex; justify-content: space-between; align-items: baseline; margin: 2px 0 0; font-size: 1.05rem; }
+.shop-bk-gesamt strong { font-size: 1.5rem; letter-spacing: -.02em; }

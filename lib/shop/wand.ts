@@ -3,6 +3,7 @@
 // Maße je Zeichen: lib/shop/schrift-masse.ts (erzeugt mit scripts/schrift-masse.py aus den Schriftdateien).
 import masse from "./schrift-masse";
 import { pruefeWunschtext } from "./textfilter";
+import { WAND_SCHRIFTEN } from "./schriften-wand";
 
 /** Höhe der Großbuchstaben in cm. 24 und 30 cm gibt es nicht (Druckbett des P1S 256 mm, Alex 23.11.2026). */
 export const WAND_HOEHEN = [5, 10, 15, 20] as const;
@@ -218,3 +219,23 @@ export function wandVersandTeile(w: WandErgebnis): { mm: [number, number, number
   }
   return teile;
 }
+
+/** Im Warenkorb liegt die Konfiguration als JSON-Text in optionen.wand (Auswahl.optionen kennt nur Text). null = fehlt oder ungültig. */
+export function wandAusOptionen(v: unknown): WandErgebnis | null {
+  if (typeof v !== "string") return null;
+  try { const r = pruefeWandKonfiguration(JSON.parse(v)); return r.ok ? r.wert : null; } catch { return null; }
+}
+/** Zeilen für die Anzeige im Warenkorb, an der Kasse und in der Zusammenfassung. */
+export function wandAnzeige(v: unknown): string[] {
+  const w = wandAusOptionen(v);
+  if (!w) return ["Ungültige Konfiguration, bitte entfernen"];
+  const farbe = (id: string) => WAND_FARBEN.find((f) => f.id === id)?.name ?? id;
+  const schrift = (id: string) => WAND_SCHRIFTEN.find((s) => s.id === id)?.name ?? id;
+  return [
+    ...w.zeilen.map((z, i) => `${w.zeilen.length > 1 ? `Zeile ${i + 1}: ` : ""}„${z.text}“ · ${schrift(z.schrift)} · ${z.hoeheCm} cm · ${farbe(z.farbe)}`),
+    `${w.oberflaeche === "glatt" ? "Glatt" : "Strukturiert"} · ${w.dickeMm} mm dick${w.rabattCent > 0 ? ` · ${WAND_RABATT_PROZENT} % Mengenrabatt eingerechnet` : ""}`,
+  ];
+}
+
+/** Lieferzeit für Bestellungen mit Wandbuchstaben (jede Bestellung wird einzeln gedruckt). VORSCHLAG 5 bis 10 Werktage, Alex bestätigt noch. */
+export const WAND_LIEFERZEIT = "5-10 Werktage";

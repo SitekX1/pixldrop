@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { WAND_LIEFERZEIT, WAND_SLUG, wandAnzeige } from "@/lib/shop/wand";
 import { einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "@/lib/shop/produkte";
 import { LINIENFARBE_KEY, TEXTFARBE_KEY } from "@/lib/shop/textfarbe";
 import { SCHRIFTEN, schriftZeilen } from "@/lib/shop/schriften";
@@ -239,7 +240,7 @@ export default function Bestellablauf({
             <div className="shop-zus-img"><PositionsBild p={p} a={a} farbeHex={farben.find((f) => f.id === a.farbeId)?.hex} textfarbeHex={a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY])?.hex : undefined} farben={farben} /></div>
             <div className="shop-zus-txt">
               <strong>{p.name}</strong>
-              <span className="muted">{a.menge} × {formatPreis(einzelpreisCent(p, a.optionen))}{p.teile ? ` · ${teilFarbenText(p, a, farben)}` : ""}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}{schriftZeilen(p, a).length ? ` · ${schriftZeilen(p, a).map(([k, v]) => `${k} ${v}`).join(", ")}` : ""}</span>
+              <span className="muted">{p.slug === WAND_SLUG ? wandAnzeige(a.optionen.wand).join(" · ") : `${a.menge} × ${formatPreis(einzelpreisCent(p, a.optionen))}`}{p.teile ? ` · ${teilFarbenText(p, a, farben)}` : ""}{a.text ? ` · „${a.text.split("\n").join(" / ")}“` : ""}{schriftZeilen(p, a).length ? ` · ${schriftZeilen(p, a).map(([k, v]) => `${k} ${v}`).join(", ")}` : ""}</span>
             </div>
             <span className="shop-zus-sum">{einzelpreisCent(p, a.optionen) != null ? formatPreis(einzelpreisCent(p, a.optionen)! * a.menge) : "auf Anfrage"}</span>
           </li>
@@ -338,6 +339,7 @@ export default function Bestellablauf({
                         <div><dt>Ware</dt><dd>{p.name}</dd></div>
                         {kombiVon(p, a) ? <div><dt>{nurEinzelfarben(p) ? "Farbe" : "Farbkombination"}</dt><dd>{kombiVon(p, a)!.label}</dd></div> : p.teile ? teilFarbenVon(p, a, farben).map((t) => <div key={t.id}><dt>Farbe {t.label}</dt><dd>{t.farbe?.name ?? "nicht mehr vorrätig"}</dd></div>) : farbe && <div><dt>Farbe</dt><dd>{farbe.name}</dd></div>}
                         {optText.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+                        {p.slug === WAND_SLUG && wandAnzeige(a.optionen.wand).map((t, ti) => <div key={ti}><dt>{ti === 0 ? "Konfiguration" : ""}</dt><dd>{t}</dd></div>)}
                         {a.text && <div><dt>Text</dt><dd>{a.text.split("\n").join(" / ")}</dd></div>}
                         {p.masse && <div><dt>Maße</dt><dd>{`ca. ${p.masse} mm${p.toleranzMm ? `, Toleranz ±${p.toleranzMm} mm` : ""}`}</dd></div>}
                         <div><dt>Material</dt><dd>{p.material}</dd></div>
@@ -358,7 +360,7 @@ export default function Bestellablauf({
               <dl><div className="gesamt"><dt>Gesamtpreis</dt><dd>{gesamt != null ? formatPreis(gesamt) : "auf Anfrage"}</dd></div></dl>
               <div className="kleinteil">
                 <p>{TEXTE.kleinunternehmer}</p>
-                <p>Lieferzeit: {lieferzeit ?? TEXTE.lieferzeitHinweis}. Lieferung nur innerhalb Deutschlands.</p>
+                <p>Lieferzeit: {pos.some(({ p }) => p.slug === WAND_SLUG) ? WAND_LIEFERZEIT : (lieferzeit ?? TEXTE.lieferzeitHinweis)}. Lieferung nur innerhalb Deutschlands.</p>
                 <p>Zahlung: sofort per PayPal. {TEXTE.vertragsschluss}</p>
                 <p>
                   Widerruf: {individuell ? <><strong>vom Widerruf ausgenommen: {ausgenommen.map(({ p }) => p.name).join(", ")} mit deinem Text (nach deinen Vorgaben gefertigt, § 312g Abs. 2 Nr. 1 BGB).</strong>{pos.length > ausgenommen.length && " Alle anderen Positionen: 14 Tage Widerruf."}</> : "14 Tage Widerruf."}{" "}

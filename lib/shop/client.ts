@@ -73,6 +73,12 @@ export function baueBestellung(p: { token: string; idempotenzKey: string; auswah
     ...(p.aktionscode ? { aktionscode: p.aktionscode } : {}),
     positionen: liste.map((a) => {
       const mitText = a.text.trim() !== "";
+      // Wandbuchstaben: die Konfiguration liegt als JSON-Text in optionen.wand und geht als Objekt "wand" zum Server (der rechnet alles neu)
+      if (a.slug === "wandbuchstaben") {
+        let wand: unknown = null;
+        try { wand = JSON.parse(a.optionen.wand ?? "null"); } catch { /* der Server lehnt eine fehlende Konfiguration ab */ }
+        return { slug: a.slug, menge: 1, farbeId: null, optionen: {}, text: "", schriftId: null, wand };
+      }
       return {
         slug: a.slug, menge: a.menge, farbeId: a.farbeId, ...(a.teilFarben && Object.keys(a.teilFarben).length ? { teilFarben: a.teilFarben } : {}), optionen: a.optionen,
         text: mitText ? a.text.trim() : "", schriftId: mitText ? a.schriftId : null,

@@ -1,12 +1,14 @@
 "use client";
 // Konfigurator für Wandbuchstaben in Schrift (Design-Buchstaben): Wort eintippen, Schrift, Farbe und Höhe wählen,
 // Vorschau am Foto einer weißen Wand mit Schreibtisch, maßstäblich (Höhe der Großbuchstaben in cm, die Schrift wird real gemessen).
-// Bestellbar ist das noch nicht: Der Entwurf geht als Anfrage an mich (Preis nach Angebot).
+// Bestellbar (bestellbar=true): Preis je Zeichen aus lib/shop/wand.ts, "In den Warenkorb"; sonst und für Sonderfälle: Anfrage.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { formatPreis } from "@/lib/shop/config";
+import { fuegeHinzu, ladeKorb, speichereKorb } from "@/lib/shop/auswahl";
 import { WAND_SCHRIFTEN } from "@/lib/shop/schriften-wand";
 import {
-  WAND_DICKEN, WAND_DICKE_STANDARD, WAND_FARBEN, WAND_HOEHEN, WAND_NUR_REGULAR, WAND_OBERFLAECHEN, WAND_SCHREIBSCHRIFTEN, ersterGross, maxWandHoehe, nichtDruckbar, schriftHatZeichen,
+  WAND_DICKEN, WAND_DICKE_STANDARD, WAND_FARBEN, WAND_HOEHEN, WAND_NUR_REGULAR, WAND_OBERFLAECHEN, WAND_SCHREIBSCHRIFTEN, ersterGross, maxWandHoehe, nichtDruckbar, pruefeWandKonfiguration, schriftHatZeichen, wandFarbSperrId, WAND_SLUG,
 } from "@/lib/shop/wand";
 
 const FARBEN = WAND_FARBEN;
@@ -23,7 +25,8 @@ function abdunkeln(hex: string, f = 0.62) {
   return `#${c(n >> 16)}${c((n >> 8) & 255)}${c(n & 255)}`;
 }
 
-export default function WandKonfigurator() {
+export default function WandKonfigurator({ bestellbar = false, farbenAus = [] }: { bestellbar?: boolean; farbenAus?: string[] }) {
+  const [meldung, setMeldung] = useState<{ ok: boolean; text: string } | null>(null);
   const [schriftId, setSchriftId] = useState(WAND_SCHRIFTEN[0].id);
   const [schriftOv, setSchriftOv] = useState<(string | null)[]>([null, null, null]); // null = wie Zeile 1
   const [farbeId, setFarbeId] = useState("schwarz");
@@ -127,6 +130,17 @@ export default function WandKonfigurator() {
   const beschr = (i: number) => `Zeile ${eintraege.findIndex((e) => e.i === i) + 1} „${zeilenF[i].trim()}“ in ${schriftVon(i).name}, Höhe der Großbuchstaben ${cms[i]} cm, Farbe ${farbeVon(i).name}`;
   const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? eintraege.map((e) => beschr(e.i)).join("; ") : `„${(zeilenF[akt] ?? "").trim()}“ in ${schriftVon(akt).name}, Höhe der Großbuchstaben ${cms[akt]} cm, Farbe ${farbeVon(akt).name}`}, Oberfläche ${oberflaeche.name}, Dicke ${dicke} mm${mitSchreibweise ? `, Schreibweise ${schreibweise === "erster-gross" ? "erster Buchstabe groß, Rest klein" : "genau wie eingegeben"}` : ""}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
   const href = `/3d-druck/anfrage?entwurf=${encodeURIComponent(entwurf)}`;
+  // Verbindliche Prüfung wie auf dem Server: Preis, Rabatt, Druckbett, Farben, Wortfilter
+  const eingabe = { zeilen: eintraege.map((e) => ({ text: zeilen[e.i], schrift: ids[e.i], hoeheCm: cms[e.i], farbe: farbIds[e.i] })), oberflaeche: oberflaecheId, dickeMm: dicke, schreibweise };
+  const pruef = leer ? null : pruefeWandKonfiguration(eingabe);
+  const gesperrteFarbe = pruef?.ok ? pruef.wert.zeilen.find((z) => farbenAus.includes(wandFarbSperrId(z.farbe))) : undefined;
+  const inKorb = () => {
+    if (!pruef?.ok || !bestellbar || gesperrteFarbe) return;
+    const r = fuegeHinzu(ladeKorb(), { slug: WAND_SLUG, farbeId: null, optionen: { wand: JSON.stringify(eingabe) }, text: "", schriftId: null, menge: 1 });
+    if (!r.ok) { setMeldung({ ok: false, text: "Der Warenkorb ist voll (höchstens 50 Positionen). Bitte bestelle in zwei Runden." }); return; }
+    speichereKorb(r.korb);
+    setMeldung({ ok: true, text: "Deine Wandbuchstaben liegen im Warenkorb." });
+  };
   const markierung = (s: string) => ({ ["--wk-font" as string]: s });
 
   return (
@@ -134,7 +148,7 @@ export default function WandKonfigurator() {
       <div className="shop-bk-kopf">
         <p className="shop-overline">Konfigurator · Wandbuchstaben</p>
         <h1 id="wk-titel">Dein Wort an der Wand</h1>
-        <p className="shop-bk-sub">Tipp dein Wort ein, wähle Schrift, Farbe und Höhe. Die Vorschau zeigt die Buchstaben maßstäblich an einer Wand. Bestellen geht noch nicht: Du kannst deinen Entwurf als Anfrage an mich schicken und bekommst ein Angebot per E-Mail.</p>
+        <p className="shop-bk-sub">Tipp dein Wort ein, wähle Schrift, Farbe und Höhe. Die Vorschau zeigt die Buchstaben maßstäblich an einer Wand. {bestellbar ? "Den Preis siehst du sofort, jeder Buchstabe wird einzeln für dich gedruckt." : "Bestellen geht noch nicht: Du kannst deinen Entwurf als Anfrage an mich schicken und bekommst ein Angebot per E-Mail."}</p>
       </div>
 
       <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: "absolute" }}>
@@ -251,8 +265,8 @@ export default function WandKonfigurator() {
             <legend>Farbe{zwei ? ` (Zeile ${eintraege.findIndex((e) => e.i === akt) + 1})` : ""}</legend>
             <div className="shop-swatches">
               {FARBEN.map((f) => (
-                <label key={f.id} className="shop-swatch" title={f.name}>
-                  <input type="radio" name="wk-farbe" aria-label={f.name} checked={farbIds[akt] === f.id} onChange={() => setzeFarbe(f.id)} />
+                <label key={f.id} className="shop-swatch" title={farbenAus.includes(wandFarbSperrId(f.id)) ? `${f.name} (gerade nicht lieferbar)` : f.name} style={farbenAus.includes(wandFarbSperrId(f.id)) ? { opacity: .35 } : undefined}>
+                  <input type="radio" name="wk-farbe" aria-label={f.name} checked={farbIds[akt] === f.id} disabled={farbenAus.includes(wandFarbSperrId(f.id))} onChange={() => setzeFarbe(f.id)} />
                   <span className="dot" style={{ background: f.hex }} />
                 </label>
               ))}
@@ -280,13 +294,38 @@ export default function WandKonfigurator() {
             <span className="shop-bk-klein">{dicke === 10 ? "10 mm: besonders stabil und kräftig an der Wand." : "5 mm: dünner und günstiger, etwas weniger stabil."}</span>
           </fieldset>
 
+          {bestellbar && (
+            <div className="shop-bk-preis" aria-live="polite">
+              {pruef?.ok ? (
+                <>
+                  <ul className="shop-bk-posten">
+                    {pruef.wert.zeilen.map((z, zi) => (
+                      <li key={zi}><span>„{z.text}“ · {z.zeichen} Zeichen × {formatPreis(z.cent / z.zeichen)}</span><strong>{formatPreis(z.cent)}</strong></li>
+                    ))}
+                    {pruef.wert.rabattCent > 0 && <li><span>10 % Mengenrabatt ab 10 Zeichen</span><strong>−{formatPreis(pruef.wert.rabattCent)}</strong></li>}
+                  </ul>
+                  <p className="shop-bk-gesamt"><span>Gesamt</span><strong>{formatPreis(pruef.wert.gesamtCent)}</strong></p>
+                  <span className="shop-bk-klein">Preis je Zeichen, Leerzeichen kosten nichts. Dazu kommt der Versand. Ca. {Math.round(breiteCm)} cm breit. Jedes Stück wird frisch für dich gedruckt, die Lieferzeit hängt von Wortlänge und Höhe ab.</span>
+                </>
+              ) : (
+                <span className="shop-bk-klein">{leer ? "Tipp ein Wort ein, dann siehst du den Preis." : pruef && !pruef.ok ? pruef.meldung : ""}</span>
+              )}
+              {gesperrteFarbe && <span className="shop-bk-klein">Die Farbe in Zeile {pruef?.ok ? pruef.wert.zeilen.indexOf(gesperrteFarbe) + 1 : 1} ist gerade nicht lieferbar. Bitte wähle eine andere.</span>}
+            </div>
+          )}
           <div className="shop-bk-summe">
             <div>
               <strong>ca. {Math.round(breiteCm)} cm breit</strong>
-              <span>Preis nach Angebot, unverbindlich</span>
+              <span>{bestellbar ? "Passt etwas nicht? Schick mir eine Anfrage." : "Preis nach Angebot, unverbindlich"}</span>
             </div>
-            <Link className="shop-btn" href={href} aria-disabled={leer || undefined}>Anfrage senden</Link>
+            {bestellbar && <button type="button" className="shop-btn" disabled={!pruef?.ok || !!gesperrteFarbe} onClick={inKorb}>In den Warenkorb</button>}
+            <Link className={bestellbar ? "shop-btn shop-btn--ghost" : "shop-btn"} href={href} aria-disabled={leer || undefined}>Anfrage senden</Link>
           </div>
+          {meldung && (
+            <p className={meldung.ok ? "shop-note" : "shop-note shop-note--warn"} role="status" aria-live="polite">
+              {meldung.text} {meldung.ok && <Link className="shop-link" href="/3d-druck/warenkorb">Zum Warenkorb</Link>}
+            </p>
+          )}
           <p className="shop-bk-klein">Die Vorschau ist eine Darstellung. Farbton, Glanz und feine Schriftdetails können beim Druck leicht abweichen. Dünne Linien (Schreibschriften, Serifen) brauchen eine Mindesthöhe, ich sage dir im Angebot, was bei deinem Wunsch geht.</p>
         </div>
       </div>

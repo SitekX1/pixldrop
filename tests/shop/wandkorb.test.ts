@@ -76,3 +76,19 @@ test("Wand-Warenkorb: im Live-Shop nicht sichtbar, solange Entwurf (VERCEL_ENV=p
     assert.equal(istBestellbar(PRODUKTE.find((p) => p.slug === "wandbuchstaben")!), false);
   } finally { if (alt === undefined) delete process.env.VERCEL_ENV; else process.env.VERCEL_ENV = alt; }
 });
+
+test("Wand-Warenkorb: Client-Auswahl -> Bestellung -> Server ergibt denselben Preis wie die Anzeige", async () => {
+  const { baueBestellung } = await import("@/lib/shop/client");
+  const { einzelpreisCent } = await import("@/lib/shop/produkte");
+  const { versandOptionenFuerKorb } = await import("@/lib/shop/versand");
+  const eingabe = { zeilen: [zeile({ text: "Willkommen", hoeheCm: 15 }), zeile({ text: "Zuhause", hoeheCm: 10 })], oberflaeche: "strukturiert", dickeMm: 10, schreibweise: "eingabe" };
+  const a = { slug: "wandbuchstaben", farbeId: null, optionen: { wand: JSON.stringify(eingabe) }, text: "", schriftId: null, menge: 1 };
+  const p = PRODUKTE.find((x) => x.slug === "wandbuchstaben")!;
+  const anzeige = einzelpreisCent(p, a.optionen);
+  assert.ok(anzeige && anzeige > 0);
+  const body = baueBestellung({ token: "t", idempotenzKey: "k".repeat(20), auswahl: [a], kunde: { name: "A B", strasse: "x 1", plz: "86663", ort: "O", email: "a@b.de", hinweis: "" }, agb: true, verzicht: true, versandart: "hermes" });
+  const r = berechneWarenkorb(body.positionen, ctx(), "hermes");
+  assert.ok(r.ok, JSON.stringify(r));
+  assert.equal(r.wert.summeWarenCent, anzeige);
+  assert.ok(versandOptionenFuerKorb([a]).length === 2, "Versandanzeige im Browser funktioniert");
+});

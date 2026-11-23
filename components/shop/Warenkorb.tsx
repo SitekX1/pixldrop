@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { WAND_SLUG, wandAnzeige } from "@/lib/shop/wand";
 import { einzelpreisCent, istIndividuell, nurEinzelfarben, type Produkt } from "@/lib/shop/produkte";
 import { formatAnzeigeAusOptionen } from "@/lib/shop/textformat";
 import type { Farbe } from "@/lib/shop/farben";
@@ -80,6 +81,7 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
           const tfarbe = p.personalisierung && a.text ? farben.find((f) => f.id === a.optionen[TEXTFARBE_KEY]) : undefined;
           const lfarbe = p.linienfarbe ? farben.find((f) => f.id === a.optionen[LINIENFARBE_KEY]) : undefined;
           const opt = [
+            ...(p.slug === WAND_SLUG ? wandAnzeige(a.optionen.wand) : []),
             ...p.optionen.map((g) => `${g.label}: ${g.optionen.find((o) => o.id === (a.optionen[g.id] ?? (g.optional ? g.optionen[0].id : undefined)))?.label ?? ""}`),
             ...schriftZeilen(p, a).map(([k, v]) => `${k}: ${v}`),
             ...(lfarbe ? [`Linienfarbe: ${lfarbe.name}`] : []),
@@ -98,12 +100,12 @@ export default function Warenkorb({ produkte, farben, wunschtextPausiert = false
                 {gesperrtPos(a.slug) && <p className="shop-cart-gesperrt" role="note">Vorübergehend nicht bestellbar: Artikel mit Wunschtext sind aktuell pausiert. Bitte entferne diesen Artikel, um zur Kasse zu gehen.</p>}
                 {ind && <p className="shop-cart-flag">Vom Widerruf ausgenommen (nach deinen Vorgaben gefertigt)</p>}
                 <div className="shop-cart-row">
-                  <div className="shop-stepper">
+                  {p.slug === WAND_SLUG ? <span className="muted">Individuell gefertigt</span> : <div className="shop-stepper">
                     <button type="button" aria-label={`Menge von ${p.name} verringern`} onClick={() => setze(aendereMenge(korb, i, a.menge - 1))}>−</button>
                     <input className="shop-input" type="number" inputMode="numeric" min={1} max={20} value={a.menge} aria-label={`Menge ${p.name}`}
                       onChange={(e) => setze(aendereMenge(korb, i, Number(e.target.value) || 1))} />
                     <button type="button" aria-label={`Menge von ${p.name} erhöhen`} onClick={() => setze(aendereMenge(korb, i, a.menge + 1))}>+</button>
-                  </div>
+                  </div>}
                   <span className="shop-price-small">{einzelpreisCent(p, a.optionen) != null ? formatPreis(einzelpreisCent(p, a.optionen)! * a.menge) : TEXTE.preisFolgt}</span>
                 </div>
                 <button type="button" className="shop-link shop-cart-remove" onClick={() => { setze(entferne(korb, i)); setMeldung(`${p.name} wurde entfernt.`); }}>

@@ -7,7 +7,7 @@
 // Stueck, Preise) sind Platzhalter, bis die Packmasse gemessen sind. Nur HIER aendern.
 // ==========================================================================================
 
-import { WAND_SLUG, wandVersandTeile, type WandErgebnis } from "./wand";
+import { WAND_SLUG, wandAusOptionen, wandVersandTeile, type WandErgebnis } from "./wand";
 
 export const VERSANDARTEN = ["hermes", "dhl", "brief"] as const;
 export type VersandArt = (typeof VERSANDARTEN)[number];
@@ -378,11 +378,10 @@ export function versandOptionenFuerKorb(positionen: readonly unknown[]): Versand
     if (typeof p !== "object" || p === null) continue;
     const o = p as { slug?: unknown; menge?: unknown; optionen?: unknown };
     if (typeof o.slug !== "string") continue;
-    ok.push({
-      slug: o.slug,
-      menge: o.menge as number,
-      optionen: typeof o.optionen === "object" && o.optionen !== null ? (o.optionen as Record<string, unknown>) : null,
-    });
+    let optionen = typeof o.optionen === "object" && o.optionen !== null ? (o.optionen as Record<string, unknown>) : null;
+    // Wandbuchstaben: im Warenkorb als JSON-Text, die Versandberechnung braucht das geprüfte Ergebnis
+    if (o.slug === WAND_SLUG) { const w = wandAusOptionen(optionen?.wand); optionen = w ? { wand: w } : null; }
+    ok.push({ slug: o.slug, menge: o.menge as number, optionen });
   }
   return versandOptionen(ok);
 }

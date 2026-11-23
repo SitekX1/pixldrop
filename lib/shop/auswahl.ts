@@ -21,6 +21,7 @@ const KEY = "shop-korb-v1";
 const ALT_KEY = "shop-auswahl-v1"; // früher: genau ein Stück
 
 export function gleichePosition(a: Auswahl, b: Auswahl): boolean {
+  if (a.slug === "wandbuchstaben") return false; // jede Wand-Konfiguration bleibt eine eigene Position (Menge immer 1)
   return a.slug === b.slug && a.farbeId === b.farbeId && a.text === b.text && a.schriftId === b.schriftId
     && JSON.stringify(Object.entries(a.teilFarben ?? {}).sort()) === JSON.stringify(Object.entries(b.teilFarben ?? {}).sort())
     && JSON.stringify(Object.entries(a.optionen).sort()) === JSON.stringify(Object.entries(b.optionen).sort());

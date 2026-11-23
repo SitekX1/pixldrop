@@ -82,7 +82,7 @@ export default function BubbleKonfigurator({ produkt, farbenAus, bestellbar }: {
         optionen: { hoehe: hid, zeichen: zeichenId(e.c), oberflaeche: glatt ? "glatt" : "struktur", [KOMBI_KEY]: e.farbe },
         text: "", schriftId: null, menge: e.n,
       });
-      if (!r.ok) { setMeldung({ ok: false, text: "Der Warenkorb ist voll (höchstens 20 verschiedene Positionen). Bestelle bitte in zwei Runden." }); return; }
+      if (!r.ok) { setMeldung({ ok: false, text: "Der Warenkorb ist voll (höchstens 50 verschiedene Positionen). Bestelle bitte in zwei Runden." }); return; }
       korb = r.korb;
     }
     speichereKorb(korb);
