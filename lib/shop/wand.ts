@@ -33,7 +33,7 @@ export const WAND_PREIS_CENT: Record<WandOberflaeche, Record<WandHoehe, number>>
 export const WAND_DICKEN = [5, 10] as const;
 export type WandDicke = (typeof WAND_DICKEN)[number];
 export const WAND_DICKE_STANDARD: WandDicke = 10;
-/** Preisfaktor für 5 mm gegenüber 10 mm. VORLÄUFIG (15 % günstiger), Alex/Karla legen den Wert fest. */
+/** Preisfaktor für 5 mm gegenüber 10 mm. 15 % günstiger (Alex 23.11.2026 bestätigt). */
 const DUENN_FAKTOR = 0.85;
 /** Preis je Zeichen in Cent für Dicke, Oberfläche und Höhe (10 mm = Tabelle, 5 mm = Tabelle x Faktor). */
 export const wandPreisCent = (oberflaeche: WandOberflaeche, hoehe: WandHoehe, dicke: WandDicke = WAND_DICKE_STANDARD) =>
@@ -186,4 +186,35 @@ export function pruefeWandKonfiguration(eingabe: unknown): WandPruefung {
   const rabattCent = zeichen >= WAND_RABATT_AB_ZEICHEN ? Math.round((summeCent * WAND_RABATT_PROZENT) / 100) : 0;
   const gewichtG = Math.round(zeilen.reduce((s, z) => s + z.gewichtG, 0) * 10) / 10;
   return { ok: true, wert: { zeilen, oberflaeche, dickeMm: dicke, schreibweise, zeichen, summeCent, rabattCent, gesamtCent: summeCent - rabattCent, gewichtG } };
+}
+
+/** Artikel-Slug im Katalog/Warenkorb. Eine Warenkorb-Position = eine ganze Konfiguration (bis 3 Zeilen). */
+export const WAND_SLUG = "wandbuchstaben";
+/** Farbsperre (Panel, shop_einstellungen "bubble_farben_aus"): Wandfarben stehen dort mit Vorsatz, z. B. "wand-grau", damit sie nicht mit den Bubble-Farben kollidieren. */
+export const wandFarbSperrId = (farbId: string) => `wand-${farbId}`;
+
+/**
+ * Zeilenpreise nach Rabatt (Cent). Der Mengenrabatt gilt für die ganze Konfiguration und wird anteilig auf die Zeilen verteilt;
+ * die Summe stimmt immer genau mit gesamtCent überein (Rundungsrest wandert auf die letzte Zeile).
+ */
+export function wandZeilenPreise(w: WandErgebnis): number[] {
+  if (w.rabattCent <= 0 || w.summeCent <= 0) return w.zeilen.map((z) => z.cent);
+  const preise = w.zeilen.map((z) => z.cent - Math.floor((z.cent * w.rabattCent) / w.summeCent));
+  const soll = w.gesamtCent;
+  const ist = preise.reduce((a, b) => a + b, 0);
+  preise[preise.length - 1] += soll - ist;
+  return preise;
+}
+
+/** Packteile für den Versand: jeder Buchstabe als flacher Quader (Breite x Höhe x Dicke in mm) mit seinem Gewicht. */
+export function wandVersandTeile(w: WandErgebnis): { mm: [number, number, number]; g: number; anz: number }[] {
+  const teile: { mm: [number, number, number]; g: number; anz: number }[] = [];
+  for (const z of w.zeilen) {
+    for (const ch of z.text) {
+      if (ch === " " || !schriftHatZeichen(z.schrift, ch)) continue;
+      const m = MASSE[z.schrift].zeichen[ch];
+      teile.push({ mm: [Math.max(1, Math.round(m[0] * z.hoeheCm * 10)), Math.max(1, Math.round(m[1] * z.hoeheCm * 10)), w.dickeMm], g: gewichtGramm(z.schrift, ch, z.hoeheCm, w.dickeMm), anz: 1 });
+    }
+  }
+  return teile;
 }

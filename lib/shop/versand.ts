@@ -7,6 +7,8 @@
 // Stueck, Preise) sind Platzhalter, bis die Packmasse gemessen sind. Nur HIER aendern.
 // ==========================================================================================
 
+import { WAND_SLUG, wandVersandTeile, type WandErgebnis } from "./wand";
+
 export const VERSANDARTEN = ["hermes", "dhl", "brief"] as const;
 export type VersandArt = (typeof VERSANDARTEN)[number];
 
@@ -190,6 +192,8 @@ const ROH: Record<string, Roh> = {
     },
     briefFaehig: false, stueckJeMenge: 1,
   },
+  // Wandbuchstaben: die Teile ergeben sich aus der geprüften Konfiguration (optionen.wand, siehe stueckeAusKorb); dieser Eintrag gilt nur als Rückfall.
+  "wandbuchstaben": { teile: [{ mm: [200, 200, 10], g: 50, anz: 1 }], briefFaehig: false, stueckJeMenge: 1 },
   // Bubble-Buchstaben (Alex 17.11.2026): immer Paket. Dicke je Höhe aus dem Größenbild (0,8/1,4/2,2/2,8/3,3 cm, 15 cm geschätzt 4 cm), Breite ~0,9 x Höhe, Gramm GESCHÄTZT (M 5 cm ca. 10 g, wächst mit Höhe hoch 3) bis gewogen.
   "bubble-buchstabe": {
     teile: [{ mm: [30, 27, 8], g: 2.5, anz: 1 }],
@@ -289,6 +293,11 @@ function stueckeAusKorb(positionen: readonly VersandPosition[]): Stueck[] {
   for (const p of positionen) {
     const roh = ROH[p.slug] ?? UNBEKANNT;
     const box = p.optionen?.[BOX_GRUPPE] === BOX_MIT;
+    const wand = p.slug === WAND_SLUG ? p.optionen?.wand : undefined;
+    if (wand && typeof wand === "object" && Array.isArray((wand as { zeilen?: unknown }).zeilen)) {
+      out.push(...stueckeAusTeilen(wandVersandTeile(wand as WandErgebnis)));
+      continue;
+    }
     for (let i = 0, n = Math.min(mengeOk(p.menge), 500); i < n; i++) out.push(...stueckeAusTeilen(teileJeStueck(roh, box, p.optionen?.kork === "mit", p.optionen?.[roh.teileGruppe ?? "kuerbisgroesse"])));
   }
   return verschachtele(out);

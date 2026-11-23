@@ -174,6 +174,19 @@ export const PRODUKTE: Produkt[] = [
     hinweise: ["Kein Spielzeug. Nicht für Kinder unter 3 Jahren. Kleine Buchstaben (3 und 5 cm) sind Kleinteile mit Verschluckungsgefahr: von Kleinkindern fernhalten.", "Rückseite flach zum Aufkleben (Klebepad oder doppelseitiges Klebeband, nicht dabei). Buchstaben stehen nicht von selbst."],
   },
   {
+    // Wandbuchstaben (Alex 23.11.2026): Preis je Zeichen aus der Konfiguration (lib/shop/wand.ts), die Position kommt über roh.wand in den Warenkorb.
+    // entwurf = im Live-Shop (VERCEL_ENV=production) unsichtbar und nicht bestellbar, bis Alex den Livegang freigibt: Flag dann entfernen.
+    slug: "wandbuchstaben",
+    name: "Wandbuchstaben",
+    kurz: "Dein Wort in einzeln gedruckten Buchstaben für die Wand. 12 Schriften, 4 Höhen, Preis je Zeichen.",
+    beschreibung: "Dein Wort in einzeln gedruckten Buchstaben für die Wand. Schrift, Höhe, Farbe und Oberfläche wählst du im Konfigurator.",
+    gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1a1a1a",
+    preisCent: 258, masse: null, material: MATERIAL, entwurf: true,
+    optionen: [],
+    personalisierung: null,
+    hinweise: ["Individuell nach deinen Angaben gefertigt. Befestigungsmaterial liegt nicht bei."],
+  },
+  {
     slug: "wochentags-untersetzer-set",
     name: "Wochentags-Untersetzer-Set Mo–Fr",
     kurz: "Fünf Untersetzer für Montag bis Freitag, auf Wunsch mit Box.",
@@ -458,6 +471,7 @@ const ARTIKELNR: Record<string, string> = {
   "weihnachtsbaum": "PD-022",
   "weihnachtskugel-schneeflocke": "PD-023",
   "bubble-buchstabe": "PD-024",
+  "wandbuchstaben": "PD-025",
 };
 export function artikelnummer(slug: string): string | null { return ARTIKELNR[slug] ?? null; }
 /** Teelichtfach (aus dem Modell gemessen): nur Artikel mit offenem Fach. */
@@ -474,7 +488,7 @@ export function istLiveBetrieb(): boolean {
 
 export function istBestellbar(p: Produkt): boolean {
   if (p.nurAnfrage) return false;
-  if (p.entwurf) return false;
+  if (p.entwurf && liveUmgebung()) return false; // Entwurf: nur in Vorschau/lokal bestellbar (Sandbox-Test)
   return p.gruppe === "allgemein" || saisonModus(p.gruppe) === "sale";
 }
 

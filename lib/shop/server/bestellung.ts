@@ -108,7 +108,7 @@ export async function legeBestellungAn(
     return fehler(status, korb.fehler.code, korb.fehler.meldung);
   }
   // Wunschtext-Pause: JEDE Position eines Artikels mit Personalisierung sperren (auch mit Standardtext).
-  if (ctx.wunschtextPausiert && korb.wert.positionen.some((pos) => PRODUKTE.find((pr) => pr.slug === pos.slug)?.personalisierung)) {
+  if (ctx.wunschtextPausiert && korb.wert.positionen.some((pos) => (pos.slug === "wandbuchstaben" || PRODUKTE.find((pr) => pr.slug === pos.slug)?.personalisierung))) {
     return fehler(503, "wunschtext_pausiert", ctx.wunschtextPauseText ?? "Artikel mit Wunschtext sind aktuell pausiert.");
   }
   const k = pruefeKunde(e.kunde);

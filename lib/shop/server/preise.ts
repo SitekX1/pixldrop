@@ -12,6 +12,7 @@ import {
 } from "../textformat";
 import { LINIENFARBE_HINWEIS, LINIENFARBE_KEY, TEXTFARBE_HINWEIS, TEXTFARBE_KEY, automatischeLinienfarbe, textfarbeErlaubt } from "../textfarbe";
 import { istVersandArt, versandOptionen, type VersandArt, type VersandPosition } from "../versand";
+import { WAND_SLUG, WAND_FARBEN, pruefeWandKonfiguration, wandFarbSperrId, wandZeilenPreise } from "../wand";
 import { AKTION_FEHLER, normalisiereCode, pruefeAktionscode, rabattiereCent } from "../aktion";
 
 export const MAX_MENGE = 20;
@@ -87,6 +88,16 @@ const fehler = (code: FehlerCode, meldung: string): { ok: false; fehler: PreisFe
   fehler: { code, meldung },
 });
 
+/** Fehlercodes der Wand-Prüfung auf die Warenkorb-Fehlercodes abbilden (Unbekanntes aus dem Textfilter = unzulässiger Text). */
+function wandFehlerCode(code: string): FehlerCode {
+  if (code === "passt-nicht") return "text_passt_nicht";
+  if (code === "zeichen-fehlt") return "schrift_zeichen_fehlen";
+  if (code === "zeichen" || code === "laenge" || code === "leer") return "text_ungueltig";
+  if (code === "farbe") return "farbe_ungueltig";
+  if (["zeilen", "oberflaeche", "dicke", "schrift", "hoehe"].includes(code)) return "option_ungueltig";
+  return "text_unzulaessig";
+}
+
 function istObjekt(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
@@ -133,6 +144,28 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
     if (!ctx.bestellbar(produkt)) return fehler("nicht_bestellbar", "Dieser Artikel kann noch nicht bestellt werden.");
     if (produkt.preisCent == null || !Number.isInteger(produkt.preisCent) || produkt.preisCent <= 0) {
       return fehler("preis_folgt", "Für diesen Artikel steht der Preis noch nicht fest.");
+    }
+
+    // Wandbuchstaben: eine Position im Request = eine ganze Konfiguration (bis 3 Zeilen). Preis, Passt-aufs-Druckbett, Farben, Wortfilter prüft
+    // pruefeWandKonfiguration; im Warenkorb wird jede Zeile eine eigene Position (Text <= 20 Zeichen, DB-Regel: Text <= 40, Optionen <= 500 Byte).
+    if (produkt.slug === WAND_SLUG) {
+      if (roh.menge !== 1) return fehler("ungueltig", "Eine Wandbuchstaben-Konfiguration gibt es nur einmal je Position. Bitte lege weitere Wörter einzeln in den Warenkorb.");
+      const w = pruefeWandKonfiguration(roh.wand);
+      if (!w.ok) return fehler(wandFehlerCode(w.code), w.meldung);
+      const gesperrt = w.wert.zeilen.find((z) => ctx.farbenAus?.includes(wandFarbSperrId(z.farbe)));
+      if (gesperrt) return fehler("farbe_ungueltig", `Die Farbe „${WAND_FARBEN.find((f) => f.id === gesperrt.farbe)!.name}“ ist gerade nicht lieferbar. Bitte wähle eine andere.`);
+      const preise = wandZeilenPreise(w.wert);
+      const ober = w.wert.oberflaeche === "glatt" ? "Glatt" : "Strukturiert";
+      w.wert.zeilen.forEach((z, zi) => {
+        const f = WAND_FARBEN.find((x) => x.id === z.farbe)!;
+        const o: Record<string, string> = { "Höhe": `${z.hoeheCm} cm`, "Oberfläche": ober, "Dicke": `${w.wert.dickeMm} mm` };
+        if (w.wert.zeilen.length > 1) o["Zeile"] = `${zi + 1} von ${w.wert.zeilen.length}`;
+        if (w.wert.schreibweise === "erster-gross") o["Schreibweise"] = "Erster Buchstabe groß";
+        summe += preise[zi];
+        positionen.push({ slug: produkt.slug, name: produkt.name, menge: 1, einzelpreisCent: preise[zi], farbeName: f.name, farbeHex: f.hex, optionen: o, text: z.text, schriftId: z.schrift, individuell: true });
+      });
+      versandPos.push({ slug: produkt.slug, menge: 1, optionen: { wand: w.wert } });
+      continue;
     }
 
     const menge = roh.menge;
@@ -297,6 +330,9 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       individuell: istIndividuell(produkt, text, formatWahl),
     });
   }
+
+  // Die Datenbank (shop_bestellung_anlegen) nimmt höchstens 10 Positionen an; bei Wandbuchstaben (eine Position je Zeile) vorher mit klarer Meldung abfangen.
+  if (positionen.length > 10 && positionen.some((p) => p.slug === WAND_SLUG)) return fehler("ungueltig", "Die Bestellung ist zu groß. Bitte teile die Wandbuchstaben auf mehrere Bestellungen auf.");
 
   // Versandart: Pflichtangabe, nur aus den serverseitig berechneten zulaessigen Optionen
   if (versandart === undefined || versandart === null || versandart === "") {
