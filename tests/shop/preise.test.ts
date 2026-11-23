@@ -135,8 +135,8 @@ test("Personalisierung: Laenge, Zeichen, Schrift, individuell-Flag", () => {
 test("Obergrenzen: leerer Warenkorb, zu viele Positionen, Gesamtsumme", () => {
   assert.ok(!berechneWarenkorb([], ctx()).ok);
   assert.ok(!berechneWarenkorb("x", ctx()).ok);
-  assert.ok(!berechneWarenkorb(Array.from({ length: 21 }, () => pos()), ctx()).ok, "21 Positionen zu viel");
-  assert.ok(berechneWarenkorb(Array.from({ length: 20 }, () => pos()), ctx()).ok, "20 Positionen erlaubt");
+  assert.ok(!berechneWarenkorb(Array.from({ length: 51 }, () => pos()), ctx()).ok, "51 Positionen zu viel");
+  assert.ok(berechneWarenkorb(Array.from({ length: 50 }, () => pos()), ctx()).ok, "50 Positionen erlaubt");
   const teuer = katalog.map((p) => ({ ...p, preisCent: 99_999 }));
   const r = berechneWarenkorb([pos({ menge: 3 })], ctx({ produkte: teuer }));
   assert.ok(!r.ok);

@@ -16,7 +16,7 @@ import { WAND_SLUG, WAND_FARBEN, pruefeWandKonfiguration, wandFarbSperrId, wandZ
 import { AKTION_FEHLER, normalisiereCode, pruefeAktionscode, rabattiereCent } from "../aktion";
 
 export const MAX_MENGE = 20;
-export const MAX_POSITIONEN = 20; // Bubble-Buchstaben: jeder Buchstabe eine Position, ganze Namen
+export const MAX_POSITIONEN = 50; // Bubble-Buchstaben: jeder Buchstabe eine Position, ganze Namen
 export const MAX_GESAMT_CENT = 200_000;
 
 export interface Kontext {
@@ -331,8 +331,8 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
     });
   }
 
-  // Die Datenbank (shop_bestellung_anlegen) nimmt höchstens 10 Positionen an; bei Wandbuchstaben (eine Position je Zeile) vorher mit klarer Meldung abfangen.
-  if (positionen.length > 10 && positionen.some((p) => p.slug === WAND_SLUG)) return fehler("ungueltig", "Die Bestellung ist zu groß. Bitte teile die Wandbuchstaben auf mehrere Bestellungen auf.");
+  // Die Datenbank (shop_bestellung_anlegen, Migration 18) nimmt bis zu 50 Positionen an; Wandbuchstaben zählen je Zeile.
+  if (positionen.length > MAX_POSITIONEN) return fehler("ungueltig", "Die Bestellung ist zu groß. Bitte teile die Wandbuchstaben auf mehrere Bestellungen auf.");
 
   // Versandart: Pflichtangabe, nur aus den serverseitig berechneten zulaessigen Optionen
   if (versandart === undefined || versandart === null || versandart === "") {
