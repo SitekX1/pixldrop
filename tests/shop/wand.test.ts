@@ -7,13 +7,13 @@ import {
 const zeile = (extra: Record<string, unknown> = {}) => ({ text: "Emil", schrift: "libre-baskerville", hoeheCm: 10, farbe: "schwarz", ...extra });
 const ein = (zeilen: unknown[], extra: Record<string, unknown> = {}) => pruefeWandKonfiguration({ zeilen, oberflaeche: "glatt", ...extra });
 
-test("Preis je Zeichen: Emil, 10 cm, glatt = 4 x 4,59 €", () => {
+test("Preis je Zeichen: Emil, 10 cm, glatt = 4 x 6,12 €", () => {
   const r = ein([zeile()]);
   assert.ok(r.ok);
   assert.equal(r.wert.zeichen, 4);
-  assert.equal(r.wert.summeCent, 4 * 459);
+  assert.equal(r.wert.summeCent, 4 * 612);
   assert.equal(r.wert.rabattCent, 0);
-  assert.equal(r.wert.gesamtCent, 1836);
+  assert.equal(r.wert.gesamtCent, 2448);
 });
 
 test("Leerzeichen kosten nichts, Satzzeichen zählen als Zeichen", () => {
@@ -26,11 +26,11 @@ test("10 % Rabatt ab 10 Zeichen, über alle Zeilen gezählt", () => {
   const a = ein([zeile({ text: "Willkommen" })]);
   assert.ok(a.ok);
   assert.equal(a.wert.zeichen, 10);
-  assert.equal(a.wert.rabattCent, Math.round(10 * 459 * 0.1));
+  assert.equal(a.wert.rabattCent, Math.round(10 * 612 * 0.1));
   const b = ein([zeile({ text: "Hallo" }), zeile({ text: "Welt1", hoeheCm: 15 })]);
   assert.ok(b.ok);
   assert.equal(b.wert.zeichen, 10);
-  assert.equal(b.wert.summeCent, 5 * 459 + 5 * 549);
+  assert.equal(b.wert.summeCent, 5 * 612 + 5 * 732);
   assert.equal(b.wert.gesamtCent, b.wert.summeCent - b.wert.rabattCent);
   const c = ein([zeile({ text: "Neun Zeic" })]);
   assert.ok(c.ok);
@@ -42,7 +42,7 @@ test("Strukturiert ist in jeder Höhe billiger als Glatt", () => {
   for (const h of WAND_HOEHEN) assert.ok(WAND_PREIS_CENT.strukturiert[h] < WAND_PREIS_CENT.glatt[h], `Höhe ${h}`);
   const r = ein([zeile()], { oberflaeche: "strukturiert" });
   assert.ok(r.ok);
-  assert.equal(r.wert.summeCent, 4 * 373);
+  assert.equal(r.wert.summeCent, 4 * 498);
 });
 
 test("Manipulierte Eingaben werden abgelehnt", () => {

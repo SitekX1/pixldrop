@@ -23,10 +23,10 @@ export const WAND_FARBEN = [
   { id: "olivgruen", name: "Olivgrün", hex: "#5a6d3d" },
 ] as const;
 
-/** Preis je Zeichen in Cent (Vergleichspreise Etsy, Alex 23.11.2026; ACHTUNG: dort waren 25 % Rabatt aktiv, endgültige Preise noch offen). */
+/** Preis je Zeichen in Cent (Normalpreise des Vergleichsshops ohne dessen 25-%-Aktion, Alex 23.11.2026). */
 export const WAND_PREIS_CENT: Record<WandOberflaeche, Record<WandHoehe, number>> = {
-  glatt: { 5: 283, 10: 459, 15: 549, 20: 639 },
-  strukturiert: { 5: 193, 10: 373, 15: 463, 20: 553 },
+  glatt: { 5: 378, 10: 612, 15: 732, 20: 852 },
+  strukturiert: { 5: 258, 10: 498, 15: 618, 20: 738 },
 };
 
 /** Mengenrabatt: ab dieser Zeichenzahl (alle Zeilen zusammen, ohne Leerzeichen) 10 % auf die Summe. */
