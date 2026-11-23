@@ -287,16 +287,14 @@ export default function WandKonfigurator({ bestellbar = false, farbenAus = [] }:
               ))}
             </div>
             <span className="shop-bk-klein">{oberflaeche.info}</span>
-            <span className="shop-bk-klein">Die Vorschau zeigt die Oberfläche nicht; sie sieht im Bild unten so aus.</span>
-            <details style={{ marginTop: 8 }}>
-              <summary style={{ cursor: "pointer", minHeight: 44, display: "flex", alignItems: "center" }}>Oberflächen ansehen</summary>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/shop/inspiration/oberflaechen.webp" width={1254} height={1254} loading="lazy"
-                alt="Vergleich der Oberflächen Strukturiert, Glatt und Carbon-Optik an einem Buchstaben"
-                style={{ display: "block", width: "100%", maxWidth: 420, height: "auto", margin: "8px auto 0", borderRadius: 12 }}
-              />
-            </details>
+            <span className="shop-bk-klein">Die Vorschau oben zeigt die Oberfläche nicht. So sehen die drei Oberflächen aus:</span>
+            {/* Das Bild ist immer sichtbar: Der Kunde muss sehen, welche Oberfläche er bestellt (Alex 23.11.2026) */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/shop/inspiration/oberflaechen.webp" width={1254} height={1254} decoding="async"
+              alt="Vergleich der Oberflächen Strukturiert, Glatt und Carbon-Optik an einem Buchstaben"
+              style={{ display: "block", width: "100%", maxWidth: 520, height: "auto", margin: "10px auto 0", borderRadius: 12 }}
+            />
           </fieldset>
 
           <fieldset className="shop-bk-feld">
