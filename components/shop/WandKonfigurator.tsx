@@ -5,25 +5,17 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { WAND_SCHRIFTEN } from "@/lib/shop/schriften-wand";
+import {
+  WAND_FARBEN, WAND_HOEHEN, WAND_NUR_REGULAR, WAND_OBERFLAECHEN, WAND_SCHREIBSCHRIFTEN, ersterGross, maxWandHoehe, nichtDruckbar, schriftHatZeichen,
+} from "@/lib/shop/wand";
 
-const FARBEN = [
-  { id: "schwarz", name: "Schwarz", hex: "#1a1a1a" },
-  { id: "weiss", name: "Weiß", hex: "#fbfaf6" },
-  { id: "beige", name: "Beige", hex: "#e4d8bc" },
-  { id: "grau", name: "Grau", hex: "#8e9089" },
-  { id: "braun", name: "Braun", hex: "#a8785a" },
-  { id: "olivgruen", name: "Olivgrün", hex: "#5a6d3d" },
-];
-const HOEHEN = [8, 10, 12, 15, 20, 25, 30]; // cm, Höhe der Großbuchstaben
+const FARBEN = WAND_FARBEN;
+const HOEHEN = WAND_HOEHEN; // cm, Höhe der Großbuchstaben (30 cm gibt es nicht: Druckbett 256 mm)
 const FOTO_CM = 150; // Annahme: der Schreibtisch im Foto ist ca. 150 cm breit
 const FADE = "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 14%)";
-const OBERFLAECHEN = [
-  { id: "glatt", name: "Glatt", info: "Klassisch glatt, feine Schichtlinien sind je nach Licht sichtbar." },
-  { id: "strukturiert", name: "Strukturiert", info: "Fuzzy Skin: fein raue, matte Oberfläche, die Schichtlinien und Fingerabdrücke kaschiert." },
-];
-const SCHREIBSCHRIFTEN = new Set(["great-vibes", "parisienne", "dancing-script", "marck-script"]); // nur hier wählbar: Schreibweise
-const ersterGross = (z: string) => { const t = z.toLowerCase(); const i = t.search(/\p{L}/u); return i < 0 ? t : t.slice(0, i) + t[i].toUpperCase() + t.slice(i + 1); };
-const EINSTELLBAR_400 = new Set(["great-vibes", "mansalva", "parisienne", "marck-script"]); // Schriften nur in Regular (kein Fett)
+const OBERFLAECHEN = WAND_OBERFLAECHEN;
+const SCHREIBSCHRIFTEN = WAND_SCHREIBSCHRIFTEN; // nur hier wählbar: Schreibweise
+const EINSTELLBAR_400 = WAND_NUR_REGULAR; // Schriften nur in Regular (kein Fett)
 
 function abdunkeln(hex: string, f = 0.62) {
   const n = parseInt(hex.slice(1), 16);
@@ -51,12 +43,16 @@ export default function WandKonfigurator() {
   const zwei = eintraege.length > 1; // mehr als eine Zeile mit Text
   const akt = zwei ? (eintraege.some((e) => e.i === aktiv) ? aktiv : eintraege[0].i) : (eintraege[0]?.i ?? 0);
   const ids = [0, 1, 2].map((i) => (i === 0 ? schriftId : schriftOv[i] ?? schriftId));
-  const cms = [0, 1, 2].map((i) => (i === 0 ? cm : cmOv[i] ?? cm));
+  const cmWahl = [0, 1, 2].map((i) => (i === 0 ? cm : cmOv[i] ?? cm));
   const farbIds = [0, 1, 2].map((i) => (i === 0 ? farbeId : farbeOv[i] ?? farbeId));
   const farbeVon = (i: number) => FARBEN.find((f) => f.id === farbIds[i])!;
   const gesetzt = (i: number, v: string) => setTexte((t) => t.map((x, k) => (k === i ? v.slice(0, 20) : x)));
   const mitSchreibweise = eintraege.some((e) => SCHREIBSCHRIFTEN.has(ids[e.i]));
   const zeilenF = zeilen.map((z, i) => (schreibweise === "erster-gross" && SCHREIBSCHRIFTEN.has(ids[i]) ? ersterGross(z) : z));
+  // Größte druckbare Höhe je Zeile: jeder Buchstabe wird einzeln gedruckt und muss aufs Druckbett (256 mm) passen. 0 = Zeichen fehlt in der Schrift.
+  const grenzen = [0, 1, 2].map((i) => (zeilenF[i]?.trim() ? maxWandHoehe(ids[i], zeilenF[i]) : WAND_HOEHEN[WAND_HOEHEN.length - 1]));
+  const cms = [0, 1, 2].map((i) => (grenzen[i] > 0 ? Math.min(cmWahl[i], grenzen[i]) : cmWahl[i]));
+  const fehltInSchrift = (i: number) => [...new Set([...zeilenF[i]].filter((ch) => ch !== " " && !schriftHatZeichen(ids[i], ch)))];
   const schriftVon = (i: number) => WAND_SCHRIFTEN.find((s) => s.id === ids[i])!;
   const gewichtVon = (id: string) => (EINSTELLBAR_400.has(id) ? 400 : 700);
   const schrift = schriftVon(0);
@@ -229,6 +225,28 @@ export default function WandKonfigurator() {
           )}
 
           <fieldset className="shop-bk-feld">
+            <legend>Höhe der Großbuchstaben{zwei ? ` (Zeile ${eintraege.findIndex((e) => e.i === akt) + 1})` : ""}</legend>
+            <div className="shop-options">
+              {HOEHEN.map((h) => {
+                const frei = grenzen[akt] === 0 || h <= grenzen[akt];
+                return (
+                  <label key={h} className="shop-option" style={frei ? undefined : { opacity: .4 }}>
+                    <input type="radio" name="wk-hoehe" checked={aktCm === h} disabled={!frei} onChange={() => setzeCm(h)} /><span>{h} cm</span>
+                  </label>
+                );
+              })}
+            </div>
+            {(() => {
+              const fehlt = fehltInSchrift(akt);
+              if (fehlt.length) return <span className="shop-bk-klein">Diese Schrift hat kein „{fehlt.join("“, „")}“. Bitte ändere das Wort oder wähle eine andere Schrift.</span>;
+              const g = grenzen[akt];
+              const naechste = HOEHEN.find((h) => h > g);
+              if (!naechste || !(zeilenF[akt] ?? "").trim()) return null;
+              return <span className="shop-bk-klein">Bis {g} cm möglich. Bei {naechste} cm passt „{nichtDruckbar(aktId, zeilenF[akt], naechste).join("“, „")}“ nicht mehr aufs Druckbett (256 mm), denn jeder Buchstabe wird in einem Stück gedruckt. Mit einer anderen Schrift oder einem anderen Wort geht oft mehr.</span>;
+            })()}
+          </fieldset>
+
+          <fieldset className="shop-bk-feld">
             <legend>Farbe{zwei ? ` (Zeile ${eintraege.findIndex((e) => e.i === akt) + 1})` : ""}</legend>
             <div className="shop-swatches">
               {FARBEN.map((f) => (
@@ -249,15 +267,6 @@ export default function WandKonfigurator() {
               ))}
             </div>
             <span className="shop-bk-klein">{oberflaeche.info}</span>
-          </fieldset>
-
-          <fieldset className="shop-bk-feld">
-            <legend>Höhe der Großbuchstaben{zwei ? ` (Zeile ${eintraege.findIndex((e) => e.i === akt) + 1})` : ""}</legend>
-            <div className="shop-options">
-              {HOEHEN.map((h) => (
-                <label key={h} className="shop-option"><input type="radio" name="wk-hoehe" checked={aktCm === h} onChange={() => setzeCm(h)} /><span>{h} cm</span></label>
-              ))}
-            </div>
           </fieldset>
 
           <div className="shop-bk-summe">
