@@ -78,10 +78,10 @@ function umbrechen(text: string, font: PDFFont, groesse: number, breite: number)
   return zeilen;
 }
 
-// Farbwelt wie im Shop: Honig + Braun (dezent), Text dunkelbraun.
+// Farbwelt wie der neue Shop: Schwarz/Weiss/Greige (honig/braun sind nur noch Namen, die auf Tinte/Grau zeigen).
 const C = {
-  tinte: rgb(0.18, 0.11, 0.06), text: rgb(0.16, 0.125, 0.08), gedimmt: rgb(0.42, 0.35, 0.26),
-  honig: rgb(0.94, 0.73, 0.33), braun: rgb(0.6, 0.37, 0.04), linie: rgb(0.85, 0.78, 0.65), tint: rgb(0.97, 0.9, 0.74),
+  tinte: rgb(0.086, 0.082, 0.075), text: rgb(0.086, 0.082, 0.075), gedimmt: rgb(0.42, 0.40, 0.365),
+  honig: rgb(0.086, 0.082, 0.075), braun: rgb(0.42, 0.40, 0.365), linie: rgb(0.90, 0.878, 0.839), tint: rgb(0.945, 0.925, 0.894),
 };
 const ABSENDER = "Alexander Sitek · Richard-Strauss-Straße 4 · 86663 Asbach-Bäumenheim · as@sitekx.de";
 
@@ -119,9 +119,9 @@ export async function erzeugePdf(doc: RechtsDokument, jetzt: Date = new Date()):
   const rechts = A4.b - RAND.r;
   let seite = pdf.addPage([A4.b, A4.h]);
   let y = A4.h - RAND.o;
-  const balken = () => seite.drawRectangle({ x: 0, y: A4.h - 8, width: A4.b, height: 8, color: C.honig });
+  const balken = () => { /* neuer Look: kein Farbbalken */ };
 
-  // Kopf Seite 1: Honigbalken, Kicker, Titel, Untertitel, Absenderzeile, Trennlinie; Logo rechts.
+  // Kopf Seite 1: Kicker, Titel, Untertitel, Absenderzeile, Trennlinie; Logo rechts.
   const zeilen = roh.split("\n");
   let start = 0;
   let untertitel = "";
@@ -131,12 +131,12 @@ export async function erzeugePdf(doc: RechtsDokument, jetzt: Date = new Date()):
     start++;
   }
   balken();
-  const logoB = 74;
+  const logoB = 62;
   const logoH = logoB * (PIXLDROP_LOGO_MASSE.h / PIXLDROP_LOGO_MASSE.b);
   const kopfBreite = breite - (logo ? logoB + 16 : 0);
   if (logo) seite.drawImage(logo, { x: rechts - logoB, y: A4.h - 28 - logoH, width: logoB, height: logoH });
   else seite.drawText("PixlDrop", { x: rechts - fett.widthOfTextAtSize("PixlDrop", 16), y: A4.h - 48, size: 16, font: fett, color: C.braun });
-  seite.drawText("PIXLDROP 3D-DRUCK", { x: RAND.l, y: A4.h - 44, size: 8.5, font: fett, color: C.braun });
+  seite.drawText("PIXLDROP 3D-DRUCK-SHOP", { x: RAND.l, y: A4.h - 44, size: 8.5, font: fett, color: C.braun });
   let ky = A4.h - 70;
   for (const z of umbrechen(titel, fett, 22, kopfBreite)) { seite.drawText(z, { x: RAND.l, y: ky, size: 22, font: fett, color: C.tinte }); ky -= 27; }
   if (untertitel) {
@@ -145,7 +145,7 @@ export async function erzeugePdf(doc: RechtsDokument, jetzt: Date = new Date()):
   ky -= 4;
   seite.drawText(absender, { x: RAND.l, y: ky, size: 8.5, font: normal, color: C.gedimmt });
   const kopfUnten = Math.min(ky - 12, A4.h - 28 - logoH - 10);
-  seite.drawLine({ start: { x: RAND.l, y: kopfUnten }, end: { x: rechts, y: kopfUnten }, thickness: 1.2, color: C.honig });
+  seite.drawLine({ start: { x: RAND.l, y: kopfUnten }, end: { x: rechts, y: kopfUnten }, thickness: 0.8, color: C.linie });
   y = kopfUnten - 20;
 
   const neueSeite = () => {
@@ -205,7 +205,7 @@ export async function erzeugePdf(doc: RechtsDokument, jetzt: Date = new Date()):
           // Adressat ("An ..."): als getoente Box
           const h = umbrechen(t, normal, SCHRIFT + 0.5, breite - 10).length * 15 + 14;
           platz(h + 8);
-          seite.drawRectangle({ x: RAND.l, y: y - h, width: breite, height: h, color: C.tint, opacity: 0.55 });
+          seite.drawRectangle({ x: RAND.l, y: y - h, width: breite, height: h, color: C.tint });
           seite.drawRectangle({ x: RAND.l, y: y - h, width: 3, height: h, color: C.honig });
           y -= 8;
           schreibe(t, normal, SCHRIFT + 0.5, 15, 10, C.tinte);
