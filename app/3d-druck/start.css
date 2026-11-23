@@ -335,3 +335,16 @@
 .shop-bk-posten li strong { font-size: inherit; white-space: nowrap; }
 .shop-bk-gesamt { display: flex; justify-content: space-between; align-items: baseline; margin: 2px 0 0; font-size: 1.05rem; }
 .shop-bk-gesamt strong { font-size: 1.5rem; letter-spacing: -.02em; }
+
+/* Wand-Konfigurator + Warenkorb: Tippflächen mobil mindestens 44 x 44 px (Desktop unverändert) */
+.shop-wk-recht { margin: 0; font-size: .85rem; line-height: 1.5; }
+.shop-bk-zeichenhinweis:empty { display: none; }
+.shop-bk-zeichenhinweis { margin-top: 6px; color: #8a2f12; }
+@media (max-width: 640px) {
+  .shop[data-look="modern"] .shop-wk .shop-option span { min-height: 44px; min-width: 44px; justify-content: center; }
+  .shop[data-look="modern"] .shop-wk .shop-swatches { gap: 4px; }
+  .shop[data-look="modern"] .shop-wk .shop-swatch { width: 44px; height: 44px; }
+  .shop-wk .shop-wk-schrift span { min-height: 66px; }
+  .shop-wk .shop-bk-link { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; padding: 0 6px; }
+  .shop-cart-remove { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; }
+}

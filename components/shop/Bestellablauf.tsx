@@ -382,7 +382,7 @@ export default function Bestellablauf({
               <div className="shop-field">
                 <label className="shop-check" htmlFor="f-widerruf">
                   <input id="f-widerruf" type="checkbox" checked={verzicht} onChange={(e) => { setVerzicht(e.target.checked); setFehler({ ...fehler, widerruf: undefined }); }} aria-invalid={!!fehler.widerruf} />
-                  <span>Mir ist bekannt, dass für nach meinen Vorgaben angefertigte Ware kein Widerrufsrecht besteht (§ 312g Abs. 2 Nr. 1 BGB). <span className="opt">(Pflicht)</span></span>
+                  <span>Mir ist bekannt, dass für nach meinen Vorgaben angefertigte Ware (z. B. Wandbuchstaben, geänderter Wunschtext) kein Widerrufsrecht besteht (§ 312g Abs. 2 Nr. 1 BGB). <span className="opt">(Pflicht)</span></span>
                 </label>
               </div>
             )}

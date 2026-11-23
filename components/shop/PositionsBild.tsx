@@ -1,5 +1,5 @@
 import { WAND_SLUG, WAND_FARBEN, wandAusOptionen } from "@/lib/shop/wand";
-import { WAND_SCHRIFTEN } from "@/lib/shop/schriften-wand";
+import { WAND_SCHRIFTEN, WAND_SCHRIFTEN_ARCHIV } from "@/lib/shop/schriften-wand";
 import { KOMBI_KEY, type Produkt } from "@/lib/shop/produkte";
 import type { Auswahl } from "@/lib/shop/auswahl";
 import { SCHRIFTEN } from "@/lib/shop/schriften";
@@ -22,15 +22,20 @@ export default function PositionsBild({ p, a, farbeHex, textfarbeHex, typ = "Mus
   if (p.slug === WAND_SLUG) {
     // Wandbuchstaben: Kachel mit dem Wort in der gewählten Schrift und Farbe (jede Bestellung ist ein Unikat, es gibt kein Titelbild)
     const w = wandAusOptionen(a.optionen.wand);
-    const z = w?.zeilen[0];
-    const f = z ? WAND_FARBEN.find((x) => x.id === z.farbe) : undefined;
-    const fam = z ? WAND_SCHRIFTEN.find((x) => x.id === z.schrift)?.family : undefined;
+    const zl = (w?.zeilen ?? []).slice(0, 3);
+    const n = Math.max(zl.length, 1);
+    // Alle Zeilen (bis 3) untereinander, je in eigener Schrift und Farbe; Schriftgröße schrumpft mit der Zeilenzahl
+    const groesse = n === 1 ? "clamp(.62rem, 2.6vw, 1rem)" : n === 2 ? "clamp(.55rem, 2.2vw, .85rem)" : "clamp(.5rem, 1.9vw, .72rem)";
     return (
-      <div className="shop-img" role="img" aria-label={z ? `Wandbuchstaben „${z.text}“` : "Wandbuchstaben"}
+      <div className="shop-img" role="img" aria-label={zl.length ? `Wandbuchstaben ${zl.map((z) => `„${z.text}“`).join(", ")}` : "Wandbuchstaben"}
         style={{ display: "grid", placeItems: "center", width: "100%", aspectRatio: "1 / 1", background: "#ece7dc", overflow: "hidden", padding: 6 }}>
-        <span style={{ fontFamily: fam, fontWeight: 700, color: f?.hex ?? "#1a1a1a", fontSize: "clamp(.62rem, 2.6vw, 1rem)", lineHeight: 1.1, textAlign: "center", textShadow: "1px 1px 0 rgba(0,0,0,.25), 2px 3px 4px rgba(0,0,0,.2)", overflowWrap: "normal", wordBreak: "normal" }}>
-          {z?.text ?? "Wandbuchstaben"}
-        </span>
+        <div style={{ display: "grid", gap: 2, justifyItems: "center", maxWidth: "100%", minWidth: 0 }}>
+          {(zl.length ? zl : [null]).map((z, i) => (
+            <span key={i} style={{ fontFamily: z ? [...WAND_SCHRIFTEN, ...WAND_SCHRIFTEN_ARCHIV].find((x) => x.id === z.schrift)?.family : undefined, fontWeight: 700, color: (z && WAND_FARBEN.find((x) => x.id === z.farbe)?.hex) || "#1a1a1a", fontSize: groesse, lineHeight: 1.1, textAlign: "center", textShadow: "1px 1px 0 rgba(0,0,0,.25), 2px 3px 4px rgba(0,0,0,.2)", overflowWrap: "normal", wordBreak: "normal", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {z?.text ?? "Wandbuchstaben"}
+            </span>
+          ))}
+        </div>
       </div>
     );
   }

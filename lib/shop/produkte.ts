@@ -185,7 +185,7 @@ export const PRODUKTE: Produkt[] = [
     preisCent: 258, masse: null, material: MATERIAL, entwurf: true,
     optionen: [],
     personalisierung: null,
-    hinweise: ["Individuell nach deinen Angaben gefertigt. Befestigungsmaterial liegt nicht bei."],
+    hinweise: ["Individuell nach deinen Angaben gefertigt, vom Widerruf ausgenommen (§ 312g Abs. 2 Nr. 1 BGB).", "Befestigungsmaterial (z. B. Klebepad) liegt nicht bei. Prüfe vor dem Anbringen Wandfläche und Tragfähigkeit.", "Kein Spielzeug. Kleine Buchstaben (5 cm) sind Kleinteile mit Verschluckungsgefahr: von Kleinkindern fernhalten."],
   },
   {
     slug: "wochentags-untersetzer-set",

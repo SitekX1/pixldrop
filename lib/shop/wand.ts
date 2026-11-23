@@ -3,7 +3,7 @@
 // Maße je Zeichen: lib/shop/schrift-masse.ts (erzeugt mit scripts/schrift-masse.py aus den Schriftdateien).
 import masse from "./schrift-masse";
 import { pruefeWunschtext } from "./textfilter";
-import { WAND_SCHRIFTEN } from "./schriften-wand";
+import { WAND_SCHRIFTEN, WAND_SCHRIFTEN_ARCHIV } from "./schriften-wand";
 
 /** Höhe der Großbuchstaben in cm. 24 und 30 cm gibt es nicht (Druckbett des P1S 256 mm, Alex 23.11.2026). */
 export const WAND_HOEHEN = [5, 10, 15, 20] as const;
@@ -69,6 +69,8 @@ type Zeichenmass = [breite: number, hoehe: number, flaeche: number, unterGrundli
 const MASSE: Record<string, { zeichen: Record<string, Zeichenmass> }> = masse;
 
 export const wandSchriftIds = () => Object.keys(MASSE);
+/** Im Shop bestellbare Schriften (nur diese 6; Maße/Gewicht gelten weiter für alle 12 in schrift-masse.ts). */
+export const WAND_ANGEBOT = new Set(WAND_SCHRIFTEN.map((x) => x.id));
 export const hatWandSchrift = (id: string) => Object.prototype.hasOwnProperty.call(MASSE, id);
 export const schriftHatZeichen = (id: string, ch: string) => hatWandSchrift(id) && !!MASSE[id].zeichen[ch];
 
@@ -155,7 +157,7 @@ export function pruefeWandKonfiguration(eingabe: unknown): WandPruefung {
     const z = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
     const nr = i + 1;
     const schrift = typeof z.schrift === "string" ? z.schrift : "";
-    if (!hatWandSchrift(schrift)) return fehler("schrift", `Zeile ${nr}: Bitte eine Schrift aus der Liste wählen.`);
+    if (!WAND_ANGEBOT.has(schrift) || !hatWandSchrift(schrift)) return fehler("schrift", `Zeile ${nr}: Bitte eine Schrift aus der Liste wählen.`);
     const hoehe = WAND_HOEHEN.find((h) => h === z.hoeheCm);
     if (!hoehe) return fehler("hoehe", `Zeile ${nr}: Bitte eine Höhe aus der Liste wählen.`);
     const farbe = WAND_FARBEN.find((f) => f.id === z.farbe)?.id;
@@ -227,7 +229,7 @@ export function wandAnzeige(v: unknown): string[] {
   const w = wandAusOptionen(v);
   if (!w) return ["Ungültige Konfiguration, bitte entfernen"];
   const farbe = (id: string) => WAND_FARBEN.find((f) => f.id === id)?.name ?? id;
-  const schrift = (id: string) => WAND_SCHRIFTEN.find((s) => s.id === id)?.name ?? id;
+  const schrift = (id: string) => [...WAND_SCHRIFTEN, ...WAND_SCHRIFTEN_ARCHIV].find((s) => s.id === id)?.name ?? id;
   return [
     ...w.zeilen.map((z, i) => `${w.zeilen.length > 1 ? `Zeile ${i + 1}: ` : ""}„${z.text}“ · ${schrift(z.schrift)} · ${z.hoeheCm} cm · ${farbe(z.farbe)}`),
     `${w.oberflaeche === "glatt" ? "Glatt" : "Strukturiert"} · ${w.dickeMm} mm dick${w.rabattCent > 0 ? ` · ${WAND_RABATT_PROZENT} % Mengenrabatt eingerechnet` : ""}`,

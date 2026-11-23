@@ -111,3 +111,10 @@ test("Wunschtext-Filter greift (unzulässige Wörter)", () => {
   const r = ein([zeile({ text: "Hitler" })]);
   assert.equal(r.ok, false);
 });
+
+test("Nur die 6 angebotenen Schriften sind bestellbar, Maße bleiben für alle 12", () => {
+  for (const id of ["libre-baskerville", "montserrat", "great-vibes", "parisienne", "courier-prime", "playfair"]) assert.ok(ein([zeile({ schrift: id })]).ok, id);
+  const r = ein([zeile({ schrift: "cormorant" })]);
+  assert.equal(r.ok, false);
+  assert.ok(schriftHatZeichen("cormorant", "E"));
+});

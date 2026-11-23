@@ -11,6 +11,8 @@ import {
   WAND_DICKEN, WAND_DICKE_STANDARD, WAND_FARBEN, WAND_HOEHEN, WAND_NUR_REGULAR, WAND_OBERFLAECHEN, WAND_SCHREIBSCHRIFTEN, ersterGross, maxWandHoehe, nichtDruckbar, pruefeWandKonfiguration, schriftHatZeichen, wandFarbSperrId, WAND_SLUG,
 } from "@/lib/shop/wand";
 
+const WAND_ZEICHEN_ENTFERNEN = /[^\p{L}\p{N} .,!&'-]/gu;
+const WAND_ZEICHEN_FILTER = /^[\p{L}\p{N} .,!&'-]$/u; // ein erlaubtes Zeichen
 const FARBEN = WAND_FARBEN;
 const HOEHEN = WAND_HOEHEN; // cm, Höhe der Großbuchstaben (30 cm gibt es nicht: Druckbett 256 mm)
 const FOTO_CM = 150; // Annahme: der Schreibtisch im Foto ist ca. 150 cm breit
@@ -41,7 +43,7 @@ export default function WandKonfigurator({ bestellbar = false, farbenAus = [] }:
 
   const [texte, setTexte] = useState(["Willkommen", "", ""]);
   const [anzahl, setAnzahl] = useState(1); // sichtbare Textfelder (1 bis 3)
-  const zeilen = useMemo(() => texte.slice(0, anzahl).map((z) => z.replace(/[^\p{L}\p{N} .,!&'-]/gu, "").slice(0, 20)), [texte, anzahl]);
+  const zeilen = useMemo(() => texte.slice(0, anzahl).map((z) => z.replace(WAND_ZEICHEN_ENTFERNEN, "").slice(0, 20)), [texte, anzahl]);
   const leer = zeilen.every((z) => !z.trim());
   const eintraege = zeilen.map((z, i) => ({ z, i })).filter((e) => e.z.trim()); // Zeilen mit Text (Feld-Index bleibt erhalten)
   const zwei = eintraege.length > 1; // mehr als eine Zeile mit Text
@@ -50,7 +52,13 @@ export default function WandKonfigurator({ bestellbar = false, farbenAus = [] }:
   const cmWahl = [0, 1, 2].map((i) => (i === 0 ? cm : cmOv[i] ?? cm));
   const farbIds = [0, 1, 2].map((i) => (i === 0 ? farbeId : farbeOv[i] ?? farbeId));
   const farbeVon = (i: number) => FARBEN.find((f) => f.id === farbIds[i])!;
-  const gesetzt = (i: number, v: string) => setTexte((t) => t.map((x, k) => (k === i ? v.slice(0, 20) : x)));
+  const [entfernt, setEntfernt] = useState<string[]>([]); // zuletzt entfernte, nicht druckbare Zeichen
+  const gesetzt = (i: number, v: string) => {
+    const weg: string[] = [];
+    const sauber = [...v].filter((ch) => (WAND_ZEICHEN_FILTER.test(ch) ? true : (weg.push(ch), false))).join("");
+    if (weg.length) setEntfernt((alt) => [...new Set([...alt, ...weg])]);
+    setTexte((t) => t.map((x, k) => (k === i ? sauber.slice(0, 20) : x)));
+  };
   const mitSchreibweise = eintraege.some((e) => SCHREIBSCHRIFTEN.has(ids[e.i]));
   const zeilenF = zeilen.map((z, i) => (schreibweise === "erster-gross" && SCHREIBSCHRIFTEN.has(ids[i]) ? ersterGross(z) : z));
   // Größte druckbare Höhe je Zeile: jeder Buchstabe wird einzeln gedruckt und muss aufs Druckbett (256 mm) passen. 0 = Zeichen fehlt in der Schrift.
@@ -189,13 +197,16 @@ export default function WandKonfigurator({ bestellbar = false, farbenAus = [] }:
               <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", marginTop: i ? 8 : 0 }}>
                 <input
                   className="shop-input" type="text" value={texte[i]} maxLength={20} spellCheck={false} aria-label={`Zeile ${i + 1}`} placeholder={i ? `Zeile ${i + 1} (optional)` : "Dein Wort"}
-                  onChange={(e) => gesetzt(i, e.target.value)} style={{ textTransform: "none", letterSpacing: "normal", flex: 1 }}
+                  onChange={(e) => gesetzt(i, e.target.value)} onBlur={() => setEntfernt([])} style={{ textTransform: "none", letterSpacing: "normal", flex: 1 }}
                 />
                 {i > 0 && i === anzahl - 1 && (
                   <button type="button" className="shop-bk-link" aria-label={`Zeile ${i + 1} entfernen`} onClick={() => { gesetzt(i, ""); setAnzahl(i); setAktiv(0); }}>Entfernen</button>
                 )}
               </div>
             ))}
+            <p className="shop-bk-klein shop-bk-zeichenhinweis" role="status" aria-live="polite">
+              {entfernt.length > 0 && <>Diese Zeichen kann ich nicht drucken und habe sie entfernt: {entfernt.map((c) => (c === " " ? "Leerzeichen" : c)).join(" ")}. Bitte prüfe dein Wort.</>}
+            </p>
             {anzahl < 3 && (
               <button type="button" className="shop-bk-link" style={{ marginTop: 8, alignSelf: "flex-start" }} onClick={() => setAnzahl(anzahl + 1)}>+ Weitere Zeile hinzufügen</button>
             )}
@@ -313,6 +324,11 @@ export default function WandKonfigurator({ bestellbar = false, farbenAus = [] }:
               {gesperrteFarbe && <span className="shop-bk-klein">Die Farbe in Zeile {pruef?.ok ? pruef.wert.zeilen.indexOf(gesperrteFarbe) + 1 : 1} ist gerade nicht lieferbar. Bitte wähle eine andere.</span>}
             </div>
           )}
+          {bestellbar && (
+            <p className="shop-note shop-wk-recht">
+              <strong>Wichtig vor dem Kauf:</strong> Jedes Stück wird erst nach deiner Bestellung nach deinen Vorgaben für dich gedruckt. Deshalb besteht <strong>kein Widerrufsrecht</strong> (§ 312g Abs. 2 Nr. 1 BGB); gesetzliche Mängelrechte bleiben. Die Vorschau ist eine Annäherung: Farbton, Glanz, Schriftdetails und Maßstab können leicht abweichen. Breite und Höhe stehen oben, die Höhe gilt für Großbuchstaben. Prüfe Schreibweise, Schrift und Farbe genau, ein so bestellter Tippfehler ist kein Mangel.
+            </p>
+          )}
           <div className="shop-bk-summe">
             <div>
               <strong>ca. {Math.round(breiteCm)} cm breit</strong>
@@ -326,7 +342,7 @@ export default function WandKonfigurator({ bestellbar = false, farbenAus = [] }:
               {meldung.text} {meldung.ok && <Link className="shop-link" href="/3d-druck/warenkorb">Zum Warenkorb</Link>}
             </p>
           )}
-          <p className="shop-bk-klein">Die Vorschau ist eine Darstellung. Farbton, Glanz und feine Schriftdetails können beim Druck leicht abweichen. Dünne Linien (Schreibschriften, Serifen) brauchen eine Mindesthöhe, ich sage dir im Angebot, was bei deinem Wunsch geht.</p>
+          <p className="shop-bk-klein">Die Vorschau ist eine Annäherung an Farbe, Maßstab und Schriftbild. Dünne Linien (Schreibschriften, Serifen) brauchen eine Mindesthöhe, ich sage dir im Angebot, was bei deinem Wunsch geht.</p>
         </div>
       </div>
     </section>
