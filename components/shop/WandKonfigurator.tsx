@@ -6,7 +6,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { WAND_SCHRIFTEN } from "@/lib/shop/schriften-wand";
 import {
-  WAND_FARBEN, WAND_HOEHEN, WAND_NUR_REGULAR, WAND_OBERFLAECHEN, WAND_SCHREIBSCHRIFTEN, ersterGross, maxWandHoehe, nichtDruckbar, schriftHatZeichen,
+  WAND_DICKEN, WAND_DICKE_STANDARD, WAND_FARBEN, WAND_HOEHEN, WAND_NUR_REGULAR, WAND_OBERFLAECHEN, WAND_SCHREIBSCHRIFTEN, ersterGross, maxWandHoehe, nichtDruckbar, schriftHatZeichen,
 } from "@/lib/shop/wand";
 
 const FARBEN = WAND_FARBEN;
@@ -31,6 +31,7 @@ export default function WandKonfigurator() {
   const [cmOv, setCmOv] = useState<(number | null)[]>([null, null, null]); // null = wie Zeile 1
   const [aktiv, setAktiv] = useState(0);
   const [oberflaecheId, setOberflaecheId] = useState("glatt");
+  const [dicke, setDicke] = useState<number>(WAND_DICKE_STANDARD);
   const [schreibweise, setSchreibweise] = useState<"eingabe" | "erster-gross">("eingabe");
   const oberflaeche = OBERFLAECHEN.find((o) => o.id === oberflaecheId)!;
   const [farbeOv, setFarbeOv] = useState<(string | null)[]>([null, null, null]); // null = wie Zeile 1
@@ -124,7 +125,7 @@ export default function WandKonfigurator() {
   };
 
   const beschr = (i: number) => `Zeile ${eintraege.findIndex((e) => e.i === i) + 1} „${zeilenF[i].trim()}“ in ${schriftVon(i).name}, Höhe der Großbuchstaben ${cms[i]} cm, Farbe ${farbeVon(i).name}`;
-  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? eintraege.map((e) => beschr(e.i)).join("; ") : `„${(zeilenF[akt] ?? "").trim()}“ in ${schriftVon(akt).name}, Höhe der Großbuchstaben ${cms[akt]} cm, Farbe ${farbeVon(akt).name}`}, Oberfläche ${oberflaeche.name}${mitSchreibweise ? `, Schreibweise ${schreibweise === "erster-gross" ? "erster Buchstabe groß, Rest klein" : "genau wie eingegeben"}` : ""}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
+  const entwurf = `Wandbuchstaben-Entwurf aus dem Konfigurator: ${zwei ? eintraege.map((e) => beschr(e.i)).join("; ") : `„${(zeilenF[akt] ?? "").trim()}“ in ${schriftVon(akt).name}, Höhe der Großbuchstaben ${cms[akt]} cm, Farbe ${farbeVon(akt).name}`}, Oberfläche ${oberflaeche.name}, Dicke ${dicke} mm${mitSchreibweise ? `, Schreibweise ${schreibweise === "erster-gross" ? "erster Buchstabe groß, Rest klein" : "genau wie eingegeben"}` : ""}, Breite ca. ${Math.round(breiteCm)} cm. Bitte um ein Angebot.`;
   const href = `/3d-druck/anfrage?entwurf=${encodeURIComponent(entwurf)}`;
   const markierung = (s: string) => ({ ["--wk-font" as string]: s });
 
@@ -267,6 +268,16 @@ export default function WandKonfigurator() {
               ))}
             </div>
             <span className="shop-bk-klein">{oberflaeche.info}</span>
+          </fieldset>
+
+          <fieldset className="shop-bk-feld">
+            <legend>Dicke</legend>
+            <div className="shop-options">
+              {WAND_DICKEN.map((d) => (
+                <label key={d} className="shop-option"><input type="radio" name="wk-dicke" checked={dicke === d} onChange={() => setDicke(d)} /><span>{d} mm{d === WAND_DICKE_STANDARD ? " (Standard)" : ""}</span></label>
+              ))}
+            </div>
+            <span className="shop-bk-klein">{dicke === 10 ? "10 mm: besonders stabil und kräftig an der Wand." : "5 mm: dünner und günstiger, etwas weniger stabil."}</span>
           </fieldset>
 
           <div className="shop-bk-summe">

@@ -90,9 +90,21 @@ test("Zeichen, die die Schrift nicht hat, sind nicht bestellbar", () => {
   assert.ok(r.ok);
 });
 
-test("Gewicht des 8-cm-E (Libre Baskerville Bold) liegt bei ca. 13 g (Volumen 12 cm³ x 1,24 x 0,9)", () => {
-  const g = gewichtGramm("libre-baskerville", "E", 8);
-  assert.ok(g > 12 && g < 15, `Gewicht ${g}`);
+test("Gewicht des 8-cm-E (Libre Baskerville Bold, 5 mm) liegt bei 4 g wie im Testdruck", () => {
+  const g = gewichtGramm("libre-baskerville", "E", 8, 5);
+  assert.ok(g > 3.6 && g < 4.4, `Gewicht ${g}`);
+  assert.ok(Math.abs(gewichtGramm("libre-baskerville", "E", 8, 10) - 2 * g) < 0.01, "10 mm = doppelt");
+});
+
+test("Dicke: Standard 10 mm, 5 mm ist günstiger, ungültige Dicke wird abgelehnt", () => {
+  const a = ein([zeile()]);
+  assert.ok(a.ok);
+  assert.equal(a.wert.dickeMm, 10);
+  const b = ein([zeile()], { dickeMm: 5 });
+  assert.ok(b.ok);
+  assert.ok(b.wert.summeCent < a.wert.summeCent);
+  assert.equal(ein([zeile()], { dickeMm: 7 }).ok, false);
+  assert.equal(ein([zeile()], { dickeMm: "10" }).ok, false);
 });
 
 test("Wunschtext-Filter greift (unzulässige Wörter)", () => {

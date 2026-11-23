@@ -29,6 +29,16 @@ export const WAND_PREIS_CENT: Record<WandOberflaeche, Record<WandHoehe, number>>
   strukturiert: { 5: 258, 10: 498, 15: 618, 20: 738 },
 };
 
+/** Dicke der Buchstaben in mm. 10 mm ist Standard (stabiler, wie der Vergleichsshop), 5 mm ist die günstigere Variante (Alex 23.11.2026). */
+export const WAND_DICKEN = [5, 10] as const;
+export type WandDicke = (typeof WAND_DICKEN)[number];
+export const WAND_DICKE_STANDARD: WandDicke = 10;
+/** Preisfaktor für 5 mm gegenüber 10 mm. VORLÄUFIG (15 % günstiger), Alex/Karla legen den Wert fest. */
+const DUENN_FAKTOR = 0.85;
+/** Preis je Zeichen in Cent für Dicke, Oberfläche und Höhe (10 mm = Tabelle, 5 mm = Tabelle x Faktor). */
+export const wandPreisCent = (oberflaeche: WandOberflaeche, hoehe: WandHoehe, dicke: WandDicke = WAND_DICKE_STANDARD) =>
+  dicke === 10 ? WAND_PREIS_CENT[oberflaeche][hoehe] : Math.round(WAND_PREIS_CENT[oberflaeche][hoehe] * DUENN_FAKTOR);
+
 /** Mengenrabatt: ab dieser Zeichenzahl (alle Zeilen zusammen, ohne Leerzeichen) 10 % auf die Summe. */
 export const WAND_RABATT_AB_ZEICHEN = 10;
 export const WAND_RABATT_PROZENT = 10;
@@ -38,10 +48,9 @@ export const WAND_MAX_ZEICHEN_ZEILE = 20;
 
 /** Nutzbare Kantenlänge auf dem Druckbett (256 mm abzüglich Rand). */
 export const WAND_BETT_MM = 250;
-/** Dicke der Buchstaben in mm (Testbuchstabe 5 mm). */
-export const WAND_DICKE_MM = 5;
 const DICHTE_G_CM3 = 1.24; // PLA
-const FUELLFAKTOR = 0.9; // grobe Annahme (Wände + dünne Füllung), bis Alex' gewogene Werte vorliegen
+// Aus Alex' Testdruck: 8-cm-E, 5 mm dick = 4 g (Vollkörper wäre ca. 15 g). Für 10 mm gilt derselbe Faktor, bis ein 10-mm-Wert gewogen ist.
+const FUELLFAKTOR = 0.27;
 
 /** Schriften, in denen Schreibweise "Erster Buchstabe groß, Rest klein" wählbar ist (Schreibschriften). */
 export const WAND_SCHREIBSCHRIFTEN = new Set(["great-vibes", "parisienne", "dancing-script", "marck-script"]);
@@ -97,7 +106,7 @@ export function maxWandHoehe(id: string, text: string): number {
 }
 
 export interface WandZeileEingabe { text: string; schrift: string; hoeheCm: number; farbe: string }
-export interface WandEingabe { zeilen: WandZeileEingabe[]; oberflaeche: string; schreibweise?: string }
+export interface WandEingabe { zeilen: WandZeileEingabe[]; oberflaeche: string; dickeMm?: number; schreibweise?: string }
 
 export interface WandZeile {
   text: string; // endgültiger Druck-Text (Schreibweise angewandt)
@@ -111,6 +120,7 @@ export interface WandZeile {
 export interface WandErgebnis {
   zeilen: WandZeile[];
   oberflaeche: WandOberflaeche;
+  dickeMm: WandDicke;
   schreibweise: "eingabe" | "erster-gross";
   zeichen: number;
   summeCent: number; // vor Rabatt
@@ -122,13 +132,13 @@ export type WandPruefung = { ok: true; wert: WandErgebnis } | { ok: false; code:
 
 const fehler = (code: string, meldung: string): WandPruefung => ({ ok: false, code, meldung });
 
-export function gewichtGramm(id: string, text: string, hoeheCm: number): number {
+export function gewichtGramm(id: string, text: string, hoeheCm: number, dickeMm: number = WAND_DICKE_STANDARD): number {
   let mm2 = 0;
   for (const ch of text) {
     if (ch === " " || !schriftHatZeichen(id, ch)) continue;
     mm2 += MASSE[id].zeichen[ch][2] * (hoeheCm * 10) ** 2;
   }
-  return (mm2 * WAND_DICKE_MM * DICHTE_G_CM3 * FUELLFAKTOR) / 1000;
+  return (mm2 * dickeMm * DICHTE_G_CM3 * FUELLFAKTOR) / 1000;
 }
 
 /** Verbindliche Prüfung + Preis. Der Server ruft diese Funktion mit der rohen Eingabe des Kunden auf. */
@@ -138,6 +148,8 @@ export function pruefeWandKonfiguration(eingabe: unknown): WandPruefung {
   if (rohZeilen.length < 1 || rohZeilen.length > WAND_MAX_ZEILEN) return fehler("zeilen", `Bitte 1 bis ${WAND_MAX_ZEILEN} Zeilen angeben.`);
   const oberflaeche = WAND_OBERFLAECHEN.find((o) => o.id === e.oberflaeche)?.id;
   if (!oberflaeche) return fehler("oberflaeche", "Bitte eine Oberfläche wählen.");
+  const dicke = e.dickeMm === undefined ? WAND_DICKE_STANDARD : WAND_DICKEN.find((d) => d === e.dickeMm);
+  if (!dicke) return fehler("dicke", "Bitte eine Dicke aus der Liste wählen.");
   const schreibweise = e.schreibweise === "erster-gross" ? "erster-gross" : "eingabe";
 
   const zeilen: WandZeile[] = [];
@@ -164,7 +176,7 @@ export function pruefeWandKonfiguration(eingabe: unknown): WandPruefung {
       return fehler("passt-nicht", `Zeile ${nr}: „${zuGross.join("“, „")}“ passt in ${hoehe} cm nicht aufs Druckbett.${m ? ` Mit höchstens ${m} cm geht es.` : " Bitte eine kleinere Höhe oder eine andere Schrift wählen."}`);
     }
     const zeichen = [...text].filter((ch) => ch !== " ").length;
-    zeilen.push({ text, schrift, hoeheCm: hoehe, farbe, zeichen, cent: zeichen * WAND_PREIS_CENT[oberflaeche][hoehe], gewichtG: gewichtGramm(schrift, text, hoehe) });
+    zeilen.push({ text, schrift, hoeheCm: hoehe, farbe, zeichen, cent: zeichen * wandPreisCent(oberflaeche, hoehe, dicke), gewichtG: gewichtGramm(schrift, text, hoehe, dicke) });
   }
   const pruefung = pruefeWunschtext(zeilen.map((z) => z.text));
   if (!pruefung.ok) return fehler(pruefung.grund, pruefung.meldung);
@@ -173,5 +185,5 @@ export function pruefeWandKonfiguration(eingabe: unknown): WandPruefung {
   const summeCent = zeilen.reduce((s, z) => s + z.cent, 0);
   const rabattCent = zeichen >= WAND_RABATT_AB_ZEICHEN ? Math.round((summeCent * WAND_RABATT_PROZENT) / 100) : 0;
   const gewichtG = Math.round(zeilen.reduce((s, z) => s + z.gewichtG, 0) * 10) / 10;
-  return { ok: true, wert: { zeilen, oberflaeche, schreibweise, zeichen, summeCent, rabattCent, gesamtCent: summeCent - rabattCent, gewichtG } };
+  return { ok: true, wert: { zeilen, oberflaeche, dickeMm: dicke, schreibweise, zeichen, summeCent, rabattCent, gesamtCent: summeCent - rabattCent, gewichtG } };
 }
