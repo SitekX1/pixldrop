@@ -392,7 +392,7 @@ interface HtmlTeile {
   hinweisWiderruf: string; anhangListe: string[]; siteUrl?: string;
 }
 
-const TD = `font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:15px;line-height:22px;color:${FARBE.text};`;
+const TD = `font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:22px;color:${FARBE.text};`;
 
 /** HTML-Fassung der Bestellbestaetigung (gleiche Inhalte wie der Text, nur Layout). Optionen generisch aus der Position. */
 function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
@@ -415,7 +415,7 @@ function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
     + (aktionsHinweis(b) ? absatz(aktionsHinweis(b) as string, `font-size:12px;line-height:18px;color:${FARBE.gedimmt};margin:6px 0 0 0;text-align:right;`) : "");
   // Kopfzeilen in EINER Tabellenzeile, Inhalte in der naechsten: die Ueberschriften stehen damit immer auf gleicher Hoehe (Outlook setzte sie versetzt).
   const kopfZelle = (kopf: string) =>
-    `<td valign="top" width="50%" class="kopf" style="padding:0 12px 6px 0;font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:12px;line-height:16px;letter-spacing:1.4px;text-transform:uppercase;color:${FARBE.link};font-weight:bold;">${kopf}</td>`;
+    `<td valign="top" width="50%" class="kopf" style="padding:0 12px 6px 0;font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:16px;letter-spacing:1.4px;text-transform:uppercase;color:${FARBE.link};font-weight:bold;">${kopf}</td>`;
   const inhaltZelle = (inhalt: string) => `<td valign="top" width="50%" class="txt" style="padding:0 12px 0 0;">${inhalt}</td>`;
   const anschrift = absatz(`${esc(b.name)}<br>${esc(b.strasse)}<br>${esc(b.plz)} ${esc(b.ort)}`, "margin:0;");
   const zahlungLieferzeit = absatz(`${inline(t.zahlung)}<br>Lieferzeit: ${esc(t.lieferzeit)} ab heute`, "margin:0;");

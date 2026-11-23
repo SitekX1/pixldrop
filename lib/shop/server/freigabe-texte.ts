@@ -97,7 +97,7 @@ const NEIN_HINWEIS = "Absage-Mail an den Kunden, automatische PayPal-Erstattung 
 function alexFreigabeHtml(nummer: string, links: FreigabeLinks, art: "neu" | "erinnerung", positionen: KurzPosition[], frist: string | null): string {
   const zeilen = wunschtextDetails(positionen).map((d) => {
     const det = d.details.map((x) => `<span class="gedimmt" style="color:${FARBE.gedimmt};">${esc(x.label)}:</span> ${esc(x.wert)}`).join("<br>");
-    return `<tr><td class="zelle" valign="top" style="padding:12px 0;border-top:1px solid ${FARBE.linie};font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:${FARBE.text};">` +
+    return `<tr><td class="zelle" valign="top" style="padding:12px 0;border-top:1px solid ${FARBE.linie};font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:${FARBE.text};">` +
       `<div class="txt" style="font-weight:bold;">${d.menge} × ${esc(d.name)}</div>` +
       `<div class="hl" style="margin:6px 0;padding:8px 12px;background:${FARBE.tint};color:${FARBE.tinte};font-size:16px;line-height:23px;font-weight:bold;border-radius:6px;">${mehrzeilig(kuerze(d.text, 160))}</div>` +
       `<div class="txt" style="font-size:13px;line-height:20px;">${det}</div></td></tr>`;

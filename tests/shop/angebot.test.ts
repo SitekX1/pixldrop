@@ -69,7 +69,7 @@ test("Senden: DB bekommt nur den Hash, die Mail den Klartext-Link; Status wird g
   }
   assert.ok(m.text.includes("kein gesetzliches Widerrufsrecht"));
   // Dunkelmodus: Knopf-Text darf nicht die Linkfarbe (Honig) auf Honig-Grund bekommen
-  assert.ok(m.html!.includes('class="knopf-hell"') && m.html!.includes("a.knopf-hell{color:#2e1c0f!important}"));
+  assert.ok(m.html!.includes('class="knopf-ink"') && m.html!.includes("a.knopf-ink{color:#161513!important}"));
 });
 
 test("Senden: Mailfehler entwertet den Link und meldet 502; ungueltige Eingaben und fehlender Versand rufen die DB nicht", async () => {

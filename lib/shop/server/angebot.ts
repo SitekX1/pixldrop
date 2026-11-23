@@ -119,7 +119,7 @@ export function angebotsMail(d: AngebotMailDaten, link: string, siteUrl?: string
     "Alex (PixlDrop 3D-Druck)",
   ].join("\n");
 
-  const zelle = "font-family:'Segoe UI',Helvetica,Arial,sans-serif;border-bottom:1px solid " + FARBE.linie + ";";
+  const zelle = "font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;border-bottom:1px solid " + FARBE.linie + ";";
   const tabelle =
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px 0;border-top:1px solid ${FARBE.linie};">` +
     zeilen
@@ -134,14 +134,14 @@ export function angebotsMail(d: AngebotMailDaten, link: string, siteUrl?: string
     `</table>`;
   const anfrageBox =
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 14px 0;"><tr>` +
-    `<td class="txt" style="border-left:3px solid ${FARBE.linie};padding:4px 0 4px 14px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:${FARBE.gedimmt};">${esc(d.beschreibung).replace(/\r\n|\r|\n/g, "<br>")}${d.farbe ? `<br><br>Wunschfarbe: ${esc(d.farbe)}` : ""}</td></tr></table>`;
-  // Annahme-Button: gross, volle Breite auf dem Handy (class="knopf-hell": dunkle Schrift auf Honig-Knopf, auch im Dunkelmodus (sonst greift a{color:honig} und der Text ist unsichtbar)).
+    `<td class="txt" style="border-left:3px solid ${FARBE.linie};padding:4px 0 4px 14px;font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:21px;color:${FARBE.gedimmt};">${esc(d.beschreibung).replace(/\r\n|\r|\n/g, "<br>")}${d.farbe ? `<br><br>Wunschfarbe: ${esc(d.farbe)}` : ""}</td></tr></table>`;
+  // Annahme-Button: gross, volle Breite auf dem Handy (class="knopf-ink": dunkle Schrift auf Honig-Knopf, auch im Dunkelmodus (sonst greift a{color:honig} und der Text ist unsichtbar)).
   const knopf =
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 8px 0;"><tr>` +
-    `<td align="center" bgcolor="${FARBE.honig}" style="background:${FARBE.honig};border-radius:12px;border:2px solid ${FARBE.tinte};padding:16px 20px;">` +
-    `<a class="knopf-hell" href="${esc(link)}" style="display:block;font-family:'Trebuchet MS','Segoe UI',Helvetica,Arial,sans-serif;font-size:17px;line-height:24px;font-weight:bold;color:${FARBE.tinte};text-decoration:none;">Angebot ansehen und annehmen</a>` +
+    `<td align="center" class="knopf-ink" bgcolor="${FARBE.tinte}" style="background:${FARBE.tinte};border-radius:12px;padding:16px 20px;">` +
+    `<a class="knopf-ink" href="${esc(link)}" style="display:block;font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:17px;line-height:24px;font-weight:bold;color:#ffffff;text-decoration:none;">Angebot ansehen und annehmen</a>` +
     `</td></tr></table>` +
-    `<p class="gedimmt" style="margin:0 0 6px 0;text-align:center;font-family:'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;line-height:19px;color:${FARBE.gedimmt};"><strong>Gültig bis ${esc(bis)}</strong> · danach läuft der Link ab</p>` +
+    `<p class="gedimmt" style="margin:0 0 6px 0;text-align:center;font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:19px;color:${FARBE.gedimmt};"><strong>Gültig bis ${esc(bis)}</strong> · danach läuft der Link ab</p>` +
     absatz(`Falls der Knopf nicht funktioniert: <a href="${esc(link)}" style="color:${FARBE.link};text-decoration:underline;word-break:break-all;">${esc(link)}</a>`, "font-size:12px;line-height:18px;text-align:center;margin-top:10px;");
   const inhalt = [
     absatz(`Hallo ${esc(d.name)},`),

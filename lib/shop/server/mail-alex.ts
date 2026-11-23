@@ -1,9 +1,7 @@
 // HTML-Bausteine fuer die internen Mails AN ALEX (gleicher Rahmen wie die Kundenmails, aber ohne Kontaktkachel).
 // Inhalte und Datenschutz-Regeln bleiben wie im Klartext: es kommen keine neuen Daten hinzu. Alles Eingegebene wird escaped.
-import { FARBE, absatz, esc, hinweisBox, mailRahmen } from "./mail-layout";
+import { FARBE, SCHRIFT_KOPF, SCHRIFT_TEXT, absatz, esc, hinweisBox, mailRahmen } from "./mail-layout";
 
-const SCHRIFT_TEXT = "'Segoe UI',Helvetica,Arial,sans-serif";
-const SCHRIFT_KOPF = "'Trebuchet MS','Segoe UI',Helvetica,Arial,sans-serif";
 
 export const GRUEN = "#2e7d32";
 export const ROT = "#b3261e";
@@ -15,8 +13,8 @@ export const mehrzeilig = (s: string): string => esc(s).replace(/\r\n|\r|\n/g, "
 export function knopf(url: string, label: string, bg: string): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:10px 0 0 0;"><tr>` +
     // Polster auf der Zelle (nicht am Link): Outlook ignoriert Polster an <a>, dann wird die Schrift unten abgeschnitten.
-    `<td align="center" bgcolor="${bg}" style="background:${bg};border-radius:12px;padding:16px 20px;">` +
-    `<a class="knopf" href="${esc(url)}" style="display:block;font-family:${SCHRIFT_KOPF};font-size:17px;line-height:24px;font-weight:bold;color:#ffffff;text-decoration:none;">${esc(label)}</a>` +
+    `<td align="center"${bg === FARBE.link ? ' class="knopf-ink"' : ""} bgcolor="${bg}" style="background:${bg};border-radius:12px;padding:16px 20px;">` +
+    `<a class="${bg === FARBE.link ? "knopf-ink" : "knopf"}" href="${esc(url)}" style="display:block;font-family:${SCHRIFT_KOPF};font-size:17px;line-height:24px;font-weight:bold;color:#ffffff;text-decoration:none;">${esc(label)}</a>` +
     `</td></tr></table>`;
 }
 

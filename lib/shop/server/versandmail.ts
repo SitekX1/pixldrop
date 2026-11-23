@@ -13,7 +13,8 @@ import type { Benachrichtiger } from "./benachrichtigung";
 import type { Antwort } from "./bestellung";
 import { ereignis } from "./bestaetigung";
 import { KONTAKT_ALEX } from "./vorlagen";
-import { absatz, esc, hinweisBox, mailRahmen } from "./mail-layout";
+import { absatz, esc, FARBE, mailRahmen, SCHRIFT_TEXT } from "./mail-layout";
+import { knopf } from "./mail-alex";
 import { VERSANDART_NAME, istVersandArt } from "../versand";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -110,10 +111,17 @@ export function versandMail(b: VersandMailDaten, siteUrl: string): { betreff: st
     `Verkäufer: ${KONTAKT_ALEX} (Impressum: ${site}/impressum)`,
   ].join("\n");
 
-  const trackingBox = !brief && nr
-    ? hinweisBox(`<strong>Sendungsnummer</strong><br><span style="font-size:17px;letter-spacing:.5px;">${esc(nr)}</span>` +
-        (link ? `<br><a href="${esc(link)}" style="text-decoration:underline;">Sendung verfolgen${dienst ? ` bei ${esc(dienst)}` : ""}</a>` : ""))
-    : "";
+  // Sendungskarte: Versandart + Sendungsnummer (gross, markierbar) + Button "Sendung verfolgen". Brief: nur Hinweis, keine Nummer.
+  const zeile = (label: string, wert: string) =>
+    `<tr><td class="gedimmt" valign="top" style="padding:3px 12px 3px 0;font-family:${SCHRIFT_TEXT};font-size:13px;line-height:19px;color:${FARBE.gedimmt};width:38%;">${label}</td><td class="txt" valign="top" style="padding:3px 0;font-family:${SCHRIFT_TEXT};font-size:15px;line-height:22px;color:${FARBE.text};">${wert}</td></tr>`;
+  const karte = (inner: string) =>
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="kachel" style="margin:18px 0 6px 0;background:${FARBE.tint};border-radius:12px;"><tr><td style="padding:18px 20px;">${inner}</td></tr></table>`;
+  const trackingBox = brief
+    ? karte(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${zeile("Versandart", "Brief (Deutsche Post)")}${zeile("Sendungsnummer", "keine (Brief ohne Sendungsverfolgung)")}</table>`)
+    : nr
+      ? karte(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${dienst ? zeile("Versandart", esc(dienst)) : ""}${zeile("Sendungsnummer", `<strong style="font-size:17px;letter-spacing:.5px;word-break:break-all;">${esc(nr)}</strong>`)}</table>`) +
+        (link ? knopf(link, `Sendung verfolgen${dienst ? ` bei ${dienst}` : ""}`, FARBE.link) : "")
+      : "";
   const inhalt = [
     absatz(`Hallo ${esc(b.name)},`),
     absatz(`gute Nachrichten: Deine Bestellung <strong>${esc(b.nummer)}</strong> ist unterwegs zu dir. ${esc(versandSatz)}`),
