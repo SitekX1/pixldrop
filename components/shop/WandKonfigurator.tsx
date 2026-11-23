@@ -159,19 +159,13 @@ export default function WandKonfigurator({ bestellbar = false, farbenAus = [] }:
         <p className="shop-bk-sub">Tipp dein Wort ein, wähle Schrift, Farbe und Höhe. Die Vorschau zeigt die Buchstaben maßstäblich an einer Wand. {bestellbar ? "Den Preis siehst du sofort, jeder Buchstabe wird einzeln für dich gedruckt." : "Bestellen geht noch nicht: Du kannst deinen Entwurf als Anfrage an mich schicken und bekommst ein Angebot per E-Mail."}</p>
       </div>
 
-      <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: "absolute" }}>
-        <filter id="wk-fuzzy" x="-2%" y="-5%" width="104%" height="110%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
       <div className="shop-bk-raster">
         <div className="shop-bk-wand" role="img" aria-label={`Vorschau: ${anzeige.map((a) => a.z).join(" ")} in ${[...new Set(anzeige.map((a) => WAND_SCHRIFTEN.find((s) => s.id === ids[a.i])!.name))].join(" und ")}`}>
           <div ref={bildRef} className="shop-bk-bild shop-wk-bild">
             <div className="shop-wk-text-feld">
               <div
                 ref={textRef} className="shop-wk-text"
-                style={{ ...(oberflaecheId === "strukturiert" ? { filter: "url(#wk-fuzzy)" } : {}), ...markierung(schrift.family) }}
+                style={markierung(schrift.family)}
               >
                 {anzeige.map(({ z, i }) => (
                   <div
@@ -293,6 +287,16 @@ export default function WandKonfigurator({ bestellbar = false, farbenAus = [] }:
               ))}
             </div>
             <span className="shop-bk-klein">{oberflaeche.info}</span>
+            <span className="shop-bk-klein">Die Vorschau zeigt die Oberfläche nicht; sie sieht im Bild unten so aus.</span>
+            <details style={{ marginTop: 8 }}>
+              <summary style={{ cursor: "pointer", minHeight: 44, display: "flex", alignItems: "center" }}>Oberflächen ansehen</summary>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/shop/inspiration/oberflaechen.webp" width={1254} height={1254} loading="lazy"
+                alt="Vergleich der Oberflächen Strukturiert, Glatt und Carbon-Optik an einem Buchstaben"
+                style={{ display: "block", width: "100%", maxWidth: 420, height: "auto", margin: "8px auto 0", borderRadius: 12 }}
+              />
+            </details>
           </fieldset>
 
           <fieldset className="shop-bk-feld">

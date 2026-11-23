@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  gewichtGramm, maxWandHoehe, nichtDruckbar, passtAufsBett, pruefeWandKonfiguration, schriftHatZeichen, WAND_HOEHEN, WAND_PREIS_CENT,
+  gewichtGramm, maxWandHoehe, nichtDruckbar, passtAufsBett, pruefeWandKonfiguration, schriftHatZeichen, wandAnzeige, WAND_HOEHEN, WAND_PREIS_CENT,
 } from "@/lib/shop/wand";
 
 const zeile = (extra: Record<string, unknown> = {}) => ({ text: "Emil", schrift: "libre-baskerville", hoeheCm: 10, farbe: "schwarz", ...extra });
@@ -117,4 +117,12 @@ test("Nur die 6 angebotenen Schriften sind bestellbar, Maße bleiben für alle 1
   const r = ein([zeile({ schrift: "cormorant" })]);
   assert.equal(r.ok, false);
   assert.ok(schriftHatZeichen("cormorant", "E"));
+});
+
+test("Carbon-Optik kostet wie Strukturiert, Anzeige und ungültige Oberfläche", () => {
+  for (const h of WAND_HOEHEN) assert.equal(WAND_PREIS_CENT.carbon[h], WAND_PREIS_CENT.strukturiert[h], `Höhe ${h}`);
+  const r = ein([zeile()], { oberflaeche: "carbon" });
+  assert.ok(r.ok);
+  assert.ok(wandAnzeige(JSON.stringify({ zeilen: [zeile()], oberflaeche: "carbon" })).join(" ").includes("Carbon-Optik"));
+  assert.equal(ein([zeile()], { oberflaeche: "carbon-x" }).ok, false);
 });

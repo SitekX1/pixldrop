@@ -155,7 +155,7 @@ export function berechneWarenkorb(eingabe: unknown, ctx: Kontext, versandart?: u
       const gesperrt = w.wert.zeilen.find((z) => ctx.farbenAus?.includes(wandFarbSperrId(z.farbe)));
       if (gesperrt) return fehler("farbe_ungueltig", `Die Farbe „${WAND_FARBEN.find((f) => f.id === gesperrt.farbe)!.name}“ ist gerade nicht lieferbar. Bitte wähle eine andere.`);
       const preise = wandZeilenPreise(w.wert);
-      const ober = w.wert.oberflaeche === "glatt" ? "Glatt" : "Strukturiert";
+      const ober = w.wert.oberflaeche === "glatt" ? "Glatt" : w.wert.oberflaeche === "carbon" ? "Carbon-Optik" : "Strukturiert";
       w.wert.zeilen.forEach((z, zi) => {
         const f = WAND_FARBEN.find((x) => x.id === z.farbe)!;
         const o: Record<string, string> = { "Höhe": `${z.hoeheCm} cm`, "Oberfläche": ober, "Dicke": `${w.wert.dickeMm} mm` };

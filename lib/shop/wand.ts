@@ -10,8 +10,9 @@ export const WAND_HOEHEN = [5, 10, 15, 20] as const;
 export type WandHoehe = (typeof WAND_HOEHEN)[number];
 
 export const WAND_OBERFLAECHEN = [
-  { id: "glatt", name: "Glatt", info: "Die sichtbare Seite ist geglättet (Ironing): gleichmäßig glatt, feine Schichtlinien sind je nach Licht kaum zu sehen." },
   { id: "strukturiert", name: "Strukturiert", info: "Die sichtbare Seite hat die feine, matte Struktur der Druckplatte. Sie kaschiert Schichtlinien und Fingerabdrücke." },
+  { id: "glatt", name: "Glatt", info: "Die sichtbare Seite ist geglättet (Ironing): gleichmäßig glatt, feine Schichtlinien sind je nach Licht kaum zu sehen." },
+  { id: "carbon", name: "Carbon-Optik", info: "Die sichtbare Seite hat eine feine Carbon-Struktur: sportlich, technisch, matt. Sie kaschiert Schichtlinien und Fingerabdrücke." },
 ] as const;
 export type WandOberflaeche = (typeof WAND_OBERFLAECHEN)[number]["id"];
 
@@ -25,6 +26,8 @@ export const WAND_FARBEN = [
 export const WAND_PREIS_CENT: Record<WandOberflaeche, Record<WandHoehe, number>> = {
   glatt: { 5: 378, 10: 612, 15: 732, 20: 852 },
   strukturiert: { 5: 258, 10: 498, 15: 618, 20: 738 },
+  /** VORLÄUFIG: Carbon-Optik kostet wie Strukturiert, Preis noch nicht final (Alex 23.11.2026). */
+  carbon: { 5: 258, 10: 498, 15: 618, 20: 738 },
 };
 
 /** Dicke der Buchstaben in mm. 10 mm ist Standard (stabiler, wie der Vergleichsshop), 5 mm ist die günstigere Variante (Alex 23.11.2026). */
@@ -232,6 +235,6 @@ export function wandAnzeige(v: unknown): string[] {
   const schrift = (id: string) => [...WAND_SCHRIFTEN, ...WAND_SCHRIFTEN_ARCHIV].find((s) => s.id === id)?.name ?? id;
   return [
     ...w.zeilen.map((z, i) => `${w.zeilen.length > 1 ? `Zeile ${i + 1}: ` : ""}„${z.text}“ · ${schrift(z.schrift)} · ${z.hoeheCm} cm · ${farbe(z.farbe)}`),
-    `${w.oberflaeche === "glatt" ? "Glatt" : "Strukturiert"} · ${w.dickeMm} mm dick${w.rabattCent > 0 ? ` · ${WAND_RABATT_PROZENT} % Mengenrabatt eingerechnet` : ""}`,
+    `${WAND_OBERFLAECHEN.find((o) => o.id === w.oberflaeche)?.name ?? w.oberflaeche} · ${w.dickeMm} mm dick${w.rabattCent > 0 ? ` · ${WAND_RABATT_PROZENT} % Mengenrabatt eingerechnet` : ""}`,
   ];
 }
