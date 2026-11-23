@@ -68,17 +68,17 @@ test("Schreibweise 'erster Buchstabe groß' gilt nur für Schreibschriften", () 
   assert.equal(k.wert.zeilen[0].text, "EMILIA");
 });
 
-test("Passt-aufs-Druckbett: ein W in 24 cm Libre Baskerville passt nicht, in 10 cm schon", () => {
-  assert.equal(passtAufsBett("libre-baskerville", "W", 24), false);
+test("Passt-aufs-Druckbett: ein W in 20 cm Libre Baskerville passt nicht, in 10 cm schon", () => {
+  assert.equal(passtAufsBett("libre-baskerville", "W", 20), false);
   assert.equal(passtAufsBett("libre-baskerville", "W", 10), true);
-  assert.equal(passtAufsBett("libre-baskerville", "I", 24), true);
-  assert.equal(passtAufsBett("libre-baskerville", "H", 24), false, "ein 24-cm-H ist breiter als das Druckbett");
-  assert.deepEqual(nichtDruckbar("libre-baskerville", "IE W", 24), ["W"]);
-  const r = ein([zeile({ text: "Wand", hoeheCm: 24 })]);
+  assert.equal(passtAufsBett("libre-baskerville", "I", 20), true);
+  assert.equal(passtAufsBett("libre-baskerville", "H", 20), true, "ein 20-cm-H passt");
+  assert.deepEqual(nichtDruckbar("libre-baskerville", "IE W", 20), ["W"]);
+  const r = ein([zeile({ text: "Wand", hoeheCm: 20 })]);
   assert.equal(r.ok, false);
-  assert.match(!r.ok ? r.meldung : "", /passt in 24 cm nicht aufs Druckbett/);
+  assert.match(!r.ok ? r.meldung : "", /passt in 20 cm nicht aufs Druckbett/);
   assert.equal(maxWandHoehe("libre-baskerville", "Wand"), 15);
-  assert.equal(maxWandHoehe("libre-baskerville", "IE"), 24);
+  assert.equal(maxWandHoehe("libre-baskerville", "IE"), 20);
   assert.ok(maxWandHoehe("great-vibes", "Kai") < 20, "große Schnörkel-Großbuchstaben brauchen mehr Platz");
 });
 

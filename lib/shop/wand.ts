@@ -4,13 +4,13 @@
 import masse from "./schrift-masse";
 import { pruefeWunschtext } from "./textfilter";
 
-/** Höhe der Großbuchstaben in cm. 30 cm gibt es nicht (Druckbett des P1S 256 mm). */
-export const WAND_HOEHEN = [5, 10, 15, 20, 24] as const;
+/** Höhe der Großbuchstaben in cm. 24 und 30 cm gibt es nicht (Druckbett des P1S 256 mm, Alex 23.11.2026). */
+export const WAND_HOEHEN = [5, 10, 15, 20] as const;
 export type WandHoehe = (typeof WAND_HOEHEN)[number];
 
 export const WAND_OBERFLAECHEN = [
-  { id: "glatt", name: "Glatt", info: "Klassisch glatt, feine Schichtlinien sind je nach Licht sichtbar." },
-  { id: "strukturiert", name: "Strukturiert", info: "Fuzzy Skin: fein raue, matte Oberfläche, die Schichtlinien und Fingerabdrücke kaschiert." },
+  { id: "glatt", name: "Glatt", info: "Die sichtbare Seite ist geglättet (Ironing): gleichmäßig glatt, feine Schichtlinien sind je nach Licht kaum zu sehen." },
+  { id: "strukturiert", name: "Strukturiert", info: "Die sichtbare Seite hat die feine, matte Struktur der Druckplatte. Sie kaschiert Schichtlinien und Fingerabdrücke." },
 ] as const;
 export type WandOberflaeche = (typeof WAND_OBERFLAECHEN)[number]["id"];
 
@@ -23,10 +23,10 @@ export const WAND_FARBEN = [
   { id: "olivgruen", name: "Olivgrün", hex: "#5a6d3d" },
 ] as const;
 
-/** Preis je Zeichen in Cent (Vergleichspreise Etsy, Alex 23.11.2026; 24 cm strukturiert bewusst 0,90 € unter Glatt). */
+/** Preis je Zeichen in Cent (Vergleichspreise Etsy, Alex 23.11.2026; ACHTUNG: dort waren 25 % Rabatt aktiv, endgültige Preise noch offen). */
 export const WAND_PREIS_CENT: Record<WandOberflaeche, Record<WandHoehe, number>> = {
-  glatt: { 5: 283, 10: 459, 15: 549, 20: 639, 24: 729 },
-  strukturiert: { 5: 193, 10: 373, 15: 463, 20: 553, 24: 639 },
+  glatt: { 5: 283, 10: 459, 15: 549, 20: 639 },
+  strukturiert: { 5: 193, 10: 373, 15: 463, 20: 553 },
 };
 
 /** Mengenrabatt: ab dieser Zeichenzahl (alle Zeilen zusammen, ohne Leerzeichen) 10 % auf die Summe. */

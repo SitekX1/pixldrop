@@ -242,7 +242,7 @@ export default function WandKonfigurator() {
               const g = grenzen[akt];
               const naechste = HOEHEN.find((h) => h > g);
               if (!naechste || !(zeilenF[akt] ?? "").trim()) return null;
-              return <span className="shop-bk-klein">Bis {g} cm möglich. Bei {naechste} cm passt „{nichtDruckbar(aktId, zeilenF[akt], naechste).join("“, „")}“ nicht mehr aufs Druckbett (256 mm), denn jeder Buchstabe wird in einem Stück gedruckt. Mit einer anderen Schrift oder einem anderen Wort geht oft mehr.</span>;
+              return <span className="shop-bk-klein">Bis {g} cm möglich. Bei {naechste} cm passt „{nichtDruckbar(aktId, zeilenF[akt], naechste).join("“, „")}“ nicht mehr aufs Druckbett (256 mm), denn jeder Buchstabe wird in einem Stück gedruckt. Mit einer anderen Schrift oder einem anderen Wort geht oft mehr, oder du schickst mir unten eine Anfrage, dann finden wir eine Lösung.</span>;
             })()}
           </fieldset>
 
@@ -274,7 +274,7 @@ export default function WandKonfigurator() {
               <strong>ca. {Math.round(breiteCm)} cm breit</strong>
               <span>Preis nach Angebot, unverbindlich</span>
             </div>
-            <Link className="shop-btn" href={href} aria-disabled={leer || undefined}>Entwurf anfragen</Link>
+            <Link className="shop-btn" href={href} aria-disabled={leer || undefined}>Anfrage senden</Link>
           </div>
           <p className="shop-bk-klein">Die Vorschau ist eine Darstellung. Farbton, Glanz und feine Schriftdetails können beim Druck leicht abweichen. Dünne Linien (Schreibschriften, Serifen) brauchen eine Mindesthöhe, ich sage dir im Angebot, was bei deinem Wunsch geht.</p>
         </div>
