@@ -236,7 +236,8 @@ export function erzeugePayPal(cfg: PayPalConfig, fetchImpl: FetchFn = fetch): Pa
           {
             reference_id: e.nummer,
             custom_id: e.nummer,
-            invoice_id: e.nummer,
+            // Sandbox: Testkonto lehnt wiederverwendete Rechnungsnummern ab (DUPLICATE_INVOICE_ID); live bleibt es die Bestellnummer.
+            invoice_id: cfg.env === "live" ? e.nummer : `${e.nummer}-T${e.requestId.slice(-6)}`,
             description: `PixlDrop 3D-Druck, Bestellung ${e.nummer}`.slice(0, 127),
             amount: {
               currency_code: "EUR",
