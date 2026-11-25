@@ -67,13 +67,13 @@ test("Wand-Versand: immer Paket, nie Brief; mehr Buchstaben und Größe kosten n
   assert.deepEqual(opt.map((o) => o.art), ["hermes", "dhl"]);
 });
 
-test("Wand-Warenkorb: im Live-Shop nicht sichtbar, solange Entwurf (VERCEL_ENV=production)", async () => {
+test("Wand-Warenkorb: seit Livegang (25.11.2026) im Live-Shop sichtbar und bestellbar", async () => {
   const { sichtbareProdukte, istBestellbar } = await import("@/lib/shop/produkte");
   const alt = process.env.VERCEL_ENV;
   process.env.VERCEL_ENV = "production";
   try {
-    assert.ok(!sichtbareProdukte().some((p) => p.slug === "wandbuchstaben"));
-    assert.equal(istBestellbar(PRODUKTE.find((p) => p.slug === "wandbuchstaben")!), false);
+    assert.ok(sichtbareProdukte().some((p) => p.slug === "wandbuchstaben"));
+    assert.equal(istBestellbar(PRODUKTE.find((p) => p.slug === "wandbuchstaben")!), true);
   } finally { if (alt === undefined) delete process.env.VERCEL_ENV; else process.env.VERCEL_ENV = alt; }
 });
 
