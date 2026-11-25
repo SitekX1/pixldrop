@@ -188,6 +188,15 @@ export interface MailBestellung {
   anfrage_id?: string | null;
 }
 
+/** Zusatzzeilen einer Position (Farbe, Optionen, Wunschtext): gleiche Quelle fuer Kundenbestaetigung (Text + HTML) und Mail an Alex. */
+export function positionsZusatz(p: MailPosition): string[] {
+  return [
+    p.farbe && !(p.optionen && "Farbkombination" in p.optionen) ? `Farbe: ${p.farbe}` : null,
+    ...Object.entries(p.optionen ?? {}).map(([k, v]) => `${k}: ${v}`),
+    wunschtextZeile(p),
+  ].filter((x): x is string => Boolean(x));
+}
+
 /** "Versand (Deutschland, Hermes)"; ohne bekannte Versandart (Altbestellung) wie bisher "Versand (Deutschland)". */
 function versandZeile(b: { versandart?: string | null }): string {
   const name = b.versandart && istVersandArt(b.versandart) ? VERSANDART_NAME[b.versandart] : null;
@@ -280,11 +289,7 @@ export function bestaetigungsMail(
   const mitStandardware = b.individuell && enthaeltStandardware(b);
   const block = blockOverride ?? pflichtangabenText(b.individuell, opt.siteUrl, mitStandardware);
   const zeilen = b.positionen.map((p) => {
-    const extras = [
-      p.farbe && !(p.optionen && "Farbkombination" in p.optionen) ? `Farbe: ${p.farbe}` : null,
-      ...Object.entries(p.optionen ?? {}).map(([k, v]) => `${k}: ${v}`),
-      wunschtextZeile(p),
-    ].filter(Boolean);
+    const extras = positionsZusatz(p);
     return `- ${p.menge} x ${p.name} à ${eur(p.einzelpreis_cent)}${extras.length ? `\n    ${extras.join(", ")}` : ""}`;
   });
   const agbText = opt.agbText ?? AGB_TEXT;
@@ -397,11 +402,7 @@ const TD = `font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sa
 /** HTML-Fassung der Bestellbestaetigung (gleiche Inhalte wie der Text, nur Layout). Optionen generisch aus der Position. */
 function bestaetigungsHtml(b: MailBestellung, t: HtmlTeile): string {
   const zeilen = b.positionen.map((p) => {
-    const extras = [
-      p.farbe && !(p.optionen && "Farbkombination" in p.optionen) ? `Farbe: ${p.farbe}` : null,
-      ...Object.entries(p.optionen ?? {}).map(([k, v]) => `${k}: ${v}`),
-      wunschtextZeile(p),
-    ].filter((x): x is string => Boolean(x));
+    const extras = positionsZusatz(p);
     const sub = extras.map((e) => `<div class="gedimmt" style="font-size:13px;line-height:19px;color:${FARBE.gedimmt};padding-left:14px;">${esc(e)}</div>`).join("");
     const einzel = p.menge > 1 ? `<div class="gedimmt" style="font-size:12px;line-height:18px;color:${FARBE.gedimmt};">${p.menge} × ${esc(eur(p.einzelpreis_cent))}</div>` : "";
     return `<tr><td class="txt linie" valign="top" style="${TD}padding:10px 8px 10px 0;border-bottom:1px solid ${FARBE.linie};"><strong>${p.menge > 1 ? `${p.menge} × ` : ""}${esc(p.name)}</strong>${sub}</td>` +
@@ -510,12 +511,42 @@ export const telegramPruefen = (nummer: string, grund: string) => `Zahlung prüf
 export const telegramWiderruf = (nummer: string, passt: boolean) =>
   `Neuer Widerruf ${nummer} (Zuordnung: ${passt ? "passt" : "bitte prüfen"}). ${TELEGRAM_HINWEIS}`;
 
-export function alexMail(art: "Bestellung" | "Anfrage", nummer: string, adminUrl?: string): { betreff: string; text: string; html: string } {
+export function alexMail(
+  art: "Bestellung" | "Anfrage",
+  nummer: string,
+  adminUrl?: string,
+  /** Nur Bestellung: Positionen/Preise/Versand fuer die Uebersicht (keine Kundenanschrift, kein Name, keine E-Mail). */
+  bestellung?: Pick<MailBestellung, "positionen" | "summe_waren_cent" | "versand_cent" | "versandart" | "gesamt_cent"> | null,
+): { betreff: string; text: string; html: string } {
+  const uebersicht = bestellung && art === "Bestellung" && bestellung.positionen.length
+    ? {
+        positionen: bestellung.positionen.map((p) => ({
+          name: p.name, menge: p.menge, einzel: eur(p.einzelpreis_cent), gesamt: eur(p.menge * p.einzelpreis_cent), zusatz: positionsZusatz(p),
+        })),
+        zwischensumme: eur(bestellung.summe_waren_cent),
+        versandLabel: versandZeile(bestellung),
+        versand: eur(bestellung.versand_cent),
+        gesamt: eur(bestellung.gesamt_cent),
+      }
+    : null;
+  const posText = uebersicht
+    ? [
+        "",
+        "Positionen:",
+        ...uebersicht.positionen.map((p) => `- ${p.menge} x ${p.name} à ${p.einzel} = ${p.gesamt}${p.zusatz.length ? `
+    ${p.zusatz.join(", ")}` : ""}`),
+        "",
+        `Zwischensumme: ${uebersicht.zwischensumme}`,
+        `${uebersicht.versandLabel}: ${uebersicht.versand}`,
+        `Gesamtpreis: ${uebersicht.gesamt}`,
+      ]
+    : [];
   return {
     betreff: `Neue ${art} ${nummer}`,
-    html: htmlNeueBestellungOderAnfrage(art, nummer, adminUrl),
+    html: htmlNeueBestellungOderAnfrage(art, nummer, adminUrl, uebersicht),
     text: [
       `Neue ${art === "Bestellung" ? "bezahlte Bestellung" : "Anfrage"}: ${nummer}`,
+      ...posText,
       "",
       adminUrl
         ? `Details im Admin Panel: ${adminUrl}`

@@ -64,12 +64,36 @@ export function alexMailHtml(o: AlexMailOpt): string {
 // ---------------------------------------------------------------------------
 const DATENSCHUTZ = "Aus Datenschutzgründen stehen hier keine Kundendaten.";
 
-export function htmlNeueBestellungOderAnfrage(art: "Bestellung" | "Anfrage", nummer: string, adminUrl?: string): string {
+export interface BestellUebersicht {
+  positionen: { name: string; menge: number; einzel: string; gesamt: string; zusatz: string[] }[];
+  zwischensumme: string;
+  versandLabel: string;
+  versand: string;
+  gesamt: string;
+}
+
+/** Positionen + Summen (gleiche Darstellung wie in der Kundenbestaetigung, schmal fuer 390 px). Alles Eingegebene wird escaped. */
+function uebersichtHtml(u: BestellUebersicht): string {
+  const TD = `font-family:${SCHRIFT_TEXT};font-size:15px;line-height:22px;color:${FARBE.text};`;
+  const zeilen = u.positionen.map((p) => {
+    const sub = p.zusatz.map((e) => `<div class="gedimmt" style="font-size:13px;line-height:19px;color:${FARBE.gedimmt};padding-left:14px;">${mehrzeilig(e)}</div>`).join("");
+    const einzel = p.menge > 1 ? `<div class="gedimmt" style="font-size:12px;line-height:18px;color:${FARBE.gedimmt};">${p.menge} × ${esc(p.einzel)}</div>` : "";
+    return `<tr><td class="txt linie" valign="top" style="${TD}padding:10px 8px 10px 0;border-bottom:1px solid ${FARBE.linie};"><strong>${p.menge > 1 ? `${p.menge} × ` : ""}${esc(p.name)}</strong>${sub}</td>` +
+      `<td class="txt linie" valign="top" align="right" style="${TD}padding:10px 0;border-bottom:1px solid ${FARBE.linie};white-space:nowrap;">${esc(p.gesamt)}${einzel}</td></tr>`;
+  }).join("");
+  const summe = (label: string, wert: string, fett = false) =>
+    `<tr><td class="txt" align="right" style="${TD}padding:3px 8px 3px 0;${fett ? "font-weight:bold;font-size:17px;padding-top:8px;" : ""}">${esc(label)}</td><td class="txt" align="right" width="100" style="${TD}padding:3px 0;white-space:nowrap;${fett ? "font-weight:bold;font-size:17px;padding-top:8px;" : ""}">${esc(wert)}</td></tr>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${zeilen}</table>` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 16px 0;">${summe("Zwischensumme", u.zwischensumme)}${summe(u.versandLabel, u.versand)}${summe("Gesamtpreis", u.gesamt, true)}</table>`;
+}
+
+export function htmlNeueBestellungOderAnfrage(art: "Bestellung" | "Anfrage", nummer: string, adminUrl?: string, uebersicht?: BestellUebersicht | null): string {
   const bestellung = art === "Bestellung";
   return alexMailHtml({
     titel: bestellung ? "Neue bezahlte Bestellung" : "Neue Anfrage",
     vorschau: `${bestellung ? "Neue bezahlte Bestellung" : "Neue Anfrage"}: ${nummer}`,
     zeilen: [{ label: bestellung ? "Bestellung" : "Anfrage", wert: nummer, fett: true }],
+    ...(uebersicht ? { extra: uebersichtHtml(uebersicht) } : {}),
     ...(adminUrl
       ? { button: { url: adminUrl, label: "Details im Admin Panel" } }
       : { lead: `Details im Admin Panel: 3D-Druck → ${bestellung ? "Bestellungen" : "Anfragen"}.` }),

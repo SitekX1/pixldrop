@@ -63,3 +63,21 @@ test("Notifier.mailAlex: sendet multipart (text + html) mit Logo-CID; ohne html 
   assert.equal(gesendet[1].attachments, undefined);
   assert.equal(gesendet[1].replyTo, "k@example.de");
 });
+
+test("Alex-Bestellmail: Positionen, Optionen, Wunschtext (escaped), Versand und Summe; ohne Kundendaten", () => {
+  const m = alexMail("Bestellung", "PD-9", "https://admin.example/shop", {
+    positionen: [
+      { name: "Bubble-Buchstaben", menge: 1, einzelpreis_cent: 1490, farbe: "Rosa", text: boese, optionen: { Höhe: "10 cm" } },
+      { name: "Wandbuchstaben", menge: 2, einzelpreis_cent: 850, optionen: { Schrift: "Rundschrift", Oberfläche: "Glatt", Dicke: "10 mm" } },
+    ],
+    summe_waren_cent: 3190, versand_cent: 490, versandart: "dhl", gesamt_cent: 3680,
+  });
+  assert.ok(!m.html.includes("<script>") && m.html.includes("&lt;script&gt;"));
+  for (const x of ["Bubble-Buchstaben", "Farbe: Rosa", "Höhe: 10 cm", "2 × Wandbuchstaben", "Oberfläche: Glatt", "Dicke: 10 mm", "Versand (Deutschland", "Gesamtpreis"]) {
+    assert.ok(m.html.includes(x), x);
+  }
+  assert.ok(m.text.includes("2 x Wandbuchstaben") && m.text.includes("Gesamtpreis:") && m.text.includes("Versand (Deutschland"));
+  assert.ok(!/Erika|Anschrift:|@example/.test(m.html + m.text));
+  const ohne = alexMail("Bestellung", "PD-9");
+  assert.ok(!ohne.html.includes("Gesamtpreis") && !ohne.text.includes("Positionen:"));
+});

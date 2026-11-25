@@ -437,7 +437,17 @@ async function nachBezahlt(
     if (freigabe === "offen") {
       gesendet = await benachrichtigeAlexFreigabe(deps, id, nummer, "neu");
     } else {
-      const mail = alexMail("Bestellung", nummer, deps.env.adminUrl);
+      // Positionen/Preise/Versand fuer die Alex-Mail aus derselben Quelle wie die Kundenbestaetigung (nur diese Felder, keine Kundendaten).
+      // Fehler/ok=false: Mail wie bisher nur mit Nummer + Link.
+      let uebersicht: Parameters<typeof alexMail>[3] = null;
+      try {
+        const d = await deps.db.rpc<Record<string, unknown> & { ok: boolean }>("shop_bestellung_mail_daten", { p_id: id });
+        if (d.ok && Array.isArray(d.positionen)) {
+          const { positionen, summe_waren_cent, versand_cent, versandart, gesamt_cent } = d as unknown as NonNullable<Parameters<typeof alexMail>[3]>;
+          uebersicht = { positionen, summe_waren_cent, versand_cent, versandart, gesamt_cent };
+        }
+      } catch { /* Mail ohne Uebersicht */ }
+      const mail = alexMail("Bestellung", nummer, deps.env.adminUrl, uebersicht);
       const t = await deps.notifier.telegram(telegramBestellung(nummer));
       const m = await deps.notifier.mailAlex(mail.betreff, mail.text, undefined, mail.html);
       gesendet = t || m;

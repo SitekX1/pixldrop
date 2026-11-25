@@ -71,7 +71,14 @@ export function baueBeispiele(SITE = "https://pixldrop.de"): Beispielmail[] {
     `${SITE}/3d-druck/angebot/AbCdEfGhIjKlMnOpQrStUvWxYz0123456789`, SITE));
 
   // intern an Alex
-  alex("20-alex-neue-bestellung", alexMail("Bestellung", b.nummer, "https://example.invalid/admin"));
+  const alexB: MailBestellung = {
+    ...b, gesamt_cent: 3680, summe_waren_cent: 3190, versand_cent: 490, versandart: "dhl",
+    positionen: [
+      { name: "Bubble-Buchstaben", menge: 1, einzelpreis_cent: 1490, farbe: "Rosa, Weiß, Mint", text: "ERIKA <3 & Co", optionen: { Höhe: "10 cm" } },
+      { name: "Wandbuchstaben", menge: 2, einzelpreis_cent: 850, farbe: "Weiß", text: "Hallo\nWelt", optionen: { Schrift: "Rundschrift", Höhe: "15 cm", Oberfläche: "Glatt", Dicke: "10 mm" } },
+    ],
+  };
+  alex("20-alex-neue-bestellung", alexMail("Bestellung", b.nummer, "https://example.invalid/admin", alexB));
   alex("21-alex-widerruf", alexMailWiderruf("WD-2026-0003", b.nummer, "passt", true, "https://example.invalid/admin"));
   alex("22-alex-erstattung-offen", alexMailErstattungOffen(b.nummer));
   alex("23-alex-freigabe", alexMailFreigabe(b.nummer, { ok: `${SITE}/3d-druck/freigabe/ok-token`, nein: `${SITE}/3d-druck/freigabe/nein-token` }, "neu", [], {
