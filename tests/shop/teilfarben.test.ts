@@ -11,7 +11,7 @@ const farben = [
   { id: "orange", name: "Orange", hex: "#f57c1a" },
   { id: "gruen", name: "Grün", hex: "#2f6b2a" },
 ];
-const laterne = holeProdukt("kuerbis-laterne")!;
+const laterne = PRODUKTE.find((p) => p.slug === "kuerbis-laterne")!;
 const ctx: Kontext = { produkte: PRODUKTE.map((p) => ({ ...p, preisCent: 1290 })), farben, bestellbar: () => true };
 const opt = {};
 

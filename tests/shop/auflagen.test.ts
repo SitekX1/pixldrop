@@ -15,7 +15,7 @@ const ctxZweiFarben = {
   ipHash: ctx.ipHash,
   kontext: kontext({ farben: [{ id: "schwarz", name: "Schwarz", hex: "#1c1c1c" }, { id: "weiss", name: "Weiß", hex: "#f4f1ea" }] }),
 };
-const wh = (extra: Record<string, unknown>, wert = "29.90") =>
+const wh = (extra: Record<string, unknown>, wert = "30.99") =>
   JSON.stringify({ event_type: "PAYMENT.CAPTURE.COMPLETED", resource: { id: "CAP-W1", status: "COMPLETED", amount: { value: wert, currency_code: "EUR" }, ...extra } });
 
 // ---------------------------------------------------------------- Routen
@@ -187,7 +187,7 @@ test("Bestaetigungsmail: bei freigegebenen Pflichtangaben nie mit Platzhalter", 
   assert.ok(echt.includes("Echter Rechtstext") && !echt.includes("PLATZHALTER"));
   assert.ok(echt.includes("ALLGEMEINE GESCHÄFTSBEDINGUNGEN") && echt.includes("Echte AGB"));
   assert.ok(!/PLATZHALTER/i.test(AGB_TEXT), "AGB-Text ist platzhalterfrei");
-  assert.ok(AGB_TEXT.includes("Stand: 19. November 2026") && !AGB_TEXT.includes("**"), "Stand gesetzt, Klartext ohne Fett-Markierung");
+  assert.ok(AGB_TEXT.includes("Stand: 23. November 2026") && !AGB_TEXT.includes("**"), "Stand gesetzt, Klartext ohne Fett-Markierung");
   assert.ok(AGB_TEXT.includes(LIEFERZEIT_TEXT ?? "\0") && AGB_TEXT.includes(formatPreis(VERSAND_PREISE.hermes.klein.cent)) && AGB_TEXT.includes(formatPreis(VERSAND_BRIEF.maxibrief.cent)), "Lieferzeit (config.ts) und Versandkosten (versand.ts) kommen aus den Konstanten");
 });
 

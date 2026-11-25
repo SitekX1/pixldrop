@@ -12,10 +12,10 @@ const pos = (o: Record<string, string> = {}, extra: Record<string, unknown> = {}
   optionen: { hoehe: "h3", zeichen: "a", oberflaeche: "glatt", farbkombi: "weiss", ...o }, ...extra,
 });
 
-test("Bubble: 39 Zeichen, 6 Höhen, 24 Farben", () => {
+test("Bubble: 39 Zeichen, 6 Höhen, 23 Farben", () => {
   assert.equal(p.optionen.find((g) => g.id === "zeichen")!.optionen.length, 39);
   assert.equal(p.optionen.find((g) => g.id === "hoehe")!.optionen.length, 6);
-  assert.equal(p.kombinationen!.length, 24);
+  assert.equal(p.kombinationen!.length, 23);
 });
 test("Bubble: Preise je Höhe wie Etsy, Oberfläche kostet nichts extra", () => {
   const erw = { h3: 109, h5: 250, h8: 350, h10: 450, h12: 550, h15: 750 };

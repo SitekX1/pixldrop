@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 // ausschließlich "bot ja/nein" und eine grobe Geräteklasse. Keine IP, kein voller User-Agent.
 const BOT = /bot|crawl|spider|slurp|headless|phantom|puppeteer|playwright|selenium|lighthouse|preview|facebookexternalhit|curl|wget|python|node-fetch|axios|go-http|java\//i;
 
-export function klassifiziere(ua: string): { bot: boolean; geraet: string } {
+function klassifiziere(ua: string): { bot: boolean; geraet: string } {
   const u = ua || "";
   const bot = u.length === 0 || BOT.test(u);
   const geraet = /ipad|tablet/i.test(u) ? "tablet" : /mobi|android|iphone/i.test(u) ? "handy" : "desktop";
