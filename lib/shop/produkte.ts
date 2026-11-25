@@ -176,13 +176,13 @@ export const PRODUKTE: Produkt[] = [
   },
   {
     // Wandbuchstaben (Alex 23.11.2026): Preis je Zeichen aus der Konfiguration (lib/shop/wand.ts), die Position kommt über roh.wand in den Warenkorb.
-    // entwurf = im Live-Shop (VERCEL_ENV=production) unsichtbar und nicht bestellbar, bis Alex den Livegang freigibt: Flag dann entfernen.
+    // Livegang freigegeben (Alex 25.11.2026): kein entwurf-Flag mehr.
     slug: "wandbuchstaben",
     name: "Wandbuchstaben",
-    kurz: "Dein Wort in einzeln gedruckten Buchstaben für die Wand. 12 Schriften, 4 Höhen, Preis je Zeichen.",
+    kurz: "Dein Wort in einzeln gedruckten Buchstaben für die Wand. 6 Schriften, 4 Höhen, Preis je Zeichen.",
     beschreibung: "Dein Wort in einzeln gedruckten Buchstaben für die Wand. Schrift, Höhe, Farbe und Oberfläche wählst du im Konfigurator.",
     gruppe: "allgemein", kategorien: ["sonstiges"], form: "schild", grundfarbe: "#1a1a1a",
-    preisCent: 258, masse: null, material: MATERIAL, entwurf: true,
+    preisCent: 258, masse: null, material: MATERIAL,
     optionen: [],
     personalisierung: null,
     hinweise: ["Individuell nach deinen Angaben gefertigt, vom Widerruf ausgenommen (§ 312g Abs. 2 Nr. 1 BGB).", "Befestigungsmaterial (z. B. Klebepad) liegt nicht bei. Prüfe vor dem Anbringen Wandfläche und Tragfähigkeit.", "Kein Spielzeug. Kleine Buchstaben (5 cm) sind Kleinteile mit Verschluckungsgefahr: von Kleinkindern fernhalten."],

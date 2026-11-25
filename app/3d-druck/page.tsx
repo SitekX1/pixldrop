@@ -53,7 +53,7 @@ export default async function ShopUebersicht() {
 
   const bereiche: { id: BereichId; label: string; sub: string; bild?: string }[] = [
     { id: "bubble", label: "Buchstaben", sub: "Bubble", bild: cover("bubble-buchstabe") },
-    { id: "wand", label: "Wandtexte", sub: "Bald verfügbar", bild: "/shop/inspiration/wand-kachel.webp" },
+    { id: "wand", label: "Wandtexte", sub: "Nach Maß", bild: "/shop/inspiration/wand-kachel.webp" },
     ...(zeigeTechnik ? [{ id: "technik" as const, label: "Technik", sub: "Bald", bild: "/shop/inspiration/led-kachel.webp" }] : []),
     ...(zeigeWn ? [{ id: "weihnachten" as const, label: "Weihnachten", sub: aktionLaeuft ? "Aktion" : "Advent", bild: cover("weihnachtskugel") }] : []),
     { id: "lieblinge", label: "Lieblingsstücke", sub: "Spaß & Besonderes", bild: cover("wochentags-untersetzer-set") },
@@ -148,17 +148,17 @@ export default async function ShopUebersicht() {
           )}
         </section>
 
-        {/* 2. Moderne Wandbuchstaben (noch nicht bestellbar) */}
+        {/* 2. Moderne Wandbuchstaben */}
         <section id="wand" className="sx-sec" aria-labelledby="h-wand">
           <div className="sx-hd"><h2 id="h-wand">{BEREICH_NAME.wand}</h2></div>
           <div className="sx-bald">
             <div>
-              <span className="sx-pill">Bald verfügbar</span>
+              <span className="sx-pill">Neu</span>
               <h3>Dein Wort in Schrift an der Wand</h3>
-              <p>Wandtexte und Namen in eleganten Schriften, nach Maß gedruckt. Probiere dein Wort an der Wand aus und schick mir deinen Entwurf als Anfrage. Bestellen geht noch nicht, du bekommst ein Angebot per E-Mail.</p>
+              <p>Wandtexte und Namen in eleganten Schriften, nach Maß gedruckt. Probiere dein Wort an der Wand aus, sieh den Preis sofort und bestelle direkt. Jeder Buchstabe wird einzeln für dich gedruckt.</p>
             </div>
             {bestellungPausiert ? (
-              <div><span className="sx-btn sx-btn--aus" role="link" aria-disabled="true">Anfrage</span><p className="sx-klein">Vorübergehend pausiert</p></div>
+              <div><span className="sx-btn sx-btn--aus" role="link" aria-disabled="true">Bestellen</span><p className="sx-klein">Vorübergehend pausiert</p></div>
             ) : (
               <Link className="sx-btn" href="/3d-druck/wandbuchstaben">Konfigurator</Link>
             )}
