@@ -18,18 +18,18 @@ const ctx = (extra: Partial<Kontext> = {}): Kontext => ({
 const K = "schwarz-tuerkis-weiss";
 const pos = (extra: Record<string, unknown> = {}) => ({ slug: "stiftebecher-tasse", menge: 2, farbeId: "schwarz", ...extra });
 
-test("Preis wird serverseitig berechnet: 2 x 12,90 + 5,19 Versand (Hermes Päckchen)", () => {
+test("Preis wird serverseitig berechnet: 2 x 12,90 + 5,10 Versand (Hermes Päckchen)", () => {
   const r = berechneWarenkorb([pos()], ctx());
   assert.ok(r.ok);
   assert.equal(r.wert.summeWarenCent, 2580);
-  assert.equal(r.wert.gesamtCent, 3099);
+  assert.equal(r.wert.gesamtCent, 3090);
   assert.equal(r.wert.positionen[0].einzelpreisCent, 1290);
 });
 
 test("Vom Client gesendete Preise werden ignoriert", () => {
   const r = berechneWarenkorb([pos({ einzelpreisCent: 1, preisCent: 1, preis: 0.01, gesamt: 1 })], ctx());
   assert.ok(r.ok);
-  assert.equal(r.wert.gesamtCent, 3099);
+  assert.equal(r.wert.gesamtCent, 3090);
 });
 
 test("Artikel ohne Preis (Preis folgt) ist nicht bestellbar", () => {
@@ -55,10 +55,10 @@ test("Server rechnet den Versand aus der Versandart, nicht vom Client", () => {
   const h = berechneWarenkorb([pos({ versandCent: 1, versand: 0 })], ctx(), "hermes");
   const d = berechneWarenkorb([pos()], ctx(), "dhl");
   assert.ok(h.ok && d.ok);
-  assert.equal(h.wert.versandCent, 519); // 2 Tassen passen in ein Hermes Päckchen
+  assert.equal(h.wert.versandCent, 510); // 2 Tassen passen in ein Hermes Päckchen
   assert.equal(h.wert.versandart, "hermes");
-  assert.equal(d.wert.versandCent, 619);
-  assert.equal(d.wert.gesamtCent, 2580 + 619);
+  assert.equal(d.wert.versandCent, 610);
+  assert.equal(d.wert.gesamtCent, 2580 + 610);
 });
 
 test("Brief nur fuer flache Untersetzer ohne Box", () => {
@@ -195,7 +195,7 @@ test("Schriftfarbe: nur Lagerfarben, nicht gleich/aehnlich wie Grundfarbe, ohne 
   assert.ok(ok.ok);
   assert.equal(ok.wert.positionen[0].optionen["Schriftfarbe"], "Honiggold");
   assert.equal(ok.wert.individuell, false, "Schriftfarbe ist Variantenwahl: Standardtext bleibt widerruflich");
-  assert.equal(ok.wert.gesamtCent, 1290 + 519, "kein Preisaufschlag");
+  assert.equal(ok.wert.gesamtCent, 1290 + 510, "kein Preisaufschlag");
   const gleich = berechneWarenkorb([{ ...basis, optionen: { textfarbe: "schwarz" } }], ctx());
   assert.ok(!gleich.ok && gleich.fehler.code === "textfarbe_ungueltig", "gleiche Farbe wie Grundfarbe");
   const fremd = berechneWarenkorb([{ ...basis, optionen: { textfarbe: "neon-pink" } }], ctx());
@@ -438,8 +438,8 @@ test("Design-Kuerbis: Groesse + feste Farbpalette fuer Kuerbis und Strunk getren
   const mittel = berechneWarenkorb([o("mittel", "weiss", "olivgruen")], ctx({ produkte: PRODUKTE }));
   assert.ok(klein.ok && mittel.ok);
   if (klein.ok && mittel.ok) {
-    assert.equal(klein.wert.gesamtCent, 490 + 519, "4,90 + Versand");
-    assert.equal(mittel.wert.gesamtCent, 890 + 519, "8,90 + Versand");
+    assert.equal(klein.wert.gesamtCent, 490 + 510, "4,90 + Versand");
+    assert.equal(mittel.wert.gesamtCent, 890 + 510, "8,90 + Versand");
     assert.equal(klein.wert.positionen[0].optionen["Strunk"], "Lattebraun");
   }
   assert.ok(!berechneWarenkorb([o("klein", "pink", "lattebraun")], ctx({ produkte: PRODUKTE })).ok, "fremde Farbe");

@@ -25,7 +25,7 @@ export interface VersandOption {
 
 /**
  * KUNDENPREISE in Cent je Stufe. 23.11.2026 (Alex): Versand zum offiziellen Preis weitergeben: kleinstes Paket mit Sendungsverfolgung Hermes 5,19 EUR, DHL 6,19 EUR.
- * Mittel/gross VORLAEUFIG: dieselben Aufschlaege wie vorher (+0,90 / +1,90 EUR auf klein), offizielle Preise von Alex noch zu bestaetigen.
+ * 26.11.2026 (Alex): Paketpreise einheitlich Hermes 5,10 EUR, DHL 6,10 EUR (alle Stufen); Brief bleibt unveraendert (guenstiger).
  * Frueher (Alex-Entscheidung 2026-10-12): Hermes ~ Selbstkosten + ca. 10 ct; DHL = Hermes + 1 EUR ("Premium").
  * Tatsaechliche Kosten fuer Alex: Hermes Paeckchen 3,99 / Paket S 4,89 / Paket M 5,90; DHL Paket 2 kg 6,19 / 5 kg 7,69
  * (Stand Januar 2026, vor Livegang auf hermes.de/dhl.de gegenpruefen). Den DHL-Zuschuss rechnet Karla in die Artikelpreise ein.
@@ -33,14 +33,14 @@ export interface VersandOption {
  */
 export const VERSAND_PREISE: Record<"hermes" | "dhl", Record<VersandStufe, { label: string; cent: number; tracking: boolean }>> = {
   hermes: {
-    klein: { label: "Hermes Päckchen", cent: 519, tracking: true }, //   lang + kurz <= 37 cm
-    mittel: { label: "Hermes Paket S", cent: 609, tracking: true }, //   <= 50 cm
-    gross: { label: "Hermes Paket M", cent: 709, tracking: true }, //    <= 80 cm
+    klein: { label: "Hermes Päckchen", cent: 510, tracking: true }, //   lang + kurz <= 37 cm
+    mittel: { label: "Hermes Paket S", cent: 510, tracking: true }, //   <= 50 cm
+    gross: { label: "Hermes Paket M", cent: 510, tracking: true }, //    <= 80 cm
   },
   dhl: {
-    klein: { label: "DHL Paket 2 kg", cent: 619, tracking: true }, //   bis 60 x 30 x 15 cm
-    mittel: { label: "DHL Paket 2 kg", cent: 709, tracking: true }, //  bis 60 x 30 x 15 cm
-    gross: { label: "DHL Paket 5 kg", cent: 809, tracking: true }, //   bis 120 x 60 x 60 cm (VORLAEUFIG)
+    klein: { label: "DHL Paket 2 kg", cent: 610, tracking: true }, //   bis 60 x 30 x 15 cm
+    mittel: { label: "DHL Paket 2 kg", cent: 610, tracking: true }, //  bis 60 x 30 x 15 cm
+    gross: { label: "DHL Paket 5 kg", cent: 610, tracking: true }, //   bis 120 x 60 x 60 cm
   },
 };
 
@@ -392,9 +392,10 @@ export function versandOptionenFuerKorb(positionen: readonly unknown[]): Versand
 export function versandPreisUebersicht(formatiere: (cent: number) => string): string {
   const ab = (a: "hermes" | "dhl") => Math.min(...STUFEN.map((s) => VERSAND_PREISE[a][s].cent));
   const bis = (a: "hermes" | "dhl") => Math.max(...STUFEN.map((s) => VERSAND_PREISE[a][s].cent));
+  const bereich = (a: "hermes" | "dhl") => (ab(a) === bis(a) ? formatiere(ab(a)) : `${formatiere(ab(a))} bis ${formatiere(bis(a))}`);
   return (
-    `Hermes ${formatiere(ab("hermes"))} bis ${formatiere(bis("hermes"))}, ` +
-    `DHL ${formatiere(ab("dhl"))} bis ${formatiere(bis("dhl"))}, ` +
+    `Hermes ${bereich("hermes")}, ` +
+    `DHL ${bereich("dhl")}, ` +
     `Großbrief ${formatiere(VERSAND_BRIEF.grossbrief.cent)} bzw. Maxibrief ${formatiere(VERSAND_BRIEF.maxibrief.cent)} (Deutsche Post)`
   );
 }
